@@ -1,0 +1,6 @@
+# .gitgnore
+
+# Ignore the following files
+
+__pycache__/
+*.pyc
