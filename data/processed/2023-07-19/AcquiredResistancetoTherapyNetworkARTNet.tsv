@@ -1,32 +1,4 @@
 project_num	core_project_num	appl_id	fiscal_year	project_title	abstract_text	pref_terms	org_name	org_city	org_state	org_country	principal_investigators	program_officers	award_amount	agency_ic_fundings	award_notice_date	project_start_date	project_end_date	full_foa	api_source_search
-1U54CA274329-01	U54CA274329	10518243	2022	Pancreatic Cancer ARTNet Center	"Abstract
-Pancreatic cancer patients show an extremely poor prognosis, which is at least in part due to poor response to
-the current standard-of-care chemotherapies. While pancreatic tumors present an inadequate response to
-chemotherapy, exposure to chemotherapy leads to development of acquired resistance. The response and
-resistance to chemotherapies are modulated by signaling and metabolic alterations in tumor cells and companion
-changes in the immune and non-immune stroma. Major advances in (a) understanding signaling responses of
-cancer cells and stroma to therapy, (b) understanding metabolic adaptations to signaling and environmental
-stressors, (c) development of novel therapeutic combinations to improve long-term response to current
-standards-of-care chemotherapies, and (d) coordinating research/translation efforts by NCI leadership, will
-provide unparalleled advances in targeting/preventing acquired therapy resistance. The ARTNet Center for
-Pancreatic Cancer (ACPC) intends to achieve these objectives through an integrated research theme that
-combined investigations into the metabolic and signaling mediators of acquired resistance in tumor cells and
-stromal remodeling in pancreatic cancer will lead to novel effective therapies to improve the patient prognosis.
-Research within ACPC will be fostered through sound guidance from leadership, IAC, EAC, ARTNet network
-and NCI program. The overall goal of the Center is to study innovative hypothesis-driven mechanisms of
-metabolic and signaling alterations in tumor cells and tumor-stromal metabolic crosstalk that contribute to
-acquired therapy resistance in pancreatic ductal adenocarcinoma (PDAC). We hypothesize that our unique
-leadership team, outstanding expertise of project and core leaders, singular set of technological capabilities and
-resources, operational design, and strong institutional support of the ACPC will drive transformative advances
-in the acquired therapy resistance field that will be in alignment with the other ARTNet members and NCI’s
-mission for the program. Providing novel insights into the mechanistic aspects of the signaling and metabolic
-mechanisms, the proposed basic and translational studies will ultimately drive the development of novel
-therapeutic combinations that can change the clinical course of cancer therapy. This will be achieved through
-the following Specific Aims: Aim 1. Investigate novel mechanisms of acquired resistance at the interface of tumor-
-stromal metabolic cross talk and examine the preclinical efficacy of identified targets to improve the therapeutic
-response against pancreatic cancer. Aim 2. Provide robust and innovative toolsets and resources to investigate
-and validated mechanisms of acquired therapy resistance. Aim 3. Facilitate a systems-level mechanistic
-understanding of acquired therapy resistance mechanisms."	Advisory Committees;Biological Assay;Blood Circulation;CRISPR/Cas technology;Cancer Center;Cancer Patient;Caring;Cells;Clinic;Clinical;Clinical Trials;Collaborations;Combined Modality Therapy;Companions;Data;Development;Disease;Educational workshop;Epigenetic Process;Exposure to;Fostering;Goals;Growth;Immune;Intercellular Fluid;Investigation;Knowledge;Leadership;Libraries;Malignant neoplasm of pancreas;Mediating;Mediator of activation protein;Metabolic;Methods;Mission;Modification;National Cancer Institute;Outcome;Paclitaxel;Pancreatic Ductal Adenocarcinoma;Patients;Primary Neoplasm;Prognosis;Proteins;Recording of previous events;Research;Resistance;Resource Sharing;Resources;Role;Sampling;Science;Scientist;Signal Transduction;Site;Stromal Cells;Stromal Neoplasm;System;Therapeutic;Translational Research;Validation;Work;base;cancer cell;cancer therapy;cell stroma;chemotherapy;data management;design;effective therapy;environmental stressor;exosome;improved;innovation;insight;lectures;lipidomics;meetings;member;metabolic phenotype;metabolomics;neoplastic cell;novel;novel therapeutics;pancreatic cancer patients;pancreatic neoplasm;patient prognosis;preclinical efficacy;prevent;programs;resistance mechanism;response;single-cell RNA sequencing;skills;sound;stable isotope;standard of care;survival outcome;symposium;targeted treatment;therapy resistant;tissue resource;tool;translational study;treatment response;tumor metabolism;web site	UNIVERSITY OF OKLAHOMA HLTH SCIENCES CTR	OKLAHOMA CITY	OK	UNITED STATES	Pankaj Kumar Singh	Tapan K Bera	1284334	1284334	2022-09-20T12:09:00Z	2022-09-20T12:09:00Z	2027-08-31T12:08:00Z	RFA-CA-21-052	nofo_RFA-CA-21-052
 1U54CA274220-01	U54CA274220	10517140	2022	Acquired Resistance to Therapy and Iron (ARTI) Center	"Overall Summary
 Approximately 50% of cancer patients are treated with radiation therapy (RT), but local recurrence can still occur
 even with the use of advanced RT techniques. This local recurrence, which commonly develops in 30-50% of
@@ -57,6 +29,34 @@ tracers for identifying activated innate immune cells. The ARTI Center will deve
 effective communication and collaboration between the ARTI Center Project and Core Leaders and Co-Leaders
 with National Cancer Institute (NCI) of Acquired Resistance to Therapy Network (ARTNet) program staff as well
 as other ARTNet centers to synergize ARTI Center-related activities."	Achievement;Advisory Committees;Basic Science;Cancer Center;Cancer Patient;Cancer cell line;Cell Death;Cells;Clinical;Clinical Trials;Cloning;Collaborations;Communication;Cystine;Data;Development;Disease;Drug resistance;Esophageal Adenocarcinoma;Failure;Family;Feedback;Fostering;Foundations;Future;Genes;Genomics;Goals;Grant;Guidelines;Human;Hypoxia;Hypoxia Inducible Factor;Image;Imaging Device;Immune;Immunologics;Immunotherapy;Infrastructure;Iron;Lead;Malignant Neoplasms;Malignant neoplasm of esophagus;Malignant neoplasm of lung;Malignant neoplasm of thorax;Mediating;Medical;Modality;Modeling;Monitor;Mus;National Cancer Institute;Nature;Non-Small-Cell Lung Carcinoma;Operative Surgical Procedures;Outcome;Oxidation-Reduction;Patient-Focused Outcomes;Patients;Play;Policies;Positron-Emission Tomography;Pre-Clinical Model;Production;Prognostic Marker;Radiation;Radiation Oncology;Radiation therapy;Radiation-Sensitizing Agents;Reagent;Recurrence;Reporter;Research;Research Project Grants;Resistance;Resource Sharing;Resources;Risk;Role;Sampling;Techniques;Testing;Therapeutic;Therapeutic Agents;Tracer;Transfection;Transgenic Organisms;Translating;Translational Research;Tumor Suppression;University of Texas M D Anderson Cancer Center;Xenograft Model;activating transcription factor 4;bioluminescence imaging;cancer cell;cancer imaging;cancer therapy;cancer type;chemoradiation;clinically significant;cohort;drug sensitivity;effective therapy;hormone therapy;hypoxia inducible factor 1;imaging program;improved;individual patient;member;molecular imaging;multidisciplinary;novel;novel therapeutic intervention;novel therapeutics;pre-clinical;programs;radiation resistance;radioresistant;single cell analysis;single cell sequencing;solute;stable cell line;targeted treatment;therapy resistant;treatment strategy;tumor;tumor growth;tumor hypoxia;tumor microenvironment	UNIVERSITY OF TX MD ANDERSON CAN CTR	HOUSTON	TX	UNITED STATES	Boyi Gan, Albert Koong	Mihoko Kai	1356890	1356890	2022-09-20T12:09:00Z	2022-09-20T12:09:00Z	2027-08-31T12:08:00Z	RFA-CA-21-052	nofo_RFA-CA-21-052
+1U54CA274329-01	U54CA274329	10518243	2022	Pancreatic Cancer ARTNet Center	"Abstract
+Pancreatic cancer patients show an extremely poor prognosis, which is at least in part due to poor response to
+the current standard-of-care chemotherapies. While pancreatic tumors present an inadequate response to
+chemotherapy, exposure to chemotherapy leads to development of acquired resistance. The response and
+resistance to chemotherapies are modulated by signaling and metabolic alterations in tumor cells and companion
+changes in the immune and non-immune stroma. Major advances in (a) understanding signaling responses of
+cancer cells and stroma to therapy, (b) understanding metabolic adaptations to signaling and environmental
+stressors, (c) development of novel therapeutic combinations to improve long-term response to current
+standards-of-care chemotherapies, and (d) coordinating research/translation efforts by NCI leadership, will
+provide unparalleled advances in targeting/preventing acquired therapy resistance. The ARTNet Center for
+Pancreatic Cancer (ACPC) intends to achieve these objectives through an integrated research theme that
+combined investigations into the metabolic and signaling mediators of acquired resistance in tumor cells and
+stromal remodeling in pancreatic cancer will lead to novel effective therapies to improve the patient prognosis.
+Research within ACPC will be fostered through sound guidance from leadership, IAC, EAC, ARTNet network
+and NCI program. The overall goal of the Center is to study innovative hypothesis-driven mechanisms of
+metabolic and signaling alterations in tumor cells and tumor-stromal metabolic crosstalk that contribute to
+acquired therapy resistance in pancreatic ductal adenocarcinoma (PDAC). We hypothesize that our unique
+leadership team, outstanding expertise of project and core leaders, singular set of technological capabilities and
+resources, operational design, and strong institutional support of the ACPC will drive transformative advances
+in the acquired therapy resistance field that will be in alignment with the other ARTNet members and NCI’s
+mission for the program. Providing novel insights into the mechanistic aspects of the signaling and metabolic
+mechanisms, the proposed basic and translational studies will ultimately drive the development of novel
+therapeutic combinations that can change the clinical course of cancer therapy. This will be achieved through
+the following Specific Aims: Aim 1. Investigate novel mechanisms of acquired resistance at the interface of tumor-
+stromal metabolic cross talk and examine the preclinical efficacy of identified targets to improve the therapeutic
+response against pancreatic cancer. Aim 2. Provide robust and innovative toolsets and resources to investigate
+and validated mechanisms of acquired therapy resistance. Aim 3. Facilitate a systems-level mechanistic
+understanding of acquired therapy resistance mechanisms."	Advisory Committees;Biological Assay;Blood Circulation;CRISPR/Cas technology;Cancer Center;Cancer Patient;Caring;Cells;Clinic;Clinical;Clinical Trials;Collaborations;Combined Modality Therapy;Companions;Data;Development;Disease;Educational workshop;Epigenetic Process;Exposure to;Fostering;Goals;Growth;Immune;Intercellular Fluid;Investigation;Knowledge;Leadership;Libraries;Malignant neoplasm of pancreas;Mediating;Mediator of activation protein;Metabolic;Methods;Mission;Modification;National Cancer Institute;Outcome;Paclitaxel;Pancreatic Ductal Adenocarcinoma;Patients;Primary Neoplasm;Prognosis;Proteins;Recording of previous events;Research;Resistance;Resource Sharing;Resources;Role;Sampling;Science;Scientist;Signal Transduction;Site;Stromal Cells;Stromal Neoplasm;System;Therapeutic;Translational Research;Validation;Work;base;cancer cell;cancer therapy;cell stroma;chemotherapy;data management;design;effective therapy;environmental stressor;exosome;improved;innovation;insight;lectures;lipidomics;meetings;member;metabolic phenotype;metabolomics;neoplastic cell;novel;novel therapeutics;pancreatic cancer patients;pancreatic neoplasm;patient prognosis;preclinical efficacy;prevent;programs;resistance mechanism;response;single-cell RNA sequencing;skills;sound;stable isotope;standard of care;survival outcome;symposium;targeted treatment;therapy resistant;tissue resource;tool;translational study;treatment response;tumor metabolism;web site	UNIVERSITY OF OKLAHOMA HLTH SCIENCES CTR	OKLAHOMA CITY	OK	UNITED STATES	Pankaj Kumar Singh	Tapan K Bera	1284334	1284334	2022-09-20T12:09:00Z	2022-09-20T12:09:00Z	2027-08-31T12:08:00Z	RFA-CA-21-052	nofo_RFA-CA-21-052
 2U54CA224019-05	U54CA224019	10517757	2022	Architecture and Trajectory of Acquired Resistance to Therapy in AML	"PROJECT SUMMARY: Overall
 The long-term goal of this Program is to define mechanisms of acquired drug resistance in acute myeloid
 leukemia (AML) so that novel drug combinations can be deployed to prevent disease relapse and improve patient

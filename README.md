@@ -11,6 +11,7 @@ Welcome to the INS-Data repository for the [Index of NCI Studies (INS)](https://
 ## Introduction
 
 The INS-Data repository workflow follows the general outline below:  
+
 1. **Process Qualtrics CSV**
     - Receive curated CSV of Key Programs from the NCI Office of Data Sharing (ODS). This CSV is an export of survey results from the Qualtrics survey tool. Each Key Program in this export includes Notices of Funding Opportunities (NOFOs) and/or Grant IDs (in long or short form).
     - Save cleaned Key Programs CSV for reference and downstream use
@@ -65,13 +66,19 @@ INS-Data
 │       │   ├── KeyProgramName01.tsv
 │       │   ├── KeyProgramName02.tsv
 │       │   └── ...other grant data TSVs for each Key Program
-│       └── ...other versions
+│       └── ... other versions
 ├── modules/
 │   ├── clean_grants_data.py
 │   ├── data_preparation.py
 │   └── nih_reporter_api.py
 ├── notebooks/
-│   └── Non-production Jupyter notebooks used to test development
+│   └── Non-production Jupyter notebooks during development
+├── reports/
+│   └── {version}/
+│       ├── allGrantsData.csv
+│       ├── programSummaryStats.csv
+│       ├── sharedProjects.csv
+│       └── ... additional reports as needed
 ├── config.py
 └── main.py
 ```

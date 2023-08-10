@@ -21,6 +21,7 @@ QUALTRICS_TYPE = "manual_fix" # <-- Define "raw" or "manual_fix" type of the inp
 QUALTRICS_CSV_PATH = "data/raw/qualtrics_output_" + QUALTRICS_VERSION +"_"+ QUALTRICS_TYPE + ".csv"
 CLEANED_KEY_PROGRAMS_CSV = "data/cleaned/key_programs_" + QUALTRICS_VERSION + ".csv"
 PROCESSED_DIR = "data/processed/" + QUALTRICS_VERSION
+REPORTS_DIR = "reports/" + QUALTRICS_VERSION
 
 # ---
 # DATA LOADING CONFIGURATION

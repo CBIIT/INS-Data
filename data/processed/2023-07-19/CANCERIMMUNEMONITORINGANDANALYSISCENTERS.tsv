@@ -1,4 +1,31 @@
 project_num	core_project_num	appl_id	fiscal_year	project_title	abstract_text	pref_terms	org_name	org_city	org_state	org_country	principal_investigators	program_officers	award_amount	agency_ic_fundings	award_notice_date	project_start_date	project_end_date	full_foa	api_source_search
+1U24CA224309-01	U24CA224309	9456826	2017	Immune Monitoring and Analysis of Cancer at Stanford (IMACS)	" 
+IMMUNE MONITORING AND ANALYSIS OF CANCER AT STANFORD (IMACS) 
+ 
+Abstract 
+The  Center  for  Immune  Monitoring  and  Analysis  of  Cancer  at  Stanford  (IMACS)  will  perform  highly 
+comprehensive assays of immune phenotype and function for NCI-­identified clinical trials.  These will include 
+standardized  assays  already  developed  on  CyTOF,  high-­dimensional  flow  cytometry,  Luminex,  TCRseq,  and 
+RNAseq  platforms.    As  part  of  the  program  we  will  also  standardize  and  offer  as  assays  Stanford-­invented 
+technologies under development, including Multiplexed Ion Beam Imaging (MIBI) and Assays of Transposon-­
+Accessible Chromatin (ATAC-­seq).  We have designed our center structure to work with investigators to define 
+the assays best suited to the immunological questions being posed, and match these with the required sample 
+types.  We will perform quality control measures on all assays, as well as generate a standard report for each 
+assay  and  project.    Data  will  be  organized  via  our  online  database,  Stanford  Data  Miner,  to  ensure  data 
+longevity and transferability, as well as access to both raw data files and analyzed results.  Finally, we will work 
+with investigators on novel bioinformatics approaches to mining these high-­dimensional data sets.  These will 
+include  approaches  designed  for  a  single  data  type  (e.g.,  viSNE  and  Citrus  for  CyTOF  and  flow  cytometry 
+data), as well as approaches for integrating data across assays, using appropriate machine learning algorithms 
+to aid NCI researchers in identifying immune hallmarks central to their trials. 
+ 
+Relevance:  The IMACS center will provide access to a suite of state-­of-­the-­art immune assays, many of them 
+developed  or  refined  at  Stanford.    This  unmatched  set  of  technologies  will  facilitate  the  discovery  of  new 
+biomarkers  for  predicting  cancer  outcome  or  therapeutic  response,  as  well  as  defining  potential  new 
+mechanisms of immune control of cancer. 
+ 
+ 
+ 
+ "	Adaptive Immune System;Algorithms;Alpha Cell;Archives;Bioinformatics;Biological Assay;Cancer Control;Cells;Chromatin;Citrus;Clinical;Clinical Trials;Complex;Custom;Data;Data Files;Data Set;Databases;Development;Disease;Ensure;Epigenetic Process;Flow Cytometry;Genomics;Health;Human;Image;Immune;Immunologic Monitoring;Immunologics;Immunology procedure;Informatics;Longevity;Machine Learning;Malignant Neoplasms;Measures;Methods;Mining;Multiplexed Ion Beam Imaging;Nature;Network-based;Outcome;Phenotype;Population;Quality Control;Reporting;Research;Research Personnel;Sampling;Specimen;Standardization;Structure;Technology;Tissues;Work;cancer clinical trial;cytokine;design;experience;high dimensionality;image reconstruction;innovation;interest;new technology;next generation;novel;operation;predictive marker;programs;response;transcriptome sequencing;treatment response	STANFORD UNIVERSITY	STANFORD	CA	UNITED STATES	Sean Curtis Bendall, Holden T. Maecker	Min-Kyung H Song	12560000	12560000	2017-09-25T12:09:00Z	2017-09-30T12:09:00Z	2023-06-30T12:06:00Z	RFA-CA-17-005	nofo_RFA-CA-17-005
 1U24CA224285-01	U24CA224285	9455402	2017	Translational Cancer Immune Monitoring and Analysis Center (TCIMAC)	"ABSTRACT
 Advances in immunotherapy have shown efficacy in various cancers. Immunotherapeutic approaches are
 becoming the new treatment modality in some cancer types. However, clinical efficacy is still limited to a
@@ -30,33 +57,6 @@ sponsored trials. In Aim 3, we will provide comprehensive biostatistics and comp
 collection and analysis for each analytical platform, and to perform analyses, interpretation and predictive
 modeling of high dimensional (`omic”) data in the context of clinical outcomes. We envision that the TCIMAC
 will be an indispensable element as we make meaningful progress in cancer immunotherapeutic approaches."	Affect;Antibodies;Basic Science;Bioinformatics;Biological;Biological Assay;Biological Markers;Biometry;Blood;Cancer Immunology Science;Cancer Patient;Cataloging;Catalogs;Categories;Cells;Clinical;Clinical Data;Clinical Sciences;Clinical Trials;Clinical Trials Network;Collection;Complex;Computer software;Data;Data Analyses;Data Collection;Data Quality;Databases;Development;Disease;Elements;Enrollment;Genomics;Goals;Health Services Accessibility;Immune;Immune response;Immunologic Markers;Immunologic Monitoring;Immunologics;Immunologist;Immunotherapeutic agent;Immunotherapy;Integration Host Factors;Intervention;Knowledge;Laboratories;Lateral;Lead;Link;Liquid substance;Malignant Neoplasms;Methodology;Minority;Modality;Molecular;Molecular Analysis;Molecular Profiling;Names;Non-Small-Cell Lung Carcinoma;Operative Surgical Procedures;Outcome;PDCD1LG1 gene;Pathologic;Pathologist;Patients;Phase;Phenotype;Procedures;Publishing;Quality Control;Reporting;Research;Research Infrastructure;Research Personnel;Resources;Sampling;Secure;Services;Shipping;Site;Specimen;Standardization;Surgeon;System;Technology;Testing;Therapeutic;Tissues;Translational Research;Tumor Tissue;Validation;base;biomarker identification;cancer immunotherapy;cancer type;candidate marker;clinical efficacy;clinically relevant;combat;data management;design;experimental study;genomic biomarker;genomic data;high dimensionality;improved;individual patient;innovation;malignant breast neoplasm;multidisciplinary;next generation;novel;operation;preclinical study;predictive marker;predictive modeling;prospective;quality assurance;responders and non-responders;response;response biomarker;sample collection;specific biomarkers;treatment response;tumor;tumor microenvironment;web services	UNIVERSITY OF TX MD ANDERSON CAN CTR	HOUSTON	TX	UNITED STATES	Gheath Al-Atrash, Cara L Haymaker, Ignacio I. Wistuba	Magdalena Thurin	11005230	11005230	2017-09-25T12:09:00Z	2017-09-30T12:09:00Z	2023-06-30T12:06:00Z	RFA-CA-17-005	nofo_RFA-CA-17-005
-1U24CA224309-01	U24CA224309	9456826	2017	Immune Monitoring and Analysis of Cancer at Stanford (IMACS)	" 
-IMMUNE MONITORING AND ANALYSIS OF CANCER AT STANFORD (IMACS) 
- 
-Abstract 
-The  Center  for  Immune  Monitoring  and  Analysis  of  Cancer  at  Stanford  (IMACS)  will  perform  highly 
-comprehensive assays of immune phenotype and function for NCI-­identified clinical trials.  These will include 
-standardized  assays  already  developed  on  CyTOF,  high-­dimensional  flow  cytometry,  Luminex,  TCRseq,  and 
-RNAseq  platforms.    As  part  of  the  program  we  will  also  standardize  and  offer  as  assays  Stanford-­invented 
-technologies under development, including Multiplexed Ion Beam Imaging (MIBI) and Assays of Transposon-­
-Accessible Chromatin (ATAC-­seq).  We have designed our center structure to work with investigators to define 
-the assays best suited to the immunological questions being posed, and match these with the required sample 
-types.  We will perform quality control measures on all assays, as well as generate a standard report for each 
-assay  and  project.    Data  will  be  organized  via  our  online  database,  Stanford  Data  Miner,  to  ensure  data 
-longevity and transferability, as well as access to both raw data files and analyzed results.  Finally, we will work 
-with investigators on novel bioinformatics approaches to mining these high-­dimensional data sets.  These will 
-include  approaches  designed  for  a  single  data  type  (e.g.,  viSNE  and  Citrus  for  CyTOF  and  flow  cytometry 
-data), as well as approaches for integrating data across assays, using appropriate machine learning algorithms 
-to aid NCI researchers in identifying immune hallmarks central to their trials. 
- 
-Relevance:  The IMACS center will provide access to a suite of state-­of-­the-­art immune assays, many of them 
-developed  or  refined  at  Stanford.    This  unmatched  set  of  technologies  will  facilitate  the  discovery  of  new 
-biomarkers  for  predicting  cancer  outcome  or  therapeutic  response,  as  well  as  defining  potential  new 
-mechanisms of immune control of cancer. 
- 
- 
- 
- "	Adaptive Immune System;Algorithms;Alpha Cell;Archives;Bioinformatics;Biological Assay;Cancer Control;Cells;Chromatin;Citrus;Clinical;Clinical Trials;Complex;Custom;Data;Data Files;Data Set;Databases;Development;Disease;Ensure;Epigenetic Process;Flow Cytometry;Genomics;Health;Human;Image;Immune;Immunologic Monitoring;Immunologics;Immunology procedure;Informatics;Longevity;Machine Learning;Malignant Neoplasms;Measures;Methods;Mining;Multiplexed Ion Beam Imaging;Nature;Network-based;Outcome;Phenotype;Population;Quality Control;Reporting;Research;Research Personnel;Sampling;Specimen;Standardization;Structure;Technology;Tissues;Work;cancer clinical trial;cytokine;design;experience;high dimensionality;image reconstruction;innovation;interest;new technology;next generation;novel;operation;predictive marker;programs;response;transcriptome sequencing;treatment response	STANFORD UNIVERSITY	STANFORD	CA	UNITED STATES	Sean Curtis Bendall, Holden T. Maecker	Min-Kyung H Song	12560000	12560000	2017-09-25T12:09:00Z	2017-09-30T12:09:00Z	2023-06-30T12:06:00Z	RFA-CA-17-005	nofo_RFA-CA-17-005
 1U24CA224331-01	U24CA224331	9457104	2017	Cancer Immune Monitoring and Analysis Center	"Summary
 The critical role of the immune system in effecting anti-tumor responses to traditional and molecularly-targeted
 therapies is increasingly recognized, such that there is now an explosion of activity in the clinical investigation
