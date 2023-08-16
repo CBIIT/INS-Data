@@ -1,0 +1,207 @@
+project_num	core_project_num	appl_id	fiscal_year	project_title	abstract_text	pref_terms	org_name	org_city	org_state	org_country	principal_investigators	program_officers	award_amount	agency_ic_fundings	award_notice_date	project_start_date	project_end_date	full_foa	api_source_search
+5U54CA268069-02	U54CA268069	10538588	2023	Center for Multiparametric Imaging of Tumor Immune Microenvironments	"This project proposes an integrated suite of microscopy and data analysis advances that would enable
+quantitative, mechanistic analysis of immune-microenvironment dynamics in poor prognosis solid tumors.
+While immunotherapies are showing remarkable clinical responses in some advanced cancers, to date, their
+impact on many solid tumors has been modest. This is due, in part, to solid tumor microenvironments limiting
+the effectiveness of natural immune responses and immunotherapies. Yet, our understanding of the physical
+and molecular mechanisms governing T cell infiltration, distribution, and function in native tumor
+microenvironments remains extremely limited. As such, defining key T cell behaviors as a function of complex
+tumor microenvironments will identify design criteria that can be used to develop novel cell engineering
+strategies that optimize T cell-centric therapies for solid tumors. To this end the research theme of the U54
+Center for Multiparametric Imaging of Tumor Immune Microenvironments (C-MITIE) is to define physical and
+molecular barriers to effective anti-tumor immunity and immunotherapies through advancement and
+development of state-of-the-art live cell and tissue optical imaging platforms and quantitative analyses. To
+achieve our goals, our framework brings together advanced optical imaging platforms, nano- and micro-
+fabrication, genome engineering, cancer immunology, and biophysical modeling. Thus, from this integrated
+effort we seek to define mechanisms of immune suppression that guide the development of next-generation
+cell-based immunotherapies."	Address;Advanced Malignant Neoplasm;Behavior;Biological Models;Cancer Biology;Cancer Patient;Cell physiology;Cells;Cellular immunotherapy;Clinical;Collaborations;Complex;Computer Analysis;Data;Data Analyses;Development;Dimensions;Effectiveness;Engineering;Environment;Extracellular Matrix;Fingerprint;Genetically Engineered Mouse;Genome engineering;Goals;Image;Imaging technology;Immune response;Immunosuppression;Immunotherapy;Infrastructure;Institution;Leadership;Malignant Neoplasms;Malignant neoplasm of brain;Malignant neoplasm of pancreas;Microfabrication;Microscopy;Modeling;Molecular;Oncology;Optics;Persons;Play;Prognosis;Publishing;Regimen;Research;Resolution;Seminal;Solid Neoplasm;Spectrum Analysis;Sum;T cell infiltration;T cell therapy;T-Lymphocyte;Technology;Testing;Time;Tissue imaging;Tissues;Tumor Immunity;Vision;Work;anti-tumor immune response;biophysical model;cancer imaging;cancer immunotherapy;cancer therapy;cell behavior;cellular engineering;cellular imaging;crosslink;data modeling;design;engineered T cells;experience;fluorescence lifetime imaging;imaging platform;immune checkpoint blockade;immune function;improved;instrumentation;meetings;member;migration;molecular imaging;multi-photon;multimodality;multiparametric imaging;multiphoton microscopy;nanofabrication;neoplasm immunotherapy;new technology;next generation;novel;optical imaging;response;technology development;tool;tumor;tumor immunology;tumor microenvironment;tumor-immune system interactions;virtual	UNIVERSITY OF MINNESOTA	MINNEAPOLIS	MN	UNITED STATES	Kevin William Eliceiri, Paolo Provenzano	Steven Becker	1471693	1471693	2023-02-08T12:02:00Z	2021-12-09T12:12:00Z	2026-11-30T12:11:00Z	RFA-CA-21-002	nofo_RFA-CA-21-002
+5U54CA268084-02	U54CA268084	10539321	2023	Northwestern University Center for Chromatin NanoImaging in Cancer (NU-CCNIC)	"Overall: PROJECT SUMMARY
+Cancer stem cells (CSCs) play a critical role in fostering tumor resistance to therapies and relapse after
+treatment. This presents a crucial barrier to the development of successful anti-cancer therapeutics.
+Transcriptional reprogramming and plasticity play a critical role in and out of the CSC state, which in turn are
+interdependent on the regulatory function of the three-dimensional (3D) structure of chromatin, epigenetic states,
+and other molecular events. Our understanding of fundamental CSC biology has been hampered by the need
+for cellular nanoscale imaging technologies that provide both highly detailed structural information regarding 3D
+chromatin organization and highly multiplexed molecular imaging of the many molecular regulators and events
+involved in CSC processes. We propose to establish the Northwestern University Center for Chromatin
+Nanoimaging in Cancer (NU-CCNIC) to address this fundamental technology gap in cellular nanoscale imaging
+and deploy the new technologies to address the fundamental knowledge gap in CSC biology. The Center
+converges experts in cellular nanoscale imaging, computational imaging, molecular modeling, computational
+genomics, CSC biology, and oncology. The Center will develop, test, validate, iterate, and deploy an integrated
+and co-registered Multi-scale Chromatin Nanoimaging Platform that will comprise three “nested-doll” imaging
+techniques: chromatin scanning transmission electron microscopy, optical spectroscopic super-resolution
+nanoscopy, and optical spectroscopic nanosensing. The Nanoimaging Platform will enable quantitative imaging
+of chromatin structure and highly multiplexed molecular and gene-specific localization, at the most fundamental
+length-scale approaching 1 nm resolution, including the imaging of statistically significant cell populations and
+live cells with high temporal resolution over prolonged temporal follow-up times. The Nanoimaging Platform will
+be bridged to computational genomics, epigenomics, genome mapping, and predictive transcriptional modeling
+datasets. These technologies will be deployed to answer several long-standing open questions in CSC biology.
+We will elucidate whether CSCs can originate from non-CSCs via transcriptional reprogramming, test the role of
+chromatin structure in fostering transcriptional plasticity in CSC processes, and explore the possibility of
+transcriptionally reprogramming CSCs to exit the stem-state as a new therapeutic strategy. All aspects of the
+technology development will be guided by the needs of the CSC biology testbed through a series of research
+feedback loops. In the long term, such single-cell nanoimaging technologies will help comprehensive
+understanding of the complex interplay between structural, physico-chemical, and molecular genomic events.
+We anticipate that these convergence studies will provide new insights into CSC biology, which are impossible
+to reveal with the use of any single method, and open new opportunities for identifying therapeutic strategies."	3-Dimensional;Address;Aftercare;Biological Assay;Cancer Biology;Cell Nucleus;Cell physiology;Cells;Chromatin;Chromatin Structure;Complex;Computing Methodologies;Cytotoxic Chemotherapy;DNA;Data;Data Set;Development;Diameter;Disease remission;Disparate;Electron Microscopy;Epigenetic Process;Event;Feedback;Fostering;Future;Genes;Genetic;Genetic Transcription;Genome Mappings;Genomics;Growth;Heterogeneity;Image;Imaging Techniques;Imaging technology;Knowledge;Label;Length;Link;Malignant Neoplasms;Methods;Microscopy;Mission;Molecular;Molecular Conformation;Molecular Target;Nanoscopy;Oncology;Optics;Pathway interactions;Pattern;Physics;Play;Population;Process;Relapse;Research;Resistance;Resistance development;Resolution;Role;Scanning;Series;Solid;Stem Cell Research;Techniques;Technology;Testing;Therapeutic;Time;Translating;Transmission Electron Microscopy;Universities;Vision;Visualization;anti-cancer therapeutic;anticancer research;cancer cell;cancer stem cell;cellular imaging;chemotherapy;data modeling;electron tomography;epigenomics;follow-up;frontier;imaging capabilities;imaging platform;insight;live cell microscopy;molecular imaging;molecular modeling;molecular scale;nanoimaging;nanoscale;nanosensors;new technology;novel therapeutic intervention;novel therapeutics;pressure;prevent;programs;quantitative imaging;single molecule;spatiotemporal;stem;stem cell biology;stressor;technology development;temporal measurement;therapeutically effective;therapy resistant;three dimensional structure;transcriptional reprogramming;tumor;tumor progression;ultra high resolution	NORTHWESTERN UNIVERSITY	Chicago	IL	UNITED STATES	Vadim Backman, Daniela E Matei, Hao F Zhang	Steven Becker	1625368	1625368	2022-11-29T12:11:00Z	2021-12-10T12:12:00Z	2026-11-30T12:11:00Z	RFA-CA-21-002	nofo_RFA-CA-21-002
+5U54CA268083-02	U54CA268083	10532377	2023	Center for 3D Imaging in Cancer Cell Biology	"Project Summary - Overall
+The mortality rates of breast and pancreatic cancers are intrinsically tied to metastasis. In pancreatic cancer, the
+5-year survival rate is only 9% and in ~70% pathological evaluations of the resected tumor, instances of venous
+invasion are found. Metastasis is a complex multi-step process involving cancer cells, local vasculature, and the
+surrounding microenvironment at multiple sites. Venous invasion in pancreatic cancer, in which cancer cells gain
+often invade the portal vein, is an early step in this process and provides the cells a direct path to the liver, the
+most common site of pancreatic cancer metastasis. As in pancreatic cancer, invasion past normal breast tissue
+barriers is critically tied to breast cancer outcomes. Most breast tumors can be surgically removed, and so
+mortality is closely tied to the extent of distant metastasis through lymphovascular invasion. The detection of
+lymphovascular invasion in a breast tumor correlates with poor prognosis and is not captured in current molecular
+analyses. The spatial organization of cancer cells, and cellular and stromal components of the tumor
+microenvironment near and far away from blood vessels is intrinsically three-dimensional, non-symmetric, and
+highly heterogeneous. In the TECH units of the Johns Hopkins Center for 3D Multiscale Cancer Imaging, we
+will develop a versatile 3D multiscale imaging method, CODA, which will allow us to probe the phenotypic
+heterogeneity of tumors from the multi-cm to the micron scale via multiplexing serial imaging. CODA can readily
+incorporate other imaging modalities to extract high cellular/molecular content from 3D samples. These include
+immunocytochemistry (CODA+IHC), immunofluorescence (CODA+IF), imaging mass cytometry (CODA+IMC)
+and spatial transcriptomics/proteomics (CODA+DBiT-seq). These proposed expanded versions of CODA offer
+a unique opportunity to produce new 3D multi-omic maps of human PDAC and breast tumors near and far from
+blood vessels. CODA and its integrated versions CODA+X will be tested in the RTB units of the Center in both
+human/mouse tissue samples and organoids, in breast and pancreatic cancer. Results from these test beds will
+provide novel mechanistic insights into venous invasion in breast and pancreatic cancer. Exploiting our extensive
+experience in data dissemination, we will make the large datasets and software produced by our CODA+X
+platforms and software widely available to the larger cancer research community. The units of the Center will be
+co-led by Johns Hopkins/Yale engineers, scientists and physicians. Substantial additional support will be
+provided by the Johns Hopkins U., the JH School of Medicine, the Institute for Convergence, the Department of
+Pathology, and the Whiting School of Engineering."	3-Dimensional;Address;Advisory Committees;Advocate;Beds;Biomedical Engineering;Blood Vessels;Cells;Cellular biology;Circulation;Communities;Complex;Computational algorithm;Computer software;Cytometry;Detection;Distant;Distant Metastasis;Engineering;Evaluation;Histologic;Human;Image;Imaging Device;Immunofluorescence Immunologic;Invaded;Label;Liver;Malignant - descriptor;Malignant neoplasm of pancreas;Mammary Gland Parenchyma;Mammary Neoplasms;Maps;Methods;Microanatomy;Microscopy;Molecular;Molecular Analysis;Morphology;Mus;Neoplasm Metastasis;Occupational activity of managing finances;Operative Surgical Procedures;Optics;Organoids;Outcome;Pathologic;Pathology;Patients;Phenotype;Physicians;Portal vein structure;Primary Neoplasm;Process;Prognosis;Proteomics;Resected;Resolution;Sampling;Schools;Scientist;Site;Survival Rate;Test Result;Testing;Three-Dimensional Imaging;Tissue Sample;Tissue imaging;Tissues;Venous;Visualization;Wood material;anticancer research;cancer cell;cancer imaging;cell type;cost;data dissemination;deep learning algorithm;experience;imaging modality;immunocytochemistry;insight;large datasets;lymphatic Invasion;malignant breast neoplasm;medical schools;mortality;mouse model;multidisciplinary;multiple omics;novel;pancreatic neoplasm;reconstruction;serial imaging;tool;transcriptomics;tumor;tumor heterogeneity;tumor microenvironment	JOHNS HOPKINS UNIVERSITY	BALTIMORE	MD	UNITED STATES	Denis Wirtz, Laura Delong Wood	Steven Becker	1667979	1667979	2022-12-01T12:12:00Z	2021-12-01T12:12:00Z	2026-11-30T12:11:00Z	RFA-CA-21-002	nofo_RFA-CA-21-002
+5U54CA268072-02	U54CA268072	10491345	2022	Imaging mechanisms of metastatic tumor formation in situ	"Project Summary
+In response to the RFA for a Cellular Cancer Biology Imaging Program we propose a program focused on
+imaging and molecularly probing the cell biological events that drive the formation of new metastatic tumors.
+Specifically, we will address two questions: 1) How does the intersection of shifts in cell-intrinsic and cell-
+extrinsic signals associated with shifts in expression of the membrane adaptor protein Caveolin-1 affect the
+metastatic propensity of pediatric sarcoma (Research Testbed Unit 1)? 2) What are the effects of cell-intrinsic
+and cell-extrinsic variation in lipid metabolism on melanoma metastasis patterns (Research Testbed Unit 2)?
+Answers to both questions depend on technology to capture the molecular, metabolic, and morphological
+states of individual metastatic cells as they colonize the distant site: In the Technology Development Unit-1 we
+will develop a multi-modal, multi-scale live imaging platform to investigate the effects of intersecting
+microenvironmental variation across an organism and cell intrinsic heterogeneity on metastatic spreading. The
+platform will leverage the exquisite optical and physiological properties of the zebrafish embryos to ‘watch’ at
+once how cells form human tumor xenografts spread to multiple distant sites where they form metastatic
+tumors. The microscope will allow seamless switching between a high-throughput screening mode observing
+the metastatic patterns in tens to hundreds of embryos in one experiment and a high-resolution imaging mode
+with fully isotropic resolution of 300 nm in XYZ that allows detailed analysis of the molecular, metabolic,
+morphologic, and proliferation/survival states of individual cells within an emerging metastatic niche. In the
+Technology Development Unit-2 we will develop a multi-scale imaging platform to investigate by hyper-spectral
+analysis the molecular, metabolic, morphological, and functional states of metastatic cells across entire mouse
+organs. The platform will leverage advances in tissue clearing, fully automated high-speed and high-resolution
+light-sheet fluorescence imaging, and computer vision, to integrate a mesoscopic imaging mode for fast
+acquisition of volumes of up to 20 x 20 x 20 mm at a ~5-10 micron isotropic resolution with a nanoscopic
+imaging mode providing 300 nm XYZ-resolution throughout a 300 micron field of view anywhere in the organ.
+Biological features can thus be rapidly identified and immediately interrogated with high subcellular resolution.
+We will then develop physically and chemically accelerated 60-plex cyclic immunofluorescence assays to
+comprehensively characterize the molecular, metabolic and architectural states of colonizing cells and their
+surroundings in the metastatic niche in thick (~200 microns) tissue sections. To accurately describe metastatic
+heterogeneity, the entire system, including sample handling, labeling, and imaging, will be fully automated and
+operated in a high-throughput fashion. Our goal with this system is to enable comprehensive profiling of
+heterogeneous cell metastatic cell behavior in 100’s of intact tissue specimens. Together, these platforms will
+generate versatile imaging tools for a new era of in situ cancer cell biology."	3-Dimensional;Adaptor Signaling Protein;Address;Adopted;Affect;Algorithms;Architecture;Automobile Driving;Biological;Biological Assay;Biological Models;Blood Vessels;Cancer Biology;Cancer Etiology;Carcinoma in Situ;Cells;Cellular Morphology;Cellular biology;Cessation of life;Chemicals;Clinical Treatment;Communities;Computer Vision Systems;Core Facility;Data;Development;Disease;Distant;Educational workshop;Embryo;Environment;Environmental Risk Factor;Event;Ewings sarcoma;Extracellular Matrix;Goals;Heterogeneity;Human;Image;Imaging Device;Immunofluorescence Immunologic;In Situ;Individual;Informatics;Institution;Intelligence;Intrinsic factor;Invaded;Investigation;Label;Light;Malignant - descriptor;Malignant Bone Neoplasm;Malignant Neoplasms;Membrane;Membrane Proteins;Metabolic;Metabolism;Methods;Microscope;Microscopy;Molecular;Molecular Analysis;Molecular Probes;Morphology;Mus;NCI Center for Cancer Research;Neoplasm Metastasis;Oncogenic;Optics;Organ;Organism;Pattern;Periodicity;Physiological;Pilot Projects;Play;Primary Neoplasm;Process;Property;Research;Research Personnel;Resolution;Role;Sampling;Series;Side;Signal Transduction;Site;Solid Neoplasm;Specimen;Speed;Subgroup;System;Technology;Testing;Thick;Tissue imaging;Tissues;Training;Tropism;Variant;WNT Signaling Pathway;Work;Xenograft procedure;Zebrafish;cancer cell;caveolin 1;cell behavior;childhood sarcoma;cloud based;dimensional analysis;experimental study;fluorescence imaging;functional adaptation;high dimensionality;high resolution imaging;high throughput screening;imaging approach;imaging platform;imaging probe;imaging program;intravital imaging;lipid metabolism;live cell imaging;lymphatic vessel;melanoma;molecular imaging;multimodality;multiplexed imaging;novel;outreach;programs;quantitative imaging;response;technology development;tumor xenograft	UT SOUTHWESTERN MEDICAL CENTER	DALLAS	TX	UNITED STATES	Gaudenz Danuser	Steven Becker	1609318	1609318	2022-08-16T12:08:00Z	2021-09-24T12:09:00Z	2026-08-31T12:08:00Z	RFA-CA-21-002	nofo_RFA-CA-21-002
+1U54CA268084-01	U54CA268084	10375268	2022	Northwestern University Center for Chromatin NanoImaging in Cancer (NU-CCNIC)	"Overall: PROJECT SUMMARY
+Cancer stem cells (CSCs) play a critical role in fostering tumor resistance to therapies and relapse after
+treatment. This presents a crucial barrier to the development of successful anti-cancer therapeutics.
+Transcriptional reprogramming and plasticity play a critical role in and out of the CSC state, which in turn are
+interdependent on the regulatory function of the three-dimensional (3D) structure of chromatin, epigenetic states,
+and other molecular events. Our understanding of fundamental CSC biology has been hampered by the need
+for cellular nanoscale imaging technologies that provide both highly detailed structural information regarding 3D
+chromatin organization and highly multiplexed molecular imaging of the many molecular regulators and events
+involved in CSC processes. We propose to establish the Northwestern University Center for Chromatin
+Nanoimaging in Cancer (NU-CCNIC) to address this fundamental technology gap in cellular nanoscale imaging
+and deploy the new technologies to address the fundamental knowledge gap in CSC biology. The Center
+converges experts in cellular nanoscale imaging, computational imaging, molecular modeling, computational
+genomics, CSC biology, and oncology. The Center will develop, test, validate, iterate, and deploy an integrated
+and co-registered Multi-scale Chromatin Nanoimaging Platform that will comprise three “nested-doll” imaging
+techniques: chromatin scanning transmission electron microscopy, optical spectroscopic super-resolution
+nanoscopy, and optical spectroscopic nanosensing. The Nanoimaging Platform will enable quantitative imaging
+of chromatin structure and highly multiplexed molecular and gene-specific localization, at the most fundamental
+length-scale approaching 1 nm resolution, including the imaging of statistically significant cell populations and
+live cells with high temporal resolution over prolonged temporal follow-up times. The Nanoimaging Platform will
+be bridged to computational genomics, epigenomics, genome mapping, and predictive transcriptional modeling
+datasets. These technologies will be deployed to answer several long-standing open questions in CSC biology.
+We will elucidate whether CSCs can originate from non-CSCs via transcriptional reprogramming, test the role of
+chromatin structure in fostering transcriptional plasticity in CSC processes, and explore the possibility of
+transcriptionally reprogramming CSCs to exit the stem-state as a new therapeutic strategy. All aspects of the
+technology development will be guided by the needs of the CSC biology testbed through a series of research
+feedback loops. In the long term, such single-cell nanoimaging technologies will help comprehensive
+understanding of the complex interplay between structural, physico-chemical, and molecular genomic events.
+We anticipate that these convergence studies will provide new insights into CSC biology, which are impossible
+to reveal with the use of any single method, and open new opportunities for identifying therapeutic strategies."	3-Dimensional;Address;Aftercare;Biological Assay;Caliber;Cancer Biology;Cell Nucleus;Cell physiology;Cells;Chromatin;Chromatin Structure;Complex;Computing Methodologies;Cytotoxic Chemotherapy;DNA;Data;Data Set;Development;Disease remission;Electron Microscopy;Epigenetic Process;Event;Feedback;Fostering;Future;Genes;Genetic;Genetic Transcription;Genome Mappings;Genomics;Growth;Heterogeneity;Image;Imaging Techniques;Imaging technology;Knowledge;Label;Length;Link;Malignant Neoplasms;Methods;Microscopy;Mission;Modeling;Molecular;Molecular Computations;Molecular Conformation;Molecular Target;Nanoscopy;Oncology;Optics;Pathway interactions;Pattern;Physics;Play;Population;Process;Relapse;Research;Resistance;Resistance development;Resolution;Role;Scanning;Series;Solid;Stem Cell Research;Techniques;Technology;Testing;Therapeutic;Time;Translating;Transmission Electron Microscopy;Universities;Vision;anti-cancer therapeutic;anticancer research;cancer cell;cancer stem cell;cellular imaging;chemotherapy;electron tomography;epigenomics;follow-up;frontier;insight;live cell microscopy;molecular imaging;molecular modeling;molecular scale;nanoimaging;nanoscale;nanosensors;new technology;novel therapeutic intervention;novel therapeutics;pressure;prevent;quantitative imaging;single molecule;spatiotemporal;stem;stem cell biology;stressor;technology development;temporal measurement;therapeutically effective;therapy resistant;three dimensional structure;transcriptional reprogramming;tumor;tumor progression	NORTHWESTERN UNIVERSITY	Chicago	IL	UNITED STATES	Vadim Backman, Daniela E Matei, Hao F Zhang	Steven Becker	1720444	1720444	2021-12-10T12:12:00Z	2021-12-10T12:12:00Z	2026-11-30T12:11:00Z	RFA-CA-21-002	nofo_RFA-CA-21-002
+1U54CA268069-01	U54CA268069	10374450	2022	Center for Multiparametric Imaging of Tumor Immune Microenvironments	"This project proposes an integrated suite of microscopy and data analysis advances that would enable
+quantitative, mechanistic analysis of immune-microenvironment dynamics in poor prognosis solid tumors.
+While immunotherapies are showing remarkable clinical responses in some advanced cancers, to date, their
+impact on many solid tumors has been modest. This is due, in part, to solid tumor microenvironments limiting
+the effectiveness of natural immune responses and immunotherapies. Yet, our understanding of the physical
+and molecular mechanisms governing T cell infiltration, distribution, and function in native tumor
+microenvironments remains extremely limited. As such, defining key T cell behaviors as a function of complex
+tumor microenvironments will identify design criteria that can be used to develop novel cell engineering
+strategies that optimize T cell-centric therapies for solid tumors. To this end the research theme of the U54
+Center for Multiparametric Imaging of Tumor Immune Microenvironments (C-MITIE) is to define physical and
+molecular barriers to effective anti-tumor immunity and immunotherapies through advancement and
+development of state-of-the-art live cell and tissue optical imaging platforms and quantitative analyses. To
+achieve our goals, our framework brings together advanced optical imaging platforms, nano- and micro-
+fabrication, genome engineering, cancer immunology, and biophysical modeling. Thus, from this integrated
+effort we seek to define mechanisms of immune suppression that guide the development of next-generation
+cell-based immunotherapies."	Address;Advanced Malignant Neoplasm;Behavior;Biological Models;Cancer Biology;Cancer Patient;Cell physiology;Cells;Cellular immunotherapy;Clinical;Collaborations;Complex;Computer Analysis;Data;Data Analyses;Development;Effectiveness;Engineering;Environment;Extracellular Matrix;Fingerprint;Genetically Engineered Mouse;Genome engineering;Goals;Image;Imaging technology;Immune response;Immunosuppression;Immunotherapy;Infrastructure;Institution;Leadership;Malignant Neoplasms;Malignant neoplasm of brain;Malignant neoplasm of pancreas;Microscopy;Modeling;Molecular;Oncology;Optics;Persons;Play;Prognosis;Publishing;Regimen;Research;Resolution;Seminal;Solid Neoplasm;Spectrum Analysis;Sum;T cell therapy;T-Lymphocyte;Technology;Testing;Time;Tissue imaging;Tissues;Tumor Immunity;Tumor-infiltrating immune cells;Vision;Work;anti-tumor immune response;biophysical model;cancer imaging;cancer immunotherapy;cancer therapy;cell behavior;cellular engineering;cellular imaging;crosslink;data modeling;design;engineered T cells;experience;fluorescence lifetime imaging;imaging platform;immune checkpoint blockade;immune function;improved;instrumentation;meetings;member;migration;molecular imaging;multimodality;multiparametric imaging;multiphoton microscopy;nanofabrication;neoplasm immunotherapy;new technology;next generation;novel;optical imaging;response;technology development;tool;tumor;tumor immunology;tumor microenvironment;tumor-immune system interactions;virtual	UNIVERSITY OF MINNESOTA	MINNEAPOLIS	MN	UNITED STATES	Kevin William Eliceiri, Paolo Provenzano	Steven Becker	1309112	1309112	2021-12-09T12:12:00Z	2021-12-09T12:12:00Z	2026-11-30T12:11:00Z	RFA-CA-21-002	nofo_RFA-CA-21-002
+1U54CA268083-01	U54CA268083	10375190	2022	Center for 3D Imaging in Cancer Cell Biology	"Project Summary - Overall
+The mortality rates of breast and pancreatic cancers are intrinsically tied to metastasis. In pancreatic cancer, the
+5-year survival rate is only 9% and in ~70% pathological evaluations of the resected tumor, instances of venous
+invasion are found. Metastasis is a complex multi-step process involving cancer cells, local vasculature, and the
+surrounding microenvironment at multiple sites. Venous invasion in pancreatic cancer, in which cancer cells gain
+often invade the portal vein, is an early step in this process and provides the cells a direct path to the liver, the
+most common site of pancreatic cancer metastasis. As in pancreatic cancer, invasion past normal breast tissue
+barriers is critically tied to breast cancer outcomes. Most breast tumors can be surgically removed, and so
+mortality is closely tied to the extent of distant metastasis through lymphovascular invasion. The detection of
+lymphovascular invasion in a breast tumor correlates with poor prognosis and is not captured in current molecular
+analyses. The spatial organization of cancer cells, and cellular and stromal components of the tumor
+microenvironment near and far away from blood vessels is intrinsically three-dimensional, non-symmetric, and
+highly heterogeneous. In the TECH units of the Johns Hopkins Center for 3D Multiscale Cancer Imaging, we
+will develop a versatile 3D multiscale imaging method, CODA, which will allow us to probe the phenotypic
+heterogeneity of tumors from the multi-cm to the micron scale via multiplexing serial imaging. CODA can readily
+incorporate other imaging modalities to extract high cellular/molecular content from 3D samples. These include
+immunocytochemistry (CODA+IHC), immunofluorescence (CODA+IF), imaging mass cytometry (CODA+IMC)
+and spatial transcriptomics/proteomics (CODA+DBiT-seq). These proposed expanded versions of CODA offer
+a unique opportunity to produce new 3D multi-omic maps of human PDAC and breast tumors near and far from
+blood vessels. CODA and its integrated versions CODA+X will be tested in the RTB units of the Center in both
+human/mouse tissue samples and organoids, in breast and pancreatic cancer. Results from these test beds will
+provide novel mechanistic insights into venous invasion in breast and pancreatic cancer. Exploiting our extensive
+experience in data dissemination, we will make the large datasets and software produced by our CODA+X
+platforms and software widely available to the larger cancer research community. The units of the Center will be
+co-led by Johns Hopkins/Yale engineers, scientists and physicians. Substantial additional support will be
+provided by the Johns Hopkins U., the JH School of Medicine, the Institute for Convergence, the Department of
+Pathology, and the Whiting School of Engineering."	3-Dimensional;Address;Advisory Committees;Advocate;Beds;Biomedical Engineering;Blood Circulation;Blood Vessels;Cells;Cellular biology;Communities;Complex;Computational algorithm;Computer software;Cytometry;Detection;Distant;Distant Metastasis;Engineering;Evaluation;Histologic;Human;Image;Imaging Device;Immunofluorescence Immunologic;Institutes;Invaded;Label;Liver;Malignant - descriptor;Malignant neoplasm of pancreas;Mammary Gland Parenchyma;Mammary Neoplasms;Maps;Methods;Microanatomy;Microscopy;Molecular;Molecular Analysis;Morphology;Mus;Neoplasm Metastasis;Occupational activity of managing finances;Operative Surgical Procedures;Optics;Organoids;Outcome;Pathologic;Pathology;Patients;Phenotype;Physicians;Portal vein structure;Primary Neoplasm;Process;Prognosis;Proteomics;Resected;Resolution;Sampling;Schools;Scientist;Site;Survival Rate;Test Result;Testing;Three-Dimensional Imaging;Tissue Sample;Tissue imaging;Tissues;Venous;Wood material;anticancer research;cancer cell;cancer imaging;cell type;cost;data dissemination;deep learning algorithm;experience;image registration;imaging modality;immunocytochemistry;insight;large datasets;lymphatic Invasion;malignant breast neoplasm;medical schools;mortality;mouse model;multidisciplinary;multiple omics;novel;pancreatic neoplasm;reconstruction;serial imaging;tool;transcriptomics;tumor;tumor heterogeneity;tumor microenvironment	JOHNS HOPKINS UNIVERSITY	BALTIMORE	MD	UNITED STATES	Denis Wirtz, Laura Delong Wood	Steven Becker	1717953	1717953	2021-11-29T12:11:00Z	2021-12-01T12:12:00Z	2026-11-30T12:11:00Z	RFA-CA-21-002	nofo_RFA-CA-21-002
+1U54CA268072-01	U54CA268072	10374648	2021	Imaging mechanisms of metastatic tumor formation in situ	"Project Summary
+In response to the RFA for a Cellular Cancer Biology Imaging Program we propose a program focused on
+imaging and molecularly probing the cell biological events that drive the formation of new metastatic tumors.
+Specifically, we will address two questions: 1) How does the intersection of shifts in cell-intrinsic and cell-
+extrinsic signals associated with shifts in expression of the membrane adaptor protein Caveolin-1 affect the
+metastatic propensity of pediatric sarcoma (Research Testbed Unit 1)? 2) What are the effects of cell-intrinsic
+and cell-extrinsic variation in lipid metabolism on melanoma metastasis patterns (Research Testbed Unit 2)?
+Answers to both questions depend on technology to capture the molecular, metabolic, and morphological
+states of individual metastatic cells as they colonize the distant site: In the Technology Development Unit-1 we
+will develop a multi-modal, multi-scale live imaging platform to investigate the effects of intersecting
+microenvironmental variation across an organism and cell intrinsic heterogeneity on metastatic spreading. The
+platform will leverage the exquisite optical and physiological properties of the zebrafish embryos to ‘watch’ at
+once how cells form human tumor xenografts spread to multiple distant sites where they form metastatic
+tumors. The microscope will allow seamless switching between a high-throughput screening mode observing
+the metastatic patterns in tens to hundreds of embryos in one experiment and a high-resolution imaging mode
+with fully isotropic resolution of 300 nm in XYZ that allows detailed analysis of the molecular, metabolic,
+morphologic, and proliferation/survival states of individual cells within an emerging metastatic niche. In the
+Technology Development Unit-2 we will develop a multi-scale imaging platform to investigate by hyper-spectral
+analysis the molecular, metabolic, morphological, and functional states of metastatic cells across entire mouse
+organs. The platform will leverage advances in tissue clearing, fully automated high-speed and high-resolution
+light-sheet fluorescence imaging, and computer vision, to integrate a mesoscopic imaging mode for fast
+acquisition of volumes of up to 20 x 20 x 20 mm at a ~5-10 micron isotropic resolution with a nanoscopic
+imaging mode providing 300 nm XYZ-resolution throughout a 300 micron field of view anywhere in the organ.
+Biological features can thus be rapidly identified and immediately interrogated with high subcellular resolution.
+We will then develop physically and chemically accelerated 60-plex cyclic immunofluorescence assays to
+comprehensively characterize the molecular, metabolic and architectural states of colonizing cells and their
+surroundings in the metastatic niche in thick (~200 microns) tissue sections. To accurately describe metastatic
+heterogeneity, the entire system, including sample handling, labeling, and imaging, will be fully automated and
+operated in a high-throughput fashion. Our goal with this system is to enable comprehensive profiling of
+heterogeneous cell metastatic cell behavior in 100’s of intact tissue specimens. Together, these platforms will
+generate versatile imaging tools for a new era of in situ cancer cell biology."	3-Dimensional;Adaptor Signaling Protein;Address;Adopted;Affect;Algorithms;Architecture;Automobile Driving;Biological;Biological Assay;Biological Models;Blood Vessels;Cancer Biology;Cancer Etiology;Carcinoma in Situ;Cells;Cellular Morphology;Cellular biology;Cessation of life;Chemicals;Clinical Treatment;Communities;Computer Vision Systems;Core Facility;Data;Development;Disease;Distant;Educational workshop;Embryo;Environment;Environmental Risk Factor;Event;Ewings sarcoma;Extracellular Matrix;Goals;Heterogeneity;Human;Image;Imaging Device;Immunofluorescence Immunologic;In Situ;Individual;Informatics;Institution;Intelligence;Intrinsic factor;Invaded;Investigation;Label;Light;Malignant - descriptor;Malignant Bone Neoplasm;Malignant Neoplasms;Membrane;Membrane Proteins;Metabolic;Metabolism;Methods;Microscope;Microscopy;Molecular;Molecular Analysis;Molecular Probes;Morphology;Mus;NCI Center for Cancer Research;Neoplasm Metastasis;Oncogenic;Optics;Organ;Organism;Pattern;Periodicity;Physiological;Pilot Projects;Play;Primary Neoplasm;Process;Property;Research;Research Personnel;Resolution;Role;Sampling;Series;Side;Signal Transduction;Site;Solid Neoplasm;Specimen;Speed;Subgroup;System;Technology;Testing;Thick;Tissue imaging;Tissues;Training;Tropism;Variant;WNT Signaling Pathway;Work;Xenograft procedure;Zebrafish;cancer cell;caveolin 1;cell behavior;childhood sarcoma;cloud based;dimensional analysis;experimental study;fluorescence imaging;functional adaptation;high dimensionality;high resolution imaging;high throughput screening;imaging approach;imaging platform;imaging probe;imaging program;intravital imaging;lipid metabolism;live cell imaging;lymphatic vessel;melanoma;molecular imaging;multimodality;multiplexed imaging;novel;outreach;programs;quantitative imaging;response;technology development;tumor xenograft	UT SOUTHWESTERN MEDICAL CENTER	DALLAS	TX	UNITED STATES	Gaudenz Danuser	Steven Becker	1688533	1688533	2021-09-20T12:09:00Z	2021-09-24T12:09:00Z	2026-08-31T12:08:00Z	RFA-CA-21-002	nofo_RFA-CA-21-002

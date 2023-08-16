@@ -30,7 +30,7 @@
 import pandas as pd
 
 
-def find_header_location(csv_filepath:str, key_value:str) -> tuple[int,int]:
+def find_header_location(csv_filepath:str, key_value:str) -> 'tuple[int,int]':
     """Detect the row and column where the given key_value is found.
 
     :param csv_filepath: Path to the CSV file to load. Defined in config.py.

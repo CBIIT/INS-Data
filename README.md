@@ -40,6 +40,7 @@ The INS-Data repository workflow follows the general outline below:
     - Because not all Key Programs have an ID, acronym, etc., each file is saved using a form of the Key Program name where spaces and non-alphanumeric characters are removed. (e.g. `BarrettsEsophagusTranslationalResearchNetworkBETRNet.tsv`)
     - These TSVs are intended to be available for future processing/cleaning modules or directly loaded into the INS database.
 
+5. **Generate summary statistics (In progress)**
 
 ## Usage
 
@@ -60,13 +61,15 @@ INS-Data
 │   │   └── ...other versions
 │   ├── raw/
 │   │   ├── qualtrics_output_{version}_{type}.csv
-│   │   └── ...other versions/types
+│   │   └── ...other Qualtrics versions/types
 │   └── processed/
 │       ├── {version}/
-│       │   ├── KeyProgramName01.tsv
-│       │   ├── KeyProgramName02.tsv
-│       │   └── ...other grant data TSVs for each Key Program
-│       └── ... other versions
+│       │   ├── api-gathered-{gathering date}/
+│       │   │   ├── KeyProgramName01.tsv
+│       │   │   ├── KeyProgramName02.tsv
+│       │   │   └── ...other grant data TSVs for each Key Program
+│       │   └── ...other data gathered on different dates
+│       └── ...other Qualtrics versions
 ├── modules/
 │   ├── clean_grants_data.py
 │   ├── data_preparation.py
@@ -74,11 +77,14 @@ INS-Data
 ├── notebooks/
 │   └── Non-production Jupyter notebooks during development
 ├── reports/
-│   └── {version}/
-│       ├── allGrantsData.csv
-│       ├── programSummaryStats.csv
-│       ├── sharedProjects.csv
-│       └── ... additional reports as needed
+│   ├── {version}/
+│   │   ├── api-gathered-{gathering date}/
+│   │   │   ├── allGrantsData.csv
+│   │   │   ├── programSummaryStats.csv
+│   │   │   ├── sharedProjects.csv
+│   │   │   └── ... additional reports as needed
+│   │   └── ...other reports for data gathered on different dates
+│   └── ...other Qualtrics versions
 ├── config.py
 └── main.py
 ```

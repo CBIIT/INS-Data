@@ -2,10 +2,11 @@
 # 2023-07-26 ZD
 # Make changes here to affect variables throughout repo
 
+from datetime import datetime
 
 # FILEPATH CONFIGURATION
 
-# Edit version and type below for each new QualtricS file received
+# Edit version and type below for each new Qualtrics file received
 # Inputs and outputs will use this versioning
 # Version must match suffix in input filename
 
@@ -20,8 +21,12 @@ QUALTRICS_TYPE = "manual_fix" # <-- Define "raw" or "manual_fix" type of the inp
 # FILEPATH (CONTINUED)
 QUALTRICS_CSV_PATH = "data/raw/qualtrics_output_" + QUALTRICS_VERSION +"_"+ QUALTRICS_TYPE + ".csv"
 CLEANED_KEY_PROGRAMS_CSV = "data/cleaned/key_programs_" + QUALTRICS_VERSION + ".csv"
-PROCESSED_DIR = "data/processed/" + QUALTRICS_VERSION
-REPORTS_DIR = "reports/" + QUALTRICS_VERSION
+
+# Add timestamp to note when grants were gathered from API
+# The same Qualtrics input file can have different outputs depending upon API gathering date
+TIMESTAMP = 'api-gathered-'+datetime.now().strftime('%Y-%m-%d')
+PROCESSED_DIR = "data/processed/" + QUALTRICS_VERSION + "/" + TIMESTAMP
+REPORTS_DIR = "reports/" + QUALTRICS_VERSION+ "/" + TIMESTAMP
 
 # ---
 # DATA LOADING CONFIGURATION

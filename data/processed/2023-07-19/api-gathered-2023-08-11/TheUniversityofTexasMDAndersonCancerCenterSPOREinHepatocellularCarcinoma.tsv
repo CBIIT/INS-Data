@@ -1,0 +1,121 @@
+project_num	core_project_num	appl_id	fiscal_year	project_title	abstract_text	pref_terms	org_name	org_city	org_state	org_country	principal_investigators	program_officers	award_amount	agency_ic_fundings	award_notice_date	project_start_date	project_end_date	full_foa	api_source_search
+5P50CA217674-04	P50CA217674	10480071	2022	The University of Texas MD Anderson Cancer Center SPORE in Hepatocellular Carcinoma	"Overall - SUMMARY/ABSTRACT
+The overall goal of the University of Texas MD Anderson Cancer Center SPORE in Hepatocellular Carcinoma
+(HCC) is to improve outcomes for HCC patients and reduce the mortality rates of HCC through early
+intervention. HCC is the 2nd leading cause of cancer death worldwide with 854,000 new cases diagnosed
+globally and 810,000 deaths in 2015. The incidence of new HCC cases globally is projected to rise to
+1,341,344 cases by 2035. In the United States (U.S.), while death rates declined for all cancers combined and
+for most cancer sites in the past 10 years, deaths from HCC increased at the highest rate of all cancer sites,
+and HCC incidence rates increased sharply, second only to thyroid cancer. The burden of HCC is not equally
+distributed throughout the U.S., the highest incidence being observed in States on the Mexico-US Border.
+Texas ranks second in incidence of HCC, with a 5-year rate of 11.4 cases per 100,000 compared to the nation
+rate of 7.6. Within Texas, Hispanics in counties bordering Mexico have the highest rates of HCC in the U.S.,
+with 37.5 diagnosed cases per 100,000. Reflecting the rising incidence trends, the number of HCC patients
+seeking care at MD Anderson Cancer Center has increased every year, from 277 patients in 2013 to 580
+patients in 2017, a 2-fold increase over the most recent 5 years. The relative 5-year survival rate for HCC is
+16%. The poor prognosis of HCC is due to multiple factors: 1) the vast majority of HCC cases are diagnosed at
+an advanced stage, not amenable to curative surgical treatment (resection or liver transplantation); 2) even
+resected cases suffer from high rates of recurrence (up to 50% in 2 years and 70% in 5 years); 3) HCC often
+occurs in the context of advanced chronic liver disease, cirrhosis in particular, limiting treatment options; 4) the
+only FDA-approved first line systemic therapy is sorafenib which offers a 2.8 months improvement in overall
+survival and a dismal response rate of 2%; and 5) the recently approved second line therapy are another
+tyrosine kinase inhibitor regorafenib and the immunotherapy drug nivolumab, but again improvement in overall
+survival and response rates are very low. In this SPORE application, 3 projects together with 3 cores will: 1)
+evaluate the effect of checkpoint therapy in neoadjuvant and adjuvant HCC settings and determine optimal
+combinations with checkpoint therapeutics to enhance the anti-tumor immune response; 2) determine the
+prognostic significance of phosphorylated STAT3 as a biomarker for postoperative recurrence and evaluate
+TTI-101 (C188-9), a STAT3 inhibitor developed in-house, as a post-operative adjuvant; 3) evaluate the
+combination of nivolumab and TTI-101 in the treatment of patients with advanced stage HCC; 4) perform
+extensive screening for liver fibrosis in obese and diabetic Hispanics in South Texas, and identify non-invasive
+biomarkers of fibrosis stage and progression in this underserved population highly affected by non-alcoholic
+steatohepatitis and HCC."	Address;Adjuvant;Affect;BAY 54-9085;Basic Science;Bile Acids;Biological Markers;Cancer Center;Cancer Etiology;Catchment Area;Cells;Cessation of life;Chronic Disease;Cirrhosis;Clinical Trials;County;Data;Death Rate;Diabetes Mellitus;Diagnosis;Early Intervention;Excision;FDA approved;Fatty Acids;Fibrosis;Geography;Goals;Hispanic Populations;Immune;Immune Targeting;Immunotherapy;Incidence;Liver;Liver Fibrosis;Malignant Neoplasms;Malignant neoplasm of liver;Malignant neoplasm of thyroid;Measures;Mexico;Neoadjuvant Therapy;Newly Diagnosed;Nivolumab;Obesity;Operative Surgical Procedures;Oral;Participant;Patients;Performance;Pharmaceutical Preparations;Placebos;Plasma;Postoperative Period;Primary carcinoma of the liver cells;Prognosis;Prospective Studies;Prospective cohort;Proteins;Recurrence;Resectable;Resected;Risk;STAT3 gene;Signal Transduction;South Texas;Survival Rate;Systemic Therapy;Target Populations;Texas;Therapeutic;Translational Research;Tyrosine Kinase Inhibitor;Underserved Population;United States;University of Texas M D Anderson Cancer Center;advanced disease;anti-PD-1;anti-tumor immune response;antitumor effect;arm;base;biobank;biomarker development;cancer diagnosis;cancer site;care seeking;checkpoint therapy;chronic liver disease;diabetic;elastography;gut microbiome;immune checkpoint;improved;improved outcome;inhibitor;innovation;liver biopsy;liver injury;liver transplantation;mortality;non-alcoholic;nonalcoholic steatohepatitis;patient population;prognostic significance;programmed cell death ligand 1;response;screening;trend;tumor;tumor behavior;tumor growth;vibration	UNIVERSITY OF TX MD ANDERSON CAN CTR	HOUSTON	TX	UNITED STATES	Laura Beretta, Ahmed Kaseb	Steven F Nothwehr	2278344	2278344	2022-08-18T12:08:00Z	2019-09-25T12:09:00Z	2024-08-31T12:08:00Z	PAR-18-313	award_P50CA217674
+5P50CA217674-03	P50CA217674	10246492	2021	The University of Texas MD Anderson Cancer Center SPORE in Hepatocellular Carcinoma	"Overall - SUMMARY/ABSTRACT
+The overall goal of the University of Texas MD Anderson Cancer Center SPORE in Hepatocellular Carcinoma
+(HCC) is to improve outcomes for HCC patients and reduce the mortality rates of HCC through early
+intervention. HCC is the 2nd leading cause of cancer death worldwide with 854,000 new cases diagnosed
+globally and 810,000 deaths in 2015. The incidence of new HCC cases globally is projected to rise to
+1,341,344 cases by 2035. In the United States (U.S.), while death rates declined for all cancers combined and
+for most cancer sites in the past 10 years, deaths from HCC increased at the highest rate of all cancer sites,
+and HCC incidence rates increased sharply, second only to thyroid cancer. The burden of HCC is not equally
+distributed throughout the U.S., the highest incidence being observed in States on the Mexico-US Border.
+Texas ranks second in incidence of HCC, with a 5-year rate of 11.4 cases per 100,000 compared to the nation
+rate of 7.6. Within Texas, Hispanics in counties bordering Mexico have the highest rates of HCC in the U.S.,
+with 37.5 diagnosed cases per 100,000. Reflecting the rising incidence trends, the number of HCC patients
+seeking care at MD Anderson Cancer Center has increased every year, from 277 patients in 2013 to 580
+patients in 2017, a 2-fold increase over the most recent 5 years. The relative 5-year survival rate for HCC is
+16%. The poor prognosis of HCC is due to multiple factors: 1) the vast majority of HCC cases are diagnosed at
+an advanced stage, not amenable to curative surgical treatment (resection or liver transplantation); 2) even
+resected cases suffer from high rates of recurrence (up to 50% in 2 years and 70% in 5 years); 3) HCC often
+occurs in the context of advanced chronic liver disease, cirrhosis in particular, limiting treatment options; 4) the
+only FDA-approved first line systemic therapy is sorafenib which offers a 2.8 months improvement in overall
+survival and a dismal response rate of 2%; and 5) the recently approved second line therapy are another
+tyrosine kinase inhibitor regorafenib and the immunotherapy drug nivolumab, but again improvement in overall
+survival and response rates are very low. In this SPORE application, 3 projects together with 3 cores will: 1)
+evaluate the effect of checkpoint therapy in neoadjuvant and adjuvant HCC settings and determine optimal
+combinations with checkpoint therapeutics to enhance the anti-tumor immune response; 2) determine the
+prognostic significance of phosphorylated STAT3 as a biomarker for postoperative recurrence and evaluate
+TTI-101 (C188-9), a STAT3 inhibitor developed in-house, as a post-operative adjuvant; 3) evaluate the
+combination of nivolumab and TTI-101 in the treatment of patients with advanced stage HCC; 4) perform
+extensive screening for liver fibrosis in obese and diabetic Hispanics in South Texas, and identify non-invasive
+biomarkers of fibrosis stage and progression in this underserved population highly affected by non-alcoholic
+steatohepatitis and HCC."	Address;Adjuvant;Affect;BAY 54-9085;Basic Science;Bile Acids;Bioavailable;Biological Markers;Cancer Center;Cancer Etiology;Catchment Area;Cells;Cessation of life;Chronic Disease;Cirrhosis;Clinical Trials;County;Data;Death Rate;Diabetes Mellitus;Diagnosis;Early Intervention;Excision;FDA approved;Fatty Acids;Fibrosis;Geography;Goals;Hispanics;Immune;Immune Targeting;Immunotherapy;Incidence;Liver;Liver Fibrosis;Malignant Neoplasms;Malignant neoplasm of liver;Malignant neoplasm of thyroid;Measures;Mexico;Neoadjuvant Therapy;Newly Diagnosed;Nivolumab;Obesity;Operative Surgical Procedures;Oral;Participant;Patients;Performance;Pharmaceutical Preparations;Placebos;Plasma;Postoperative Period;Primary carcinoma of the liver cells;Prognosis;Prospective Studies;Prospective cohort;Proteins;Recurrence;Resectable;Resected;Risk;STAT3 gene;Signal Transduction;South Texas;Survival Rate;Systemic Therapy;Target Populations;Texas;Therapeutic;Translational Research;Tyrosine Kinase Inhibitor;Underserved Population;United States;University of Texas M D Anderson Cancer Center;advanced disease;anti-PD-1;anti-tumor immune response;antitumor effect;arm;base;biobank;biomarker development;cancer diagnosis;cancer site;care seeking;checkpoint therapy;chronic liver disease;diabetic;elastography;gut microbiome;immune checkpoint;improved;improved outcome;inhibitor/antagonist;innovation;liver biopsy;liver injury;liver transplantation;mortality;non-alcoholic;nonalcoholic steatohepatitis;patient population;prognostic significance;programmed cell death ligand 1;response;screening;trend;tumor;tumor behavior;tumor growth;vibration	UNIVERSITY OF TX MD ANDERSON CAN CTR	HOUSTON	TX	UNITED STATES	Laura Beretta, Ahmed Kaseb	Steven F Nothwehr	2156230	2156230	2021-09-01T12:09:00Z	2019-09-25T12:09:00Z	2024-08-31T12:08:00Z	PAR-18-313	award_P50CA217674
+5P50CA217674-02	P50CA217674	10024063	2020	The University of Texas MD Anderson Cancer Center SPORE in Hepatocellular Carcinoma	"Overall - SUMMARY/ABSTRACT
+The overall goal of the University of Texas MD Anderson Cancer Center SPORE in Hepatocellular Carcinoma
+(HCC) is to improve outcomes for HCC patients and reduce the mortality rates of HCC through early
+intervention. HCC is the 2nd leading cause of cancer death worldwide with 854,000 new cases diagnosed
+globally and 810,000 deaths in 2015. The incidence of new HCC cases globally is projected to rise to
+1,341,344 cases by 2035. In the United States (U.S.), while death rates declined for all cancers combined and
+for most cancer sites in the past 10 years, deaths from HCC increased at the highest rate of all cancer sites,
+and HCC incidence rates increased sharply, second only to thyroid cancer. The burden of HCC is not equally
+distributed throughout the U.S., the highest incidence being observed in States on the Mexico-US Border.
+Texas ranks second in incidence of HCC, with a 5-year rate of 11.4 cases per 100,000 compared to the nation
+rate of 7.6. Within Texas, Hispanics in counties bordering Mexico have the highest rates of HCC in the U.S.,
+with 37.5 diagnosed cases per 100,000. Reflecting the rising incidence trends, the number of HCC patients
+seeking care at MD Anderson Cancer Center has increased every year, from 277 patients in 2013 to 580
+patients in 2017, a 2-fold increase over the most recent 5 years. The relative 5-year survival rate for HCC is
+16%. The poor prognosis of HCC is due to multiple factors: 1) the vast majority of HCC cases are diagnosed at
+an advanced stage, not amenable to curative surgical treatment (resection or liver transplantation); 2) even
+resected cases suffer from high rates of recurrence (up to 50% in 2 years and 70% in 5 years); 3) HCC often
+occurs in the context of advanced chronic liver disease, cirrhosis in particular, limiting treatment options; 4) the
+only FDA-approved first line systemic therapy is sorafenib which offers a 2.8 months improvement in overall
+survival and a dismal response rate of 2%; and 5) the recently approved second line therapy are another
+tyrosine kinase inhibitor regorafenib and the immunotherapy drug nivolumab, but again improvement in overall
+survival and response rates are very low. In this SPORE application, 3 projects together with 3 cores will: 1)
+evaluate the effect of checkpoint therapy in neoadjuvant and adjuvant HCC settings and determine optimal
+combinations with checkpoint therapeutics to enhance the anti-tumor immune response; 2) determine the
+prognostic significance of phosphorylated STAT3 as a biomarker for postoperative recurrence and evaluate
+TTI-101 (C188-9), a STAT3 inhibitor developed in-house, as a post-operative adjuvant; 3) evaluate the
+combination of nivolumab and TTI-101 in the treatment of patients with advanced stage HCC; 4) perform
+extensive screening for liver fibrosis in obese and diabetic Hispanics in South Texas, and identify non-invasive
+biomarkers of fibrosis stage and progression in this underserved population highly affected by non-alcoholic
+steatohepatitis and HCC."	Address;Adjuvant;Affect;BAY 54-9085;Basic Science;Bile Acids;Bioavailable;Biological Markers;Cancer Center;Cancer Etiology;Catchment Area;Cells;Cessation of life;Chronic Disease;Cirrhosis;Clinical Trials;County;Data;Death Rate;Diabetes Mellitus;Diagnosis;Early Intervention;Excision;FDA approved;Fatty Acids;Fibrosis;Geography;Goals;Hispanics;Immune;Immune Targeting;Immunotherapy;Incidence;Liver;Liver Fibrosis;Malignant Neoplasms;Malignant neoplasm of liver;Malignant neoplasm of thyroid;Measures;Mexico;Neoadjuvant Therapy;Newly Diagnosed;Nivolumab;Obesity;Operative Surgical Procedures;Oral;Participant;Patients;Performance;Pharmaceutical Preparations;Placebos;Plasma;Postoperative Period;Primary carcinoma of the liver cells;Prospective Studies;Prospective cohort;Proteins;Recurrence;Resectable;Resected;Risk;STAT3 gene;Signal Transduction;South Texas;Survival Rate;Systemic Therapy;Target Populations;Texas;Therapeutic;Translational Research;Tyrosine Kinase Inhibitor;Underserved Population;United States;University of Texas M D Anderson Cancer Center;advanced disease;anti-PD-1;anti-tumor immune response;antitumor effect;arm;base;biobank;biomarker development;cancer diagnosis;cancer site;care seeking;checkpoint therapy;chronic liver disease;diabetic;elastography;gut microbiome;immune checkpoint;improved;improved outcome;inhibitor/antagonist;innovation;liver biopsy;liver injury;liver transplantation;mortality;non-alcoholic;nonalcoholic steatohepatitis;outcome forecast;patient population;prognostic significance;programmed cell death ligand 1;response;screening;trend;tumor;tumor behavior;tumor growth;vibration	UNIVERSITY OF TX MD ANDERSON CAN CTR	HOUSTON	TX	UNITED STATES	Laura Beretta, Ahmed Kaseb	Steven F Nothwehr	2332104	2332104	2020-08-24T12:08:00Z	2019-09-25T12:09:00Z	2024-08-31T12:08:00Z	PAR-18-313	award_P50CA217674
+1P50CA217674-01A1	P50CA217674	9787796	2019	The University of Texas MD Anderson Cancer Center SPORE in Hepatocellular Carcinoma	"Overall - SUMMARY/ABSTRACT
+The overall goal of the University of Texas MD Anderson Cancer Center SPORE in Hepatocellular Carcinoma
+(HCC) is to improve outcomes for HCC patients and reduce the mortality rates of HCC through early
+intervention. HCC is the 2nd leading cause of cancer death worldwide with 854,000 new cases diagnosed
+globally and 810,000 deaths in 2015. The incidence of new HCC cases globally is projected to rise to
+1,341,344 cases by 2035. In the United States (U.S.), while death rates declined for all cancers combined and
+for most cancer sites in the past 10 years, deaths from HCC increased at the highest rate of all cancer sites,
+and HCC incidence rates increased sharply, second only to thyroid cancer. The burden of HCC is not equally
+distributed throughout the U.S., the highest incidence being observed in States on the Mexico-US Border.
+Texas ranks second in incidence of HCC, with a 5-year rate of 11.4 cases per 100,000 compared to the nation
+rate of 7.6. Within Texas, Hispanics in counties bordering Mexico have the highest rates of HCC in the U.S.,
+with 37.5 diagnosed cases per 100,000. Reflecting the rising incidence trends, the number of HCC patients
+seeking care at MD Anderson Cancer Center has increased every year, from 277 patients in 2013 to 580
+patients in 2017, a 2-fold increase over the most recent 5 years. The relative 5-year survival rate for HCC is
+16%. The poor prognosis of HCC is due to multiple factors: 1) the vast majority of HCC cases are diagnosed at
+an advanced stage, not amenable to curative surgical treatment (resection or liver transplantation); 2) even
+resected cases suffer from high rates of recurrence (up to 50% in 2 years and 70% in 5 years); 3) HCC often
+occurs in the context of advanced chronic liver disease, cirrhosis in particular, limiting treatment options; 4) the
+only FDA-approved first line systemic therapy is sorafenib which offers a 2.8 months improvement in overall
+survival and a dismal response rate of 2%; and 5) the recently approved second line therapy are another
+tyrosine kinase inhibitor regorafenib and the immunotherapy drug nivolumab, but again improvement in overall
+survival and response rates are very low. In this SPORE application, 3 projects together with 3 cores will: 1)
+evaluate the effect of checkpoint therapy in neoadjuvant and adjuvant HCC settings and determine optimal
+combinations with checkpoint therapeutics to enhance the anti-tumor immune response; 2) determine the
+prognostic significance of phosphorylated STAT3 as a biomarker for postoperative recurrence and evaluate
+TTI-101 (C188-9), a STAT3 inhibitor developed in-house, as a post-operative adjuvant; 3) evaluate the
+combination of nivolumab and TTI-101 in the treatment of patients with advanced stage HCC; 4) perform
+extensive screening for liver fibrosis in obese and diabetic Hispanics in South Texas, and identify non-invasive
+biomarkers of fibrosis stage and progression in this underserved population highly affected by non-alcoholic
+steatohepatitis and HCC."	Address;Adjuvant;Affect;BAY 54-9085;Basic Science;Bile Acids;Bioavailable;Biological Markers;Cancer Center;Cancer Etiology;Catchment Area;Cells;Cessation of life;Chronic Disease;Cirrhosis;Clinical Trials;County;Data;Death Rate;Diabetes Mellitus;Diagnosis;Early Intervention;Excision;FDA approved;Fatty Acids;Fibrosis;Geography;Goals;Hispanics;Immune;Immune Targeting;Immunotherapy;Incidence;Liver;Liver Fibrosis;Malignant Neoplasms;Malignant neoplasm of liver;Malignant neoplasm of thyroid;Measures;Mexico;Neoadjuvant Therapy;Newly Diagnosed;Nivolumab;Obesity;Operative Surgical Procedures;Oral;PDCD1LG1 gene;Participant;Patients;Performance;Pharmaceutical Preparations;Placebos;Plasma;Postoperative Period;Primary carcinoma of the liver cells;Prospective Studies;Prospective cohort;Proteins;Recurrence;Resectable;Resected;Risk;STAT3 gene;Signal Transduction;South Texas;Survival Rate;Systemic Therapy;Target Populations;Texas;Therapeutic;Translational Research;Tyrosine Kinase Inhibitor;Underserved Population;United States;University of Texas M D Anderson Cancer Center;advanced disease;anti-PD-1;anti-tumor immune response;antitumor effect;arm;base;biobank;biomarker development;cancer diagnosis;cancer site;care seeking;checkpoint therapy;chronic liver disease;diabetic;elastography;gut microbiome;immune checkpoint;improved;improved outcome;inhibitor/antagonist;innovation;liver biopsy;liver injury;liver transplantation;mortality;non-alcoholic;nonalcoholic steatohepatitis;outcome forecast;patient population;prognostic significance;response;screening;trend;tumor;tumor behavior;tumor growth;vibration	UNIVERSITY OF TX MD ANDERSON CAN CTR	HOUSTON	TX	UNITED STATES	Laura Beretta, Ahmed Kaseb	Steven F Nothwehr	2296647	2296647	2019-09-25T12:09:00Z	2019-09-25T12:09:00Z	2024-08-31T12:08:00Z	PAR-18-313	award_P50CA217674
