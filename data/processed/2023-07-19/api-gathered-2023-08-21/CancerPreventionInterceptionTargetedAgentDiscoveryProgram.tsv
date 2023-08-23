@@ -1,0 +1,49 @@
+project_num	core_project_num	appl_id	fiscal_year	project_title	abstract_text	pref_terms	org_name	org_city	org_state	org_country	principal_investigators	program_officers	award_amount	agency_ic_fundings	award_notice_date	project_start_date	project_end_date	full_foa	api_source_search
+1U54CA272688-01	U54CA272688	10505675	2022	CAP-IT Center for LNP RNA Immunoprevention	"Overall Component: Project Summary/Abstract
+The overall goal of CAP-IT Center for RNA Immunoprevention (CRI) is to pre-clinically delineate, formulate and
+validate liponanoparticle RNA (LNP RNA) vaccines for precision prevention of individuals with increased cancer
+risk. The PI is Dr. Lipkin, an established leader in Cancer Prevention who has made several important, clinically
+translated contributions to the field. Project 1 will develop and validate an LNP RNA immunoprevention vaccine
+for Lynch syndrome, a genetic cancer predisposition syndrome with highly immunogenic recurrent neoantigens
+shared among cancers from different patients. Project 2 will develop and validate an LNP RNA immune
+interception vaccine for patients with lung non-solid nodule (NSN) pre-malignant neoplasms, a lung
+adenocarcinoma precursor lesion. To achieve these goals, we will use state-of-the-art technologies, including
+LNP RNA vaccine formulation, computational genomic tumor immunology, spatial genomics and
+immunopeptidomics. To ensure CRI's scientific rigor and excellence, we have assembled a scientifically
+outstanding CRI External Advisory Board (EAB), which includes 2021 Lasker Award winner Drew Weissman
+(Penn) for his work on LNP RNA COVID19 vaccines. Overall, the CAP-IT CRI will develop state-of-the-art LNP RNA
+immunoprevention and immune interception vaccines and provide a technologically powerful platform to
+jumpstart additional CAP-IT CRI LNP RNA vaccine projects. We anticipate that CAP-IT CRI will propel both
+Lynch syndrome and lung NSN vaccines to NCI PREVENT and CP-NET clinical trials within the next 5 years
+and FDA approval/clinical translation within ten years."	Antigens;Architecture;Autologous;Award;Biotechnology;COVID-19;COVID-19 vaccine;Cancer Burden;Cessation of life;Clinic;Clinical;Clinical Trials;Clonal Evolution;Communicable Diseases;Computer Analysis;Data;Databases;Division of Cancer Prevention;Ensure;Genomics;Goals;Health Insurance Portability and Accountability Act;Hereditary Nonpolyposis Colorectal Neoplasms;Immune;Immunologic Surveillance;Immunoprevention;In Vitro;Individual;Infection;Inherited;Intercept;Lesion;Lung;Lung Adenocarcinoma;Malignant Neoplasms;Medical;Neisseria meningitidis;Nodule;Patients;Poliomyelitis;Predisposition;Premalignant Neoplasm;Prevention;Prevention strategy;Primary Cancer Prevention;RNA;RNA vaccination;RNA vaccine;Recording of previous events;Recurrence;Research;Resource Sharing;Role;Science;Services;Smoker;Sum;Syndrome;T-Lymphocyte;Technology;Translating;Tumor Antigens;Vaccines;Validation;Work;biobank;cancer genetics;cancer genome;cancer genomics;cancer immunotherapy;cancer predisposition;cancer prevention;cancer risk;clinical translation;cytotoxicity test;efficacy testing;experience;flexibility;immune RNA;immunogenic;immunogenicity;in vivo;in vivo Model;individualized prevention;innovation;lipid nanoparticle;mouse model;neoantigens;patient population;pre-clinical;programs;success;transcriptome;tumor;tumor immunology;vaccine discovery;vaccine formulation	WEILL MEDICAL COLL OF CORNELL UNIV	NEW YORK	NY	UNITED STATES	Nasser Khaled Altorki, Steven M Lipkin, Timothy E Mcgraw, Vivek Mittal	John Leo Clifford	1180595	1180595	2022-08-29T12:08:00Z	2022-09-01T12:09:00Z	2027-08-31T12:08:00Z	RFA-CA-21-038	nofo_RFA-CA-21-038
+1U54CA272686-01	U54CA272686	10505611	2022	Cancer Prevention-Interception Targeted Agent Discovery Program at Fox Chase Cancer Center	"PROJECT SUMMARY - OVERALL
+Hereditable cancer-predisposing mutations are estimated to be an underlying cause of more than 100,000 adult
+cancers in the US each year. For many hereditary cancer syndromes, the life-time risk of developing cancer
+approaches 100%. Despite revolutionary advances in “omics” technologies, our understanding of the molecular
+alterations required to support the establishment of precancerous lesions and promote early tumor development
+remains very limited, thus hindering the development of efficacious interventions. A multidisciplinary team of
+accomplished investigators at Fox Chase Cancer Center (FCCC), with combined expertise in cancer prevention,
+heritable cancer risk, cancer biology, molecular modeling, and drug discovery has been assembled to address
+this unmet in an unprecedented way. The goal of the FCCC CAP-IT Center is to effectively coordinate the
+development of efficacious molecularly-targeted agents for precision cancer prevention and early interception in
+populations at high risk for cancer. All studies are facilitated by the unique resources of the FCCC Risk
+Assessment Program, which includes over 12,000 families at high risk for cancer and 2000 confirmed germline
+mutation carriers. A comprehensive pipeline for the development of agents for cancer prevention and interception
+is proposed that consists of three well-developed research domains: target validation (Aim 1), agent identification
+and screening (Aim 2), and pilot in vivo efficacy studies (Aim 3). Each domain will be led by a FCCC investigator,
+who is a national leader in the respective field. Two highly innovative projects are proposed that illustrate the
+robustness of the CAP-IT framework. Project 1 (entering at Target Validation) focuses on the development of a
+newly-identified agent that refolds mutant p53. Its ability to target the TP53 mutations associated with Li-
+Fraumeni Syndrome and inhibit precancerous lesions in a setting of mutant p53 will be evaluated. Project 2
+(entering at Agent Identification and Screening) uniquely targets the initiated pancreatic stroma as a strategy for
+early interception in the formation of pancreatic cancer. A neutralizing antibody against the stromal protein Netrin
+G1, that can revert fibroblasts to a tumor-suppressive phenotype, has been discovered. Antibodies with improved
+potency will be identified and tested in vivo for their ability to intercept the progression of pancreatic intraepithelial
+neoplasia. All CAP-IT research and training will be strongly supported by the Leadership Team and coordinating
+activities of the Administrative Core, led by Dr. Clapper. Expertise in biostatistics, bioinformatics, and data
+management will be provided to CAP-IT investigators by an Informatics Core, led by Dr. Ross. Collaborations
+among the NCI, FCCC and other CAP-IT Centers, as well as the sharing of data and resources through the Data
+and Resource Coordination Center, will foster productivity and integration across the CAP-IT Network (Aim 4).
+The long legacy of FCCC in clinical risk assessment and preclinical preventive agent development, when
+combined with extensive expertise in drug design and cancer biology, makes this Center uniquely poised to be
+instrumental in the discovery of molecularly-targeted agents to prevent or intercept early oncogenesis."	Address;Adult;African ancestry;Antibodies;Area;Atlases;Award;Barrett Esophagus;Bioinformatics;Biological Assay;Biometry;Cancer Biology;Cancer Burden;Cell Line;Chronic;Collaborations;Colonic Polyps;Computational Biology;Contractor;Custom;Data;Development;Disease;Division of Cancer Prevention;Dose;Drug Design;Early Detection Research Network;Early treatment;Engineering;Epithelial Cells;Event;Family;Fibroblasts;Fostering;Fox Chase Cancer Center;Future;Genetic Risk;Germ-Line Mutation;Goals;Growth;Hereditary Malignant Neoplasm;Hereditary Neoplastic Syndromes;Heritability;High-Risk Cancer;In Vitro;Individual;Informatics;Inherited;Intercept;Intervention;Knowledge;Laboratory Research;Lead;Leadership;Lesion;Li-Fraumeni Syndrome;Malignant Neoplasms;Malignant neoplasm of pancreas;Medical Genetics;Molecular;Molecular Abnormality;Molecular Profiling;Molecular Target;Mutation;Operative Surgical Procedures;Oral Leukoplakia;Organ;Pancreas;Pancreatic Intraepithelial Neoplasia;Pathway interactions;Phenotype;Plant Roots;Population;Predisposition;Prevention strategy;Preventive;Productivity;Proteins;Regimen;Research;Research Personnel;Research Training;Resource Sharing;Resources;Risk;Risk Assessment;TP53 gene;Technology;Testing;Toxic effect;Validation;Variant;base;biological specimen archives;cancer diagnosis;cancer prevention;cancer risk;cell stroma;clinical risk;clinically relevant;cohort;data management;data resource;data sharing;disorder risk;drug development;drug discovery;efficacious intervention;efficacy study;experience;genetic variant;high risk;improved;in vivo;individualized prevention;innovation;insight;lifetime risk;member;molecular modeling;mouse model;multidisciplinary;mutant;mutation carrier;netrin-G1;neutralizing antibody;novel;overexpression;pre-clinical;precision cancer prevention;premalignant;prevent;preventive intervention;programs;prophylactic;public database;rational design;screening;targeted agent;therapy development;time use;tumor;tumor initiation;tumor microenvironment;tumorigenesis	RESEARCH INST OF FOX CHASE CAN CTR	PHILADELPHIA	PA	UNITED STATES	Margie L. Clapper	Vignesh Kumar Kumar Gunasekharan	1231641	1231641	2022-09-01T12:09:00Z	2022-09-01T12:09:00Z	2027-08-31T12:08:00Z	RFA-CA-21-038	nofo_RFA-CA-21-038
