@@ -6,7 +6,8 @@
 #   - data/cleaned/: 
 #       - Clean `key_programs_{date}.tsv`
 #   - data/processed/:
-#       - TODO: TSVs for each key_program containing all associated grants
+#       - Clean 'project.tsv' containing data for grants associated with key
+#         programs
 
 import os
 import pandas as pd
@@ -38,6 +39,9 @@ def main():
     # STEP 2: NIH RePORTER API - Get grants info for each Key Program
     print(f"---\nGathering, cleaning, and saving grants data from NIH "
           f"Reporter API for each Key Program...")
+
+    # Create empty df to fill with grants
+    all_cleaned_grants = pd.DataFrame()
 
     # Initialize a counter for total records
     total_records_count = 0
@@ -83,26 +87,32 @@ def main():
 
         # STEP 3: Data Cleaning - Clean and format grants data
 
+        # Run cleaning steps
         cleaned_grants_data = clean_grants_data(grants_data)
 
+        # Add program id column from alphanumeric program name
+        program_id = ''.join(filter(str.isalnum, program_name))
+        cleaned_grants_data['program.program_id'] = program_id
 
-        # STEP 4: Save cleaned grants data for each Key Program as tsv
-        
-        # Define versioned output directory using config.py
-        clean_grants_directory = config.PROCESSED_DIR
-        if not os.path.exists(clean_grants_directory):
-            os.makedirs(clean_grants_directory)
+    # STEP 4: Combine and save cleaned grants data into single tsv
 
-        # Use full program name with only alphanumeric characters as filename
-        program_filename = f"{''.join(filter(str.isalnum, program_name))}.tsv"
-        program_filepath = os.path.join(clean_grants_directory, 
-                                        program_filename)
-        cleaned_grants_data.to_csv(program_filepath, sep = '\t', index=False)
+        all_cleaned_grants = pd.concat([all_cleaned_grants,
+                                        cleaned_grants_data])   
+
+
+    # Define versioned output directory using config.py
+    clean_grants_directory = config.PROCESSED_DIR
+    if not os.path.exists(clean_grants_directory):
+        os.makedirs(clean_grants_directory)
+    project_filename = os.path.join(clean_grants_directory,'project.tsv')
+
+    # Export to csv
+    all_cleaned_grants.to_csv(project_filename, sep = '\t', index=False)
 
     
     print(f"---\nSuccess! NIH RePORTER API data gathered, cleaned, and saved."
           f"Total: {total_records_count} grants across all Awards and NOFOs."
-          f"\n Results can be found in {program_filepath}.\n---") 
+          f"\n Results can be found in {clean_grants_directory}.\n---") 
 
         # TODO: Save all the printed console output to versioned txt 
 

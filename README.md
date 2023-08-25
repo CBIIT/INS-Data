@@ -36,9 +36,9 @@ The INS-Data repository workflow follows the general outline below:
     - Function(s) defined in `clean_grants_data.py` module
 
 4. **Save grants data for each Key Program**
-    - Save the grants data associated with each Key Program into a TSV. Store those in a versioned folder within the `data/processed/` directory. 
-    - Because not all Key Programs have an ID, acronym, etc., each file is saved using a form of the Key Program name where spaces and non-alphanumeric characters are removed. (e.g. `BarrettsEsophagusTranslationalResearchNetworkBETRNet.tsv`)
-    - These TSVs are intended to be available for future processing/cleaning modules or directly loaded into the INS database.
+    - Add a program.program_id to each grant.
+        -Because not all Key Programs have an ID, acronym, etc., IDs are created using a form of the Key Program name where spaces and non-alphanumeric characters are removed. (e.g. `BarrettsEsophagusTranslationalResearchNetworkBETRNet`)
+    - Combine grants data from all programs and store as a versioned `project.tsv` within the `data/processed/` directory.
 
 5. **Generate summary statistics (In progress)**
 
@@ -65,9 +65,7 @@ INS-Data
 │   └── processed/
 │       ├── {version}/
 │       │   ├── api-gathered-{gathering date}/
-│       │   │   ├── KeyProgramName01.tsv
-│       │   │   ├── KeyProgramName02.tsv
-│       │   │   └── ...other grant data TSVs for each Key Program
+│       │   │   ├── project.tsv
 │       │   └── ...other data gathered on different dates
 │       └── ...other Qualtrics versions
 ├── modules/
@@ -75,11 +73,10 @@ INS-Data
 │   ├── data_preparation.py
 │   └── nih_reporter_api.py
 ├── notebooks/
-│   └── Non-production Jupyter notebooks during development
+│   └── Non-production Jupyter notebooks used during development
 ├── reports/
 │   ├── {version}/
 │   │   ├── api-gathered-{gathering date}/
-│   │   │   ├── allGrantsData.csv
 │   │   │   ├── programSummaryStats.csv
 │   │   │   ├── sharedProjects.csv
 │   │   │   └── ... additional reports as needed
