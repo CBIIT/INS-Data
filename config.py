@@ -88,6 +88,9 @@ API_NAME_FIELDS = [
 # Field name containing nested JSON with NCI funding
 API_AGENCY_FUNDING_FIELD = 'agency_ic_fundings'
 
+# Field name for abstract text
+ABSTRACT_TEXT_FIELD = 'abstract_text'
+
 # Dictionary of old:new column names. Rename API fields to match INS terms
 # Any terms not included will remain as retrieved from API
 API_FIELD_RENAMER = {
