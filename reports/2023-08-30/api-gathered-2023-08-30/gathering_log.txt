@@ -1,0 +1,443 @@
+INS API GATHERING LOG
+2023-08-30
+
+Loading and processing data/raw/qualtrics_output_2023-08-30_raw.csv...
+Success! Saved data/cleaned/key_programs_2023-08-30.csv.
+---
+Gathering, cleaning, and saving grants data from NIH Reporter API for each Key Program...
+---
+Cellular Cancer Biology Imaging Research
+nofo: RFA-CA-21-002 1/1): {'search_id': 'Qt8TbkfZvE-rDPPQwYRQSg', 'total': 8, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/Qt8TbkfZvE-rDPPQwYRQSg/projects'}}
+Complete. 8 grants found.
+---
+Barrett’s Esophagus Translational Research Network (BETRNet)
+nofo: RFA-CA-16-007 1/1): {'search_id': 'jmvd6v5sOku9_9KME12JAQ', 'total': 5, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/jmvd6v5sOku9_9KME12JAQ/projects'}}
+nofo: RFA-CA-16-006 1/1): {'search_id': 'ZTfYFaZip0ShFvnBNB_K7w', 'total': 16, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/ZTfYFaZip0ShFvnBNB_K7w/projects'}}
+nofo: RFA-CA-10-014 1/1): {'search_id': 'yrE0P7ywYEOR0xtR6be_7g', 'total': 19, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/yrE0P7ywYEOR0xtR6be_7g/projects'}}
+Complete. 40 grants found.
+---
+Fusion Oncoproteins in Childhood Cancers (FusOnc2)
+nofo: RFA-CA-17-049 1/1): {'search_id': 'XU-3XhqWCkerL_cv_5oOCg', 'total': 4, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/XU-3XhqWCkerL_cv_5oOCg/projects'}}
+nofo: RFA-CA-19-016 1/1): {'search_id': 'akkLbwibtkGFGBYLNyrqKQ', 'total': 12, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/akkLbwibtkGFGBYLNyrqKQ/projects'}}
+Complete. 16 grants found.
+---
+The Early Detection Research Network (EDRN)
+nofo: CA-14-017 1/1): {'search_id': 'L-lVE1VUWkiI-brioDGotQ', 'total': 8, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/L-lVE1VUWkiI-brioDGotQ/projects'}}
+nofo: CA-21-034 1/1): {'search_id': 'SjNhkyq86E2lvIvZCIQI1g', 'total': 2, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/SjNhkyq86E2lvIvZCIQI1g/projects'}}
+nofo: CA-21-033 1/1): {'search_id': 'ft1en5AawEitz1Mb5U902w', 'total': 10, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/ft1en5AawEitz1Mb5U902w/projects'}}
+nofo: CA-21-035 1/1): {'search_id': '7B9-DuRAdki0iwnDpOGtqA', 'total': 12, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/7B9-DuRAdki0iwnDpOGtqA/projects'}}
+nofo: CA-14-015 1/1): {'search_id': 'Jnf7I4eRK0mqPYfQofW2wA', 'total': 56, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/Jnf7I4eRK0mqPYfQofW2wA/projects'}}
+nofo: CA-14-016 1/1): {'search_id': 'VPrlMGcGrk225_ufdZI91w', 'total': 12, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/VPrlMGcGrk225_ufdZI91w/projects'}}
+nofo: CA-16-009 1/1): {'search_id': '75aIafDgMUyhkLwJnlovgw', 'total': 49, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/75aIafDgMUyhkLwJnlovgw/projects'}}
+Complete. 149 grants found.
+---
+Cancer Prevention-Interception Targeted Agent Discovery Program
+nofo: RFA-CA-21-038 1/1): {'search_id': 'E-6XRYQ5W0KiEXco0wpVIA', 'total': 2, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/E-6XRYQ5W0KiEXco0wpVIA/projects'}}
+nofo: RFA-CA-22-055 1/1): {'search_id': 'sl16PADigkm9iVYhDbe2QA', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/sl16PADigkm9iVYhDbe2QA/projects'}}
+nofo: RFA-CA-21-039 1/1): {'search_id': 'Er8dP9GPQEC0B5CH1qSI_Q', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/Er8dP9GPQEC0B5CH1qSI_Q/projects'}}
+Complete. 2 grants found.
+---
+ Small Cell Lung Cancer (SCLC) Consortium
+nofo: PAR21-346 1/1): {'search_id': 'e8F0f27Jvky873O0pbyqtg', 'total': 2, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/e8F0f27Jvky873O0pbyqtg/projects'}}
+nofo: PAR-16-049 1/1): {'search_id': 'JYwAMI0OAU2AaaZadiXQNg', 'total': 46, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/JYwAMI0OAU2AaaZadiXQNg/projects'}}
+nofo: PAR-16-050 1/1): {'search_id': 'MXC0nKytBk-uofqpfoe_EA', 'total': 5, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/MXC0nKytBk-uofqpfoe_EA/projects'}}
+nofo: PAR-16-051 1/1): {'search_id': 'dAV8UXT3qkCNPITZyQZYgQ', 'total': 30, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/dAV8UXT3qkCNPITZyQZYgQ/projects'}}
+nofo: PAR-19-361 1/1): {'search_id': 'yxeqvuV9yUWHrAgR7DQtTw', 'total': 10, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/yxeqvuV9yUWHrAgR7DQtTw/projects'}}
+Complete. 93 grants found.
+---
+Acquired Resistance to Therapy Network (ARTNet)
+nofo: RFA-CA-21-052 1/1): {'search_id': 'M2shy20hT0mfzFZ5JiCr-w', 'total': 5, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/M2shy20hT0mfzFZ5JiCr-w/projects'}}
+nofo: RFA-CA-21-053 1/1): {'search_id': 'lLTalPiNw0a_UXrJf0ZUUg', 'total': 1, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/lLTalPiNw0a_UXrJf0ZUUg/projects'}}
+Complete. 6 grants found.
+---
+SPORE in Bladder Cancer
+award: P50CA221745 1/1): {'search_id': 'DPHxhWludkKHHUEY_jkciw', 'total': 5, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': True, 'properties': {'URL': 'https:/reporter.nih.gov/search/DPHxhWludkKHHUEY_jkciw/projects'}}
+Complete. 5 grants found.
+---
+SPORE: Targeted Therapies for Glioma
+award: P50CA165962 1/1): {'search_id': 'xCRX_t7QT06q0cChXRHctg', 'total': 13, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': True, 'properties': {'URL': 'https:/reporter.nih.gov/search/xCRX_t7QT06q0cChXRHctg/projects'}}
+Complete. 13 grants found.
+---
+The Memorial Sloan Kettering Cancer Center SPORE in Leukemia
+award: P50CA254838 1/1): {'search_id': 'XMNyCSQ_LEWdmY8Z90H27Q', 'total': 3, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': True, 'properties': {'URL': 'https:/reporter.nih.gov/search/XMNyCSQ_LEWdmY8Z90H27Q/projects'}}
+Complete. 3 grants found.
+---
+The University of Texas MD Anderson Cancer Center SPORE in Hepatocellular Carcinoma
+award: P50CA217674 1/1): {'search_id': 'QFcv-nkplU6KSNs1CeI7Og', 'total': 4, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': True, 'properties': {'URL': 'https:/reporter.nih.gov/search/QFcv-nkplU6KSNs1CeI7Og/projects'}}
+Complete. 4 grants found.
+---
+Brain Tumor SPORE Grant
+award: P50CA097257 1/1): {'search_id': 'cANwtUrL1kmcXaLpUKBQng', 'total': 26, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': True, 'properties': {'URL': 'https:/reporter.nih.gov/search/cANwtUrL1kmcXaLpUKBQng/projects'}}
+Complete. 26 grants found.
+---
+Vanderbilt-Ingram Cancer Center SPORE in Gastrointestinal Cancer
+award: P50CA236733 1/1): {'search_id': 'g1naHuiAmEu69Icd30yWrA', 'total': 5, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': True, 'properties': {'URL': 'https:/reporter.nih.gov/search/g1naHuiAmEu69Icd30yWrA/projects'}}
+Complete. 5 grants found.
+---
+ADMIRAL Study: Admixture analysis of acute lymphoblastic leukemia in African American children
+award: R01CA239701 1/1): {'search_id': 'bMGQ5qxH4kCcH8ODbN_YJQ', 'total': 4, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': True, 'properties': {'URL': 'https:/reporter.nih.gov/search/bMGQ5qxH4kCcH8ODbN_YJQ/projects'}}
+Complete. 4 grants found.
+---
+SPORE in Myeloid Malignancies
+award: P50CA206963 1/1): {'search_id': 'nmo8dD4peEOe_E9j_k_6xg', 'total': 6, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': True, 'properties': {'URL': 'https:/reporter.nih.gov/search/nmo8dD4peEOe_E9j_k_6xg/projects'}}
+Complete. 6 grants found.
+---
+Yale SPORE in Lung Cancer (YSILC): The Biology and Personalized Treatment of Lung Cancer
+award: P50CA196530 1/1): {'search_id': '8xRLJFYSGEy0HGVrc8Zebw', 'total': 11, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': True, 'properties': {'URL': 'https:/reporter.nih.gov/search/8xRLJFYSGEy0HGVrc8Zebw/projects'}}
+Complete. 11 grants found.
+---
+Fred Hutchinson Cancer Research Center Lung SPORE
+award: P50CA228944 1/1): {'search_id': 'gdNoUhn4a06_lqtgB88IBQ', 'total': 6, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': True, 'properties': {'URL': 'https:/reporter.nih.gov/search/gdNoUhn4a06_lqtgB88IBQ/projects'}}
+Complete. 6 grants found.
+---
+Accelerating Colorectal Cancer Screening and follow-up through Implementation Science (ACCSIS)
+nofo: CA17-039 1/1): {'search_id': 'WteZSfKaX0CPOxhjuh90tg', 'total': 2, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/WteZSfKaX0CPOxhjuh90tg/projects'}}
+nofo: CA-17-038 1/1): {'search_id': 'tdJS_VKwMUC755MwsOcXCA', 'total': 15, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/tdJS_VKwMUC755MwsOcXCA/projects'}}
+nofo: CA-19-018 1/1): {'search_id': '51hOPZnBaEiRQpHAAoRzgA', 'total': 9, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/51hOPZnBaEiRQpHAAoRzgA/projects'}}
+Complete. 26 grants found.
+---
+SPORE University of Texas M. D. Anderson Cancer Center-Leukemia
+award: P50CA100632 1/1): {'search_id': 'zxKen0NagEuHj_EVDbkT3g', 'total': 22, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': True, 'properties': {'URL': 'https:/reporter.nih.gov/search/zxKen0NagEuHj_EVDbkT3g/projects'}}
+Complete. 22 grants found.
+---
+MD Anderson Cancer Center SPORE in Gastrointestinal Cancer
+award: P50CA221707 1/1): {'search_id': 'NDMIDWNMcUyxRRNIjUYJKw', 'total': 5, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': True, 'properties': {'URL': 'https:/reporter.nih.gov/search/NDMIDWNMcUyxRRNIjUYJKw/projects'}}
+Complete. 5 grants found.
+---
+SPORE in Brain Cancer
+award: P50CA127001 1/1): {'search_id': 'f9BTSDVppE6Uw5xjuRNFlg', 'total': 16, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': True, 'properties': {'URL': 'https:/reporter.nih.gov/search/f9BTSDVppE6Uw5xjuRNFlg/projects'}}
+Complete. 16 grants found.
+---
+SPORE for Translational Approaches to Brain Cancer
+award: P50CA221747 1/1): {'search_id': 'tWrprsBQOU-QBTEbJ-97Sw', 'total': 6, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': True, 'properties': {'URL': 'https:/reporter.nih.gov/search/tWrprsBQOU-QBTEbJ-97Sw/projects'}}
+Complete. 6 grants found.
+---
+Specialized Program Of Research Excellence (SPORE) in Leukemia.
+award: P50CA171963 1/1): {'search_id': '6Cg1u3Zokke_Wii161l-Wg', 'total': 16, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': True, 'properties': {'URL': 'https:/reporter.nih.gov/search/6Cg1u3Zokke_Wii161l-Wg/projects'}}
+Complete. 16 grants found.
+---
+Mayo Clinic Hepatobiliary SPORE
+award: P50CA210964 1/1): {'search_id': 'Cw5xpQ-tz06K2VuuAoxdIA', 'total': 10, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': True, 'properties': {'URL': 'https:/reporter.nih.gov/search/Cw5xpQ-tz06K2VuuAoxdIA/projects'}}
+Complete. 10 grants found.
+---
+Dana-Farber/Harvard Cancer Center Kidney Cancer SPORE
+award: P50CA101942 1/1): {'search_id': 'fW2-mBh5x0GotLu2MDkVtw', 'total': 19, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': True, 'properties': {'URL': 'https:/reporter.nih.gov/search/fW2-mBh5x0GotLu2MDkVtw/projects'}}
+Complete. 19 grants found.
+---
+University of Texas SPORE in Lung Cancer
+award: P50CA070907 1/1): {'search_id': 'ynNc2X_iC0KzHSKZ8E43OQ', 'total': 35, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': True, 'properties': {'URL': 'https:/reporter.nih.gov/search/ynNc2X_iC0KzHSKZ8E43OQ/projects'}}
+Complete. 35 grants found.
+---
+SPORE in Breast Cancer
+award: P50CA058223 1/1): {'search_id': 'GZ_1E_9Bp0G4jx6I8zzhAw', 'total': 32, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': True, 'properties': {'URL': 'https:/reporter.nih.gov/search/GZ_1E_9Bp0G4jx6I8zzhAw/projects'}}
+Complete. 32 grants found.
+---
+SPORE in Breast Cancer
+award: P50CA098131 1/1): {'search_id': 'rK5_9MDEf0yjpT0gTtpfGA', 'total': 26, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': True, 'properties': {'URL': 'https:/reporter.nih.gov/search/rK5_9MDEf0yjpT0gTtpfGA/projects'}}
+Complete. 26 grants found.
+---
+MSK SPORE in Genomic Instability in Breast Cancer
+award: P50CA247749 1/1): {'search_id': 'ag0Jvl24t0ublLiQ2WBmmA', 'total': 4, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': True, 'properties': {'URL': 'https:/reporter.nih.gov/search/ag0Jvl24t0ublLiQ2WBmmA/projects'}}
+Complete. 4 grants found.
+---
+Emory University Lung Cancer SPORE
+award: P50CA217691 1/1): {'search_id': '_T3QbEfFy0yy0Ge41t2Bwg', 'total': 5, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': True, 'properties': {'URL': 'https:/reporter.nih.gov/search/_T3QbEfFy0yy0Ge41t2Bwg/projects'}}
+Complete. 5 grants found.
+---
+Epigenetic Therapies - New Approaches
+award: P50CA254897 1/1): {'search_id': 't2q8JbUy106rA5YwTxoP0Q', 'total': 3, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': True, 'properties': {'URL': 'https:/reporter.nih.gov/search/t2q8JbUy106rA5YwTxoP0Q/projects'}}
+Complete. 3 grants found.
+---
+SPORE in Gastrointestinal Cancers
+award: P50CA062924 1/1): {'search_id': 'Imw6wezVq0OvS8Tc7oWFhw', 'total': 31, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': True, 'properties': {'URL': 'https:/reporter.nih.gov/search/Imw6wezVq0OvS8Tc7oWFhw/projects'}}
+Complete. 31 grants found.
+---
+Improving Management of Symptoms Across Cancer Treatments
+nofo: CA17-043 1/1): {'search_id': 'CS8xE1AEK0O2ybNMNVVS7g', 'total': 1, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/CS8xE1AEK0O2ybNMNVVS7g/projects'}}
+nofo: CA-17-042 1/1): {'search_id': 'M_djAwyBFk6LT6PwSzvWLQ', 'total': 3, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/M_djAwyBFk6LT6PwSzvWLQ/projects'}}
+Complete. 4 grants found.
+---
+CONSORTIUM FOR PANCREATIC DUCTAL ADENOCARCINOMA (PDAC) TRANSLATIONAL STUDIES
+nofo: CA-17-015 1/1): {'search_id': 'PWe0_rSUEk--6CrZuBO5qA', 'total': 16, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/PWe0_rSUEk--6CrZuBO5qA/projects'}}
+nofo: CA-17-016 1/1): {'search_id': 'iSmckGjU00y9v5gLnCvo4Q', 'total': 3, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/iSmckGjU00y9v5gLnCvo4Q/projects'}}
+Complete. 19 grants found.
+---
+A Data Resource for Blood and Marrow Transplants and Adoptive Cellular Therapy Research
+nofo: CA-12-503 1/1): {'search_id': 'PElTh149okCdEiTx_PXXog', 'total': 6, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/PElTh149okCdEiTx_PXXog/projects'}}
+nofo: CA-17-031 1/1): {'search_id': '5PkNyZtAQU2shMGesiDe3Q', 'total': 5, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/5PkNyZtAQU2shMGesiDe3Q/projects'}}
+nofo: CA-22-026 1/1): {'search_id': '4uGveOOYZkqJYW2uSB7dyg', 'total': 1, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/4uGveOOYZkqJYW2uSB7dyg/projects'}}
+Complete. 12 grants found.
+---
+Partnerships to Advance Cancer Health Equity (PACHE)
+nofo: RFA-PAR-18-767 1/1): {'search_id': '6-QTS_Yf90W7wtc7WFOHZQ', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/6-QTS_Yf90W7wtc7WFOHZQ/projects'}}
+nofo: RFA-PAR-22-249 1/1): {'search_id': 'e5s93ZT-n0eSJrFouCiwmQ', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/e5s93ZT-n0eSJrFouCiwmQ/projects'}}
+nofo: RFA-PAR-22-239 1/1): {'search_id': '0baSDTKIR0yqVikYF5zATQ', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/0baSDTKIR0yqVikYF5zATQ/projects'}}
+nofo: RFA-PAR-18-911 1/1): {'search_id': 'Ux-oilsdmkibybaLc27Xng', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/Ux-oilsdmkibybaLc27Xng/projects'}}
+nofo: RFA-PAR-18-361 1/1): {'search_id': 'DRQPT5XUo0qcNzJ3A_Fbyg', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/DRQPT5XUo0qcNzJ3A_Fbyg/projects'}}
+Complete. 0 grants found.
+---
+Genomic Data Analysis Network
+nofo: RFA-CA-20-053 1/1): {'search_id': '6kIGtmoBsEmvWJfPksPUMQ', 'total': 22, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/6kIGtmoBsEmvWJfPksPUMQ/projects'}}
+nofo: RFA-CA-15-020 1/1): {'search_id': 'gA298zLf80yJSl9evlcGqw', 'total': 56, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/gA298zLf80yJSl9evlcGqw/projects'}}
+nofo: RFA-CA-15-019 1/1): {'search_id': 'vlAejcFAMUipOnwqZPEXXQ', 'total': 5, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/vlAejcFAMUipOnwqZPEXXQ/projects'}}
+nofo: RFA-CA-15-018 1/1): {'search_id': 'Vdgp3VyC9kC_1oYaPE1wAA', 'total': 6, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/Vdgp3VyC9kC_1oYaPE1wAA/projects'}}
+Complete. 89 grants found.
+---
+Cancer Systems Biology Consortium (CSBC)
+nofo: RFA-CA-15-015 1/1): {'search_id': 'W2fS9Vg0-0eeLEwULGR9VQ', 'total': 8, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/W2fS9Vg0-0eeLEwULGR9VQ/projects'}}
+nofo: RFA-CA-21-049 1/1): {'search_id': '4aOB9ZL-n06pSSY1GeGrSg', 'total': 1, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/4aOB9ZL-n06pSSY1GeGrSg/projects'}}
+nofo: RFA-CA-21-048 1/1): {'search_id': 'X8qgRWcgVU6okD7-HdmQeA', 'total': 4, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/X8qgRWcgVU6okD7-HdmQeA/projects'}}
+nofo: RFA-CA-15-014 1/1): {'search_id': 'PR3NvVNTnEyy0d_ltOwL5Q', 'total': 76, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/PR3NvVNTnEyy0d_ltOwL5Q/projects'}}
+nofo: PAR-16-131 1/1): {'search_id': 'cpuH0AMWy0aekc6Oh-hInA', 'total': 88, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/cpuH0AMWy0aekc6Oh-hInA/projects'}}
+nofo: PAR-19-287 1/1): {'search_id': 'zZkNX_TOGkS5NCLKBtCbWA', 'total': 40, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/zZkNX_TOGkS5NCLKBtCbWA/projects'}}
+Complete. 217 grants found.
+---
+Development and Expansion of Digital Tools to Support Smoking Cessation
+award: 26114002B91019F00132-0-0-1 1/1): {'search_id': '3GRVRs6EUk-wxwwNd1H47g', 'total': 1, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': True, 'properties': {'URL': 'https:/reporter.nih.gov/search/3GRVRs6EUk-wxwwNd1H47g/projects'}}
+Complete. 1 grants found.
+---
+THE CHERNOBYL TISSUE BANK - COORDINATING CENTER
+nofo: CA16-502 1/1): {'search_id': 'Nb4gfRyQV0iYf0hhaeoQiA', 'total': 5, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/Nb4gfRyQV0iYf0hhaeoQiA/projects'}}
+nofo: CA12-501 1/1): {'search_id': 'kNOpoUtiU0y2xL2LdTeI3Q', 'total': 6, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/kNOpoUtiU0y2xL2LdTeI3Q/projects'}}
+Complete. 11 grants found.
+---
+Exercise and Nutrition Interventions to Improve Cancer Treatment-Related Outcomes
+nofo: RFA-CA-21-032 1/1): {'search_id': 'zGohl2Qm-0urQ4x-m0tvvA', 'total': 2, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/zGohl2Qm-0urQ4x-m0tvvA/projects'}}
+nofo: RFA-CA-21-031 1/1): {'search_id': 'hPt04rOP-UGv8jckv-EFfg', 'total': 7, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/hPt04rOP-UGv8jckv-EFfg/projects'}}
+Complete. 9 grants found.
+---
+Connecting Underrepresented Populations to Clinical Trials (CUSP2CT)
+nofo: RFA-CA-21-063 1/1): {'search_id': 'X0595v9EBUyY6_tAixT6bg', 'total': 4, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/X0595v9EBUyY6_tAixT6bg/projects'}}
+nofo: RFA-CA-21-058 1/1): {'search_id': 'l-4IKUEBTEa0gZ0hAJRt7w', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/l-4IKUEBTEa0gZ0hAJRt7w/projects'}}
+nofo: RFA-CA-22-014 1/1): {'search_id': '2xmXgqkLFUq4Hm3wc1mnjA', 'total': 1, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/2xmXgqkLFUq4Hm3wc1mnjA/projects'}}
+Complete. 5 grants found.
+---
+Cancer Prevention Clinical Trials Network (CP-CTNet)
+nofo: CA-18-030 1/1): {'search_id': 'JW5lVPmwF0qYEe-ouS1rCg', 'total': 5, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/JW5lVPmwF0qYEe-ouS1rCg/projects'}}
+nofo: CA-18-029 1/1): {'search_id': 'frPlkryP90C3Jv_vlFiDGA', 'total': 16, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/frPlkryP90C3Jv_vlFiDGA/projects'}}
+nofo: CA-19-031 1/1): {'search_id': 'rEyzZMltnkKOhHlBVW4D-A', 'total': 8, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/rEyzZMltnkKOhHlBVW4D-A/projects'}}
+Complete. 29 grants found.
+---
+City of Hope Lymphoma SPORE
+award: P50CA107399 1/1): {'search_id': 'EnHNgLEpwEWkvdMve4UK5g', 'total': 18, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': True, 'properties': {'URL': 'https:/reporter.nih.gov/search/EnHNgLEpwEWkvdMve4UK5g/projects'}}
+Complete. 18 grants found.
+---
+Co-Clinical Imaging Research Resource Program
+nofo: PAR-18-841 1/1): {'search_id': 'f9pyuSHQh02pCFVyVDyahQ', 'total': 17, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/f9pyuSHQh02pCFVyVDyahQ/projects'}}
+nofo: PAR-16-385 1/1): {'search_id': '0fQEC1EEjESTX7fECII7GQ', 'total': 14, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/0fQEC1EEjESTX7fECII7GQ/projects'}}
+nofo: PAR-15-266 1/1): {'search_id': 'y73QWds-2kyfcea4XiR9ew', 'total': 5, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/y73QWds-2kyfcea4XiR9ew/projects'}}
+Complete. 36 grants found.
+---
+CANCER IMMUNE MONITORING AND ANALYSIS CENTERS
+nofo: RFA-CA-17-005 1/1): {'search_id': 'MsWv9CY02ku2cLdpaK6Egw', 'total': 4, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/MsWv9CY02ku2cLdpaK6Egw/projects'}}
+nofo: RFA-CA-22-038 1/1): {'search_id': 'kbRhD08jSke6bmx5mvXFHA', 'total': 4, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/kbRhD08jSke6bmx5mvXFHA/projects'}}
+Complete. 8 grants found.
+---
+The Adjuvant Lung Cancer Enrichment Marker Identification and Sequencing Trials (ALCHEMIST)
+award: U10CA180821 1/1): {'search_id': 'S4Fyq-4VFkCUnuljqCFwqA', 'total': 35, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': True, 'properties': {'URL': 'https:/reporter.nih.gov/search/S4Fyq-4VFkCUnuljqCFwqA/projects'}}
+award: U10CA180830 1/1): {'search_id': 'WBCnYCZNDU62fleMHSppeg', 'total': 5, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': True, 'properties': {'URL': 'https:/reporter.nih.gov/search/WBCnYCZNDU62fleMHSppeg/projects'}}
+award: U10CA031946 1/1): {'search_id': 'A4Q8wUi3JECsuGR7JgrTMw', 'total': 29, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': True, 'properties': {'URL': 'https:/reporter.nih.gov/search/A4Q8wUi3JECsuGR7JgrTMw/projects'}}
+Complete. 69 grants found.
+---
+All of Us
+nofo: HG21-041 1/1): {'search_id': 'mJ4Qa3sVO0CvnrMvttwb6A', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/mJ4Qa3sVO0CvnrMvttwb6A/projects'}}
+nofo: LM21-002 1/1): {'search_id': 'qbhCpdGRUUOzo2rgbWjleg', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/qbhCpdGRUUOzo2rgbWjleg/projects'}}
+nofo: MH22-200 1/1): {'search_id': 'eC_PCWcmTkS5Gg2AxskfkQ', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/eC_PCWcmTkS5Gg2AxskfkQ/projects'}}
+nofo: OD21-144 1/1): {'search_id': 'OAbKdb5wKkWFzd7vqD2UXQ', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/OAbKdb5wKkWFzd7vqD2UXQ/projects'}}
+nofo: OD22-150 1/1): {'search_id': 'wCXTrXY7AUSSwPd3_Ra4Iw', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/wCXTrXY7AUSSwPd3_Ra4Iw/projects'}}
+nofo: OD22-153 1/1): {'search_id': '2LR07VAlWkCHz30iC-QOng', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/2LR07VAlWkCHz30iC-QOng/projects'}}
+nofo: OTA17-002 1/1): {'search_id': 'RRMqvor7qkOA7Ln4ycFzog', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/RRMqvor7qkOA7Ln4ycFzog/projects'}}
+nofo: OTA18-001 1/1): {'search_id': 'w7nfQWq8zEWYGOF1Ml6ZQw', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/w7nfQWq8zEWYGOF1Ml6ZQw/projects'}}
+nofo: OTA19-002 1/1): {'search_id': '9tlF6jttS0e9h6FV7GsCDg', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/9tlF6jttS0e9h6FV7GsCDg/projects'}}
+nofo: OTA19-003 1/1): {'search_id': 'i5gctT7OakuGEbEX7J9oqQ', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/i5gctT7OakuGEbEX7J9oqQ/projects'}}
+nofo: OTA19-004 1/1): {'search_id': 'S0Hb2FVJBEe-78VQQ_XeUw', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/S0Hb2FVJBEe-78VQQ_XeUw/projects'}}
+nofo: OTA20-001 1/1): {'search_id': 'bZM3UF-QP06qqNRNBCQfkw', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/bZM3UF-QP06qqNRNBCQfkw/projects'}}
+nofo: OTA20-009 1/1): {'search_id': 'i8nMhGh81kaU7GH7eF9hMQ', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/i8nMhGh81kaU7GH7eF9hMQ/projects'}}
+nofo: OTA22-006 1/1): {'search_id': 'jOk1pSE--EOLSP3ci7CBFw', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/jOk1pSE--EOLSP3ci7CBFw/projects'}}
+nofo: OTA23-001 1/1): {'search_id': 'yWFF_xx_D0KC3wjjQb814g', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/yWFF_xx_D0KC3wjjQb814g/projects'}}
+nofo: OTA23-003 1/1): {'search_id': 'iamR6NMi2USDG8UlbrNFpg', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/iamR6NMi2USDG8UlbrNFpg/projects'}}
+nofo: A17-446 1/1): {'search_id': 'v6CBG0yZU0Gy4MPKIktNMw', 'total': 4, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/v6CBG0yZU0Gy4MPKIktNMw/projects'}}
+nofo: PA18-91 1/1): {'search_id': 'nTZVBP6-wUCbdf6q6U9_1A', 'total': 2, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/nTZVBP6-wUCbdf6q6U9_1A/projects'}}
+nofo: PA20-145 1/1): {'search_id': 'l85TYd0ooUydgX16Y24htg', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/l85TYd0ooUydgX16Y24htg/projects'}}
+nofo: PA20-185 1/6): {'search_id': 'zGWORdL7fkOVhZh7V2u0Rg', 'total': 2673, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/zGWORdL7fkOVhZh7V2u0Rg/projects'}}
+nofo: PA20-185 2/6): {'search_id': '-4928q2NLkOcO4iPcIbDfQ', 'total': 2673, 'offset': 500, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/-4928q2NLkOcO4iPcIbDfQ/projects'}}
+nofo: PA20-185 3/6): {'search_id': 'EdK1QlDt20WO7iIHFJcI3A', 'total': 2673, 'offset': 1000, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/EdK1QlDt20WO7iIHFJcI3A/projects'}}
+nofo: PA20-185 4/6): {'search_id': 'peTa71y8k0CzbW9aHibKgg', 'total': 2673, 'offset': 1500, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/peTa71y8k0CzbW9aHibKgg/projects'}}
+nofo: PA20-185 5/6): {'search_id': 'dKlo45CA3kiWiwUycO-EDw', 'total': 2673, 'offset': 2000, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/dKlo45CA3kiWiwUycO-EDw/projects'}}
+nofo: PA20-185 6/6): {'search_id': 'OzijGS9ngEufaXDmnLWddg', 'total': 2673, 'offset': 2500, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/OzijGS9ngEufaXDmnLWddg/projects'}}
+nofo: PA20-272 1/2): {'search_id': '7fXXkZs6L0W_qr4ur0e5qA', 'total': 574, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/7fXXkZs6L0W_qr4ur0e5qA/projects'}}
+nofo: PA20-272 2/2): {'search_id': 'qIOXAuhSr0KUUnaAKjpcLA', 'total': 574, 'offset': 500, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/qIOXAuhSr0KUUnaAKjpcLA/projects'}}
+nofo: PAR20-150 1/1): {'search_id': '_6-9lbAbo0eM-dmV0Z7iRQ', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/_6-9lbAbo0eM-dmV0Z7iRQ/projects'}}
+nofo: PM23-001 1/1): {'search_id': 'R1g8Mi053UeYrNqZqD2eew', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/R1g8Mi053UeYrNqZqD2eew/projects'}}
+nofo: PM23-002 1/1): {'search_id': '015h8ekRlUuuIzgUom6QRg', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/015h8ekRlUuuIzgUom6QRg/projects'}}
+nofo: RM21-002 1/1): {'search_id': 'p6CVzkXxj0iulbClMoHlkA', 'total': 2, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/p6CVzkXxj0iulbClMoHlkA/projects'}}
+nofo: RM21-003 1/1): {'search_id': 'lPKoD5U8eEuMSS8UBtf-Eg', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/lPKoD5U8eEuMSS8UBtf-Eg/projects'}}
+nofo: RM21-005 1/1): {'search_id': 'Weot8oIslUOwnfHXH2rW_w', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/Weot8oIslUOwnfHXH2rW_w/projects'}}
+nofo: RM21-006 1/1): {'search_id': 'FHWWb7jj70SjMBt9e1J_Ww', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/FHWWb7jj70SjMBt9e1J_Ww/projects'}}
+nofo: RM21-016 1/1): {'search_id': 'JSsVO1ZYPUON5G-H0plo9Q', 'total': 8, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/JSsVO1ZYPUON5G-H0plo9Q/projects'}}
+nofo: SM18-009 1/1): {'search_id': 'kKfxiROk8EWaqrrQVgRQuw', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/kKfxiROk8EWaqrrQVgRQuw/projects'}}
+nofo: SM21-007 1/1): {'search_id': '2uk1-VmxBEWnBtKVxcYCyw', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/2uk1-VmxBEWnBtKVxcYCyw/projects'}}
+nofo: SP20-002 1/1): {'search_id': 'BBO-xkMjHkO1hmLQnZNKKQ', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/BBO-xkMjHkO1hmLQnZNKKQ/projects'}}
+Complete. 3263 grants found.
+---
+CTD^2: Cancer Target Discovery and Development
+award: RFA-CA-16-014 1/1): {'search_id': 'r0UH8Ds0rkWp7aAuVa1Swg', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': True, 'properties': {'URL': 'https:/reporter.nih.gov/search/r0UH8Ds0rkWp7aAuVa1Swg/projects'}}
+award: PAR-21-274 1/1): {'search_id': 'BXRjPsq_NU-0FQ2PqMPPNQ', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': True, 'properties': {'URL': 'https:/reporter.nih.gov/search/BXRjPsq_NU-0FQ2PqMPPNQ/projects'}}
+Complete. 0 grants found.
+---
+Dana Farber/Harvard Cancer Center Ovarian Cancer SPORE grant
+award: P50CA240243 1/1): {'search_id': 'Rver9D1u5kWsUgs3ETfdkA', 'total': 4, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': True, 'properties': {'URL': 'https:/reporter.nih.gov/search/Rver9D1u5kWsUgs3ETfdkA/projects'}}
+Complete. 4 grants found.
+---
+Dana-Farber/Harvard Cancer Center SPORE in Breast Cancer
+award: P50CA168504 1/1): {'search_id': 'OmAml0ccvUmi5D-cgzqIdw', 'total': 10, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': True, 'properties': {'URL': 'https:/reporter.nih.gov/search/OmAml0ccvUmi5D-cgzqIdw/projects'}}
+Complete. 10 grants found.
+---
+HIV/Cervical Cancer Prevention 'CASCADE' Clinical Trials Network
+nofo: CA-21-045 1/1): {'search_id': 'N-JsaRP3H0ifjBh5Gz2Osg', 'total': 2, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/N-JsaRP3H0ifjBh5Gz2Osg/projects'}}
+nofo: CA-21-046 1/1): {'search_id': 'svm2zE1YPE6rG3IGfqF7qA', 'total': 6, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/svm2zE1YPE6rG3IGfqF7qA/projects'}}
+nofo: CA-21-047 1/1): {'search_id': 'UBFsN2GTTEmCNXub5ROx9w', 'total': 6, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/UBFsN2GTTEmCNXub5ROx9w/projects'}}
+nofo: CA-22-051 1/1): {'search_id': 'AaqbYLHbkU-8uas3ekch5A', 'total': 2, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/AaqbYLHbkU-8uas3ekch5A/projects'}}
+Complete. 16 grants found.
+---
+ADVANCED DEVELOPMENT OF INFORMATICS TECHNOLOGIES FOR CANCER RESEARCH AND MANAGEMENT
+nofo: PAR15-331 1/1): {'search_id': 'ovRmTA67nkidhfPm7mC2kA', 'total': 70, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/ovRmTA67nkidhfPm7mC2kA/projects'}}
+nofo: PAR-15-332 1/1): {'search_id': 'SF6Ig8M3D0KbZtpxulMKwg', 'total': 50, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/SF6Ig8M3D0KbZtpxulMKwg/projects'}}
+nofo: PAR15-333 1/1): {'search_id': 'ZKefWE1V60uNw7WyrArFIQ', 'total': 24, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/ZKefWE1V60uNw7WyrArFIQ/projects'}}
+nofo: PAR-15-334 1/1): {'search_id': '5ZzsukOnk0GKcDBVFmWHRA', 'total': 43, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/5ZzsukOnk0GKcDBVFmWHRA/projects'}}
+nofo: RFA-19-040 1/1): {'search_id': 'lApTQFOCg0WD4OWcDUHJ-w', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/lApTQFOCg0WD4OWcDUHJ-w/projects'}}
+nofo: RFA-20-009 1/1): {'search_id': 'zHWfItni3ES-EdOjAVM-6w', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/zHWfItni3ES-EdOjAVM-6w/projects'}}
+nofo: RFA-19-038 1/1): {'search_id': 'H3YMSBgXo0GuCdIAOGk9Ew', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/H3YMSBgXo0GuCdIAOGk9Ew/projects'}}
+nofo: RFA-20-007 1/1): {'search_id': '5aEo6iYRaUujGf5DqZgNWw', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/5aEo6iYRaUujGf5DqZgNWw/projects'}}
+nofo: RFA-19-039 1/1): {'search_id': 'eHK7WNc2pU6HB78wlMdUag', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/eHK7WNc2pU6HB78wlMdUag/projects'}}
+nofo: RFA-20-008 1/1): {'search_id': '327Tlu32SUC3BofFrLOO7A', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/327Tlu32SUC3BofFrLOO7A/projects'}}
+nofo: RFA-19-041 1/1): {'search_id': '6JjFU72nO0ydKN44LHjD5w', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/6JjFU72nO0ydKN44LHjD5w/projects'}}
+nofo: RFA-20-010 1/1): {'search_id': 'qZtnd-Z590OklC4gKqwZ7g', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/qZtnd-Z590OklC4gKqwZ7g/projects'}}
+nofo: RFA-19-042 1/1): {'search_id': 'qzpm28bf4kWSTTQLO4Zy-g', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/qzpm28bf4kWSTTQLO4Zy-g/projects'}}
+nofo: RFA-20-060 1/1): {'search_id': 'cQK-N_Sekk6uvVw_LbO0Rg', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/cQK-N_Sekk6uvVw_LbO0Rg/projects'}}
+nofo: RFA-21-013 1/1): {'search_id': 'rLBJ-2Kr_kCEHVjugjaXgQ', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/rLBJ-2Kr_kCEHVjugjaXgQ/projects'}}
+nofo: RFA-21-014 1/1): {'search_id': 'L2QzKkLE6UuJkd5obr8ayg', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/L2QzKkLE6UuJkd5obr8ayg/projects'}}
+nofo: RFA-21-015 1/1): {'search_id': '_5W38uoRJUeAdW--6f9j9Q', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/_5W38uoRJUeAdW--6f9j9Q/projects'}}
+nofo: RFA-21-016 1/1): {'search_id': 'onGSlTLEsEiJLydnIxw5VA', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/onGSlTLEsEiJLydnIxw5VA/projects'}}
+nofo: RFA-21-017 1/1): {'search_id': 'QqKayzfyu0m4WYsklXP4Sw', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/QqKayzfyu0m4WYsklXP4Sw/projects'}}
+nofo: RFA-21-018 1/1): {'search_id': 'DmTqvI_znkC-ceBL2eOAkw', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/DmTqvI_znkC-ceBL2eOAkw/projects'}}
+nofo: RFA-21-019 1/1): {'search_id': 'JeiErQ4IOEO5hysMdYvZbA', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/JeiErQ4IOEO5hysMdYvZbA/projects'}}
+nofo: RFA-22-023 1/1): {'search_id': 'e5MY7ap9KEyeSqGSigtRqQ', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/e5MY7ap9KEyeSqGSigtRqQ/projects'}}
+nofo: RFA-22-021 1/1): {'search_id': 'kM29XBTQ3EiRp1y9V5v5Sw', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/kM29XBTQ3EiRp1y9V5v5Sw/projects'}}
+nofo: RFA-22-022 1/1): {'search_id': 'uT3p_CJZPkK2D1K9XtUTiQ', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/uT3p_CJZPkK2D1K9XtUTiQ/projects'}}
+nofo: RFA-22-024 1/1): {'search_id': 'oL9U6UdREkyoUW2SWac47A', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/oL9U6UdREkyoUW2SWac47A/projects'}}
+nofo: RFA-23-014 1/1): {'search_id': 's5D43-_QH0OEhVHRfivViQ', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/s5D43-_QH0OEhVHRfivViQ/projects'}}
+nofo: RFA-23-015 1/1): {'search_id': 'G31DZ-_oQUK-L1OwfH3CGw', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/G31DZ-_oQUK-L1OwfH3CGw/projects'}}
+nofo: RFA-23-016 1/1): {'search_id': 'O1qk3f8YF0-Ct3iXzkXEhA', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/O1qk3f8YF0-Ct3iXzkXEhA/projects'}}
+nofo: RFA-23-017 1/1): {'search_id': '8KtNPk6SekuzgNEAKctMqg', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/8KtNPk6SekuzgNEAKctMqg/projects'}}
+Complete. 187 grants found.
+---
+Cancer Genome Characterization Initiative
+award: 261200800001E-52-0-113 1/1): {'search_id': 'FOeYKBU3cE-U1ux0_fdjTQ', 'total': 1, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': True, 'properties': {'URL': 'https:/reporter.nih.gov/search/FOeYKBU3cE-U1ux0_fdjTQ/projects'}}
+award: 261201500003I-0-26100065-1 1/1): {'search_id': 'efmm3e5IJkemLdjdZmWisQ', 'total': 1, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': True, 'properties': {'URL': 'https:/reporter.nih.gov/search/efmm3e5IJkemLdjdZmWisQ/projects'}}
+Complete. 2 grants found.
+---
+Human Tumor Atlas Network
+nofo: RFA-CA-17-036 1/1): {'search_id': 'WypUxkJ1BEWMQaTf6O8w-A', 'total': 1, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/WypUxkJ1BEWMQaTf6O8w-A/projects'}}
+nofo: RFA-CA-17-034 1/1): {'search_id': 'jZ7GzddWx02PqMLwTcgjuQ', 'total': 25, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/jZ7GzddWx02PqMLwTcgjuQ/projects'}}
+nofo: RFA-CA-17-035 1/1): {'search_id': 'gpCbeuCYQka9AgS6c1KtQg', 'total': 8, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/gpCbeuCYQka9AgS6c1KtQg/projects'}}
+Error occurred while fetching grants for nofo 'RFA-CA-20-042, RFA-CA-21-037': 400
+Complete. 34 grants found.
+---
+Translational and Basic Science Research in Early Lesions
+nofo: CA21-055 1/1): {'search_id': 'GFswzKsezUKLIsklk7nJ9g', 'total': 1, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/GFswzKsezUKLIsklk7nJ9g/projects'}}
+nofo: CA21-054 1/1): {'search_id': 'Jsv1zRQyQECrzbHo43IudA', 'total': 5, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/Jsv1zRQyQECrzbHo43IudA/projects'}}
+Complete. 6 grants found.
+---
+ILLUMINATING THE DRUGGABLE GENOME
+nofo: RM16-024 1/1): {'search_id': 'kUwUah8sOUOqpUTq6NeVzw', 'total': 12, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/kUwUah8sOUOqpUTq6NeVzw/projects'}}
+nofo: RM16-025 1/1): {'search_id': '9d4BwNeWV0qUSEmUEbPiDw', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/9d4BwNeWV0qUSEmUEbPiDw/projects'}}
+nofo: RM16-026 1/1): {'search_id': 'J_i8Qwx-GEa-zkFsNVPJRg', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/J_i8Qwx-GEa-zkFsNVPJRg/projects'}}
+Complete. 12 grants found.
+---
+Canine Cancer Immunotherapy Network
+nofo: CA21-051 1/1): {'search_id': 'BHZHtRxHWUavMqQGrW_ong', 'total': 1, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/BHZHtRxHWUavMqQGrW_ong/projects'}}
+nofo: CA21-050 1/1): {'search_id': 'yqBxqe4LB0eqdi2wVyNGxA', 'total': 5, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/yqBxqe4LB0eqdi2wVyNGxA/projects'}}
+Complete. 6 grants found.
+---
+Cellular Senescence Network
+nofo: RM21-010 1/1): {'search_id': 'xm_ohGGPUkWDA7A6bxynew', 'total': 2, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/xm_ohGGPUkWDA7A6bxynew/projects'}}
+nofo: RM21-009 1/1): {'search_id': 'DzQpJnmxf0-r6VXmvAkthQ', 'total': 14, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/DzQpJnmxf0-r6VXmvAkthQ/projects'}}
+nofo: RM21-008 1/1): {'search_id': 'DXRzwHF5N0yQN9tq4nVhFA', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/DXRzwHF5N0yQN9tq4nVhFA/projects'}}
+Complete. 16 grants found.
+---
+Metabolic Dysregulation and Cancer Risk Program
+nofo: CA21-022 1/1): {'search_id': 'bOg-Z09tokSDG0djZERnxg', 'total': 1, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/bOg-Z09tokSDG0djZERnxg/projects'}}
+nofo: CA21-021 1/1): {'search_id': 'rmazTXyVTUSn0gu1fk1nJQ', 'total': 7, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/rmazTXyVTUSn0gu1fk1nJQ/projects'}}
+Complete. 8 grants found.
+---
+Participant Engagement and Cancer Genome Sequencing
+nofo: CA19-046 1/1): {'search_id': '-TtbczXWN0O4iPcpShEfqA', 'total': 3, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/-TtbczXWN0O4iPcpShEfqA/projects'}}
+nofo: CA19-045 1/1): {'search_id': '1l4rBdPkx0uUhVJEzIKtyg', 'total': 11, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/1l4rBdPkx0uUhVJEzIKtyg/projects'}}
+Blank nofo value encountered. Skipping.
+Complete. 14 grants found.
+---
+Pancreatic Adenocarcinoma Stromal Reprograming ConSortium (PSRC/PASSCODE)
+nofo: RFA-CA-21-041 1/1): {'search_id': 'IlT0wZoKtUyVrjw92IrqqQ', 'total': 6, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/IlT0wZoKtUyVrjw92IrqqQ/projects'}}
+nofo: RFA-CA-21-042 1/1): {'search_id': 'DbR2bbsekUKZWOljVI308A', 'total': 1, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/DbR2bbsekUKZWOljVI308A/projects'}}
+Complete. 7 grants found.
+---
+Oncology Models Forum (U24)
+nofo: PAR14-239 1/1): {'search_id': 'xlHtABZDKUaoLAJRZZlzWg', 'total': 5, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/xlHtABZDKUaoLAJRZZlzWg/projects'}}
+nofo: PAR-16-059 1/1): {'search_id': 'hDQ186p1UEyzThef44Sm6A', 'total': 25, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/hDQ186p1UEyzThef44Sm6A/projects'}}
+nofo: PAR-17-245 1/1): {'search_id': 'FOp-CqJmNEGpY7tmN-QcRQ', 'total': 139, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/FOp-CqJmNEGpY7tmN-QcRQ/projects'}}
+nofo: PAR-20-131 1/1): {'search_id': 'd_ZAKVFxBUWoONX8kyECaw', 'total': 48, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/d_ZAKVFxBUWoONX8kyECaw/projects'}}
+Complete. 217 grants found.
+---
+Pediatric Preclinical in Vivo Testing (PIVOT)
+nofo: RFA-CA-20-034 1/1): {'search_id': '1A1k8sOXpkOXubbShpQdwA', 'total': 21, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/1A1k8sOXpkOXubbShpQdwA/projects'}}
+nofo: RFA-CA-14-018 1/1): {'search_id': '5oo3KNvcZUiYgvDRNwEgnA', 'total': 25, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/5oo3KNvcZUiYgvDRNwEgnA/projects'}}
+nofo: RFA-CA-20-041 1/1): {'search_id': 'OoWXiu_Ph0upWYbl2gDAsA', 'total': 3, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/OoWXiu_Ph0upWYbl2gDAsA/projects'}}
+Complete. 49 grants found.
+---
+Cancer Immunologic Data Commons
+nofo: RFA-CA-17-006 1/1): {'search_id': 'D-F1G_dXL0Saso_o9LH7wQ', 'total': 1, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/D-F1G_dXL0Saso_o9LH7wQ/projects'}}
+nofo: RFA-CA-22-038 1/1): {'search_id': 'BtjhfC5pi0Gwf0EMxGL7mA', 'total': 4, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/BtjhfC5pi0Gwf0EMxGL7mA/projects'}}
+Complete. 5 grants found.
+---
+Childhood Cancer Survivor Study
+nofo: RFA-CA-20-052 1/1): {'search_id': 'E3Cxl7L7T06aVPyq3ju26w', 'total': 2, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/E3Cxl7L7T06aVPyq3ju26w/projects'}}
+nofo: RFA-CA15-502 1/1): {'search_id': 'NfouWuLhQE6aAB5quxJx1Q', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/NfouWuLhQE6aAB5quxJx1Q/projects'}}
+Complete. 2 grants found.
+---
+Pancreatic Cancer Microenvironment Network
+nofo: RFA-CA-17-015 1/1): {'search_id': 'Fjiklq-LPkKuox8F2MlWYQ', 'total': 16, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/Fjiklq-LPkKuox8F2MlWYQ/projects'}}
+nofo: RFA-CA-17-016 1/1): {'search_id': 'sA6oICmAJEW-NRx26nFk_g', 'total': 3, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/sA6oICmAJEW-NRx26nFk_g/projects'}}
+Complete. 19 grants found.
+---
+AIDS and Cancer Specimen Resource (ACSR)
+nofo: RFA-CA-18-012 1/1): {'search_id': 'PxCzxEvSM0CVOZOQCifqMg', 'total': 4, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/PxCzxEvSM0CVOZOQCifqMg/projects'}}
+Complete. 4 grants found.
+---
+HIV-Associated Malignancy Research Centers
+nofo: RFA-CA-20-001 1/1): {'search_id': '_bOrOJ0fh0OpTEkDtbkiUw', 'total': 25, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/_bOrOJ0fh0OpTEkDtbkiUw/projects'}}
+nofo: RFA-CA-22-011 1/1): {'search_id': 'eAhDgxmJJECOXDJg45WgSw', 'total': 2, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/eAhDgxmJJECOXDJg45WgSw/projects'}}
+Complete. 27 grants found.
+---
+Clinical Proteomic Tumor Analysis Consortium
+nofo: RFA-CA-15-023 1/1): {'search_id': 'xchsTACU80C8QIE7rUiBdw', 'total': 25, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/xchsTACU80C8QIE7rUiBdw/projects'}}
+nofo: RFA-CA-15-021 1/1): {'search_id': 'F-LILjKYcUek-ZtZmquiSQ', 'total': 15, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/F-LILjKYcUek-ZtZmquiSQ/projects'}}
+nofo: RFA-CA21-024 1/1): {'search_id': 'lq7IkMOKZk6qW4jqNmShlg', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/lq7IkMOKZk6qW4jqNmShlg/projects'}}
+nofo: RFA-CA21-023 1/1): {'search_id': 'AKK-begZ9E-sWnfqrvqeaw', 'total': 0, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': False, 'properties': {'URL': 'https:/reporter.nih.gov/search/AKK-begZ9E-sWnfqrvqeaw/projects'}}
+Complete. 40 grants found.
+---
+Dana Farber/ Harvard Cancer Center SPORE in Gastrointestinal Cancer
+award: P50CA127003 1/1): {'search_id': 'LfeE5OCJ1kqhNm3bWQJ2Dw', 'total': 15, 'offset': 0, 'limit': 500, 'sort_field': 'FiscalYear', 'sort_order': 'desc', 'sorted_by_relevance': True, 'properties': {'URL': 'https:/reporter.nih.gov/search/LfeE5OCJ1kqhNm3bWQJ2Dw/projects'}}
+Complete. 15 grants found.
+---
+Success! NIH RePORTER API data gathered, cleaned, and saved.Total: 5143 grants across all Awards and NOFOs.
+ Results can be found in data/processed/2023-08-30/api-gathered-2023-08-30.
+---
+
+
+
+
+
+
+
+

@@ -10,8 +10,8 @@ from datetime import datetime
 # Inputs and outputs will use this versioning
 # Version must match suffix in input filename
 
-QUALTRICS_VERSION = "2023-07-19" # <-- CHANGE VERSION HERE
-QUALTRICS_TYPE = "manual_fix" # <-- Define "raw" or "manual_fix" type of the input csv
+QUALTRICS_VERSION = "2023-08-30" # <-- CHANGE VERSION HERE
+QUALTRICS_TYPE = "raw" # <-- Define "raw" or "manual_fix" type of the input csv
 
 
 
@@ -42,7 +42,7 @@ QUALTRICS_COLS = {
     "NIH Contact (Program Officer/Program Director)": "contact_nih",
     "NIH Contact (Program Officer/Program Director) email": "contact_nih_email",
     "NOFO number (eg. format as \"RFA-CA-00-000\") (If more than one, separate with ; semicolon)": "nofo",
-    "Grant/Award number {parent award FORMAT #LL#CA######, eg. 5UG3CA260607} (If more than one, separate with ; semicolon)": "award",
+    "Grant/Award number {parent award FORMAT LL#CA######, eg. UG3CA260607} (If more than one, separate with ; semicolon)": "award",
     "Link to program website": "program_link",
     "Link to data or DCC if available": "data_link",
     "What type of cancer is the primary focus of the program? (Check all that\napply)": "cancer_type",
