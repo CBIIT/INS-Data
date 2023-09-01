@@ -15,6 +15,7 @@
 
 import pandas as pd
 import config
+import re
 
 def clean_grants_data(grants_data):
     """Create clean dataframes from NIH RePORTER API response JSONs."""
@@ -43,7 +44,14 @@ def clean_grants_data(grants_data):
     df_renamed = df_cleaned_funding.copy()
     df_renamed.rename(columns=rename_dict)
 
-    return df_renamed
+    # Step 5: Clean abstract text
+    abstract_col = config.ABSTRACT_TEXT_FIELD
+    df_cleaned_abstract = df_renamed.copy()
+    df_cleaned_abstract[abstract_col] = (df_cleaned_abstract
+                                         [abstract_col]
+                                         .apply(clean_abstract))
+
+    return df_cleaned_abstract
 
 
 def concatenate_full_names(row):
@@ -79,3 +87,26 @@ def extract_total_cost(fundings):
     # Return 0 if no NCI funding found
     return int(0)
 
+
+def clean_abstract(text):
+    """Clean abstract text of odd characters from mismatched encoding"""
+
+    # Define a list of characters to be removed or replaced
+    chars_to_remove = ['\xad']
+    chars_to_space = ['  ']
+
+    if isinstance(text, str):
+        # Remove unwanted characters (no space added)
+        for char in chars_to_remove:
+            text = text.replace(char, '')
+        # Replace unwanted characters with a space
+        for char in chars_to_space:
+            text = text.replace(char, ' ')
+
+        # Remove non-breaking spaces, newlines, and other unwanted characters
+        cleaned_text = re.sub(r'[\s\xa0]+', ' ', text).strip()
+        return cleaned_text
+        
+    # Return original value if it is NaN or float
+    else: 
+        return text

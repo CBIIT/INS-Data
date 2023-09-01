@@ -84,6 +84,9 @@ def main():
                   f"searches.")
             continue
 
+        # Skip remaining steps if no grants data gathered
+        if len(grants_data) == 0:
+            continue
 
         # STEP 3: Data Cleaning - Clean and format grants data
 
