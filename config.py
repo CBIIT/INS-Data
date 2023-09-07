@@ -64,10 +64,7 @@ API_FIELDS = [
     'project_title',
     'abstract_text',
     'pref_terms',
-    'org_name',
-    'org_city',
-    'org_state',
-    'org_country',
+    'organization',
     'principal_investigators',
     'program_officers',
     'award_amount',
@@ -75,7 +72,7 @@ API_FIELDS = [
     'award_notice_date',
     'project_start_date',
     'project_end_date',
-    'full_foa',
+    'opportunity_number', # Replaces full_foa
     'api_source_search' # Not from RePORTER. Added during data gathering step.
 ]
 
@@ -87,6 +84,15 @@ API_NAME_FIELDS = [
 
 # Field name containing nested JSON with NCI funding
 API_AGENCY_FUNDING_FIELD = 'agency_ic_fundings'
+
+# List of organization fields nested within organization field from API
+API_ORG_FIELD = 'organization'
+API_ORG_SUBFIELDS =   [
+    'org_name',
+    'org_city',
+    'org_state',
+    'org_country'
+]
 
 # Field name for abstract text
 ABSTRACT_TEXT_FIELD = 'abstract_text'

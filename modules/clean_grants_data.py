@@ -38,13 +38,21 @@ def clean_grants_data(grants_data):
     df_cleaned_funding[agency_funding_col] = (df_cleaned_funding
                                               [agency_funding_col]
                                               .apply(extract_total_cost))
+    
+    # Step 4: Extract desired organization values from nested JSON field
+    org_field_old = config.API_ORG_FIELD
+    org_fields_keep = config.API_ORG_SUBFIELDS
+    df_cleaned_orgs = df_cleaned_funding.copy()
+    df_cleaned_orgs = (format_organization_columns(df_cleaned_orgs,
+                                                   org_field_old,
+                                                   org_fields_keep))
 
-    # Step 4: Rename columns to match INS terms
+    # Step 5: Rename columns to match INS terms
     rename_dict = config.API_FIELD_RENAMER
-    df_renamed = df_cleaned_funding.copy()
+    df_renamed = df_cleaned_orgs.copy()
     df_renamed.rename(columns=rename_dict)
 
-    # Step 5: Clean abstract text
+    # Step 6: Clean abstract text
     abstract_col = config.ABSTRACT_TEXT_FIELD
     df_cleaned_abstract = df_renamed.copy()
     df_cleaned_abstract[abstract_col] = (df_cleaned_abstract
@@ -110,3 +118,15 @@ def clean_abstract(text):
     # Return original value if it is NaN or float
     else: 
         return text
+
+def format_organization_columns(df, org_field_old, org_subfields):
+    """Extract org fields from nested API JSON organization field"""
+
+    # Extract defined org subfields as new columns and fill with values
+    for org_subfield in org_subfields:
+        df[org_subfield] = (df[org_field_old]
+                            .apply(lambda row: row[org_subfield]))
+    # Drop the old nested organization column after extracting contents
+    df.drop(org_field_old, axis=1, inplace=True)
+    
+    return df

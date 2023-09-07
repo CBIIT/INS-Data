@@ -38,7 +38,7 @@ def get_nih_reporter_grants(search_values:str,
 
     # Set the search field based on the search_type
     if search_type == 'nofo':
-        search_field = "foa"
+        search_field = "opportunity_numbers"
     elif search_type == 'award':
         search_field = "project_nums"
     else:
