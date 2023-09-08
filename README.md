@@ -40,7 +40,10 @@ The INS-Data repository workflow follows the general outline below:
         -Because not all Key Programs have an ID, acronym, etc., IDs are created using a form of the Key Program name where spaces and non-alphanumeric characters are removed. (e.g. `BarrettsEsophagusTranslationalResearchNetworkBETRNet`)
     - Combine grants data from all programs and store as a versioned `project.tsv` within the `data/processed/` directory.
 
-5. **Generate summary statistics (In progress)**
+5. **Generate summary statistics**
+    - Build reports useful for testing and validation but not intended for ingestion into the site
+        - `grantsStatsByProgram.csv` groups grants data by Key Program and aggregates counts of grants, projects, searched values, and earliest fiscal year
+        - `sharedProjectsByProgramPair.csv` lists pairs of Key Programs and counts of projects that are associated with both
 
 ## Usage
 
@@ -77,8 +80,8 @@ INS-Data
 ├── reports/
 │   ├── {version}/
 │   │   ├── api-gathered-{gathering date}/
-│   │   │   ├── programSummaryStats.csv
-│   │   │   ├── sharedProjects.csv
+│   │   │   ├── grantStatsByProgram.csv
+│   │   │   ├── sharedProjectsByProgramPair.csv
 │   │   │   └── ... additional reports as needed
 │   │   └── ...other reports for data gathered on different dates
 │   └── ...other Qualtrics versions

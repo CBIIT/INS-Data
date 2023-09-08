@@ -106,3 +106,24 @@ API_FIELD_RENAMER = {
     "pref_terms": "keywords",
     "agency_ic_fundings": "nci_funded_amount"
 }
+
+# Define name for new program ID field
+PROGRAM_ID_FIELDNAME = 'program.program_id'
+
+# ---
+# SUMMARY STATISTICS CONFIGURATION
+
+# Dict of grants fields of interest and how to aggregate each
+STAT_AGG_FUNCS_BY_COL = {
+    'api_source_search': 'nunique',
+    'core_project_num': 'nunique',
+    'project_num': 'nunique',
+    'fiscal_year': 'min',
+}
+STAT_FISCALYEAR_COL = 'fiscal_year'
+STAT_CORE_PROJECT_COL = 'core_project_num'
+
+
+# Summary statistic export filenames
+STAT_GRANTS_BY_PROGRAM_FILENAME = REPORTS_DIR + '/' + 'grantsStatsByProgram.csv'
+STAT_SHARED_PROJECT_PROGRAM_PAIRS_FILENAME = REPORTS_DIR + '/' 'sharedProjectsByProgramPair.csv'

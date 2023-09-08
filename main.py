@@ -8,6 +8,8 @@
 #   - data/processed/:
 #       - Clean 'project.tsv' containing data for grants associated with key
 #         programs
+#   - reports/:
+#       - Summary statistic report csvs with high-level grant data
 
 import os
 import pandas as pd
@@ -16,6 +18,7 @@ import config
 from modules.data_preparation import load_and_clean_programs
 from modules.nih_reporter_api import get_nih_reporter_grants
 from modules.clean_grants_data import clean_grants_data
+from modules.summary_statistics import get_summary_statistics
 
 def main():
 
@@ -95,7 +98,7 @@ def main():
 
         # Add program id column from alphanumeric program name
         program_id = ''.join(filter(str.isalnum, program_name))
-        cleaned_grants_data['program.program_id'] = program_id
+        cleaned_grants_data[config.PROGRAM_ID_FIELDNAME] = program_id
 
     # STEP 4: Combine and save cleaned grants data into single tsv
 
@@ -121,7 +124,11 @@ def main():
 
 
     # STEP 5: Stats Report - Generate and output summary stats
-    # ...
+    
+    # Run summary statistic module that processes and exports reports as csv
+    get_summary_statistics(all_cleaned_grants)
+    print(f"Summary statistic reports for grants data successfully generated. \n"
+          f"Results can be found in {config.REPORTS_DIR}.\n---")
 
 
 if __name__ == "__main__":
