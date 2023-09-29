@@ -25,6 +25,12 @@ CLEANED_KEY_PROGRAMS_CSV = "data/cleaned/key_programs_" + QUALTRICS_VERSION + ".
 # Add timestamp to note when grants were gathered from API
 # The same Qualtrics input file can have different outputs depending upon API gathering date
 TIMESTAMP = 'api-gathered-'+datetime.now().strftime('%Y-%m-%d')
+
+# Optional manual override for debugging and running modules on older data
+# TIMESTAMP = 'api-gathered-'+'2023-09-28'
+# print(f"---TIMESTAMP OVERRIDE IN USE---\n---Comment out in config.py for default behavior.---")
+
+# Versioned directories for intermediates and outputs
 PROCESSED_DIR = "data/processed/" + QUALTRICS_VERSION + "/" + TIMESTAMP
 REPORTS_DIR = "reports/" + QUALTRICS_VERSION+ "/" + TIMESTAMP
 

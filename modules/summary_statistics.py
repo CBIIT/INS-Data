@@ -9,9 +9,13 @@
 # structure identical to the data/ directory. 
 
 import pandas as pd
-import config
 import os
 from itertools import combinations
+import sys
+# Append the project's root directory to the Python path
+# This allows for importing config when running as part of main.py or alone
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import config
 
 def get_summary_statistics(all_grants_data:pd.DataFrame):
     """Create reports with summary statistics of high-level grants info"""
@@ -81,3 +85,19 @@ def get_shared_projects_by_program_pair(all_grants_data:pd.DataFrame):
     # Export as report
     shared_programs_filename = config.STAT_SHARED_PROJECT_PROGRAM_PAIRS_FILENAME
     df_shared_programs.to_csv(shared_programs_filename, index=False)
+
+
+    # Run module as a standalone script when called directly
+if __name__ == "__main__":
+
+    print(f"Running {os.path.basename(__file__)} as standalone module...")
+
+    # Load projects.tsv as a dataframe
+    project_filename = os.path.join(config.PROCESSED_DIR, 'project.tsv')
+    print(f"Generating report statistics on {project_filename}...")
+    all_cleaned_grants = pd.read_csv(project_filename, sep='\t')
+
+    # Run stats module
+    get_summary_statistics(all_cleaned_grants)
+    print(f"Summary reports for grants data successfully generated.\n"
+          f"Results can be found in {config.REPORTS_DIR}.\n---")
