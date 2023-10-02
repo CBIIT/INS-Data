@@ -48,10 +48,9 @@ The INS-Data repository workflow follows the general outline below:
 ## Usage
 
 1. Clone the repo to your local machine.
-2. Setup environment and install packages with `conda env create -f environment.yaml`.
-2. Add or update the Qualtrics CSV received from ODS to the `data/raw/` folder. It should be in the format `qualtrics_output_{version}_{type}.csv` (e.g. `qualtrics_output_2023-07-19_raw.csv`)
-3. Update the values for `QUALTRICS_VERSION` and `QUALTRICS_TYPE` in `config.py` to match the Qualtrics CSV as needed.
-4. In the command terminal, run `python main.py` from the INS-Data root directory. This will run all steps of the workflow and save output files. 
+2. Install either [Conda or Miniconda](https://docs.conda.io/projects/conda/en/stable/user-guide/install/download.html#anaconda-or-miniconda). Setup environment and install packages with `conda env create -f environment.yaml` run in terminal from the INS-Data directory.
+3. If necessary, update the Qualtrics CSV received from ODS. Rename and place it in the `data/raw/` folder. It should be in the format `qualtrics_output_{version}_{type}.csv` (e.g. `qualtrics_output_2023-07-19_raw.csv`). If the Qualtrics CSV is updated, also update the values for `QUALTRICS_VERSION` and `QUALTRICS_TYPE` in `config.py` to match the Qualtrics CSV as needed.
+5. In the command terminal, run `python main.py` from the INS-Data root directory. This will run all steps of the workflow and save output files. 
 
 ## Structure
 
