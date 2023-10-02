@@ -9,9 +9,13 @@
 # structure identical to the data/ directory. 
 
 import pandas as pd
-import config
 import os
 from itertools import combinations
+import sys
+# Append the project's root directory to the Python path
+# This allows for importing config when running as part of main.py or alone
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import config
 
 def get_summary_statistics(all_grants_data:pd.DataFrame):
     """Create reports with summary statistics of high-level grants info"""
@@ -49,7 +53,7 @@ def get_grant_stats_by_program(all_grants_data:pd.DataFrame):
                                   index=False)
     
 
-def get_shared_projects_by_program_pair(all_grants_data:pd.DataFrame):
+def get_shared_projects_by_program_pair(all_grants_data: pd.DataFrame):
     """Get pairs of Key Programs and the count of projects they share"""
 
     program_field = config.PROGRAM_ID_FIELDNAME
@@ -59,25 +63,48 @@ def get_shared_projects_by_program_pair(all_grants_data:pd.DataFrame):
     grouped = all_grants_data.groupby(project_field)[program_field].apply(set)
 
     # Get combos of programs for each core project with itertools combinations
-    df_shared_programs = grouped.apply(lambda x: list(combinations(x, 2)))
+    all_combinations = grouped.apply(lambda x: list(combinations(
+                                        sorted(x), len(x))))
 
     # Flatten the program combos and count occurrences
-    df_shared_programs = (df_shared_programs.explode()
+    df_shared_programs = (all_combinations.explode()
                           .value_counts().reset_index())
 
-    # Split program combo column into two separate columns
-    # NOTE this will need to be reworked if a project has more than 2 programs
-    df_shared_programs[['program_1','program_2']] = (df_shared_programs['index']
-                                                     .apply(pd.Series))
+    # Determine the maximum number of programs for a project
+    max_programs = (df_shared_programs[program_field]
+                        .apply(lambda x: len(x)).max())
+
+    # Create columns dynamically based on the maximum number of programs
+    columns = [f'program_{i + 1}' for i in range(max_programs)]
+    df_shared_programs[columns] = (pd.DataFrame(
+                                    df_shared_programs[program_field].tolist(),
+                                    index=df_shared_programs.index))
 
     # Reorder and rename
-    df_shared_programs.rename(columns={program_field:'shared_project_count'}, 
+    column_names = columns + ['count']
+    df_shared_programs = df_shared_programs[column_names]
+    df_shared_programs.rename(columns={'count':'unique_core_project_count'},
                               inplace=True)
-    df_shared_programs = df_shared_programs[[
-                                 'program_1',
-                                 'program_2',
-                                 'shared_project_count']]
+
+    # Drop rows where 'program_2' is NaN or blank to keep only shared projects
+    df_shared_programs = df_shared_programs.dropna(subset=['program_2'])
 
     # Export as report
     shared_programs_filename = config.STAT_SHARED_PROJECT_PROGRAM_PAIRS_FILENAME
     df_shared_programs.to_csv(shared_programs_filename, index=False)
+
+
+# Run module as a standalone script when called directly
+if __name__ == "__main__":
+
+    print(f"Running {os.path.basename(__file__)} as standalone module...")
+
+    # Load projects.tsv as a dataframe
+    project_filename = os.path.join(config.PROCESSED_DIR, 'project.tsv')
+    print(f"Generating report statistics on {project_filename}...")
+    all_cleaned_grants = pd.read_csv(project_filename, sep='\t')
+
+    # Run stats module
+    get_summary_statistics(all_cleaned_grants)
+    print(f"Summary reports for grants data successfully generated.\n"
+          f"Results can be found in {config.REPORTS_DIR}.\n---")
