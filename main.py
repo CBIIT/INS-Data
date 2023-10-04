@@ -89,6 +89,7 @@ def main():
 
         # Skip remaining steps if no grants data gathered
         if len(grants_data) == 0:
+            print(f"NOTICE: No grants found for {program_name}")
             continue
 
         # STEP 3: Data Cleaning - Clean and format grants data
@@ -116,9 +117,10 @@ def main():
     all_cleaned_grants.to_csv(project_filename, sep = '\t', index=False)
 
     
-    print(f"---\nSuccess! NIH RePORTER API data gathered, cleaned, and saved."
-          f"Total: {total_records_count} grants across all Awards and NOFOs."
-          f"\n Results can be found in {clean_grants_directory}.\n---") 
+    print(f"---\nSuccess! NIH RePORTER API data gathered, cleaned, and saved.\n"
+          f"{total_records_count} grants gathered across all Awards and NOFOs.\n"
+          f"{len(all_cleaned_grants)} NCI-funded grants retained for INS. \n"
+          f"Results can be found in {clean_grants_directory}.\n---") 
 
         # TODO: Save all the printed console output to versioned txt 
 

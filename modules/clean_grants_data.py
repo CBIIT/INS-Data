@@ -39,10 +39,22 @@ def clean_grants_data(grants_data):
                                               [agency_funding_col]
                                               .apply(extract_total_cost))
     
+    # Step 3.5: Remove grants that did not receive NCI funding
+    df_cleaned_funding_nci_only = (df_cleaned_funding[df_cleaned_funding
+                                    [agency_funding_col] > 0]
+                                    .reset_index(drop=True))
+    # Print output to show number of grants removed
+    all_grant_count = len(df_cleaned_funding)
+    nci_grant_count = len(df_cleaned_funding_nci_only)
+    if all_grant_count > nci_grant_count:
+        print(f"{all_grant_count-nci_grant_count} grants without NCI funding "
+              f"removed from list. \n"
+              f"{nci_grant_count} NCI-funded grants remain.")
+    
     # Step 4: Extract desired organization values from nested JSON field
     org_field_old = config.API_ORG_FIELD
     org_fields_keep = config.API_ORG_SUBFIELDS
-    df_cleaned_orgs = df_cleaned_funding.copy()
+    df_cleaned_orgs = df_cleaned_funding_nci_only.copy()
     df_cleaned_orgs = (format_organization_columns(df_cleaned_orgs,
                                                    org_field_old,
                                                    org_fields_keep))
