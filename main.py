@@ -116,8 +116,8 @@ def main():
 
     # Sort by program and project for consistency
     all_cleaned_grants.sort_values(by=[config.PROGRAM_ID_FIELDNAME,
-                                       config.API_FIELD_RENAMER.values()[0]
-                                       ], inplace=True, ignore_index=True)
+                                       config.PROJECT_ID_FIELDNAME], 
+                                       inplace=True, ignore_index=True)
 
     # Export to csv
     all_cleaned_grants.to_csv(project_filename, sep = '\t', index=False)

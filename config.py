@@ -111,12 +111,15 @@ ABSTRACT_TEXT_FIELD = 'abstract_text'
 # Dictionary of old:new column names. Rename API fields to match INS terms
 # Any terms not included will remain as retrieved from API
 API_FIELD_RENAMER = {
-    "project_num": "project_id",
+    "project_num": "project_id", # also used as PROJECT_ID_FIELDNAME
     "core_project_num": "queried_project_id",
     "appl_id": "application_id",
     "pref_terms": "keywords",
     "agency_ic_fundings": "nci_funded_amount"
 }
+
+# Define column for project ID sorting
+PROJECT_ID_FIELDNAME = "project_id"
 
 # Define name for new program ID field
 PROGRAM_ID_FIELDNAME = 'program.program_id'
