@@ -111,7 +111,13 @@ def main():
     clean_grants_directory = config.PROCESSED_DIR
     if not os.path.exists(clean_grants_directory):
         os.makedirs(clean_grants_directory)
-    project_filename = os.path.join(clean_grants_directory,'project.tsv')
+    project_filename = os.path.join(clean_grants_directory,
+                                    config.PROJECTS_OUTPUT_FILENAME)
+
+    # Sort by program and project for consistency
+    all_cleaned_grants.sort_values(by=[config.PROGRAM_ID_FIELDNAME,
+                                       config.API_FIELD_RENAMER.values()[0]
+                                       ], inplace=True, ignore_index=True)
 
     # Export to csv
     all_cleaned_grants.to_csv(project_filename, sep = '\t', index=False)

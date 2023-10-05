@@ -36,6 +36,9 @@ TIMESTAMP = 'api-gathered-'+datetime.now().strftime('%Y-%m-%d')
 PROCESSED_DIR = "data/processed/" + QUALTRICS_VERSION + "/" + TIMESTAMP
 REPORTS_DIR = "reports/" + QUALTRICS_VERSION+ "/" + TIMESTAMP
 
+# Projects output filename
+PROJECTS_OUTPUT_FILENAME = "project.tsv"
+
 # ---
 # DATA LOADING CONFIGURATION
 

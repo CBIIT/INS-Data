@@ -87,7 +87,7 @@ def get_nih_reporter_grants(search_values:str,
                 },
                 "limit": LIMIT,
                 "offset": offset,
-                "sort_field": "FiscalYear",
+                "sort_field": "appl_id",
                 "sort_order": "desc",
             }
 
