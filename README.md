@@ -4,13 +4,15 @@ Welcome to the INS-Data repository for the [Index of NCI Studies (INS)](https://
 
 ## Table of Contents
 
-- [Introduction](#introduction)
+- [Worfklow](#workflow)
 - [Usage](#usage)
 - [Data Structure](#data-structure)
 
-## Introduction
+## Workflow
 
 The INS-Data repository workflow follows the general outline below:  
+
+![INS-Data workflow. This diagram shows a rough visualization of the steps listed below.](ins-data-repo-diagram.png)
 
 1. **Process Qualtrics CSV**
     - Receive curated CSV of Key Programs from the NCI Office of Data Sharing (ODS). This CSV is an export of survey results from the Qualtrics survey tool. Each Key Program in this export includes Notices of Funding Opportunities (NOFOs) and/or Grant IDs (in long or short form).
@@ -24,7 +26,7 @@ The INS-Data repository workflow follows the general outline below:
     - The following exclusion are also applied within the query:
         - Subprojects are excluded
         - Grants prior to fiscal year 2000 are excluded
-        - Grants where NCI is not the administrative agency are excluded
+        - Grants receiving no funding from NCI are excluded
     - Function(s) defined in `nih_reporter_api.py` module
 
 3. **Process grants data**
@@ -88,6 +90,7 @@ INS-Data
 │   └── ...other Qualtrics versions
 ├── config.py
 ├── environment.yaml
+├── ins-data-repo-diagram.png
 ├── main.py
 └── README.md
 ```
