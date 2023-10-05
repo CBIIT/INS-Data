@@ -62,7 +62,7 @@ def clean_grants_data(grants_data):
     # Step 6: Rename columns to match INS terms
     rename_dict = config.API_FIELD_RENAMER
     df_renamed = df_cleaned_orgs.copy()
-    df_renamed.rename(columns=rename_dict)
+    df_renamed.rename(columns=rename_dict, inplace=True)
 
     # Step 7: Clean abstract text
     abstract_col = config.ABSTRACT_TEXT_FIELD

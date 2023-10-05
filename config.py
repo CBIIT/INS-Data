@@ -130,12 +130,12 @@ PROGRAM_ID_FIELDNAME = 'program.program_id'
 # Dict of grants fields of interest and how to aggregate each
 STAT_AGG_FUNCS_BY_COL = {
     'api_source_search': 'nunique',
-    'core_project_num': 'nunique',
-    'project_num': 'nunique',
+    'queried_project_id': 'nunique',
+    'project_id': 'nunique',
     'fiscal_year': 'min',
 }
 STAT_FISCALYEAR_COL = 'fiscal_year'
-STAT_CORE_PROJECT_COL = 'core_project_num'
+STAT_CORE_PROJECT_COL = 'queried_project_id'
 
 
 # Summary statistic export filenames
