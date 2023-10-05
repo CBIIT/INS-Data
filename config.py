@@ -36,6 +36,9 @@ TIMESTAMP = 'api-gathered-'+datetime.now().strftime('%Y-%m-%d')
 PROCESSED_DIR = "data/processed/" + QUALTRICS_VERSION + "/" + TIMESTAMP
 REPORTS_DIR = "reports/" + QUALTRICS_VERSION+ "/" + TIMESTAMP
 
+# Projects output filename
+PROJECTS_OUTPUT_FILENAME = "project.tsv"
+
 # ---
 # DATA LOADING CONFIGURATION
 
@@ -108,12 +111,15 @@ ABSTRACT_TEXT_FIELD = 'abstract_text'
 # Dictionary of old:new column names. Rename API fields to match INS terms
 # Any terms not included will remain as retrieved from API
 API_FIELD_RENAMER = {
-    "project_num": "project_id",
+    "project_num": "project_id", # also used as PROJECT_ID_FIELDNAME
     "core_project_num": "queried_project_id",
     "appl_id": "application_id",
     "pref_terms": "keywords",
     "agency_ic_fundings": "nci_funded_amount"
 }
+
+# Define column for project ID sorting
+PROJECT_ID_FIELDNAME = "project_id"
 
 # Define name for new program ID field
 PROGRAM_ID_FIELDNAME = 'program.program_id'
@@ -124,12 +130,12 @@ PROGRAM_ID_FIELDNAME = 'program.program_id'
 # Dict of grants fields of interest and how to aggregate each
 STAT_AGG_FUNCS_BY_COL = {
     'api_source_search': 'nunique',
-    'core_project_num': 'nunique',
-    'project_num': 'nunique',
+    'queried_project_id': 'nunique',
+    'project_id': 'nunique',
     'fiscal_year': 'min',
 }
 STAT_FISCALYEAR_COL = 'fiscal_year'
-STAT_CORE_PROJECT_COL = 'core_project_num'
+STAT_CORE_PROJECT_COL = 'queried_project_id'
 
 
 # Summary statistic export filenames

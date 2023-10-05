@@ -100,7 +100,8 @@ if __name__ == "__main__":
     print(f"Running {os.path.basename(__file__)} as standalone module...")
 
     # Load projects.tsv as a dataframe
-    project_filename = os.path.join(config.PROCESSED_DIR, 'project.tsv')
+    project_filename = os.path.join(config.PROCESSED_DIR, 
+                                    config.PROJECTS_OUTPUT_FILENAME)
     print(f"Generating report statistics on {project_filename}...")
     all_cleaned_grants = pd.read_csv(project_filename, sep='\t')
 

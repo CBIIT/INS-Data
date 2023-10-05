@@ -82,11 +82,12 @@ def get_nih_reporter_grants(search_values:str,
                     search_field: [search_value],
                     "exclude_subprojects": True,
                     "agencies": ["NCI"],
+                    "is_agency_funding": True,
                     "fiscal_years": fiscal_year_list
                 },
                 "limit": LIMIT,
                 "offset": offset,
-                "sort_field": "FiscalYear",
+                "sort_field": "appl_id",
                 "sort_order": "desc",
             }
 
@@ -117,7 +118,7 @@ def get_nih_reporter_grants(search_values:str,
                     if print_meta == True:
                         total_pages = max(ceil(total_records/LIMIT),1)
                         print(f"{search_type}: {search_value} "
-                              f"{page}/{total_pages}): {grants['meta']}")
+                              f"({page}/{total_pages}): {grants['meta']}")
 
                     # Stop looping if offset has reached total record count
                     if offset >= total_records:

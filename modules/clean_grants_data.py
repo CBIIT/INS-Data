@@ -39,27 +39,48 @@ def clean_grants_data(grants_data):
                                               [agency_funding_col]
                                               .apply(extract_total_cost))
     
-    # Step 4: Extract desired organization values from nested JSON field
+    # Step 4: Remove grants that did not receive NCI funding
+    df_cleaned_funding_nci_only = (df_cleaned_funding[df_cleaned_funding
+                                    [agency_funding_col] > 0]
+                                    .reset_index(drop=True))
+    # Print output to show number of grants removed
+    all_grant_count = len(df_cleaned_funding)
+    nci_grant_count = len(df_cleaned_funding_nci_only)
+    if all_grant_count > nci_grant_count:
+        print(f"{all_grant_count-nci_grant_count} grants without NCI funding "
+              f"removed from list. \n"
+              f"{nci_grant_count} NCI-funded grants remain.")
+    
+    # Step 5: Extract desired organization values from nested JSON field
     org_field_old = config.API_ORG_FIELD
     org_fields_keep = config.API_ORG_SUBFIELDS
-    df_cleaned_orgs = df_cleaned_funding.copy()
+    df_cleaned_orgs = df_cleaned_funding_nci_only.copy()
     df_cleaned_orgs = (format_organization_columns(df_cleaned_orgs,
                                                    org_field_old,
                                                    org_fields_keep))
 
-    # Step 5: Rename columns to match INS terms
+    # Step 6: Rename columns to match INS terms
     rename_dict = config.API_FIELD_RENAMER
     df_renamed = df_cleaned_orgs.copy()
-    df_renamed.rename(columns=rename_dict)
+    df_renamed.rename(columns=rename_dict, inplace=True)
 
-    # Step 6: Clean abstract text
+    # Step 7: Clean abstract text
     abstract_col = config.ABSTRACT_TEXT_FIELD
     df_cleaned_abstract = df_renamed.copy()
     df_cleaned_abstract[abstract_col] = (df_cleaned_abstract
                                          [abstract_col]
                                          .apply(clean_abstract))
+    
+    # Step 8: Drop duplicate grant rows
+    df_duplicates_removed = df_cleaned_abstract.copy()
+    df_duplicates_removed.drop_duplicates(inplace=True, ignore_index=True)
+    # Print output to show number of duplicates removed
+    if len(df_cleaned_abstract) > len(df_duplicates_removed):
+        print(f"{len(df_cleaned_abstract)-len(df_duplicates_removed)} "
+              f"duplicates removed. \n"
+              f"{len(df_duplicates_removed)} grants remain.")
 
-    return df_cleaned_abstract
+    return df_duplicates_removed
 
 
 def concatenate_full_names(row):
