@@ -12,6 +12,7 @@
 #       - Summary statistic report csvs with high-level grant data
 
 import os
+import sys
 import pandas as pd
 import config
 
@@ -27,16 +28,20 @@ def main():
     print(f"Loading and processing {config.QUALTRICS_CSV_PATH}...")
 
     # Load and clean Key Programs
-    key_programs_df = load_and_clean_programs(
-        csv_filepath = config.QUALTRICS_CSV_PATH, 
-        col_dict = config.QUALTRICS_COLS)
-        # TODO: add detection of bad NOFO lists (e.g. ;; or PA18-;91)
-        # TODO: Add detection for column shifts in data entry 
-        # (e.g. Awards listed in NOFO column when no NOFO present)
+    continue_bool, key_programs_df = load_and_clean_programs(
+                                    csv_filepath = config.QUALTRICS_CSV_PATH, 
+                                    col_dict = config.QUALTRICS_COLS)
 
-    # Export cleaned Key Programs file
-    key_programs_df.to_csv(config.CLEANED_KEY_PROGRAMS_CSV, index=False)
-    print(f"Success! Saved {config.CLEANED_KEY_PROGRAMS_CSV}.")
+    # If issues are found, user is prompted to stop or continue
+    if continue_bool == True:
+        # Export cleaned Key Programs file
+        key_programs_df.to_csv(config.CLEANED_KEY_PROGRAMS_CSV, index=False)
+        print(f"Success! Saved {config.CLEANED_KEY_PROGRAMS_CSV}.")
+
+    else:
+        sys.exit("Process ended by user. Cleaned Key Programs csv not saved. "
+            "Make manual edits to input CSV and retry.")
+
 
 
     # STEP 2: NIH RePORTER API - Get grants info for each Key Program
@@ -136,7 +141,7 @@ def main():
     # Run summary statistic module that processes and exports reports as csv
     get_summary_statistics(all_cleaned_grants)
     print(f"Summary statistic reports for grants data successfully generated. \n"
-          f"Results can be found in {config.REPORTS_DIR}.\n---")
+          f"Results can be found in {config.API_REPORTS_DIR}.\n---")
 
 
 if __name__ == "__main__":

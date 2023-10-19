@@ -34,13 +34,15 @@ TIMESTAMP = 'api-gathered-'+datetime.now().strftime('%Y-%m-%d')
 
 # Versioned directories for intermediates and outputs
 PROCESSED_DIR = "data/processed/" + QUALTRICS_VERSION + "/" + TIMESTAMP
-REPORTS_DIR = "reports/" + QUALTRICS_VERSION+ "/" + TIMESTAMP
+REPORTS_DIR = "reports/" + QUALTRICS_VERSION
+API_REPORTS_DIR = REPORTS_DIR + "/" + TIMESTAMP
+
 
 # Projects output filename
 PROJECTS_OUTPUT_FILENAME = "project.tsv"
 
 # ---
-# DATA LOADING CONFIGURATION
+# DATA PREPARATION CONFIGURATION
 
 # Dictionary of old:new column names to keep from Qualtrics
 QUALTRICS_COLS = {
@@ -59,6 +61,9 @@ QUALTRICS_COLS = {
     "What type of cancer is the primary focus of the program? (Check all that\napply)": "cancer_type",
     "Login ID": "login_id"
 }
+
+# Invalid NOFO report filename
+INVALID_NOFOS_FILENAME = "invalidNofoReport_" + QUALTRICS_TYPE + ".csv"
 
 # ---
 # GRANTS CLEANING CONFIGURATION
@@ -139,5 +144,5 @@ STAT_CORE_PROJECT_COL = 'queried_project_id'
 
 
 # Summary statistic export filenames
-STAT_GRANTS_BY_PROGRAM_FILENAME = REPORTS_DIR + '/' + 'grantsStatsByProgram.csv'
-STAT_SHARED_PROJECT_PROGRAM_PAIRS_FILENAME = REPORTS_DIR + '/' 'sharedProjectsByProgramPair.csv'
+STAT_GRANTS_BY_PROGRAM_FILENAME = API_REPORTS_DIR + '/' + 'grantsStatsByProgram.csv'
+STAT_SHARED_PROJECT_PROGRAM_PAIRS_FILENAME = API_REPORTS_DIR + '/' 'sharedProjectsByProgramPair.csv'
