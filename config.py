@@ -36,6 +36,7 @@ TIMESTAMP = 'api-gathered-'+datetime.now().strftime('%Y-%m-%d')
 PROCESSED_DIR = "data/processed/" + QUALTRICS_VERSION + "/" + TIMESTAMP
 REPORTS_DIR = "reports/" + QUALTRICS_VERSION
 API_REPORTS_DIR = REPORTS_DIR + "/" + TIMESTAMP
+REVIEWED_DIR = "data/reviewed/" + QUALTRICS_VERSION
 
 
 # Projects output filename
@@ -62,8 +63,10 @@ QUALTRICS_COLS = {
     "Login ID": "login_id"
 }
 
-# Invalid NOFO report filename
-INVALID_NOFOS_FILENAME = "invalidNofoReport_" + QUALTRICS_TYPE + ".csv"
+# Invalid NOFO reports
+INVALID_NOFOS_REPORT = REPORTS_DIR + "/invalidNofoReport_" + QUALTRICS_TYPE + ".csv"
+CORRECTED_INVALID_NOFOS_REPORT = REPORTS_DIR + "/invalidNofoReport_corrected.csv"
+REVIEWED_NOFO_INPUT = REVIEWED_DIR + "/invalidNofoReport_reviewed.csv"
 
 # ---
 # GRANTS CLEANING CONFIGURATION

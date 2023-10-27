@@ -164,40 +164,80 @@ def detect_invalid_nofos(df:pd.DataFrame) -> pd.DataFrame:
                                     axis=1).tolist())
 
     return invalid_nofos_df
+    
 
 
-
-def report_review_continue(invalid_nofos_df:pd.DataFrame) -> bool:
-    """Prompt the user to review potential issues and continue or stop the 
-    workflow. If no issues are found, then skip the prompt. 
+def report_invalid_nofos(invalid_nofos_df:pd.DataFrame, 
+                         report_path:str,
+                         printout:bool = False) -> None:
+    """Print and export output of invalid NOFOs found within key programs df.
 
     :param pd.DataFrame invalid_nofos_df: DataFrame containing invalid NOFOs.
+    :param str report_path: Filepath for csv export of invalid NOFO report.
+    :param bool printout: If true, print output to terminal. Default False.
+    """
+
+    if not invalid_nofos_df.empty:
+        print(f"{len(invalid_nofos_df)} potentially invalid NOFOs found.")
+        if printout:
+            print(invalid_nofos_df)
+
+        # Export invalid NOFOs to csv
+        invalid_nofos_df.to_csv(report_path, index=False)
+        print(f"Invalid NOFOs saved for review and correction in {report_path}.")
+    else: 
+        print("All good. No potentialy invalid NOFOs detected.")
+    
+    return None
+
+
+
+def prompt_to_continue(invalid_nofos_df:pd.DataFrame) -> bool:
+    """Provide user with prompt to continue or stop workflow if issues present.
+
+    :param pd.DataFrame invalid_nofos_df: DataFrame containing invalid NOFOs.
+    :param str filepath: Path to location of saved 
     :return bool: True if the user wants to continue, False otherwise.
     """
     if not invalid_nofos_df.empty:
-        print("Potentially invalid NOFOs found:")
-        print(invalid_nofos_df)
-
-        # Export invalid NOFOs to csv
-        validity_reports_dir = config.REPORTS_DIR
-        if not os.path.exists(config.REPORTS_DIR):
-            os.makedirs(validity_reports_dir)
-        invalid_nofos_path = os.path.join(validity_reports_dir, 
-                                          config.INVALID_NOFOS_FILENAME)
-        invalid_nofos_df.to_csv(invalid_nofos_path, index=False)
-
-        # Prompt the user to review potential issues
-        review_input = input(f"---\n\n"
-                            f"Potentially invalid NOFO report saved to: "
-                            f"{invalid_nofos_path}\n"
-                            f"Please review potential issues and consider "
-                            f"manual fixes to the Qualtrics CSV. \n"
-                            f"CONTINUE ANYWAY? (Y/N): ").upper()
-        # If user inputs 'Y', then return True
-        return review_input == 'Y'
+        print(f"---\n\n"
+            f"Please review {len(invalid_nofos_df)} potential issues. \n"
+            f"Consider manual fixes to the Qualtrics CSV or creating a versioned "
+            f"`invalidNofoReport_reviewed.csv` in the data/reviewed/ directory\n")
+        continue_bool = input(f"Continue with known NOFO issues? (Y/N): ").upper()
+        return continue_bool == 'Y'
+    # If no invalid nofos detected, skip user prompt
     else:
-        print("All good! No potentially invalid NOFOs detected.")
         return True
+        
+
+def apply_nofo_fix(key_programs_df: pd.DataFrame, reviewed_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Apply fixes from the reviewed file to the key programs DataFrame.
+
+    :param pd.DataFrame key_programs_df: The original key programs DataFrame.
+    :param pd.DataFrame reviewed_df: The DataFrame containing fixes.
+    :return pd.DataFrame: The key programs DataFrame with applied fixes.
+    """
+
+    # Iterate through each row in the reviewed DataFrame
+    for index, row in reviewed_df.iterrows():
+        program_name = row['program_name']
+        invalid_nofo = row['invalid_nofo']
+        suggested_fix = row['suggested_fix']
+
+        # Find the row in key_programs_df where program_name matches
+        program_rows = key_programs_df[key_programs_df['program_name'] == program_name]
+
+        # Iterate through the program_rows and update invalid_nofo with suggested_fix
+        for idx, program_row in program_rows.iterrows():
+            # Check if the invalid_nofo is present in the current row
+            if invalid_nofo in program_row['nofo']:
+                # Apply the suggested_fix
+                key_programs_df.at[idx, 'nofo'] = program_row['nofo'].replace(
+                                                    invalid_nofo, suggested_fix)
+
+    return key_programs_df
 
 
 
@@ -245,20 +285,39 @@ def load_and_clean_programs(csv_filepath: str, col_dict: dict) -> (bool, pd.Data
     # Remove leading/trailing whitespace from program names
     df['program_name'] = df['program_name'].str.strip()
 
+    # Check that the last column is login_id and then drop it
+    if df.columns[-1] != "login_id":
+        raise ValueError(f"Unexpected final column: {df.columns[-1]}")
+    df = df.drop(columns=["login_id"])
+
     # Detect potentially invalid NOFO values
-    print("Checking for NOFO validity...")
+    print("---\nChecking for NOFO validity...")
 
     # Make a copy to prevent changing main df
     nofo_validity_df = df.copy()
     invalid_nofos_df = detect_invalid_nofos(nofo_validity_df)
 
-    # Prompt user to review and stop or continue if issues are found
-    continue_bool = report_review_continue(invalid_nofos_df)
+    # Report invalid NOFOs
+    report_invalid_nofos(invalid_nofos_df, config.INVALID_NOFOS_REPORT)
+
+    # Check if corrections to invalid NOFOs already exist
+    if os.path.exists(config.REVIEWED_NOFO_INPUT):
+        print(f"---\nReviewed NOFO file found: {config.REVIEWED_NOFO_INPUT} \n"
+              f"Applying corrections and rerunning NOFO validation...")
         
-    # Check that the last column is login_id and then drop it
-    if df.columns[-1] != "login_id":
-        raise ValueError(f"Unexpected final column: {df.columns[-1]}")
-    df = df.drop(columns=["login_id"])
+        # Read csv with NOFO corrections and then apply
+        reviewed_df = pd.read_csv(config.REVIEWED_NOFO_INPUT)
+        df = apply_nofo_fix(df, reviewed_df)
+
+         # Make a copy to prevent changing main df
+        nofo_validity_df = df.copy()
+        invalid_nofos_df = detect_invalid_nofos(nofo_validity_df)
+
+        # Report invalid NOFOs
+        report_invalid_nofos(invalid_nofos_df, config.CORRECTED_INVALID_NOFOS_REPORT)
+
+    # Prompt user to continue if issues found
+    continue_bool = prompt_to_continue(invalid_nofos_df)
 
     return continue_bool, df
 
