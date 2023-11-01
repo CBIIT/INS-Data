@@ -126,6 +126,46 @@ def is_valid_nofo(nofo:str) -> bool:
 
 
 
+def is_valid_award(award: str) -> bool:
+    """Check if the provided award follows a valid format.
+
+    Valid Award Formats:
+        - Grants
+            1. X##XX######-##A#S#   Supplement (e.g. 01A1S1)
+            2. X##XX######-##X#     Supplement (e.g. 01S1 or 01A1)
+            3. X##XX######-##       Yearly (e.g. 01)
+            4. X##XX######
+            5. XX######
+        - Contracts
+            - Contract formats vary greatly, so a loose pattern is used
+            - Must start with 6 consecutive numbers
+            - Must be at least 16 characters long
+            - Must contain only numbers, letters, and hyphens
+          
+    Where X is any letter, # is any number, and any other character must be an 
+    explicit match ("-", "A", "S")
+
+    :param str award: Award string to be validated.
+    :return bool: True if the award is valid, False otherwise.
+    """
+    # Define the valid award regex patterns
+    pattern_grant_type1 = re.compile(r'^[A-Z]\d{2}[A-Z]{2}\d{6}-\d{2}[A-Z]\d[S]$')
+    pattern_grant_type2 = re.compile(r'^[A-Z]\d{2}[A-Z]{2}\d{6}-\d{2}[A-Z]$')
+    pattern_grant_type3 = re.compile(r'^[A-Z]\d{2}[A-Z]{2}\d{6}-\d{2}$')
+    pattern_grant_type4 = re.compile(r'^[A-Z]\d{2}[A-Z]{2}\d{6}$')
+    pattern_grant_type5 = re.compile(r'^\d{2}[A-Z]{2}\d{6}$')
+    pattern_contract_type = re.compile(r'^\d{6,}[A-Za-z0-9-]{10,}$')
+
+    # Check if the provided award matches any of the valid patterns
+    return any((pattern_grant_type1.match(award),
+                pattern_grant_type2.match(award),
+                pattern_grant_type3.match(award),
+                pattern_grant_type4.match(award),
+                pattern_grant_type5.match(award),
+                pattern_contract_type.match(award)))
+
+
+
 def validate_nofos(program_name:str, nofo_list:list) -> pd.DataFrame:
     """Validate that provided NOFOs fit the expected regex format. Output any 
     potential errors for manual review and resolution.
@@ -149,6 +189,29 @@ def validate_nofos(program_name:str, nofo_list:list) -> pd.DataFrame:
 
 
 
+def validate_awards(program_name: str, award_list: list) -> pd.DataFrame:
+    """Validate that provided awards fit the expected regex format. Output any 
+    potential errors for manual review and resolution.
+
+    :param str program_name: Name of the associated program
+    :param list award_list: Parsed list of award strings
+    :return pd.DataFrame: Pandas DataFrame of invalid awards and programs, or empty
+    """
+    # Create a list of invalid award strings
+    invalid_awards = [award for award in award_list if not is_valid_award(award)
+                      and award.lower() != 'nan']
+
+    # Create a DataFrame of any invalid awards and associated programs
+    if invalid_awards:
+        invalid_df = pd.DataFrame({'program_name': program_name,
+                                   'invalid_award': invalid_awards})
+        return invalid_df
+    
+    # Return an empty DataFrame if no invalid awards are detected
+    return pd.DataFrame()
+
+
+
 def detect_invalid_nofos(df:pd.DataFrame) -> pd.DataFrame:
     """Detect rows with potentially invalid NOFOs for manual review.
 
@@ -167,6 +230,24 @@ def detect_invalid_nofos(df:pd.DataFrame) -> pd.DataFrame:
     
 
 
+def detect_invalid_awards(df: pd.DataFrame) -> pd.DataFrame:
+    """Detect rows with potentially invalid awards for manual review.
+
+    :param pd.DataFrame df: Input DataFrame containing 'program_name' 
+                            and 'award' columns.
+    """
+    # Create a new column of parsed awards as a list
+    df['parsed_awards'] = df['award'].apply(clean_and_split_nofo_award_strings)
+
+    # Concatenate DataFrames row-wise
+    invalid_awards_df = pd.concat(df.apply(lambda row: validate_awards(
+                                    row['program_name'], row['parsed_awards']),
+                                    axis=1).tolist())
+
+    return invalid_awards_df
+
+
+
 def report_invalid_nofos(invalid_nofos_df:pd.DataFrame, 
                          report_path:str,
                          printout:bool = False) -> None:
@@ -178,64 +259,105 @@ def report_invalid_nofos(invalid_nofos_df:pd.DataFrame,
     """
 
     if not invalid_nofos_df.empty:
-        print(f"{len(invalid_nofos_df)} potentially invalid NOFOs found.")
+        print(f"\t{len(invalid_nofos_df)} potentially invalid NOFOs found.")
         if printout:
             print(invalid_nofos_df)
 
         # Export invalid NOFOs to csv
         invalid_nofos_df.to_csv(report_path, index=False)
-        print(f"Invalid NOFOs saved for review and correction in {report_path}.")
+        print(f"\tInvalid NOFOs saved for review and correction in {report_path}.")
     else: 
-        print("All good. No potentialy invalid NOFOs detected.")
+        print("\tAll good. No potentialy invalid NOFOs detected.")
     
     return None
 
 
 
-def prompt_to_continue(invalid_nofos_df:pd.DataFrame) -> bool:
-    """Provide user with prompt to continue or stop workflow if issues present.
+def report_invalid_awards(invalid_awards_df: pd.DataFrame,
+                          report_path: str,
+                          printout: bool = False) -> None:
+    """Print and export the output of invalid awards found within key programs df.
 
-    :param pd.DataFrame invalid_nofos_df: DataFrame containing invalid NOFOs.
-    :param str filepath: Path to location of saved 
+    :param pd.DataFrame invalid_awards_df: DataFrame containing invalid awards.
+    :param str report_path: Filepath for csv export of invalid awards report.
+    :param bool printout: If true, print output to the terminal. Default False.
+    """
+
+    if not invalid_awards_df.empty:
+        print(f"\t{len(invalid_awards_df)} potentially invalid awards found.")
+        if printout:
+            print(invalid_awards_df)
+
+        # Export invalid awards to csv
+        invalid_awards_df.to_csv(report_path, index=False)
+        print(f"\tInvalid awards saved for review and correction in {report_path}.")
+    else: 
+        print("\tAll good. No potentially invalid awards detected.")
+    
+    return None
+
+
+
+def prompt_to_continue(invalid_df: pd.DataFrame) -> bool:
+    """Provide the user with a prompt to continue or stop the workflow if 
+    issues are present.
+
+    :param pd.DataFrame invalid_df: DataFrame containing invalid data.
+    :param str filepath: Path to the location of saved invalid report
     :return bool: True if the user wants to continue, False otherwise.
     """
-    if not invalid_nofos_df.empty:
-        print(f"---\n\n"
-            f"Please review {len(invalid_nofos_df)} potential issues. \n"
-            f"Consider manual fixes to the Qualtrics CSV or creating a versioned "
-            f"`invalidNofoReport_reviewed.csv` in the data/reviewed/ directory\n")
-        continue_bool = input(f"Continue with known NOFO issues? (Y/N): ").upper()
-        return continue_bool == 'Y'
-    # If no invalid nofos detected, skip user prompt
-    else:
+
+    # If no invalid values detected, skip the user prompt
+    if invalid_df.empty:
         return True
+    
+    else:
+        # Parse award or nofo type from "invalid_{col_name}"
+        val_type = invalid_df.columns[1].split('_')[-1].capitalize()
+
+        print(f"---\n"
+            f"Please review {len(invalid_df)} potential "
+            f"{val_type} issues. \n"
+            f"\tConsider manual fixes to the Qualtrics CSV or creating a versioned "
+            f"`invalid{val_type}Report_reviewed.csv` "
+            f"in the data/reviewed/ directory")
+        
+        continue_bool = input(f"\n\tContinue with known {val_type} issues? (Y/N): "
+                               ).upper()
+        return continue_bool == 'Y'
+    
+
+
         
 
-def apply_nofo_fix(key_programs_df: pd.DataFrame, reviewed_df: pd.DataFrame) -> pd.DataFrame:
+def apply_value_fix(key_programs_df: pd.DataFrame, 
+                    reviewed_df: pd.DataFrame, 
+                    column_name: str) -> pd.DataFrame:
     """
     Apply fixes from the reviewed file to the key programs DataFrame.
 
     :param pd.DataFrame key_programs_df: The original key programs DataFrame.
     :param pd.DataFrame reviewed_df: The DataFrame containing fixes.
+    :param str column_name: The name of the column to apply fixes to.
     :return pd.DataFrame: The key programs DataFrame with applied fixes.
     """
 
     # Iterate through each row in the reviewed DataFrame
     for index, row in reviewed_df.iterrows():
         program_name = row['program_name']
-        invalid_nofo = row['invalid_nofo']
+        invalid_value = row[f'invalid_{column_name}']
         suggested_fix = row['suggested_fix']
 
         # Find the row in key_programs_df where program_name matches
         program_rows = key_programs_df[key_programs_df['program_name'] == program_name]
 
-        # Iterate through the program_rows and update invalid_nofo with suggested_fix
+        # Iterate through the program_rows and update invalid_value with suggested_fix
         for idx, program_row in program_rows.iterrows():
-            # Check if the invalid_nofo is present in the current row
-            if invalid_nofo in program_row['nofo']:
+            # Check if the invalid_value is present in the current row
+            if invalid_value in program_row[column_name]:
                 # Apply the suggested_fix
-                key_programs_df.at[idx, 'nofo'] = program_row['nofo'].replace(
-                                                    invalid_nofo, suggested_fix)
+                key_programs_df.at[idx, column_name] = program_row[column_name].replace(
+                    invalid_value, suggested_fix)
 
     return key_programs_df
 
@@ -298,26 +420,63 @@ def load_and_clean_programs(csv_filepath: str, col_dict: dict) -> (bool, pd.Data
     invalid_nofos_df = detect_invalid_nofos(nofo_validity_df)
 
     # Report invalid NOFOs
-    report_invalid_nofos(invalid_nofos_df, config.INVALID_NOFOS_REPORT)
+    report_invalid_nofos(invalid_nofos_df, 
+                         config.INVALID_NOFOS_REPORT,
+                         printout=False)
 
     # Check if corrections to invalid NOFOs already exist
     if os.path.exists(config.REVIEWED_NOFO_INPUT):
-        print(f"---\nReviewed NOFO file found: {config.REVIEWED_NOFO_INPUT} \n"
-              f"Applying corrections and rerunning NOFO validation...")
+        print(f"\n\tReviewed NOFO file found: {config.REVIEWED_NOFO_INPUT} \n"
+              f"\tApplying corrections and rerunning NOFO validation...")
         
         # Read csv with NOFO corrections and then apply
         reviewed_df = pd.read_csv(config.REVIEWED_NOFO_INPUT)
-        df = apply_nofo_fix(df, reviewed_df)
+        df = apply_value_fix(df, reviewed_df, 'nofo')
 
          # Make a copy to prevent changing main df
         nofo_validity_df = df.copy()
         invalid_nofos_df = detect_invalid_nofos(nofo_validity_df)
 
         # Report invalid NOFOs
-        report_invalid_nofos(invalid_nofos_df, config.CORRECTED_INVALID_NOFOS_REPORT)
+        report_invalid_nofos(invalid_nofos_df, 
+                             config.CORRECTED_INVALID_NOFOS_REPORT, 
+                             printout=False)
+        
+    continue_bool_nofos = prompt_to_continue(invalid_nofos_df)
+
+    # Detect potentially invalid 'Award' values
+    print("---\nChecking for Award validity...")
+
+    # Make a copy to prevent changing the main df
+    award_validity_df = df.copy()
+    invalid_awards_df = detect_invalid_awards(award_validity_df)
+
+    # Report invalid Awards
+    report_invalid_awards(invalid_awards_df, 
+                          config.INVALID_AWARD_REPORT, 
+                          printout=False)
+
+    # Check if corrections to invalid Awards already exist
+    if os.path.exists(config.REVIEWED_AWARD_INPUT):
+        print(f"\n\tReviewed 'Award' file found: {config.REVIEWED_AWARD_INPUT} \n"
+              f"\tApplying corrections and rerunning Award validation...")
+
+        # Read CSV with 'Award' corrections and then apply
+        reviewed_awards_df = pd.read_csv(config.REVIEWED_AWARD_INPUT)
+        df = apply_value_fix(df, reviewed_awards_df, 'award')
+
+        # Make a copy to prevent changing the main df
+        award_validity_df = df.copy()
+        invalid_awards_df = detect_invalid_awards(award_validity_df)
+
+        # Report invalid Awards
+        report_invalid_awards(invalid_awards_df, 
+                              config.CORRECTED_INVALID_AWARD_REPORT, 
+                              printout=False)
+    continue_bool_awards = prompt_to_continue(invalid_awards_df)
 
     # Prompt user to continue if issues found
-    continue_bool = prompt_to_continue(invalid_nofos_df)
+    continue_bool = (continue_bool_nofos and continue_bool_awards)
 
     return continue_bool, df
 

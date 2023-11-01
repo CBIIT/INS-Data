@@ -11,7 +11,7 @@ from datetime import datetime
 # Version must match suffix in input filename
 
 QUALTRICS_VERSION = "2023-08-30" # <-- CHANGE VERSION HERE
-QUALTRICS_TYPE = "raw" # <-- Define "raw" or "manual_fix" type of the input csv
+QUALTRICS_TYPE = "manual_fix" # <-- Define "raw" or "manual_fix" type of the input csv
 
 
 
@@ -67,6 +67,11 @@ QUALTRICS_COLS = {
 INVALID_NOFOS_REPORT = REPORTS_DIR + "/invalidNofoReport_" + QUALTRICS_TYPE + ".csv"
 CORRECTED_INVALID_NOFOS_REPORT = REPORTS_DIR + "/invalidNofoReport_corrected.csv"
 REVIEWED_NOFO_INPUT = REVIEWED_DIR + "/invalidNofoReport_reviewed.csv"
+
+# Invalid Award reports 
+INVALID_AWARD_REPORT = REPORTS_DIR + "/invalidAwardReport_" + QUALTRICS_TYPE + ".csv"
+CORRECTED_INVALID_AWARD_REPORT = REPORTS_DIR + "/invalidAwardReport_corrected.csv"
+REVIEWED_AWARD_INPUT = REVIEWED_DIR + "/invalidAwardReport_reviewed.csv"
 
 # ---
 # GRANTS CLEANING CONFIGURATION
