@@ -2,8 +2,8 @@
 # 2023-07-27 ZD 
 #
 # This script defines primary function `load_and_clean_programs` that will 
-# input a versioned `qualtrics_output_{YYYY-MM-DD}.csv` file, perform cleaning 
-# and processing steps, and then output a `key_programs` pandas DataFrame (df).
+# input a versioned `qualtrics_output_{YYYY-MM-DD}.csv` file, perform validation, 
+# cleaning, and processing steps, and then output a `key_programs` DataFrame.
 #
 # It also defines helper function `find_header_location`, which is called 
 # to identify where the desired data begins within the CSV. i.e. it identifies

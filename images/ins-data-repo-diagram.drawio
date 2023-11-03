@@ -1,0 +1,236 @@
+<mxfile host="app.diagrams.net" modified="2023-11-03T16:43:45.689Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36" etag="uDJ0shhziFHGWbWrlHlZ" version="22.0.8" type="device">
+  <diagram name="Page-1" id="uefWlJh99sZlFegfP22R">
+    <mxGraphModel dx="1270" dy="1250" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="gQOOfUeZjju-Q29w7hby-8" value="&lt;p style=&quot;line-height: 0%;&quot;&gt;&lt;b&gt;&lt;u&gt;Color Key&lt;/u&gt;&lt;/b&gt;&lt;/p&gt;" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;spacing=-7;" parent="1" vertex="1">
+          <mxGeometry x="480" y="240" width="160" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="cnQrVGT4vNmuQ5iyicPk-1" target="cnQrVGT4vNmuQ5iyicPk-9" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="650" y="140" />
+              <mxPoint x="650" y="140" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-1" value="Qualtrics Key Programs CSV" style="strokeWidth=1;html=1;shape=mxgraph.flowchart.document2;whiteSpace=wrap;size=0.25;fillColor=#d5e8d4;strokeColor=#82b366;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="530" y="120" width="110" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="cnQrVGT4vNmuQ5iyicPk-4" target="cnQrVGT4vNmuQ5iyicPk-5" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="585" y="15" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-4" value="ODS Key Program manual curation" style="rounded=0;whiteSpace=wrap;html=1;verticalLabelPosition=middle;shape=label;size=0.23;arcSize=10;flipV=1;labelPosition=center;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="530" y="-40" width="110" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="FiX24Z-KyvZbtJiPTX6l-21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="cnQrVGT4vNmuQ5iyicPk-5" target="cnQrVGT4vNmuQ5iyicPk-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-5" value="ODS Qualtrics Service" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="545" y="20" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="cnQrVGT4vNmuQ5iyicPk-9" target="cnQrVGT4vNmuQ5iyicPk-11" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-26" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="cnQrVGT4vNmuQ5iyicPk-9" target="cnQrVGT4vNmuQ5iyicPk-25" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-9" value="data_preparation.py" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="680" y="120" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-11" value="Cleaned Key Programs CSV" style="strokeWidth=1;html=1;shape=mxgraph.flowchart.document2;whiteSpace=wrap;size=0.25;fillColor=#fff2cc;strokeColor=#d6b656;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="690" y="280" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-30" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" target="cnQrVGT4vNmuQ5iyicPk-14" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1086" y="-60" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-66" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="cnQrVGT4vNmuQ5iyicPk-25" target="cnQrVGT4vNmuQ5iyicPk-42" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="740" y="-70" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-25" value="Key Programs Dataframe" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="682.5" y="-40" width="115" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-15" value="NIH RePORTER" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
+          <mxGeometry x="1195" y="-50" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="cnQrVGT4vNmuQ5iyicPk-15" target="cnQrVGT4vNmuQ5iyicPk-14" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1046" y="10" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-14" value="nih_reporter_api.py" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="1026" y="-30" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-18" value="Grants Data&amp;nbsp;&lt;br&gt;(JSON Response)" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="1023.5" y="30" width="125" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="cnQrVGT4vNmuQ5iyicPk-14" target="cnQrVGT4vNmuQ5iyicPk-18" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-32" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="cnQrVGT4vNmuQ5iyicPk-20" target="cnQrVGT4vNmuQ5iyicPk-31" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-20" value="clean_grants_data.py" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="1026" y="90" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="cnQrVGT4vNmuQ5iyicPk-18" target="cnQrVGT4vNmuQ5iyicPk-20" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-34" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="cnQrVGT4vNmuQ5iyicPk-31" target="cnQrVGT4vNmuQ5iyicPk-33" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-31" value="Processed &lt;br&gt;Grants Data" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="1031" y="150" width="110" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-33" value="Combine Grants Data for all Key Programs so far (main.py)" style="whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="1026" y="210" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-48" value="Yes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="cnQrVGT4vNmuQ5iyicPk-35" target="cnQrVGT4vNmuQ5iyicPk-47" edge="1">
+          <mxGeometry x="-0.8596" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-42" value="for each Key Program..." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="1041" y="-90" width="90" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-52" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="cnQrVGT4vNmuQ5iyicPk-47" target="cnQrVGT4vNmuQ5iyicPk-51" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-47" value="All Processed Grants Data" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="1180" y="220" width="110" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-57" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="cnQrVGT4vNmuQ5iyicPk-49" target="cnQrVGT4vNmuQ5iyicPk-55" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="gQOOfUeZjju-Q29w7hby-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="cnQrVGT4vNmuQ5iyicPk-49" target="gQOOfUeZjju-Q29w7hby-2" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-49" value="project.tsv" style="strokeWidth=1;html=1;shape=mxgraph.flowchart.document2;whiteSpace=wrap;size=0.25;fillColor=#fff2cc;strokeColor=#d6b656;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="1320.5" y="90" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-53" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="cnQrVGT4vNmuQ5iyicPk-51" target="cnQrVGT4vNmuQ5iyicPk-49" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-51" value="Export as tsv (main.py)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="1190" y="90" width="90" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-56" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="cnQrVGT4vNmuQ5iyicPk-54" target="cnQrVGT4vNmuQ5iyicPk-4" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-54" value="START" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1" parent="1" vertex="1">
+          <mxGeometry x="550" y="-95" width="70" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-55" value="&lt;b&gt;END&lt;/b&gt;&lt;br&gt;Ready for INS ingest and/or downstream data gathering" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="1308" y="200" width="125" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-58" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="cnQrVGT4vNmuQ5iyicPk-33" target="cnQrVGT4vNmuQ5iyicPk-35" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1086" y="270" as="sourcePoint" />
+            <mxPoint x="1086" y="390" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-67" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="cnQrVGT4vNmuQ5iyicPk-35" target="cnQrVGT4vNmuQ5iyicPk-42" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="981" y="-70" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="980" y="330" />
+              <mxPoint x="980" y="-70" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="gQOOfUeZjju-Q29w7hby-1" value="No" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="cnQrVGT4vNmuQ5iyicPk-67" vertex="1" connectable="0">
+          <mxGeometry x="-0.894" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-35" value="All Key &lt;br&gt;Programs done?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="1046" y="290" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-59" value="ODS process" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="490" y="260" width="140" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-60" value="Stored file output" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
+          <mxGeometry x="490" y="340" width="140" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-61" value="Intermediate data" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="490" y="300" width="140" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-62" value="Process within main.py" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="490" y="280" width="140" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="cnQrVGT4vNmuQ5iyicPk-63" value="Third-party data/process" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
+          <mxGeometry x="490" y="320" width="140" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="gQOOfUeZjju-Q29w7hby-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="gQOOfUeZjju-Q29w7hby-2" target="gQOOfUeZjju-Q29w7hby-4" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="gQOOfUeZjju-Q29w7hby-2" value="summary_statistics.py" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="1310.5" y="10" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="gQOOfUeZjju-Q29w7hby-4" value="Data Reports for Troubleshooting" style="strokeWidth=1;html=1;shape=mxgraph.flowchart.document2;whiteSpace=wrap;size=0.25;fillColor=#fff2cc;strokeColor=#d6b656;verticalAlign=top;" parent="1" vertex="1">
+          <mxGeometry x="1320.5" y="-80" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="gQOOfUeZjju-Q29w7hby-9" value="&lt;h1&gt;INS-Data Repo: Gathering grants data&lt;/h1&gt;&lt;div&gt;&lt;a href=&quot;https://github.com/CBIIT/INS-Data&quot;&gt;https://github.com/CBIIT/INS-Data&lt;/a&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;The INS-Data repo uses a curated list of Key NCI Programs along with the NIH RePORTER API to build a database of NCI grants for use within INS. Several Python modules are used within a main Python script that runs the entire process from a single command. The primary input is a Key Programs CSV received from ODS, and the primary output is a Projects TSV that can be ingested into INS as grants data and also used for downstream data gathering processes (Publications, Datasets, etc.)&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="480" y="-245" width="960" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="FiX24Z-KyvZbtJiPTX6l-17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="FiX24Z-KyvZbtJiPTX6l-2" target="FiX24Z-KyvZbtJiPTX6l-11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="FiX24Z-KyvZbtJiPTX6l-2" value="Invalid NOFO / Awards Report" style="strokeWidth=1;html=1;shape=mxgraph.flowchart.document2;whiteSpace=wrap;size=0.25;fillColor=#fff2cc;strokeColor=#d6b656;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="840" y="30" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="FiX24Z-KyvZbtJiPTX6l-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="FiX24Z-KyvZbtJiPTX6l-3">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="790" y="160" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="790" y="225" />
+              <mxPoint x="790" y="160" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="FiX24Z-KyvZbtJiPTX6l-3" value="NOFO / Awards Corrections CSV" style="strokeWidth=1;html=1;shape=mxgraph.flowchart.document2;whiteSpace=wrap;size=0.25;fillColor=#fff2cc;strokeColor=#d6b656;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="840" y="200" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="FiX24Z-KyvZbtJiPTX6l-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="FiX24Z-KyvZbtJiPTX6l-11" target="FiX24Z-KyvZbtJiPTX6l-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="FiX24Z-KyvZbtJiPTX6l-11" value="Suggest fixes to invalid values" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="840" y="120" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="FiX24Z-KyvZbtJiPTX6l-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" target="FiX24Z-KyvZbtJiPTX6l-2">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="790" y="120" as="sourcePoint" />
+            <Array as="points">
+              <mxPoint x="790" y="120" />
+              <mxPoint x="790" y="55" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="FiX24Z-KyvZbtJiPTX6l-22" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="980" y="140" as="sourcePoint" />
+            <mxPoint x="980" y="20" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="FiX24Z-KyvZbtJiPTX6l-24" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="980" y="314" as="sourcePoint" />
+            <mxPoint x="980" y="194" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="FiX24Z-KyvZbtJiPTX6l-25" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeWidth=5;" vertex="1" parent="1">
+          <mxGeometry x="440" y="-260" width="1040" height="660" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
