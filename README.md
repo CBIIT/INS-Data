@@ -12,10 +12,15 @@ Welcome to the INS-Data repository for the [Index of NCI Studies (INS)](https://
 
 The INS-Data repository workflow follows the general outline below:  
 
-![INS-Data workflow. This diagram shows a rough visualization of the steps listed below.](ins-data-repo-diagram.png)
+![INS-Data workflow. This diagram shows a rough visualization of the steps listed below.](images/ins-data-repo-diagram.png)
 
 1. **Process Qualtrics CSV**
     - Receive curated CSV of Key Programs from the NCI Office of Data Sharing (ODS). This CSV is an export of survey results from the Qualtrics survey tool. Each Key Program in this export includes Notices of Funding Opportunities (NOFOs) and/or Grant IDs (in long or short form).
+    - Validate that all provided NOFOs and Awards match expected format patterns
+        - Generate versioned `invalidAwardReport` and `invalidNofoReport` in the `reports` directory if any unexpected patterns are found
+        - Prompt user to review and correct any issues. There are two ways to make corrections:
+            1. Make manual changes within the raw qualtrics file `qualtrics_output_{version}_raw.csv` and save as `qualtrics_output_{version}_manual_fix.csv`. Change `QUALTRICS_TYPE` to `manual_fix` within `config.py`.
+            2. Add `suggested_fix` and optional `comment` column(s) to the `invalidAwardReport` or `invalidNofoReport` csv and save to the `data/reviewed/{version}/` directory with the `_reviewed` suffix. The validation step will automatically check to see if this file exists and make any suggested changes specified within. If any invalid values still remain after this fix, an `invalidAwardReport_corrected.csv` or `invalidNofoReport_corrected.csv` is generated in the `reports` directory. 
     - Save cleaned Key Programs CSV for reference and downstream use
     - The fields expected are defined and can be modified in `config.py`
     - Function(s) defined in `data_preparation.py` module
@@ -62,17 +67,20 @@ The entire workflow is captured within `main.py` for simplicity of use and repro
 INS-Data
 ├── data/
 │   ├── cleaned/
-│   │   ├── key_programs_{version}.csv
-│   │   └── ...other versions
+│   │   └── key_programs_{version}.csv
+│   ├── processed/
+│   │   └── {version}/
+│   │       └── api-gathered-{gathering date}/
+│   |           └── project.tsv
 │   ├── raw/
-│   │   ├── qualtrics_output_{version}_{type}.csv
-│   │   └── ...other Qualtrics versions/types
-│   └── processed/
-│       ├── {version}/
-│       │   ├── api-gathered-{gathering date}/
-│       │   │   ├── project.tsv
-│       │   └── ...other data gathered on different dates
-│       └── ...other Qualtrics versions
+│   │   └── qualtrics_output_{version}_{type}.csv
+│   └── reviewed/
+│       └── {version}/
+│           ├── invalidAwardReport_reviewed.csv
+│           └── invalidNofoReport_reviewed.csv
+├── images/
+│   ├── ins-data-repo-diagram.drawio
+│   └── ins-data-repo-diagram.png
 ├── modules/
 │   ├── clean_grants_data.py
 │   ├── data_preparation.py
@@ -81,16 +89,14 @@ INS-Data
 ├── notebooks/
 │   └── Non-production Jupyter notebooks used during development
 ├── reports/
-│   ├── {version}/
-│   │   ├── api-gathered-{gathering date}/
-│   │   │   ├── grantStatsByProgram.csv
-│   │   │   ├── sharedProjectsByProgramPair.csv
-│   │   │   └── ... additional reports as needed
-│   │   └── ...other reports for data gathered on different dates
-│   └── ...other Qualtrics versions
+│   └── {version}/
+│       ├── api-gathered-{gathering date}/
+│       │   ├── grantStatsByProgram.csv
+│       │   └── sharedProjectsByProgramPair.csv
+│       ├── invalidAwardReport_{type}.csv
+│       └── invalidNofoReport_{type}.csv
 ├── config.py
 ├── environment.yaml
-├── ins-data-repo-diagram.png
 ├── main.py
 └── README.md
 ```

@@ -21,7 +21,7 @@ def get_summary_statistics(all_grants_data:pd.DataFrame):
     """Create reports with summary statistics of high-level grants info"""
 
     # Define directory to store reports. Create if doesn't already exist
-    reports_dir = config.REPORTS_DIR
+    reports_dir = config.API_REPORTS_DIR
     if not os.path.exists(reports_dir):
         os.makedirs(reports_dir)  
 
@@ -108,4 +108,4 @@ if __name__ == "__main__":
     # Run stats module
     get_summary_statistics(all_cleaned_grants)
     print(f"Summary reports for grants data successfully generated.\n"
-          f"Results can be found in {config.REPORTS_DIR}.\n---")
+          f"Results can be found in {config.API_REPORTS_DIR}.\n---")
