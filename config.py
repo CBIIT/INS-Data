@@ -22,15 +22,15 @@ QUALTRICS_TYPE = "manual_fix" # <-- Define "raw" or "manual_fix" type of the inp
 QUALTRICS_CSV_PATH = "data/raw/qualtrics_output_" + QUALTRICS_VERSION +"_"+ QUALTRICS_TYPE + ".csv"
 CLEANED_KEY_PROGRAMS_CSV = "data/cleaned/key_programs_" + QUALTRICS_VERSION + ".csv"
 
-# Add timestamp to note when grants were gathered from API
-# The same Qualtrics input file can have different outputs depending upon API gathering date
-TIMESTAMP = 'api-gathered-'+datetime.now().strftime('%Y-%m-%d')
+# # Add timestamp to note when grants were gathered from API
+# # The same Qualtrics input file can have different outputs depending upon API gathering date
+# TIMESTAMP = 'api-gathered-'+datetime.now().strftime('%Y-%m-%d')
 
-# # OPTIONAL MANUAL OVERRIDE for debugging and running modules on older data
-# OVERRIDE_DATE = '2023-09-28' # <-- INPUT override date of API gathering version
-# TIMESTAMP = 'api-gathered-' + OVERRIDE_DATE
-# print(f"---TIMESTAMP OVERRIDE IN USE---\n"
-#       f"---Disable this with comments in config.py for default behavior---")
+# OPTIONAL MANUAL OVERRIDE for debugging and running modules on older data
+OVERRIDE_DATE = '2023-11-01' # <-- INPUT override date of API gathering version
+TIMESTAMP = 'api-gathered-' + OVERRIDE_DATE
+print(f"---TIMESTAMP OVERRIDE IN USE---\n"
+      f"---Disable this with comments in config.py for default behavior---")
 
 # Versioned directories for intermediates and outputs
 PROCESSED_DIR = "data/processed/" + QUALTRICS_VERSION + "/" + TIMESTAMP
@@ -154,3 +154,18 @@ STAT_CORE_PROJECT_COL = 'queried_project_id'
 # Summary statistic export filenames
 STAT_GRANTS_BY_PROGRAM_FILENAME = API_REPORTS_DIR + '/' + 'grantsStatsByProgram.csv'
 STAT_SHARED_PROJECT_PROGRAM_PAIRS_FILENAME = API_REPORTS_DIR + '/' 'sharedProjectsByProgramPair.csv'
+
+
+# ---
+# PUBLICATIONS CONFIGURATION
+
+# Versioned directories for intermediates and outputs
+TEMP_PUBLICATION_DIR = PROCESSED_DIR + '/' + 'temp-publication_data'
+REMOVED_PUBLICATIONS = API_REPORTS_DIR + '/' + 'removedPublicationsReport.csv'
+PROJECT_PMIDS = PROCESSED_DIR + '/' + 'projectPMIDs.csv'
+
+# Projects output filename
+PUBLICATIONS_OUTPUT = PROCESSED_DIR + '/' + "publications.tsv"
+
+# Temporary Publication data chunksize
+PUB_DATA_CHUNK_SIZE = 20
