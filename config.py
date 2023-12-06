@@ -13,6 +13,9 @@ from datetime import datetime
 QUALTRICS_VERSION = "2023-08-30" # <-- CHANGE VERSION HERE
 QUALTRICS_TYPE = "manual_fix" # <-- Define "raw" or "manual_fix" type of the input csv
 
+# Version of bulk download from iCite
+ICITE_VERSION = '2023-10'
+
 
 
 
@@ -158,6 +161,9 @@ STAT_SHARED_PROJECT_PROGRAM_PAIRS_FILENAME = API_REPORTS_DIR + '/' 'sharedProjec
 
 # ---
 # PUBLICATIONS CONFIGURATION
+
+# ICite bulk download csv.zip location
+ICITE_FILENAME = 'data/raw/icite/' + ICITE_VERSION + 'icite_metadata.zip'
 
 # Versioned directories for intermediates and outputs
 TEMP_PUBLICATION_DIR = PROCESSED_DIR + '/' + 'temp-publication_data'

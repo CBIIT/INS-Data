@@ -164,6 +164,53 @@ def get_pmids_from_projects(projects_df, print_meta=False):
 
 
 
+def get_icite_data_for_pmids(df_pmid, icite_filepath, cols, 
+                             chunk_size=250000, chunk_count_est=None):
+    """
+    Get iCite data for unique PMIDs from a DataFrame using chunks.
+
+    :param df_pmid (pd.DataFrame): DataFrame containing PMID-related data.
+    :param icite_filepath (str): Path to the zipped iCite CSV file.
+    :param cols (list): Columns to pull from iCite and include in output df
+    :param chunk_size (int): Number of rows to read per chunk.
+    :param chunk_count (int): Estimated number of chunks. If None, ignored
+
+    :return: pd.DataFrame: DataFrame with specified columns
+    """
+    # Get unique PMIDs from df_pmid
+    unique_pmids = df_pmid['pmid'].unique()
+
+    # Initialize an empty list to store the enriched data chunks
+    df_enriched_chunks = []
+
+    # Create a tqdm wrapper around the generator to track progress
+    chunks = tqdm(pd.read_csv(icite_filepath, compression='zip', 
+                              chunksize=chunk_size),
+                  desc="Processing iCite", unit="chunk", total=chunk_count_est)
+
+    # Iterate through chunks of the iCite DataFrame
+    for chunk in chunks:
+        # Filter the chunk to include only rows with PMIDs in unique_pmids
+        chunk_filtered = chunk[chunk['pmid'].isin(unique_pmids)]
+
+        # Append the filtered DataFrame to the list with selected columns
+        df_enriched_chunks.append(chunk_filtered[cols])
+
+    # Concatenate all the chunks into the final enriched DataFrame
+    df_enriched = pd.concat(df_enriched_chunks, ignore_index=True)
+
+    # Include unique PMIDs not found in iCite with NaN in iCite columns
+    df_unique_pmids = pd.DataFrame(df_pmid['pmid'].unique(), columns=['pmid'])
+    df_pmids_with_icite = pd.merge(df_unique_pmids, df_enriched, 
+                                   how='left', on='pmid')
+
+    # Sort by PMID for consistent handling
+    df_pmids_with_icite.sort_values(by='pmid', inplace=True, ignore_index=True)
+
+    return df_pmids_with_icite
+
+
+
 def get_full_publication_record(pmid):
     """
     Get the full record for a given PMID without subselection. Helper function 
