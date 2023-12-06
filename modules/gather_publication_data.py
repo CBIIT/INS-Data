@@ -255,6 +255,33 @@ def format_authors(author_list):
 
 
 
+def format_publication_date(pub_date):
+    """Format publication date API response as a standardized datetime. 
+    Replace any missing months or dates with 1. (i.e. January or the 1st)
+
+    :param dict pub_date: JSON record of publication date from the PubMed API
+    :return datetime: Publication date as datetime
+    """
+    if not pub_date:
+        return pd.NaT  # Return a pandas NaT if pub_date is empty
+
+    # If Month is not present, default to January
+    month = pub_date.get('Month', 1)
+
+    # If month is provided as a string, convert to numerical representation
+    if isinstance(month, str):
+        month_dict = {'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
+                      'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12}
+        month = month_dict.get(month, 1)
+
+    # Default to 1st if Day is not present
+    day = pub_date.get('Day', 1)
+
+    # Format the full publication date as a datetime object
+    return datetime(int(pub_date['Year']), int(month), int(day))
+
+
+
 def get_publication_info_from_pmid(pmid):
     """
     Get publication information for a given PMID.
@@ -280,11 +307,25 @@ def get_publication_info_from_pmid(pmid):
         authors = record.get('AuthorList', [])
         formatted_authors = format_authors(authors)
 
+        # Get publication date information
+        # Use 'ArticleDate' if available, otherwise use 'Journal PubDate'
+        article_date = record.get('ArticleDate', [])
+        if article_date:
+            journal_pub_date = article_date[0]
+        else:
+            journal_pub_date = record['Journal']['JournalIssue'].get('PubDate', {})
+
+        # Use 'ArticleDate' if available, otherwise use 'Journal PubDate'
+        # journal_pub_date = article_date if article_date else journal_pub_date
+
+        # Use the format_publication_date function
+        publication_date = format_publication_date(journal_pub_date)
+
         publication_info = {
             'publication_id': pmid,
             'title': record['ArticleTitle'],
             'authors': formatted_authors,
-            'publication_year': record['Journal']['JournalIssue']['PubDate'].get('Year', ''),
+            'publication_date': publication_date,
         }
 
         return publication_info
@@ -365,7 +406,7 @@ def build_pmid_info_data_chunks(df_pmid, output_folder, chunk_size):
                     'pmid': pmid,
                     'title': publication_info['title'],
                     'authors': publication_info['authors'],
-                    'publication_year': publication_info['publication_year']
+                    'publication_date': publication_info['publication_date']
                 }, index=[0])
 
                 # Add the current DataFrame to df_pmid_info
@@ -391,7 +432,7 @@ def build_pmid_info_data_chunks(df_pmid, output_folder, chunk_size):
                 'pmid': pmid,
                 'title': pd.NA,
                 'authors': pd.NA,
-                'publication_year': pd.NA
+                'publication_date': pd.NA
             }, index=[0])
 
             # Add the current DataFrame to df_pmid_info
@@ -417,33 +458,36 @@ def merge_and_clean_project_pmid_info(df_pmids, df_pub_info):
 
     :param df_pmid: DataFrame containing 'coreproject' and 'pmid' columns.
     :param df_pub_info: DataFrame containing 'pmid', 'title', 'authors', and 
-                    'publication_year'.
+                    'publication_date'.
     :return: df_merged: Clean DataFrame with projects, pmids, and pub info
     :return: df_removed_publications: DataFrame with errored publication info
     """
     # Merge the two DataFrames on the 'pmid' column
     df_merged = pd.merge(df_pmids, df_pub_info, on='pmid', how='left')
 
-    # Remove rows with NaN values
-    df_removed_publications = df_merged[df_merged.isnull().any(axis=1)].copy()
-    df_merged = df_merged.dropna()
+    # Remove rows where all values are NaN except for 'pmid'
+    df_removed_publications = df_merged.loc[df_merged.drop('pmid', axis=1)
+                                            .isnull().all(axis=1)].copy()
+    df_merged = df_merged.dropna(subset=df_merged.columns.drop('pmid'), how='all')
 
-    # Remove rows where 'publication_date' is below 2000
-    df_removed_before_2000 = df_merged[df_merged['publication_year']
-                                       .astype(int) < 2000].copy()
-    df_merged = df_merged[df_merged['publication_year'].astype(int) >= 2000]
+    # Remove rows where 'publication_date' is below the cutoff in config
+    cutoff_year = config.PUBLICATION_YEAR_CUTOFF
+    df_removed_early_pubdate = df_merged[df_merged['publication_date'] 
+                                         < datetime(cutoff_year, 1,1)].copy()
+    df_merged = df_merged[df_merged['publication_date'] 
+                                        >= datetime(cutoff_year, 1, 1)]
 
     # Add reasons for removal to 'df_removed_publications'
     df_removed_publications = pd.concat([df_removed_publications, 
-                                         df_removed_before_2000], 
+                                         df_removed_early_pubdate], 
                                          ignore_index=True)
     df_removed_publications['reason'] = ''
 
     # Add reasons for removal based on conditions
-    df_removed_publications.loc[df_removed_publications
-                                .isnull().any(axis=1), 'reason'] = 'No API info'
-    df_removed_publications.loc[df_removed_publications['publication_year']
-                                .astype(float) < 2000, 'reason'] = 'Published before 2000'
+    df_removed_publications.loc[df_removed_publications.drop('pmid', axis=1)
+                                .isnull().all(axis=1), 'reason',] = 'No publication info'
+    df_removed_publications.loc[df_removed_publications['publication_date'] 
+                                < datetime(cutoff_year, 1, 1), 'reason',] = 'Published before 2000'
 
     return df_merged, df_removed_publications
 

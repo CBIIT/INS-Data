@@ -173,5 +173,8 @@ PROJECT_PMIDS = PROCESSED_DIR + '/' + 'projectPMIDs.csv'
 # Projects output filename
 PUBLICATIONS_OUTPUT = PROCESSED_DIR + '/' + "publications.tsv"
 
+# Earliest Publication year
+PUBLICATION_YEAR_CUTOFF = 2000
+
 # Temporary Publication data chunksize
 PUB_DATA_CHUNK_SIZE = 20
