@@ -140,7 +140,7 @@ def get_pmids_from_projects(projects_df, print_meta=False):
     all_pmids = []
 
     # Iterate through projects and add to running list of results
-    for id in tqdm(project_id_list):
+    for id in tqdm(project_id_list, ncols=80):
         results = get_pmids_from_nih_reporter_api(id, print_meta=print_meta)
         all_pmids.extend(results)
 
@@ -219,7 +219,7 @@ def get_publication_info_from_pmid(pmid):
     Entrez.email = os.environ.get('NCBI_EMAIL', 'your-email@example.com')
     Entrez.api_key = os.environ.get('NCBI_API_KEY', '')
     # Reduce delay between failed attempts from default 15
-    Entrez.sleep_between_tries = 1
+    Entrez.sleep_between_tries = 2
 
     try:
         handle = Entrez.efetch(db="pubmed", id=pmid, retmode="xml")
@@ -257,7 +257,8 @@ def get_max_chunk_number(output_folder):
         return 0
     else:
         # Extract numbers from filenames and return the maximum
-        return max([int(re.search(r'\d+', file).group()) for file in existing_chunk_files])
+        return max([int(re.search(r'\d+', file)
+                        .group()) for file in existing_chunk_files])
 
 
 
@@ -293,18 +294,16 @@ def build_pmid_info_data_chunks(df_pmid, output_folder, chunk_size):
         
     # Track previously processed pmids
     processed_pmids = set()
-    remaining_pmid_count = df_pmids['pmid'].nunique()
 
     # If previously gathered publication data exist, reuse and reset counts
     if chunk_number > 0: 
         existing_data = load_all_directory_files_to_df(output_folder)
         processed_pmids.update(existing_data['pmid'].unique())
-        remaining_pmid_count = df_pmid['pmid'].nunique() - len(processed_pmids)
-        print(f"Reusing existing Publication details for {len(processed_pmids)} "
-            f"PMIDs found in {output_folder}.")
+        print(f"---\nReusing existing Publication details for "
+              f"{len(processed_pmids)} PMIDs found in {output_folder}.\n---")
 
     # Iterate through each unique PMID with tqdm progress bar
-    for pmid in tqdm(df_pmid['pmid'].unique(), total=remaining_pmid_count):
+    for pmid in tqdm(df_pmid['pmid'].unique(), ncols=80):
         # Check if PMID is already processed and skip if so
         if pmid in processed_pmids:
             continue
@@ -327,6 +326,7 @@ def build_pmid_info_data_chunks(df_pmid, output_folder, chunk_size):
 
                 # Check if df should be saved to file
                 if len(df_pmid_info) >= chunk_size:
+                    # Save with standard filename and numbered suffix
                     chunk_number += 1
                     output_file = f"{output_folder}/publicationDetails_{chunk_number:03}.csv"
                     df_pmid_info.to_csv(output_file, index=False)
@@ -355,6 +355,7 @@ def build_pmid_info_data_chunks(df_pmid, output_folder, chunk_size):
 
     # Save the final chunk if present
     if len(df_pmid_info) >= 1:
+        # Save with standard filename and numbered suffix
         chunk_number += 1
         output_file = f"{output_folder}/publicationDetails_{chunk_number:03}.csv"
         df_pmid_info.to_csv(output_file, index=False)
@@ -414,16 +415,18 @@ if __name__ == "__main__":
 
     # Use existing PMID list if present
     if os.path.exists(config.PROJECT_PMIDS):
-        print(f"Reusing PMIDs already gathered in {config.PROJECT_PMIDS}.")
+        print(f"---\nReusing PMIDs already gathered in {config.PROJECT_PMIDS}.")
         df_pmids = pd.read_csv(config.PROJECT_PMIDS)
     
     else:
         # Gather PMIDs from projects using NIH RePORTER API
-        print(f"Gathering associated PMIDs for each project from NIH RePORTER API...")
+        print(f"---\nGathering associated PMIDs for each project from "
+              f"NIH RePORTER API...")
         df_pmids = get_pmids_from_projects(all_cleaned_grants)
 
         # Store a checkpoint file of all gathered PMIDs and projects
         df_pmids.to_csv(config.PROJECT_PMIDS, index=False)
+        print(f"Gathered PMIDs saved to {config.PROJECT_PMIDS}.")
 
     # Gather publication data and store in chunks of defined size 
     print(f"---\nGathering PubMed data for all PMIDs...\n"
@@ -434,7 +437,7 @@ if __name__ == "__main__":
     print(f"Success! Publication data gathered for all PMIDs.")
 
     # Load all partial files back into a single df
-    print(f"Combining and merging all publication data...")
+    print(f"---\nCombining and merging all publication data...")
     df_pub_info = load_all_directory_files_to_df(config.TEMP_PUBLICATION_DIR)
 
     # Build final publication df
