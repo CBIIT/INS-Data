@@ -560,7 +560,8 @@ if __name__ == "__main__":
 
     # Gather publication data and store in chunks of defined size 
     print(f"---\nGathering PubMed data for all PMIDs...\n"
-          f"NOTE: THIS STEP CAN TAKE 8+ HOURS.")
+          f"---NOTE: THIS STEP CAN TAKE 8+ HOURS.---\n"
+          f"Saving partial files to {config.TEMP_PUBLICATION_DIR} throughout.")
     build_pmid_info_data_chunks(df_pmids, 
                                 chunk_size=config.PUB_DATA_CHUNK_SIZE, 
                                 output_folder=config.TEMP_PUBLICATION_DIR)
