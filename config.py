@@ -25,15 +25,15 @@ ICITE_VERSION = '2023-10'
 QUALTRICS_CSV_PATH = "data/raw/qualtrics_output_" + QUALTRICS_VERSION +"_"+ QUALTRICS_TYPE + ".csv"
 CLEANED_KEY_PROGRAMS_CSV = "data/cleaned/key_programs_" + QUALTRICS_VERSION + ".csv"
 
-# # Add timestamp to note when grants were gathered from API
-# # The same Qualtrics input file can have different outputs depending upon API gathering date
-# TIMESTAMP = 'api-gathered-'+datetime.now().strftime('%Y-%m-%d')
+# Add timestamp to note when grants were gathered from API
+# The same Qualtrics input file can have different outputs depending upon API gathering date
+TIMESTAMP = 'api-gathered-'+datetime.now().strftime('%Y-%m-%d')
 
-# OPTIONAL MANUAL OVERRIDE for debugging and running modules on older data
-OVERRIDE_DATE = '2023-11-01' # <-- INPUT override date of API gathering version
-TIMESTAMP = 'api-gathered-' + OVERRIDE_DATE
-print(f"---TIMESTAMP OVERRIDE IN USE---\n"
-      f"---Disable this with comments in config.py for default behavior---")
+# # OPTIONAL MANUAL OVERRIDE for debugging and running modules on older data
+# OVERRIDE_DATE = '2023-12-06' # <-- INPUT override date of API gathering version
+# TIMESTAMP = 'api-gathered-' + OVERRIDE_DATE
+# print(f"---TIMESTAMP OVERRIDE IN USE---\n"
+#       f"---Disable this with comments in config.py for default behavior---")
 
 # Versioned directories for intermediates and outputs
 PROCESSED_DIR = "data/processed/" + QUALTRICS_VERSION + "/" + TIMESTAMP
@@ -163,18 +163,24 @@ STAT_SHARED_PROJECT_PROGRAM_PAIRS_FILENAME = API_REPORTS_DIR + '/' 'sharedProjec
 # PUBLICATIONS CONFIGURATION
 
 # ICite bulk download csv.zip location
-ICITE_FILENAME = 'data/raw/icite/' + ICITE_VERSION + 'icite_metadata.zip'
+ICITE_FILENAME = 'data/raw/icite/' + ICITE_VERSION + '/' + 'icite_metadata.zip'
 
 # Versioned directories for intermediates and outputs
 TEMP_PUBLICATION_DIR = PROCESSED_DIR + '/' + 'temp-publication_data'
 REMOVED_PUBLICATIONS = API_REPORTS_DIR + '/' + 'removedPublicationsReport.csv'
 PROJECT_PMIDS = PROCESSED_DIR + '/' + 'projectPMIDs.csv'
+ICITE_PMID_DATA = PROCESSED_DIR + '/' + 'icitePMIDData.csv'
+MERGED_PMID_DATA = PROCESSED_DIR + '/' + 'mergedPMIDData.csv'
 
 # Projects output filename
-PUBLICATIONS_OUTPUT = PROCESSED_DIR + '/' + "publications.tsv"
+PUBLICATIONS_OUTPUT = PROCESSED_DIR + '/' + "publication.tsv"
 
 # Earliest Publication year
 PUBLICATION_YEAR_CUTOFF = 2000
 
-# Temporary Publication data chunksize
-PUB_DATA_CHUNK_SIZE = 20
+# Temporary PubMed file chunksize
+PUB_DATA_CHUNK_SIZE = 2000
+
+# iCite columns of interest
+ICITE_COLUMNS_TO_PULL = ['pmid','title','authors','year',
+                         'citation_count','relative_citation_ratio']

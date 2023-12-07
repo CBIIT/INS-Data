@@ -1,26 +1,33 @@
 # gather_publication_data.py
 # 2023-11-20 ZD
 #
-# This script defines functions that will accept the projects.tsv and use it 
-# along with the NIH RePORTER and PubMed APIs to gather associated publications 
-# and descriptive data for those publications.
+# This script defines functions that will accept the project.tsv and use it 
+# along with the NIH RePORTER API, PubMed API, and iCite bulk download to 
+# gather associated publications and descriptive data for those publications.
 # 
-# The output `publications_df` and publications.tsv contains columns:
+# The output `publications_df` and publication.tsv contains columns:
 # 
-# ADD COLUMNS
-# 
+# coreproject
+# pmid
+# title
+# authors
+# publication_date
+# citation_count
+# relative_citation_ratio
+#
 
+import os
+import sys
+from datetime import datetime
+from time import sleep  # for retrying API calls
+import re
 
 import pandas as pd
 import requests
-from datetime import datetime
-from time import sleep # for retrying API calls
-from math import ceil # for pagination logging
-from tqdm import tqdm # for progress bars
-from Bio import Entrez
-import os
-import sys
-import re
+from tqdm import tqdm  # for progress bars
+from math import ceil  # for pagination logging
+from Bio import Entrez  # for PubMed API
+
 # Append the project's root directory to the Python path
 # This allows for importing config when running as part of main.py or alone
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -147,6 +154,9 @@ def get_pmids_from_projects(projects_df, print_meta=False):
     # Reformat list of results as dataframe
     df_pmids = pd.DataFrame(all_pmids)
 
+    # Drop irrelevant applid column and duplicate rows
+    df_pmids = df_pmids.drop('applid', axis=1).drop_duplicates()
+
     # Sort by PMIDs for consistent downstream handling
     df_pmids = df_pmids.sort_values(by='pmid')
 
@@ -186,7 +196,7 @@ def get_icite_data_for_pmids(df_pmid, icite_filepath, cols,
     # Create a tqdm wrapper around the generator to track progress
     chunks = tqdm(pd.read_csv(icite_filepath, compression='zip', 
                               chunksize=chunk_size),
-                  desc="Processing iCite", unit="chunk", total=chunk_count_est)
+                  unit="chunk", total=chunk_count_est, ncols=80)
 
     # Iterate through chunks of the iCite DataFrame
     for chunk in chunks:
@@ -452,6 +462,35 @@ def build_pmid_info_data_chunks(df_pmid, output_folder, chunk_size):
 
 
 
+def merge_pubmed_icite_pmid_data(df_pubmed, df_icite):
+    """Fill in missing PubMed data for PMIDs with iCite data for PMIDs.
+
+    :param pd.DataFrame df_pubmed: pandas DataFrame of PubMed data with fields 
+                    'pmid', 'title', 'authors', 'publication_date'
+    :param pd.DataFrame df_icite: pandas DataFrame of iCite data with fields 
+                    'pmid', 'title', 'authors', 'year', 
+                    'citation_count', 'relative_citation_ratio'
+    :return pd.DataFrame df_pub_info: pandas DataFrame of combined data with fields
+                    'pmid', 'title', 'authors', 'publication_date', 
+                    'citation_count', 'relative_citation_ratio'
+    """
+
+    # Format iCite year column as datetime
+    df_icite['publication_year'] = pd.to_datetime(df_icite['year'])
+    df_icite.drop(columns='year', inplace=True)
+
+    # Fill in missing PubMed data and columns with iCite
+    df_pub_info = df_pubmed.combine_first(df_icite)
+
+    # Reorder columns and sort for consistency
+    df_pub_info = df_pub_info[['pmid','title','authors','publication_date',
+                               'citation_count','relative_citation_ratio']]
+    df_pub_info.sort_values(by='pmid', inplace=True, ignore_index=True)
+
+    return df_pub_info
+
+
+
 def merge_and_clean_project_pmid_info(df_pmids, df_pub_info):
     """Merge publication information with the dataframe of projects and pmids. 
        Also perform some cleaning functions and store removed publications.
@@ -472,7 +511,7 @@ def merge_and_clean_project_pmid_info(df_pmids, df_pub_info):
 
     # Remove rows where 'publication_date' is below the cutoff in config
     cutoff_year = config.PUBLICATION_YEAR_CUTOFF
-    df_removed_early_pubdate = df_merged[df_merged['publication_date'] 
+    df_removed_early_pubdate = df_merged[df_merged['publication_date']
                                          < datetime(cutoff_year, 1,1)].copy()
     df_merged = df_merged[df_merged['publication_date'] 
                                         >= datetime(cutoff_year, 1, 1)]
@@ -486,7 +525,7 @@ def merge_and_clean_project_pmid_info(df_pmids, df_pub_info):
     # Add reasons for removal based on conditions
     df_removed_publications.loc[df_removed_publications.drop('pmid', axis=1)
                                 .isnull().all(axis=1), 'reason',] = 'No publication info'
-    df_removed_publications.loc[df_removed_publications['publication_date'] 
+    df_removed_publications.loc[df_removed_publications['publication_date']
                                 < datetime(cutoff_year, 1, 1), 'reason',] = 'Published before 2000'
 
     return df_merged, df_removed_publications
@@ -525,13 +564,38 @@ if __name__ == "__main__":
     build_pmid_info_data_chunks(df_pmids, 
                                 chunk_size=config.PUB_DATA_CHUNK_SIZE, 
                                 output_folder=config.TEMP_PUBLICATION_DIR)
-    print(f"Success! Publication data gathered for all PMIDs.")
+    print(f"Success! PubMed Publication data gathered for all PMIDs.")
 
-    # Load all partial files back into a single df
+    # Gather iCite data for all PMIDs from projects
+    print(f"---\nGathering iCite data for all PMIDs...")
+
+    # Use existing iCite-enriched PMIDs if present
+    if os.path.exists(config.ICITE_PMID_DATA):
+        print(f"---\nReusing iCite data already gathered in {config.ICITE_PMID_DATA}.")
+        df_icite = pd.read_csv(config.ICITE_PMID_DATA)
+    else:
+        df_icite = get_icite_data_for_pmids(df_pmids,
+                                config.ICITE_FILENAME, 
+                                config.ICITE_COLUMNS_TO_PULL,
+                                chunk_size=250000, chunk_count_est=146)
+        # Export iCite data as checkpoint
+        df_icite.to_csv(config.ICITE_PMID_DATA, index=False)
+        print(f"---\niCite data for PMIDS saved to {config.ICITE_PMID_DATA}.")
+
+    # Load all partial PubMed files back into a single df
     print(f"---\nCombining and merging all publication data...")
-    df_pub_info = load_all_directory_files_to_df(config.TEMP_PUBLICATION_DIR)
+    df_pubmed = load_all_directory_files_to_df(config.TEMP_PUBLICATION_DIR)
+    # Reset string-ed dates back to datetime
+    df_pubmed['publication_date'] = pd.to_datetime(df_pubmed['publication_date'])
+
+    # Fill in missing PubMed data and columns with iCite
+    df_pub_info = merge_pubmed_icite_pmid_data(df_pubmed, df_icite)
+    # Export for troubleshooting
+    df_pub_info.to_csv(config.MERGED_PMID_DATA, index=False)
+    print(f"Merged PMID data saved to {config.MERGED_PMID_DATA}.")
 
     # Build final publication df
+    print(f"---\nMerging PMID data back to Core Projects...")
     df_publications, df_removed_publications = merge_and_clean_project_pmid_info(
                                                 df_pmids, 
                                                 df_pub_info)
@@ -540,4 +604,9 @@ if __name__ == "__main__":
     df_publications.to_csv(config.PUBLICATIONS_OUTPUT, sep='\t', index=False)
     df_removed_publications.to_csv(config.REMOVED_PUBLICATIONS, index=False)
 
-    print(f"Success! Publication data saved to {config.PUBLICATIONS_OUTPUT}.")
+    print(f"Success! Publication data saved to {config.PUBLICATIONS_OUTPUT}.\n"
+          f"Removed publications saved to {config.REMOVED_PUBLICATIONS}")
+    print(f"---\n")
+    print(f"Total unique Publications saved:  {df_publications['pmid'].nunique():>8}")
+    print(f"Total removed Publications:       {len(df_removed_publications):>8}")
+    print(f"Project-Publication associations: {len(df_publications):>8}")
