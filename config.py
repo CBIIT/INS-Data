@@ -166,7 +166,7 @@ STAT_SHARED_PROJECT_PROGRAM_PAIRS_FILENAME = API_REPORTS_DIR + '/' 'sharedProjec
 ICITE_FILENAME = 'data/raw/icite/' + ICITE_VERSION + '/' + 'icite_metadata.zip'
 
 # Versioned directories for intermediates and outputs
-TEMP_PUBLICATION_DIR = PROCESSED_DIR + '/' + 'temp-publication_data'
+TEMP_PUBLICATION_DIR = PROCESSED_DIR + '/' + 'temp_pubmed_chunkfiles'
 REMOVED_PUBLICATIONS = API_REPORTS_DIR + '/' + 'removedPublicationsReport.csv'
 PROJECT_PMIDS = PROCESSED_DIR + '/' + 'projectPMIDs.csv'
 ICITE_PMID_DATA = PROCESSED_DIR + '/' + 'icitePMIDData.csv'
