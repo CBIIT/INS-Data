@@ -154,7 +154,7 @@ def get_pmids_from_projects(projects_df, print_meta=False):
     # Reformat list of results as dataframe
     df_pmids = pd.DataFrame(all_pmids)
 
-    # Drop irrelevant applid column and duplicate rows
+    # Drop irrelevant applid column and any duplicated rows
     df_pmids = df_pmids.drop('applid', axis=1).drop_duplicates()
 
     # Sort by PMIDs for consistent downstream handling
@@ -265,6 +265,55 @@ def format_authors(author_list):
 
 
 
+def extract_medline_date_components(date_str):
+    """Extracts date components from a Medline date string with various formats
+
+    :param date_str: A string containing date information in the Medline format
+    :return: Publication date as datetime or None if an error occurs
+    """
+
+    try:
+        # Look for the first 4-digit number and store as the year
+        year_match = re.search(r'\b\d{4}\b', date_str)
+        if year_match:
+            year = int(year_match.group())
+        else:
+            raise ValueError("No year found")
+
+        # Find first month occurrence (Mmm) and store as the numerical month
+        month_match = re.search(
+                    r'\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b',
+                    date_str, re.I)
+        if month_match:
+            month = datetime.strptime(month_match.group(), "%b").month
+        else:
+            # Look for season string (Winter, Spring, Summer, Fall) and store 
+            # as the numerical month (12, 3, 6, 9).
+            season_match = re.search(r'\b(?:Winter|Spring|Summer|Fall)\b',
+                                      date_str, re.I)
+            if season_match:
+                season_to_month = {'Winter': 12, 'Spring': 3, 
+                                   'Summer': 6, 'Fall': 9}
+                month = season_to_month[season_match.group()]
+            else:
+                month = 1  # If no month or season, assign 1.
+
+        # Look for first occurrence of 1 or 2 digits after space and store as day
+        day_match_space = re.search(r'\b\d{1,2}\b', date_str)
+
+        if day_match_space:
+            day = int(day_match_space.group())
+        else:
+            day = 1  # If not identified, assign 1.
+
+        return datetime(year, month, day) #.strftime('%Y-%m-%d')
+
+    except Exception as e:
+        print(f"Error processing date string '{date_str}': {e}")
+        return None
+
+
+
 def format_publication_date(pub_date):
     """Format publication date API response as a standardized datetime. 
     Replace any missing months or dates with 1. (i.e. January or the 1st)
@@ -272,27 +321,40 @@ def format_publication_date(pub_date):
     :param dict pub_date: JSON record of publication date from the PubMed API
     :return datetime: Publication date as datetime
     """
+    # Return None if pub_date is empty
     if not pub_date:
-        return pd.NaT  # Return a pandas NaT if pub_date is empty
+        return None
 
-    # If Month is not present, default to January
-    month = pub_date.get('Month', 1)
+    # Get publication year (default to None if not present)
+    year = pub_date.get('Year', None)
 
-    # If month is provided as a string, convert to numerical representation
-    if isinstance(month, str):
-        month_dict = {'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
-                      'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12}
-        month = month_dict.get(month, 1)
+    # If year is present, parse expected format into datetime
+    if year:
+        # Get month. If not present, default to January (01)
+        month = pub_date.get('Month', 1)
 
-    # Default to 1st if Day is not present
-    day = pub_date.get('Day', 1)
+        # If month is provided as a string, convert to numerical representation
+        if isinstance(month, str):
+            month_dict = {'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 
+                          'May': 5, 'Jun': 6, 'Jul': 7, 'Aug': 8, 
+                          'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12}
+            month = month_dict.get(month, 1)
 
-    # Format the full publication date as a datetime object
-    return datetime(int(pub_date['Year']), int(month), int(day))
+        # Get day. If not present, efault to 1st (01)
+        day = pub_date.get('Day', 1)
+
+        # Combine components into datetime
+        date_out = datetime(int(year), int(month), int(day))
+
+    # If year is not present, use Medline date parsing
+    else: 
+        date_out = extract_medline_date_components(pub_date['MedlineDate'])
+
+    return date_out
 
 
 
-def get_publication_info_from_pmid(pmid):
+def get_pubmed_info_from_pmid(pmid):
     """
     Get publication information for a given PMID.
 
@@ -318,18 +380,20 @@ def get_publication_info_from_pmid(pmid):
         formatted_authors = format_authors(authors)
 
         # Get publication date information
-        # Use 'ArticleDate' if available, otherwise use 'Journal PubDate'
+        # Use 'ArticleDate' if available
         article_date = record.get('ArticleDate', [])
         if article_date:
-            journal_pub_date = article_date[0]
+            publication_date = article_date[0]
+        # Try using Journal PubDate field next
+        elif record['Journal']['JournalIssue'].get('PubDate', {}):
+            publication_date = record['Journal']['JournalIssue'].get('PubDate', {})
+        # Use Medline date if no others avaialble
         else:
-            journal_pub_date = record['Journal']['JournalIssue'].get('PubDate', {})
-
-        # Use 'ArticleDate' if available, otherwise use 'Journal PubDate'
-        # journal_pub_date = article_date if article_date else journal_pub_date
+            publication_date = (record['Journal']['JournalIssue']
+                                        ['PubDate'].get('MedlineDate', ''))
 
         # Use the format_publication_date function
-        publication_date = format_publication_date(journal_pub_date)
+        publication_date = format_publication_date(publication_date)
 
         publication_info = {
             'publication_id': pmid,
@@ -349,6 +413,7 @@ def get_publication_info_from_pmid(pmid):
 
 def get_max_chunk_number(output_folder):
     """Get the maximum chunk number from existing filenames."""
+    
     existing_chunk_files = [file for file in os.listdir(output_folder) 
                             if file.startswith('publicationDetails')]
     if not existing_chunk_files:
@@ -408,7 +473,7 @@ def build_pmid_info_data_chunks(df_pmid, output_folder, chunk_size):
 
         try:
             # Use PubMed API to get publication data
-            publication_info = get_publication_info_from_pmid(pmid)
+            publication_info = get_pubmed_info_from_pmid(pmid)
 
             if publication_info:
                 # Combine the information with the original DataFrame
