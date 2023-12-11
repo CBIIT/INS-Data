@@ -557,41 +557,53 @@ def merge_pubmed_icite_pmid_data(df_pubmed, df_icite):
 
 
 def merge_and_clean_project_pmid_info(df_pmids, df_pub_info):
-    """Merge publication information with the dataframe of projects and pmids. 
-       Also perform some cleaning functions and store removed publications.
+    """Merge publication information with the dataframe of projects and pmids.
+    Also perform some cleaning functions and store removed publications.
 
     :param df_pmid: DataFrame containing 'coreproject' and 'pmid' columns.
-    :param df_pub_info: DataFrame containing 'pmid', 'title', 'authors', and 
-                    'publication_date'.
+    :param df_pub_info: DataFrame containing 'pmid', 'title', 'authors', and
+                       'publication_date'.
     :return: df_merged: Clean DataFrame with projects, pmids, and pub info
     :return: df_removed_publications: DataFrame with errored publication info
     """
+    # Drop 'appl_id' column if present to avoid duplicates
+    if 'applid' in df_pmids.columns:
+        df_pmids = df_pmids.drop('applid', axis=1)
+        # Remove duplicate rows before merging
+        df_pmids = df_pmids.drop_duplicates(subset=['coreproject', 'pmid']).copy()
+
     # Merge the two DataFrames on the 'pmid' column
-    df_merged = pd.merge(df_pmids, df_pub_info, on='pmid', how='left')
+    df_merged = pd.merge(df_pmids, df_pub_info, on='pmid', how='left').copy()
 
-    # Remove rows where all values are NaN except for 'pmid'
-    df_removed_publications = df_merged.loc[df_merged.drop('pmid', axis=1)
-                                            .isnull().all(axis=1)].copy()
-    df_merged = df_merged.dropna(subset=df_merged.columns.drop('pmid'), how='all')
+    # Identify rows where pmids are not found in publication info
+    df_merged['not_found_in_pub_info'] = ~df_merged['pmid'].isin(df_pub_info['pmid'])
 
-    # Remove rows where 'publication_date' is below the cutoff in config
-    cutoff_year = config.PUBLICATION_YEAR_CUTOFF
-    df_removed_early_pubdate = df_merged[df_merged['publication_date']
-                                         < datetime(cutoff_year, 1,1)].copy()
+    # Add rows with all values NaN to removed df
+    df_removed_no_pub_info = df_merged[df_merged['not_found_in_pub_info']].copy()
+    df_removed_no_pub_info['reason'] = 'No publication info'
+
+    # Remove rows with all values NaN (except for 'pmid' and 'not_found_in_pub_info')
+    df_merged = df_merged.dropna(subset=df_merged.columns.drop(
+                            ['pmid', 'not_found_in_pub_info']), how='all').copy()
+
+    # Add rows with publication date before cutoff to removed df
+    df_removed_early_pubdate = df_merged[df_merged['publication_date'] 
+                                < datetime(config.PUBLICATION_YEAR_CUTOFF, 1, 1)].copy()
+    df_removed_early_pubdate['reason'] = 'Published before 2000'
+
+    # Keep only rows where publication date is on or after cutoff year
     df_merged = df_merged[df_merged['publication_date'] 
-                                        >= datetime(cutoff_year, 1, 1)]
+                        >= datetime(config.PUBLICATION_YEAR_CUTOFF, 1, 1)].copy()
 
-    # Add reasons for removal to 'df_removed_publications'
-    df_removed_publications = pd.concat([df_removed_publications, 
-                                         df_removed_early_pubdate], 
-                                         ignore_index=True)
-    df_removed_publications['reason'] = ''
+    # Combine removed publications and clean up empty rows
+    df_removed_publications = pd.concat([df_removed_no_pub_info, 
+                                         df_removed_early_pubdate], ignore_index=True)
+    df_removed_publications = df_removed_publications.dropna(
+                                         subset=['reason'], how='all').copy()
 
-    # Add reasons for removal based on conditions
-    df_removed_publications.loc[df_removed_publications.drop('pmid', axis=1)
-                                .isnull().all(axis=1), 'reason',] = 'No publication info'
-    df_removed_publications.loc[df_removed_publications['publication_date']
-                                < datetime(cutoff_year, 1, 1), 'reason',] = 'Published before 2000'
+    # Remove unnecessary columns
+    df_merged.drop('not_found_in_pub_info', axis=1, inplace=True)
+    df_removed_publications.drop('not_found_in_pub_info', axis=1, inplace=True)
 
     return df_merged, df_removed_publications
 
