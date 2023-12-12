@@ -166,7 +166,7 @@ def get_pmids_from_projects(projects_df, print_meta=False):
 
     # Print results
     print(f"---\nComplete! PMIDs successfully gathered. \n"
-        f"{total_pubs} total Publication results. \n"
+        f"{total_pubs} total publication results. \n"
         f"{unique_pmids} unique PMIDs found across \n"
         f"{unique_pubs} unique Project IDs.")
 
@@ -462,7 +462,7 @@ def build_pmid_info_data_chunks(df_pmid, output_folder, chunk_size):
     if chunk_number > 0: 
         existing_data = load_all_directory_files_to_df(output_folder)
         processed_pmids.update(existing_data['pmid'].unique())
-        print(f"---\nReusing existing Publication details for "
+        print(f"---\nReusing existing publication details for "
               f"{len(processed_pmids)} PMIDs found in {output_folder}.\n---")
 
     # Iterate through each unique PMID with tqdm progress bar
@@ -642,7 +642,14 @@ if __name__ == "__main__":
     build_pmid_info_data_chunks(df_pmids, 
                                 chunk_size=config.PUB_DATA_CHUNK_SIZE, 
                                 output_folder=config.TEMP_PUBLICATION_DIR)
-    print(f"Success! PubMed Publication data gathered for all PMIDs.")
+    # Run again to catch any timeouts or problematic PMIDs
+    print(f"First pass successful!\n"
+          f"Double-checking for any missing publication info...")
+    build_pmid_info_data_chunks(df_pmids, 
+                            chunk_size=config.PUB_DATA_CHUNK_SIZE, 
+                            output_folder=config.TEMP_PUBLICATION_DIR)
+
+    print(f"Success! PubMed publication data gathered for all PMIDs.")
 
     # Gather iCite data for all PMIDs from projects
     print(f"---\nGathering iCite data for all PMIDs...")
@@ -685,6 +692,6 @@ if __name__ == "__main__":
     print(f"Success! Publication data saved to {config.PUBLICATIONS_OUTPUT}.\n"
           f"Removed publications saved to {config.REMOVED_PUBLICATIONS}")
     print(f"---\n")
-    print(f"Total unique Publications saved:  {df_publications['pmid'].nunique():>8}")
-    print(f"Total removed Publications:       {len(df_removed_publications):>8}")
-    print(f"Project-Publication associations: {len(df_publications):>8}")
+    print(f"Total unique publications saved:  {df_publications['pmid'].nunique():>8}")
+    print(f"Total removed publications:       {len(df_removed_publications):>8}")
+    print(f"Project-publication associations: {len(df_publications):>8}")
