@@ -1,20 +1,20 @@
-# gather_publication_data.py
-# 2023-11-20 ZD
-#
-# This script defines functions that will accept the project.tsv and use it 
-# along with the NIH RePORTER API, PubMed API, and iCite bulk download to 
-# gather associated publications and descriptive data for those publications.
-# 
-# The output `publications_df` and publication.tsv contains columns:
-# 
-# coreproject
-# pmid
-# title
-# authors
-# publication_date
-# citation_count
-# relative_citation_ratio
-#
+"""
+gather_publication_data.py
+2023-11-20 ZD
+
+This script defines functions that will accept the project.tsv and use it 
+along with the NIH RePORTER API, PubMed API, and iCite bulk download to 
+gather associated publications and descriptive data for those publications.
+
+The output `publications_df` and exported publication.tsv contain columns:
+    - coreproject
+    - pmid
+    - title
+    - authors
+    - publication_date
+    - citation_count
+    - relative_citation_ratio
+"""
 
 import os
 import sys
@@ -24,8 +24,8 @@ import re
 
 import pandas as pd
 import requests
-from tqdm import tqdm  # for progress bars
-from math import ceil  # for pagination logging
+from tqdm import tqdm   # for progress bars
+from math import ceil   # for pagination logging
 from Bio import Entrez  # for PubMed API
 
 # Append the project's root directory to the Python path
@@ -39,12 +39,19 @@ import config
 def get_pmids_from_nih_reporter_api(project_id,
                                     print_meta=False):
     """Get PMIDs associated with a single provided Project ID. 
-    
-    :param project_id: String Core Project ID (e.g. 'R01CA263500')
-    :param print_meta: boolean indicator. If True, print API gathering 
-                        process results to console.
-    :return pmid_data: JSON API response with 'coreproject', 'pmid' and 'applId'
-    """
+        
+        Args:
+            project_id (str): String Core Project ID (e.g., 'R01CA263500')
+            print_meta (bool): Boolean indicator. If True, print API gathering 
+                process results to the console.
+                            
+        Returns:
+            list: JSON API response with 'coreproject', 'pmid' and 'applId'
+
+        Raises:
+            requests.exceptions.RequestException: If an error occurs during 
+                the API call.
+        """
 
     base_url = "https://api.reporter.nih.gov/v2/publications/search"
     pmid_data = []
@@ -133,10 +140,14 @@ def get_pmids_from_nih_reporter_api(project_id,
 def get_pmids_from_projects(projects_df, print_meta=False):
     """Iterate through project data and use NIH RePORTER API to get all PMIDs.
 
-    :param pd.Dataframe projects_df: DataFrame of all cleaned projects from the
-                grants workflow
-    :param bool print_meta: boolean indicator. If True, print status to console
-    """ 
+    Args:
+        projects_df (pd.Dataframe): DataFrame of all cleaned projects from the
+            grants workflow
+        print_meta (bool): Boolean indicator. If True, print status to console
+
+    Returns:
+        pd.DataFrame: Dataframe with 'coreproject' and 'pmid' columns
+    """
 
     # Get all unique project IDs from projects.tsv (loaded earlier in notebook)
     project_id_list = projects_df['queried_project_id'].unique().tolist()
@@ -176,17 +187,23 @@ def get_pmids_from_projects(projects_df, print_meta=False):
 
 def get_icite_data_for_pmids(df_pmid, icite_filepath, cols, 
                              chunk_size=250000, chunk_count_est=None):
-    """
-    Get iCite data for unique PMIDs from a DataFrame using chunks.
+    """Get iCite data for unique PMIDs from a DataFrame using chunks.
 
-    :param df_pmid (pd.DataFrame): DataFrame containing PMID-related data.
-    :param icite_filepath (str): Path to the zipped iCite CSV file.
-    :param cols (list): Columns to pull from iCite and include in output df
-    :param chunk_size (int): Number of rows to read per chunk.
-    :param chunk_count (int): Estimated number of chunks. If None, ignored
+    Args:
+        df_pmid (pd.DataFrame): DataFrame containing PMID-related data.
+        icite_filepath (str): Path to the zipped iCite CSV file.
+        cols (list): Columns to pull from iCite and include in the output df
+        chunk_size (int): Number of rows to read per chunk.
+        chunk_count (int): Estimated number of chunks. If None, ignored
 
-    :return: pd.DataFrame: DataFrame with specified columns
+    Returns:
+        pd.DataFrame: DataFrame with specified columns
+
+    Raises:
+        requests.exceptions.HTTPError: If an HTTP error occurs during the 
+            request
     """
+
     # Get unique PMIDs from df_pmid
     unique_pmids = df_pmid['pmid'].unique()
 
@@ -222,13 +239,20 @@ def get_icite_data_for_pmids(df_pmid, icite_filepath, cols,
 
 
 def get_full_publication_record(pmid):
-    """
-    Get the full record for a given PMID without subselection. Helper function 
-    useful for browsing the schema but not used in production workflow.
+    """Get the full record for a given PMID without subselection. 
+    Useful for browsing the schema but not used in the production workflow.
 
-    :param pmid: PubMed ID (str)
-    :return: Full record (dictionary)
+    Args:
+        pmid (str|int): PubMed ID, e.g. ('36400004' or 36400004)
+
+    Returns:
+        dict: Full record of data available via PubMed API for given PMID
+
+    Raises:
+        Exception: If an error occurs during the PubMed API call. This is
+            usually due to no data available
     """
+
     # Get user email from hidden local env file. Use default if not defined
     Entrez.email = os.environ.get('NCBI_EMAIL', 'your-email@example.com')
     Entrez.api_key = os.environ.get('NCBI_API_KEY', '')
@@ -248,12 +272,15 @@ def get_full_publication_record(pmid):
 
 
 def format_authors(author_list):
-    """
-    Format author names as 'FirstName LastName'.
+    """Format author names as 'FirstName LastName'.
 
-    :param author_list: List of authors
-    :return: Formatted author names
+    Args:
+        author_list (list): List of authors
+
+    Returns:
+        str: Comma-separated formatted author names
     """
+
     formatted_authors = []
     for author in author_list:
         last_name = author.get('LastName', '')
@@ -266,10 +293,18 @@ def format_authors(author_list):
 
 
 def extract_medline_date_components(date_str):
-    """Extracts date components from a Medline date string with various formats
+    """Extracts date components from a Medline date string with various formats.
 
-    :param date_str: A string containing date information in the Medline format
-    :return: Publication date as datetime or None if an error occurs
+    Args:
+        date_str (str): Date information in Medline format
+
+    Returns:
+        datetime: Publication date as datetime or None if an error occurs
+
+    Raises:
+        ValueError: If an error occurs during the date extraction.
+        Exception: If an error occurs during the PubMed API call. This is
+            usually due to no data available
     """
 
     try:
@@ -318,9 +353,13 @@ def format_publication_date(pub_date):
     """Format publication date API response as a standardized datetime. 
     Replace any missing months or dates with 1. (i.e. January or the 1st)
 
-    :param dict pub_date: JSON record of publication date from the PubMed API
-    :return datetime: Publication date as datetime
+    Args:
+        pub_date (dict): JSON record of publication date from the PubMed API
+
+    Returns:
+        datetime: Publication date as datetime
     """
+
     # Return None if pub_date is empty
     if not pub_date:
         return None
@@ -355,12 +394,20 @@ def format_publication_date(pub_date):
 
 
 def get_pubmed_info_from_pmid(pmid):
-    """
-    Get publication information for a given PMID.
+    """Get publication information for a given PMID.
 
-    :param pmid: PubMed ID (str)
-    :return: Dictionary containing publication information
+    Args:
+        pmid (str|int): PubMed ID, e.g. ('36400004' or 36400004)
+
+    Returns:
+        dict: Dictionary containing publication information
+
+    Raises:
+        requests.exceptions.HTTPError: If an HTTP error occurs during the 
+            request
+
     """
+
     # Get user email from hidden local env file. Use default if not defined
     Entrez.email = os.environ.get('NCBI_EMAIL', 'your-email@example.com')
     Entrez.api_key = os.environ.get('NCBI_API_KEY', '')
@@ -437,15 +484,22 @@ def load_all_directory_files_to_df(directory):
 
 
 def build_pmid_info_data_chunks(df_pmid, output_folder, chunk_size):
-    """
-    Get publication information for each PMID in the input DataFrame and export
-    as separate csv files. 
+    """Get publication information for each PMID in the input DataFrame and 
+    export as separate csv files. 
 
-    :param df_pmid: DataFrame containing 'coreproject' and 'pmid' columns.
-    :param output_folder: Folder to store the output files.
-    :param chunk_size: Number of records to process in each batch.
-    :return: None. Files are stored for loading
+    Args:
+        df_pmid (pd.DataFrame): DataFrame with 'coreproject' and 'pmid' columns.
+        output_folder (str): Folder to store the output files.
+        chunk_size (int): Number of records to process in each batch.
+    
+    Returns: 
+        None (files are saved to location defined in config.py)
+
+    Raises:
+        Exception: If an error occurs during the PubMed API call. This is
+            usually due to no data available
     """
+
     # Create the output folder if it doesn't exist
     os.makedirs(output_folder, exist_ok=True)
     
@@ -530,14 +584,17 @@ def build_pmid_info_data_chunks(df_pmid, output_folder, chunk_size):
 def merge_pubmed_icite_pmid_data(df_pubmed, df_icite):
     """Fill in missing PubMed data for PMIDs with iCite data for PMIDs.
 
-    :param pd.DataFrame df_pubmed: pandas DataFrame of PubMed data with fields 
-                    'pmid', 'title', 'authors', 'publication_date'
-    :param pd.DataFrame df_icite: pandas DataFrame of iCite data with fields 
-                    'pmid', 'title', 'authors', 'year', 
-                    'citation_count', 'relative_citation_ratio'
-    :return pd.DataFrame df_pub_info: pandas DataFrame of combined data with fields
-                    'pmid', 'title', 'authors', 'publication_date', 
-                    'citation_count', 'relative_citation_ratio'
+    Args:
+        df_pubmed (pd.DataFrame): pandas DataFrame of PubMed data with fields 
+            'pmid', 'title', 'authors', 'publication_date'
+        df_icite (pd.DataFrame): pandas DataFrame of iCite data with fields 
+            'pmid', 'title', 'authors', 'year', 'citation_count', 
+            'relative_citation_ratio'
+
+    Returns:
+        pd.DataFrame: pandas DataFrame of combined data with fields
+            'pmid', 'title', 'authors', 'publication_date', 'citation_count', 
+            'relative_citation_ratio'
     """
 
     # Format iCite year column as datetime
@@ -560,12 +617,16 @@ def merge_and_clean_project_pmid_info(df_pmids, df_pub_info):
     """Merge publication information with the dataframe of projects and pmids.
     Also perform some cleaning functions and store removed publications.
 
-    :param df_pmid: DataFrame containing 'coreproject' and 'pmid' columns.
-    :param df_pub_info: DataFrame containing 'pmid', 'title', 'authors', and
-                       'publication_date'.
-    :return: df_merged: Clean DataFrame with projects, pmids, and pub info
-    :return: df_removed_publications: DataFrame with errored publication info
+    Args:
+        df_pmids (pd.DataFrame): DataFrame with 'coreproject' and 'pmid' columns.
+        df_pub_info (pd.DataFrame): DataFrame with 'pmid', 'title', 'authors', 
+            and 'publication_date' columns.
+
+    Returns:
+        pd.DataFrame: Clean DataFrame with projects, pmids, and pub info
+        pd.DataFrame: DataFrame with errored publication info
     """
+
     # Drop 'appl_id' column if present to avoid duplicates
     if 'applid' in df_pmids.columns:
         df_pmids = df_pmids.drop('applid', axis=1)
