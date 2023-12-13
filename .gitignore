@@ -4,6 +4,7 @@
 # Clutter
 __pycache__/
 *.pyc
+notebooks/scrap_files/
 
 # Private
 .env
