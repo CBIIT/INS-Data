@@ -122,15 +122,59 @@ All publication processing is handled within the `gather_publication_data.py` mo
 
 ## Usage
 
-1. Clone the repo to your local machine.
-2. Install either [Conda or Miniconda](https://docs.conda.io/projects/conda/en/stable/user-guide/install/download.html#anaconda-or-miniconda). Setup environment and install packages with `conda env create -f environment.yaml` run in terminal from the INS-Data directory.
-3. If necessary, update the Qualtrics CSV received from ODS. Rename and place it in the `data/raw/` folder. It should be in the format `qualtrics_output_{version}_{type}.csv` (e.g. `qualtrics_output_2023-07-19_raw.csv`). If the Qualtrics CSV is updated, also update the values for `QUALTRICS_VERSION` and `QUALTRICS_TYPE` in `config.py` to match the Qualtrics CSV as needed.
-4. Download the most recent [iCite Database Snapshot](https://nih.figshare.com/collections/iCite_Database_Snapshots_NIH_Open_Citation_Collection_/4586573/48) (~10GB zipped CSV) and place in a versioned raw data directory (i.e. `data/raw/icite/{version}/icite_metadata.zip`). Update the version used with `ICITE_VERSION` in `config.py`
-5. In the command terminal, run `python main.py` from the INS-Data root directory. This will run all steps of the workflow and save output files. 
-    - [OPTIONAL] - Instead of `main.py`, the following modules can be run as a standalone if the output files from preceding modules already exist for the same start date (version)
-        - `python modules/data_preparation.py`
-        - `python modules/summary_statistics.py`
-        - `python modules/gather_publication_data.py`
+1. **Clone the repo to your local machine**
+    - **Option 1**: Use the [built-in GitHub cloning method](https://docs.github.com/en/desktop/adding-and-cloning-repositories/cloning-and-forking-repositories-from-github-desktop) or a tool like [GitHub desktop](https://desktop.github.com/) 
+    - **Option 2**: Open the command terminal and navigate to the desired destination. Run the following:
+    ```plaintext
+    git clone https://github.com/CBIIT/INS-Data.git
+    ```
+2. **Setup environment**
+    - Install either [Conda or Miniconda](https://docs.conda.io/projects/conda/en/stable/user-guide/install/download.html#anaconda-or-miniconda)
+    - Setup environment and install packages. In a command terminal, run the following in the INS-Data directory:
+
+    ```plaintext
+    conda env create -f environment.yaml
+    ```
+    
+3. **Add or update the input CSV from ODS** 
+    - If necessary, update the Qualtrics CSV received from ODS
+    - Rename and place it in the `data/raw/` folder
+        - Name should be in the format `qualtrics_output_{version}_{type}.csv` (e.g. `qualtrics_output_2023-07-19_raw.csv`)
+    - If the Qualtrics CSV is updated, also update the values for `QUALTRICS_VERSION` and `QUALTRICS_TYPE` in `config.py` to match the Qualtrics CSV as needed.
+
+4. **Download the most recent** [**iCite Database Snapshot**](https://nih.figshare.com/collections/iCite_Database_Snapshots_NIH_Open_Citation_Collection_/4586573/48) 
+    - The file is a ~10GB zipped CSV and can take 2-4 hours to manually download
+    - Place the file in a versioned raw data directory (i.e. `data/raw/icite/{version}/icite_metadata.zip`)
+    - Update the value of `ICITE_VERSION` in `config.py` to match the version directory name (e.g. `2023-11`)
+
+5. **Get an NCBI API Key**
+    - Follow [NCBI instructions](https://ncbiinsights.ncbi.nlm.nih.gov/2017/11/02/new-api-keys-for-the-e-utilities/) to register for an NCBI account and get an API key
+    - Create a new file in the INS-Data root directory named `.env` and fill with the following:
+    ```plaintext
+    NCBI_EMAIL = <your.name@nih.gov>
+    NCBI_API_KEY = <API Key from NCBI>
+    ```
+    - Replace the values above (without <>) with your email and key
+    - NOTE: Because `.env` is listed in `.gitignore`, this file will not be added to GitHub. 
+    - **Never commit API keys to GitHub. Keep them on your local.** 
+    - Failure to do add a valid API key here will increase the 8+ hour PubMed API gathering process to 24+ hours
+
+6. **Run the pipeline**
+    - In the command terminal, run the main workflow from the INS-Data root directory with:
+    ```plaintext
+    python main.py
+    ```
+    - This will run all steps of the workflow and save all output files in file locations defined in `config.py`
+    - **OPTIONAL** - Instead of `main.py`, most modules can be run as standalones with the following commands:
+        - NOTE: If running standalones, ensure that necessary output files from preceding modules already exist for the same start date (version)
+        ```plaintext
+        python modules/data_preparation.py
+        python modules/summary_statistics.py
+        python modules/gather_publication_data.py
+        ```
+
+
+
 
 ## Structure
 
