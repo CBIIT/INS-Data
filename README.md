@@ -157,7 +157,7 @@ All publication processing is handled within the `gather_publication_data.py` mo
     - Replace the values above (without <>) with your email and key
     - NOTE: Because `.env` is listed in `.gitignore`, this file will not be added to GitHub. 
     - **Never commit API keys to GitHub. Keep them on your local.** 
-    - Failure to do add a valid API key here will increase the 8+ hour PubMed API gathering process to 24+ hours
+    - Failure to add a valid API key here will increase the 8+ hour PubMed API gathering process to 24+ hours
 
 6. **Run the pipeline**
     - In the command terminal, run the main workflow from the INS-Data root directory with:
