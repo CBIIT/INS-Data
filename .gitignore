@@ -1,6 +1,14 @@
 # .gitgnore
-
 # Ignore the following files
 
+# Clutter
 __pycache__/
 *.pyc
+notebooks/scrap_files/
+
+# Private
+.env
+
+# Large data
+data/raw/icite/20*
+data/processed/*/api-gathered-*/temp_pubmed_chunkfiles/
