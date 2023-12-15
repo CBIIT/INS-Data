@@ -27,7 +27,8 @@ The INS-Data repository workflow follows the general outline below:
 All program processing is handled in the `data_preparation.py` module. This will be updated/expanded in the future.
 
 1. **Process Qualtrics CSV**
-    - Receive curated CSV of Key Programs from the NCI Office of Data Sharing (ODS). This CSV is an export of survey results from the Qualtrics survey tool. Each Key Program in this export includes Notices of Funding Opportunities (NOFOs) and/or Grant IDs (in long or short form).
+    - Receive curated CSV of Key Programs from the NCI Office of Data Sharing (ODS). This CSV is an export of survey results from the Qualtrics survey tool. Each Key Program in this export includes a curation of associated Notices of Funding Opportunities (NOFOs) and/or Awards.
+        - NOTE: Though similar terms, 'Award' is used throughout this documentation to refer to the Award values provided within the Qualtrics CSV, while 'Grant' is used to refer to the grants gathered from NIH RePORTER and used in downstream processing.
     - Validate that all provided NOFOs and Awards match expected format patterns
         - Generate versioned `invalidAwardReport` and `invalidNofoReport` in the `reports` directory if any unexpected patterns are found
         - Prompt user to review and correct any issues. There are two ways to make corrections:
@@ -41,8 +42,9 @@ All program processing is handled in the `data_preparation.py` module. This will
 ### Grants
 
 1. **Get grants data from NIH RePORTER API**
+    - This process takes approximately **5-10 minutes** for ~70 programs
     - For each Key Program, query the NIH RePORTER API to gather a list of all associated extramural grants along with descriptive data for each grant. 
-    - The NOFOs (e.g. `RFA-CA-21-038`; `PAR21-346`) and/or grant IDs (e.g. `1 U24 CA274274-01`; `P50CA221745`; `3U24CA055727-26S1`) provided for each Key Program are used as the query. 
+    - The NOFOs (e.g. `RFA-CA-21-038`; `PAR21-346`) and/or Awards (e.g. `1 U24 CA274274-01`; `P50CA221745`; `3U24CA055727-26S1`) provided for each Key Program are used as the query. 
     - The following exclusion are also applied within the query:
         - Subprojects are excluded
         - Grants prior to fiscal year 2000 are excluded
@@ -76,18 +78,17 @@ All publication processing is handled within the `gather_publication_data.py` mo
     - This process takes approximately **45 minutes** for ~2500 project IDs
     - For each project in `project.tsv`, query the NIH RePORTER API to gather a list of all associated PubMed IDs (PMIDs)
         - For information on how NIH RePORTER links projects to publications, [see their FAQ](https://report.nih.gov/faqs#:~:text=How%20are%20projects%20linked%20to%20Publications%3F)
-    
-    - Note that the project-to-publication link is many-to-many. A single project can be associate with multiple publications, and a single publication can be associated with multiple publications
+    - Note that the project-to-publication link is many-to-many. A single project can be associated with multiple publications, and a single publication can be associated with multiple projects
     - These are stored in the intermediate "checkpoint" file `projectPMIDs.csv`. For subsequent data gathering runs on the same start date (version), this file can be used instead of gathering PMIDs again.
 
 2. **Gather select PubMed information for each PMID**
+    - This process can take approximately **8 hours** to gather information for ~150,000 PMIDs and is usually run overnight. 
     - Use the [BioPython Entrez](https://biopython.org/docs/1.75/api/Bio.Entrez.html) package to access the PubMed API via Entrez e-Utilities and query PMIDs for PubMed information.
     - The following fields are pulled from PubMed:
         - Title
         - Authors
         - Publication date
             - NOTE: Publication dates are inconsistent within the PubMed data. When month and/or date cannot be identified, they will default to January and/or 1st. (e.g. `2010 Dec` would be interpreted as `2010-12-01` and `2010` as `2010-01-01`). Publication year is never estimated. 
-    - This process can take approximately **8 hours** to gather information for ~150,000 PMIDs and is usually run overnight. 
     - Because of the long processing time, checkpoint files are saved periodically in a temporary `temp_pubmed_chunkfiles` in the `data/processed/` directory. 
         - The default length of each checkpoint file is 2000 rows, but this can be changed in config.py with `PUB_DATA_CHUNK_SIZE`
         - Whenever this workflow is run for the same start date (version), any existing checkpoint files are all loaded together and the unique PMIDs within are accounted for. Each run will check for any missing PMIDs and restart the data gathering wherever it left off. This allows the publications workflow to be stopped and restarted without problems. 
@@ -225,7 +226,7 @@ INS-Data
 │       │   └── sharedProjectsByProgramPair.csv
 │       ├── invalidAwardReport_{type}.csv
 │       └── invalidNofoReport_{type}.csv
-├── .env
+├── .env # Not git-controlled
 ├── .gitignore
 ├── config.py
 ├── environment.yaml
