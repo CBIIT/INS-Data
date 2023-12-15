@@ -126,16 +126,25 @@ All publication processing is handled within the `gather_publication_data.py` mo
 1. **Clone the repo to your local machine**
     - **Option 1**: Use the [built-in GitHub cloning method](https://docs.github.com/en/desktop/adding-and-cloning-repositories/cloning-and-forking-repositories-from-github-desktop) or a tool like [GitHub desktop](https://desktop.github.com/) 
     - **Option 2**: Open the command terminal and navigate to the desired destination. Run the following:
-    ```plaintext
+    ```
     git clone https://github.com/CBIIT/INS-Data.git
     ```
 2. **Setup environment**
-    - Install either [Conda or Miniconda](https://docs.conda.io/projects/conda/en/stable/user-guide/install/download.html#anaconda-or-miniconda)
-    - Setup environment and install packages. In a command terminal, run the following in the INS-Data directory:
-
-    ```plaintext
+    - Install either [Anaconda or Miniconda](https://docs.conda.io/projects/conda/en/stable/user-guide/install/download.html#anaconda-or-miniconda)
+    - In a command terminal, run the following command in the INS-Data directory:
+    ```
     conda env create -f environment.yaml
     ```
+    - This will read `environment.yaml`, setup a matching environment, and install any requirements
+    - Active the environment either through the [Anaconda Navigator](https://docs.anaconda.com/free/navigator/tutorials/manage-environments/) or with the terminal command:
+    ```
+    conda activate ins-data-env
+    ```
+    - If you make changes to the repo that require new or updated packages, update the `environment.yaml` with:
+    ```
+    conda env export | findstr -v "^prefix:"  > environment.yaml
+    ```
+    - NOTE: Replace the 'findstr' with 'grep' if using MacOS or Linux. This step removes the local path prefix from the environment.yaml for privacy. 
     
 3. **Add or update the input CSV from ODS** 
     - If necessary, update the Qualtrics CSV received from ODS
@@ -151,7 +160,7 @@ All publication processing is handled within the `gather_publication_data.py` mo
 5. **Get an NCBI API Key**
     - Follow [NCBI instructions](https://ncbiinsights.ncbi.nlm.nih.gov/2017/11/02/new-api-keys-for-the-e-utilities/) to register for an NCBI account and get an API key
     - Create a new file in the INS-Data root directory named `.env` and fill with the following:
-    ```plaintext
+    ```
     NCBI_EMAIL = <your.name@nih.gov>
     NCBI_API_KEY = <API Key from NCBI>
     ```
@@ -162,18 +171,17 @@ All publication processing is handled within the `gather_publication_data.py` mo
 
 6. **Run the pipeline**
     - In the command terminal, run the main workflow from the INS-Data root directory with:
-    ```plaintext
+    ```
     python main.py
     ```
     - This will run all steps of the workflow and save all output files in file locations defined in `config.py`
     - **OPTIONAL** - Instead of `main.py`, most modules can be run as standalones with the following commands:
         - NOTE: If running standalones, ensure that necessary output files from preceding modules already exist for the same start date (version)
-        ```plaintext
+        ```
         python modules/data_preparation.py
         python modules/summary_statistics.py
         python modules/gather_publication_data.py
         ```
-
 
 
 
