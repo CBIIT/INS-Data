@@ -181,6 +181,13 @@ def main():
     gpub.build_pmid_info_data_chunks(df_pmids, 
                                 chunk_size=config.PUB_DATA_CHUNK_SIZE, 
                                 output_folder=config.TEMP_PUBLICATION_DIR)
+    
+    # Run again to catch any timeouts or problematic PMIDs
+    print(f"First pass successful!\n"
+          f"Double-checking for any missing publication info...")
+    gpub.build_pmid_info_data_chunks(df_pmids, 
+                            chunk_size=config.PUB_DATA_CHUNK_SIZE, 
+                            output_folder=config.TEMP_PUBLICATION_DIR)
     print(f"Success! PubMed Publication data gathered for all PMIDs.")
 
     # Gather iCite data for all PMIDs from projects
