@@ -676,8 +676,8 @@ if __name__ == "__main__":
     print(f"Running {os.path.basename(__file__)} as standalone module...")
 
     # Load Grants data
-    project_filepath = os.path.join(config.PROCESSED_DIR, 
-                               config.PROJECTS_OUTPUT_FILENAME)
+    project_filepath = os.path.join(config.GATHERED_DIR, 
+                               config.PROJECTS_INTERMED)
     all_cleaned_grants = pd.read_csv(project_filepath, sep='\t')
     print(f"Projects data loaded from {project_filepath}.")
 
@@ -747,10 +747,10 @@ if __name__ == "__main__":
                                                 df_pub_info)
     
     # Export final publication data
-    df_publications.to_csv(config.PUBLICATIONS_OUTPUT, sep='\t', index=False)
+    df_publications.to_csv(config.PUBLICATIONS_INTERMED, sep='\t', index=False)
     df_removed_publications.to_csv(config.REMOVED_PUBLICATIONS, index=False)
 
-    print(f"Success! Publication data saved to {config.PUBLICATIONS_OUTPUT}.\n"
+    print(f"Success! Publication data saved to {config.PUBLICATIONS_INTERMED}.\n"
           f"Removed publications saved to {config.REMOVED_PUBLICATIONS}")
     print(f"---\n")
     print(f"Total unique publications saved:  {df_publications['pmid'].nunique():>8}")

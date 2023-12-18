@@ -126,11 +126,11 @@ def main():
 
 
     # Define versioned output directory using config.py
-    clean_grants_directory = config.PROCESSED_DIR
+    clean_grants_directory = config.GATHERED_DIR
     if not os.path.exists(clean_grants_directory):
         os.makedirs(clean_grants_directory)
     project_filename = os.path.join(clean_grants_directory,
-                                    config.PROJECTS_OUTPUT_FILENAME)
+                                    config.PROJECTS_INTERMED)
 
     # Sort by program and project for consistency
     all_cleaned_grants.sort_values(by=[config.PROGRAM_ID_FIELDNAME,
@@ -154,7 +154,7 @@ def main():
     # Run summary statistic module that processes and exports reports as csv
     get_summary_statistics(all_cleaned_grants)
     print(f"Summary statistic reports for grants data successfully generated. \n"
-          f"Results can be found in {config.API_REPORTS_DIR}.\n---")
+          f"Results can be found in {config.REPORTS_GATHERED_DIR}.\n---")
 
 
     # STEP 6: Publications
@@ -225,10 +225,10 @@ def main():
                                                 df_pub_info)
     
     # Export final publication data
-    df_publications.to_csv(config.PUBLICATIONS_OUTPUT, sep='\t', index=False)
+    df_publications.to_csv(config.PUBLICATIONS_INTERMED, sep='\t', index=False)
     df_removed_publications.to_csv(config.REMOVED_PUBLICATIONS, index=False)
 
-    print(f"Success! Publication data saved to {config.PUBLICATIONS_OUTPUT}.\n"
+    print(f"Success! Publication data saved to {config.PUBLICATIONS_INTERMED}.\n"
           f"Removed publications saved to {config.REMOVED_PUBLICATIONS}")
     print(f"---\n")
     print(f"Total unique Publications saved:  {df_publications['pmid'].nunique():>8}")

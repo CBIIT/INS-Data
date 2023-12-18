@@ -21,7 +21,7 @@ def get_summary_statistics(all_grants_data:pd.DataFrame):
     """Create reports with summary statistics of high-level grants info"""
 
     # Define directory to store reports. Create if doesn't already exist
-    reports_dir = config.API_REPORTS_DIR
+    reports_dir = config.REPORTS_GATHERED_DIR
     if not os.path.exists(reports_dir):
         os.makedirs(reports_dir)  
 
@@ -100,12 +100,12 @@ if __name__ == "__main__":
     print(f"Running {os.path.basename(__file__)} as standalone module...")
 
     # Load projects.tsv as a dataframe
-    project_filename = os.path.join(config.PROCESSED_DIR, 
-                                    config.PROJECTS_OUTPUT_FILENAME)
+    project_filename = os.path.join(config.GATHERED_DIR, 
+                                    config.PROJECTS_INTERMED)
     print(f"Generating report statistics on {project_filename}...")
     all_cleaned_grants = pd.read_csv(project_filename, sep='\t')
 
     # Run stats module
     get_summary_statistics(all_cleaned_grants)
     print(f"Summary reports for grants data successfully generated.\n"
-          f"Results can be found in {config.API_REPORTS_DIR}.\n---")
+          f"Results can be found in {config.REPORTS_GATHERED_DIR}.\n---")
