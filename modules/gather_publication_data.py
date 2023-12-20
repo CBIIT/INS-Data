@@ -2,11 +2,11 @@
 gather_publication_data.py
 2023-11-20 ZD
 
-This script defines functions that will accept the project.tsv and use it 
+This script defines functions that will accept the project.csv and use it 
 along with the NIH RePORTER API, PubMed API, and iCite bulk download to 
 gather associated publications and descriptive data for those publications.
 
-The output `publications_df` and exported publication.tsv contain columns:
+The output `publications_df` and exported publication.csv contain columns:
     - coreproject
     - pmid
     - title
@@ -149,7 +149,7 @@ def get_pmids_from_projects(projects_df, print_meta=False):
         pd.DataFrame: Dataframe with 'coreproject' and 'pmid' columns
     """
 
-    # Get all unique project IDs from projects.tsv (loaded earlier in notebook)
+    # Get all unique project IDs from projects.csv (loaded earlier in notebook)
     project_id_list = projects_df['queried_project_id'].unique().tolist()
 
     print(f"{len(project_id_list)} total unique project IDs.")
@@ -676,9 +676,8 @@ if __name__ == "__main__":
     print(f"Running {os.path.basename(__file__)} as standalone module...")
 
     # Load Grants data
-    project_filepath = os.path.join(config.GATHERED_DIR, 
-                               config.PROJECTS_INTERMED)
-    all_cleaned_grants = pd.read_csv(project_filepath, sep='\t')
+    project_filepath = config.PROJECTS_INTERMED_PATH
+    all_cleaned_grants = pd.read_csv(project_filepath)
     print(f"Projects data loaded from {project_filepath}.")
 
     # Use existing PMID list if present
@@ -747,10 +746,10 @@ if __name__ == "__main__":
                                                 df_pub_info)
     
     # Export final publication data
-    df_publications.to_csv(config.PUBLICATIONS_INTERMED, sep='\t', index=False)
+    df_publications.to_csv(config.PUBLICATIONS_INTERMED_PATH, index=False)
     df_removed_publications.to_csv(config.REMOVED_PUBLICATIONS, index=False)
 
-    print(f"Success! Publication data saved to {config.PUBLICATIONS_INTERMED}.\n"
+    print(f"Success! Publication data saved to {config.PUBLICATIONS_INTERMED_PATH}.\n"
           f"Removed publications saved to {config.REMOVED_PUBLICATIONS}")
     print(f"---\n")
     print(f"Total unique publications saved:  {df_publications['pmid'].nunique():>8}")

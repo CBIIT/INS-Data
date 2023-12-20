@@ -16,12 +16,12 @@ QUALTRICS_VERSION = "2023-08-30"    # <-- CHANGE VERSION HERE
 QUALTRICS_TYPE = "manual_fix"       # <-- Define "raw" or "manual_fix" type of the input csv
 
 # Version of bulk download from iCite
-ICITE_VERSION = '2023-11'           # <-- CHANGE VERSION HERE
+ICITE_VERSION = "2023-11"           # <-- CHANGE VERSION HERE
 
 # An override date can be used instead of today's date for pulling and saving data versions
 # This is useful when running downstream modules on grants data gathered before today
 
-OVERRIDE_DATE = None    # <-- Optional. Define override date (e.g. '2023-12-14'). Default None.
+OVERRIDE_DATE = None    # <-- Optional. Define override date (e.g. "2023-12-14"). Default None.
 
 
 
@@ -39,24 +39,26 @@ CLEANED_KEY_PROGRAMS_CSV = INTERMED_DIR + QUALTRICS_VERSION +"/"+ "key_programs_
 
 # Add timestamp to note when grants were gathered from API
 # The same Qualtrics input file can have different outputs depending upon API gathering date
-TIMESTAMP = 'gathered-'+datetime.now().strftime('%Y-%m-%d')
+TIMESTAMP = "gathered-"+datetime.now().strftime("%Y-%m-%d")
 
 # Use optional override date if provided
 if OVERRIDE_DATE:
-    TIMESTAMP = 'gathered-' + OVERRIDE_DATE
+    TIMESTAMP = "gathered-" + OVERRIDE_DATE
     print(f"\n---TIMESTAMP OVERRIDE IN USE---\n"
           f"---Performing action using {OVERRIDE_DATE} instead of current timestamp.---\n"
           f"---Change the OVERRIDE_DATE in config.py to None to restore default behavior.---\n\n")
 
 # Versioned directories for intermediates and outputs
+GATHERED_DIR = INTERMED_DIR + QUALTRICS_VERSION +"/"+ TIMESTAMP
+OUTPUT_QUALTRICS_DIR = OUTPUT_DIR + QUALTRICS_VERSION
+OUTPUT_GATHERED_DIR = OUTPUT_QUALTRICS_DIR +"/"+ TIMESTAMP
 
-GATHERED_DIR = INTERMED_DIR + QUALTRICS_VERSION + "/" + TIMESTAMP
 REPORTS_DIR = "reports/" + QUALTRICS_VERSION
-REPORTS_GATHERED_DIR = REPORTS_DIR + "/" + TIMESTAMP
+REPORTS_GATHERED_DIR = REPORTS_DIR +"/"+ TIMESTAMP
 
-
-# Projects output filename
-PROJECTS_INTERMED = "project.tsv"
+# Projects output
+PROJECTS_INTERMED_PATH = GATHERED_DIR +"/"+ "project.csv"
+PROJECTS_OUTPUT_PATH = OUTPUT_GATHERED_DIR +"/"+ "project.tsv"
 
 # ---
 # DATA PREPARATION CONFIGURATION
@@ -82,12 +84,12 @@ QUALTRICS_COLS = {
 # Invalid NOFO reports
 INVALID_NOFOS_REPORT = REPORTS_DIR +"/"+ "invalidNofoReport_" + QUALTRICS_TYPE + ".csv"
 CORRECTED_INVALID_NOFOS_REPORT = REPORTS_DIR +"/"+ "invalidNofoReport_corrected.csv"
-REVIEWED_NOFO_INPUT = INTERMED_DIR+QUALTRICS_VERSION +"/"+ "invalidNofoReport_reviewed.csv"
+REVIEWED_NOFO_INPUT = INTERMED_DIR + QUALTRICS_VERSION +"/"+ "invalidNofoReport_reviewed.csv"
 
 # Invalid Award reports 
 INVALID_AWARD_REPORT = REPORTS_DIR +"/"+ "invalidAwardReport_" + QUALTRICS_TYPE + ".csv"
 CORRECTED_INVALID_AWARD_REPORT = REPORTS_DIR +"/"+ "invalidAwardReport_corrected.csv"
-REVIEWED_AWARD_INPUT = INTERMED_DIR+QUALTRICS_VERSION +"/"+ "invalidAwardReport_reviewed.csv"
+REVIEWED_AWARD_INPUT = INTERMED_DIR + QUALTRICS_VERSION +"/"+ "invalidAwardReport_reviewed.csv"
 
 # ---
 # GRANTS CLEANING CONFIGURATION
@@ -148,7 +150,7 @@ API_FIELD_RENAMER = {
 }
 
 # Define column for project ID sorting
-PROJECT_ID_FIELDNAME = "project_id"
+PROJECT_ID_FIELDNAME = 'project_id'
 
 # Define name for new program ID field
 PROGRAM_ID_FIELDNAME = 'program.program_id'
@@ -168,25 +170,26 @@ STAT_CORE_PROJECT_COL = 'queried_project_id'
 
 
 # Summary statistic export filenames
-STAT_GRANTS_BY_PROGRAM_FILENAME = REPORTS_GATHERED_DIR + '/' + 'grantsStatsByProgram.csv'
-STAT_SHARED_PROJECT_PROGRAM_PAIRS_FILENAME = REPORTS_GATHERED_DIR + '/' 'sharedProjectsByProgramPair.csv'
+STAT_GRANTS_BY_PROGRAM_FILENAME = REPORTS_GATHERED_DIR +"/"+ "grantsStatsByProgram.csv"
+STAT_SHARED_PROJECT_PROGRAM_PAIRS_FILENAME = REPORTS_GATHERED_DIR +"/"+ "sharedProjectsByProgramPair.csv"
 
 
 # ---
 # PUBLICATIONS CONFIGURATION
 
 # ICite bulk download csv.zip location
-ICITE_FILENAME = 'data/raw/icite/' + ICITE_VERSION + '/' + 'icite_metadata.zip'
+ICITE_FILENAME = "data/raw/icite/" + ICITE_VERSION +"/"+ "icite_metadata.zip"
 
 # Versioned directories for intermediates and outputs
-TEMP_PUBLICATION_DIR = GATHERED_DIR + '/' + 'temp_pubmed_chunkfiles'
-REMOVED_PUBLICATIONS = REPORTS_GATHERED_DIR + '/' + 'removedPublicationsReport.csv'
-PROJECT_PMIDS = REPORTS_GATHERED_DIR + '/' + 'projectPMIDs.csv'
-ICITE_PMID_DATA = REPORTS_GATHERED_DIR + '/' + 'icitePMIDData.csv'
-MERGED_PMID_DATA = REPORTS_GATHERED_DIR + '/' + 'mergedPMIDData.csv'
+TEMP_PUBLICATION_DIR = GATHERED_DIR +"/"+ "temp_pubmed_chunkfiles"
+REMOVED_PUBLICATIONS = REPORTS_GATHERED_DIR +"/"+ "removedPublicationsReport.csv"
+PROJECT_PMIDS = REPORTS_GATHERED_DIR +"/"+ "projectPMIDs.csv"
+ICITE_PMID_DATA = REPORTS_GATHERED_DIR +"/"+ "icitePMIDData.csv"
+MERGED_PMID_DATA = REPORTS_GATHERED_DIR +"/"+ "mergedPMIDData.csv"
 
-# pUBLICATIONS output filename
-PUBLICATIONS_INTERMED = REPORTS_GATHERED_DIR + '/' + "publication.tsv"
+# Publications output filepath
+PUBLICATIONS_INTERMED_PATH = GATHERED_DIR +"/"+ "publication.csv"
+PUBLICATIONS_OUTPUT_PATH = OUTPUT_GATHERED_DIR +"/"+ "publication.tsv"
 
 # Earliest Publication year
 PUBLICATION_YEAR_CUTOFF = 2000

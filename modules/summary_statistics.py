@@ -1,12 +1,14 @@
-# summary_statistics.py
-# 2023-09-08 ZD
+"""
+summary_statistics.py
+2023-09-08 ZD
 
-# This script defines functions that will generate summary statistics relevant
-# to data gathered for the INS project. The goal of these statistics are not 
-# to ingest into the site, but rather for use in testing, validation, and 
-# general reporting. 
-# Summary statistics will be output to the reports/ directory with a versioning
-# structure identical to the data/ directory. 
+This script defines functions that will generate summary statistics relevant
+to data gathered for the INS project. The goal of these statistics are not 
+to ingest into the site, but rather for use in testing, validation, and 
+general reporting. 
+Summary statistics will be output to the reports/ directory with a versioning
+structure identical to the data/ directory. 
+"""
 
 import pandas as pd
 import os
@@ -99,11 +101,10 @@ if __name__ == "__main__":
 
     print(f"Running {os.path.basename(__file__)} as standalone module...")
 
-    # Load projects.tsv as a dataframe
-    project_filename = os.path.join(config.GATHERED_DIR, 
-                                    config.PROJECTS_INTERMED)
-    print(f"Generating report statistics on {project_filename}...")
-    all_cleaned_grants = pd.read_csv(project_filename, sep='\t')
+    # Load project.csv as a dataframe
+    project_filepath = config.PROJECTS_INTERMED_PATH
+    print(f"Generating report statistics on {project_filepath}...")
+    all_cleaned_grants = pd.read_csv(project_filepath)
 
     # Run stats module
     get_summary_statistics(all_cleaned_grants)

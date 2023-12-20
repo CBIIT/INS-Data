@@ -1,27 +1,30 @@
-# main.py
-# 2023-07-26 ZD
-#
-# Main function for the INS-Data project. This will accept a Qualtrics CSV of 
-# Key Programs as input and generate the following outputs:
-#
-#   - data/cleaned/: 
-#       - Clean `key_programs_{date}.csv`
-#   - data/processed/{qualtrics version}/{api_gathering_date}:
-#       - For loading into INS: 
-#               - project.tsv' containing data for grants associated with 
-#                       key programs
-#               - 'publication.tsv' containing data for publication PMIDs 
-#                       associated with core projects
-#       - Intermediates for troubleshooting:
-#               - 'projectPMIDs.csv' CSV of associated PMIDs for each project
-#               - 'temp-publication-data/' CSV directory of chunk-sized PubMed  
-#                       data gathered for PMIDs of interest
-#               - 'icitePMIDData.csv' CSV of iCite data for PMIDs of interest
-#               - 'mergedPMIDData.csv' CSV of merged iCite and PubMed data for 
-#                       PMIDs of interest
-#   - reports/:
-#       - Summary statistic report csvs with high-level grant data
-#       - Report of publications removed from publication.tsv with reasons
+"""
+main.py
+2023-07-26 ZD
+
+Main function for the INS-Data project meant to be run as a single command. 
+
+Inputs required:
+- Curated Qualtrics CSV of Key Programs
+- iCite database download for publication details
+- Reviewed and corrected list of invalid NOFOs/Awards (Optional on subsequent runs)
+- All other inputs are gathered via API
+
+Ouputs generated:
+- data/01_intermediate/
+    - CSVs for all gathered data types, including programs, publications, and 
+    projects. These will be passed through data packaging before INS ingestion.
+    - Additional CSV outputs and checkpoint files gathered during the process. 
+    These are useful for troubleshooting and validation.
+
+- data/02_output/
+    - Finalized TSVs for all gathered data types. These are ready for ingestion
+    into INS
+
+- reports/:
+    - Summary statistic report csvs with high-levelgrant data
+    - Report of publications removed from publication.csv with reasons
+"""
 
 import os
 import sys
@@ -119,18 +122,15 @@ def main():
         program_id = ''.join(filter(str.isalnum, program_name))
         cleaned_grants_data[config.PROGRAM_ID_FIELDNAME] = program_id
 
-    # STEP 4: Combine and save cleaned grants data into single tsv
+    # STEP 4: Combine and save cleaned grants data into single csv
 
         all_cleaned_grants = pd.concat([all_cleaned_grants,
                                         cleaned_grants_data])   
 
 
     # Define versioned output directory using config.py
-    clean_grants_directory = config.GATHERED_DIR
-    if not os.path.exists(clean_grants_directory):
-        os.makedirs(clean_grants_directory)
-    project_filename = os.path.join(clean_grants_directory,
-                                    config.PROJECTS_INTERMED)
+    project_filepath = config.PROJECTS_INTERMED_PATH
+    os.makedirs(os.path.dirname(project_filepath), exist_ok=True)
 
     # Sort by program and project for consistency
     all_cleaned_grants.sort_values(by=[config.PROGRAM_ID_FIELDNAME,
@@ -138,13 +138,13 @@ def main():
                                        inplace=True, ignore_index=True)
 
     # Export to csv
-    all_cleaned_grants.to_csv(project_filename, sep = '\t', index=False)
+    all_cleaned_grants.to_csv(project_filepath, index=False)
 
     
     print(f"---\nSuccess! NIH RePORTER API data gathered, cleaned, and saved.\n"
           f"{total_records_count} grants gathered across all Awards and NOFOs.\n"
           f"{len(all_cleaned_grants)} NCI-funded grants retained for INS. \n"
-          f"Results can be found in {clean_grants_directory}.\n---") 
+          f"Results can be found in {project_filepath}.\n---") 
 
         # TODO: Save all the printed console output to versioned txt 
 
@@ -225,10 +225,10 @@ def main():
                                                 df_pub_info)
     
     # Export final publication data
-    df_publications.to_csv(config.PUBLICATIONS_INTERMED, sep='\t', index=False)
+    df_publications.to_csv(config.PUBLICATIONS_INTERMED_PATH, index=False)
     df_removed_publications.to_csv(config.REMOVED_PUBLICATIONS, index=False)
 
-    print(f"Success! Publication data saved to {config.PUBLICATIONS_INTERMED}.\n"
+    print(f"Success! Publication data saved to {config.PUBLICATIONS_INTERMED_PATH}.\n"
           f"Removed publications saved to {config.REMOVED_PUBLICATIONS}")
     print(f"---\n")
     print(f"Total unique Publications saved:  {df_publications['pmid'].nunique():>8}")
