@@ -194,47 +194,48 @@ In general, TSV output files are intended for ingestion into INS, while CSV file
 ```
 INS-Data
 ├── data/
-│   ├── cleaned/
-│   │   └── key_programs_{version}.csv
-│   ├── processed/
-│   │   └── {version}/
-│   │       └── api-gathered-{gathering date}/
-│   |           ├── temp_pubmed_chunkfiles/ # Not git-controlled
-│   |           |   └── Many publicationDetail.csvs limited to 2000 rows
-│   |           ├── icitePMIDData.csv
-│   |           ├── mergedPMIDData.csv
-│   |           ├── project.tsv
-│   |           ├── projectPMIDs.csv
-│   |           └── publication.tsv
-│   ├── raw/
-│   │   ├──icite
-│   │   |   ├── {version}/ # Not git-controlled
-│   │   |   |   └── icite_metadata.zip 
-│   │   |   └── icite_files_not_stored.txt
-│   │   └── qualtrics_output_{version}_{type}.csv
-│   └── reviewed/
-│       └── {version}/
-│           ├── invalidAwardReport_reviewed.csv
-│           └── invalidNofoReport_reviewed.csv
+│   ├── 00_input/
+│   │   ├── icite/
+│   │   │   └── {version}/ # Not git-controlled
+│   │   │       └── icite_metadata.zip
+│   │   └── qualtrics/
+│   │       └── qualtrics_output_{version}_{type}.csv
+│   ├── 01_intermediate/
+│   │   └── {qualtrics version}/
+│   │       ├── {gathered version}/
+│   │       │   ├── temp_pubmed_chunkfiles/ # Not git-controlled
+|   |       |   |   └── Partial PubMed files for iterative loading
+│   │       │   ├── icitePMIDData.csv
+│   │       │   ├── mergedPMIDData.csv
+│   │       │   ├── project.csv
+│   │       │   ├── projectPMIDs.csv
+│   │       │   └── publication.csv
+│   │       ├── invalidNofoReport_reviewed.csv
+│   │       └── key_programs_{version}.csv
+│   └── 02_output/ # Work in progress
+│       ├── program.tsv
+│       ├── project.tsv
+│       └── publication.tsv
 ├── images/
 │   ├── ins-data-repo-diagram.drawio
 │   └── ins-data-repo-diagram.png
 ├── modules/
-│   ├── clean_grants_data.py
 │   ├── data_preparation.py
+│   ├── gather_grant_data.py
 │   ├── gather_publication_data.py
-│   ├── nih_reporter_api.py
 │   └── summary_statistics.py
 ├── notebooks/
 │   └── Non-production Jupyter notebooks used during development
 ├── reports/
-│   └── {version}/
-│       ├── api-gathered-{gathering date}/
-│       │   ├── grantStatsByProgram.csv
+│   └── {qualtrics version}/
+│       ├── {gathered version}/
+│       │   ├── grantsStatsByProgram.csv
 │       │   ├── removedPublicationsReport.csv
 │       │   └── sharedProjectsByProgramPair.csv
-│       ├── invalidAwardReport_{type}.csv
-│       └── invalidNofoReport_{type}.csv
+│       ├── invalidAwardReport_raw.csv
+│       ├── invalidNofoReport_corrected.csv
+│       ├── invalidNofoReport_manual_fix.csv
+│       └── invalidNofoReport_raw.csv
 ├── .env # Not git-controlled
 ├── .gitignore
 ├── config.py
