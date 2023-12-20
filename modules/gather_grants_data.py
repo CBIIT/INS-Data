@@ -1,5 +1,5 @@
 """
-clean_grants_data.py
+gather_grants_data.py
 2023-08-07 ZD
 
 This script defines primary function gather_grants_data. 
@@ -22,8 +22,6 @@ Cleaning Steps in order:
 6. Drop duplicate grant rows
 """
 
-
-
 import os
 import sys
 from datetime import datetime
@@ -39,7 +37,6 @@ from tqdm import tqdm # for progress bars
 # This allows for importing config when running as part of main.py or alone
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import config
-
 
 
 def get_nih_reporter_grants(search_values:str, 
@@ -366,6 +363,9 @@ def gather_grants_data(key_programs_df, print_meta=False):
             Key Program.
     """
 
+    print(f"---\nGathering, cleaning, and saving grants data from NIH "
+        f"Reporter API for each Key Program...")
+
     # Create empty DataFrame to fill with grants
     all_cleaned_grants = pd.DataFrame()
 
@@ -459,7 +459,7 @@ if __name__ == "__main__":
 
     print(f"Running {os.path.basename(__file__)} as standalone module...")
 
-    # Load programs data
+    # Load cleaned programs data
     key_programs_df = pd.read_csv(config.CLEANED_KEY_PROGRAMS_CSV)
 
     # Gather grants data
