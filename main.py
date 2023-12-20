@@ -33,7 +33,7 @@ import pandas as pd
 
 import config
 from modules.data_preparation import load_and_clean_programs
-from modules.gather_grants_data import gather_grants_data
+from modules.gather_grant_data import gather_grant_data
 from modules.summary_statistics import get_summary_statistics
 from modules.gather_publication_data import gather_publication_data
 
@@ -61,7 +61,7 @@ def main():
 
     # STEP 2: GRANTS
     # Gather, format, and save grants data for each Key Program
-    all_cleaned_grants = gather_grants_data(key_programs_df, print_meta=False)
+    all_cleaned_grants = gather_grant_data(key_programs_df, print_meta=False)
 
     # STEP 3: STATS
     # Build and save reports describing the programs and grants data

@@ -1,8 +1,8 @@
 """
-gather_grants_data.py
+gather_grant_data.py
 2023-08-07 ZD
 
-This script defines primary function gather_grants_data. 
+This script defines primary function gather_grant_data. 
 
 First, get_nih_reporter_grants calls the public NIH RePORTER API to gather 
 grants data for the provided NOFO (Notice of Funding Opportunity) and/or awards 
@@ -349,7 +349,7 @@ def clean_grants_data(grants_data, print_meta=False):
 
 
 
-def gather_grants_data(key_programs_df, print_meta=False):
+def gather_grant_data(key_programs_df, print_meta=False):
     """Use the NIH RePORTER to gather grants data for each Program and then 
     process the grants data for use within INS.
 
@@ -464,4 +464,4 @@ if __name__ == "__main__":
     key_programs_df = pd.read_csv(config.CLEANED_KEY_PROGRAMS_CSV)
 
     # Gather grants data
-    all_cleaned_grants = gather_grants_data(key_programs_df, print_meta=False)
+    all_cleaned_grants = gather_grant_data(key_programs_df, print_meta=False)
