@@ -68,7 +68,8 @@ def get_nih_reporter_grants(search_values:str,
     for search_value in search_values:
         # Check for blank search values
         if not search_value:
-            tqdm.write(f"Blank {search_type} value encountered. Skipping.")
+            if print_meta == True:
+                tqdm.write(f"Blank {search_type} value encountered. Skipping.")
             continue
 
         # Set default values for params not likley to change
