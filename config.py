@@ -200,3 +200,102 @@ PUB_DATA_CHUNK_SIZE = 2000
 # iCite columns of interest
 ICITE_COLUMNS_TO_PULL = ['pmid','title','authors','year',
                          'citation_count','relative_citation_ratio']
+
+
+# ---
+# DATA PACKAGING CONFIGURATION
+
+# Dictionary of columns and types to use in final data packaging
+COLUMN_CONFIGS = {
+    # Data type
+    # # Programs pending INS-822
+    # 'program': {
+    #     # Identifying node_id column name
+    #     'node_id': 'program_id',
+    #     # Idenfiying column name for relationship link
+    #     'link_id': None,
+    #     # Dict of old:new column names. Includes only columns to include in output
+    #     'keep_and_rename': {
+    #         'type': 'type',
+    #         'program_id': 'program_id',
+    #         'program_name': 'program_name',
+    #         'program_acronym': 'program_acronym',
+    #         'focus_area': 'focus_area',
+    #         'doc': 'doc',
+    #         'contact_pi': 'contact_pi',
+    #         'contact_pi_email': 'contact_pi_email',
+    #         'contact_nih': 'contact_nih',
+    #         'contact_nih_email': 'contact_nih_email',
+    #         'nofo': 'nofo',
+    #         'award': 'award',
+    #         'program_link': 'program_link',
+    #         'data_link': 'data_link',
+    #         'cancer_type': 'cancer_type'
+    #     },
+    #     # List of any list-like columns that need semicolon separators
+    #     'list_like_cols': ['focus_area', 'doc', 'cancer_type'],
+    # },
+    'grant': {
+        'node_id': 'grant_id',
+        'link_id': 'project.project_id',
+        'keep_and_rename': {
+            'type': 'type',
+            'project_id': 'grant_id',
+            'queried_project_id': 'project.project_id',
+            'application_id': 'application_id',
+            'fiscal_year': 'fiscal_year',
+            'project_title': 'grant_title',
+            'abstract_text': 'abstract_text',
+            'keywords': 'keywords',
+            'org_name': 'org_name',
+            'org_city': 'org_city',
+            'org_state': 'org_state',
+            'org_country': 'org_country',
+            'principal_investigators': 'principal_investigators',
+            'program_officers': 'program_officers',
+            'award_amount': 'award_amount',
+            'nci_funded_amount': 'nci_funded_amount',
+            'award_notice_date': 'award_notice_date',
+            'project_start_date': 'project_start_date',
+            'project_end_date': 'project_end_date',
+            'opportunity_number': 'opportunity_number',
+            'api_source_search': 'api_source_search'
+        },
+        'list_like_cols': ['keywords', 'principal_investigators'],
+    },
+    # Projects pending INS-821
+    # 'project': {
+    #     'node_id': 'project_id',
+    #     'link_id': 'program.program_id',
+    #     'keep_and_rename': {
+    #         'type': 'type',
+    #         'project_id': 'project_id',
+    #         'project_title': 'project_title',
+    #         'abstract_text': 'abstract_text',
+    #         'org_name': 'org_name',
+    #         'org_city': 'org_city',
+    #         'org_state': 'org_state',
+    #         'org_country': 'org_country',
+    #         'project_start_date': 'project_start_date',
+    #         'project_end_date': 'project_end_date',
+    #         'opportunity_number': 'opportunity_number',
+    #         'api_source_search': 'api_source_search'
+    #     },
+    #     'list_like_cols': [],
+    # },
+    # 'publication': {
+    #     'node_id': 'publication_id',
+    #     'link_id': 'project.project_id', 
+    #     'keep_and_rename': {
+    #         'type': 'type',
+    #         'pmid': 'publication_id',
+    #         'coreproject': 'project.project_id',
+    #         'title': 'title',
+    #         'authors': 'authors',
+    #         'publication_date': 'publication_date',
+    #         'cited_by': 'cited_by',
+    #         'relative_citation_ratio': 'relative_citation_ratio'
+    #     },
+    #     'list_like_cols': ['authors'],
+    # }
+}

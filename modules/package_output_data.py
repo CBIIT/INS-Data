@@ -18,22 +18,54 @@ import re
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import config
 
+# On hold until INS-807
+# def remove_publications_before_projects(df_publications, df_projects):
+#     """Remove publications published before the associated project date"""
+#     # Placeholder for code
+#     df_publications_filtered = df_publications # do stuff
+#     return df_publications_filtered
 
-def remove_publications_before_projects(df_publications, df_projects):
-    """Remove publications published before the associated project date"""
-    # Placeholder for code
-    df_publications_filtered = df_publications # do stuff
-    return df_publications_filtered
+
+
+def add_type_column(df, datatype):
+    """Add a column for datatype and fill with specified datatype."""
+
+    df_with_type = df.copy()
+    df_with_type['type'] = datatype
+
+    return df_with_type
 
 
 
-def reorder_columns(df, column_configs):
+def reorder_columns(df, column_configs, datatype):
     """Reorder and validate columns of df using dict from config.py. 
     Report any dropped columns and throw error if defined column not found.
     """
-    # Placeholder for code
-    df_reordered = df # do stuff
-    return df_reordered
+    # Check if the datatype exists in column_configs
+    if datatype not in column_configs:
+        raise ValueError(f"Invalid datatype: {datatype}")
+
+    # Extract relevant configuration for the datatype
+    config = column_configs[datatype]
+
+    # Extract relevant information from the configuration
+    keep_and_rename = config.get('keep_and_rename', {})
+
+    # Rename columns using keep_and_rename
+    df.rename(columns=keep_and_rename, inplace=True)
+
+    # Define list of columns to keep
+    columns_to_keep = list(keep_and_rename.values())
+
+    # Drop any columns not part of keep_and_rename
+    dropped_columns = set(df.columns) - set(columns_to_keep)
+    if dropped_columns:
+        print(f"Columns dropped from {datatype} output: {', '.join(dropped_columns)}")
+
+    # Keep and reorder columns
+    df = df[columns_to_keep]
+
+    return df
 
 
 
@@ -64,9 +96,10 @@ def validate_unique_node_id(df, column_configs):
 
 
 
-def standardize_data(df, column_configs):
+def standardize_data(df, column_configs, datatype):
     """Group standardization functions common to all data types"""
-    df = reorder_columns(df, column_configs)
+    df = add_type_column(df, datatype)
+    df = reorder_columns(df, column_configs, datatype)
     df = remove_special_characters(df)
     df = format_list_like_columns(df, column_configs)
     df = validate_unique_node_id(df, column_configs)
@@ -74,13 +107,13 @@ def standardize_data(df, column_configs):
     return df
 
 
-def package_programs(df_programs, column_configs):
-    """Placeholder
-    """
-    # Placeholder for code
-    df_programs_output = standardize_data(df_programs)
+# def package_programs(df_programs, column_configs):
+#     """Placeholder
+#     """
+#     # Placeholder for code
+#     df_programs_output = standardize_data(df_programs, column_configs, datatype='program')
 
-    return df_programs_output # Also export as TSV
+#     return df_programs_output # Also export as TSV
 
 
 
@@ -88,60 +121,65 @@ def package_grants(df_grants, column_configs):
     """Placeholder
     """
     # Placeholder for code
-    df_grants_output = standardize_data(df_grants)
+    df_grants_output = standardize_data(df_grants, column_configs, datatype='grant')
 
-    return df_grants_output # Also export as TSV
+    output_filepath = config.PROJECTS_OUTPUT_PATH
+    os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
+    df_grants_output.to_csv(output_filepath, sep='\t', index=False)
 
-
-
-def package_projects(df_projects, column_configs):
-    """Placeholder
-    """
-    # Placeholder for code
-    df_projects_output = standardize_data(df_projects)
-
-    return df_projects_output # Also export as TSV
+    return df_grants_output
 
 
 
-def package_publications(df_publications, column_configs):
-    """Placeholder
-     """
+# def package_projects(df_projects, column_configs):
+#     """Placeholder
+#     """
+#     # Placeholder for code
+#     df_projects_output = standardize_data(df_projects, column_configs, datatype='project')
+
+#     return df_projects_output # Also export as TSV
+
+
+
+# def package_publications(df_publications, column_configs):
+#     """Placeholder
+#      """
     
-    df_publications_output = standardize_data(df_publications)
+#     df_publications_output = standardize_data(df_publications, column_configs, datatype='publication')
 
-    return df_publications_output # Also export as TSV
+#     return df_publications_output # Also export as TSV
 
 
 
 def package_output_data():
-    # Placeholder to run all data packaging steps
+    """Run all data packaging steps for all data types."""
 
-    column_configs = None # Single data model dict defined in config
-    path_to_CSV = None # Defined in config for each file
+    # Single data model dict defined in config
+    column_configs = config.COLUMN_CONFIGS 
 
     # Load all files as dfs
-    df_programs = pd.read_csv(path_to_CSV)
-    df_grants = pd.read_csv(path_to_CSV)
-    df_projects = pd.read_csv(path_to_CSV)
-    df_publications = pd.read_csv(path_to_CSV)
+    # df_programs = pd.read_csv(path_to_CSV)
+    df_grants = pd.read_csv(config.PROJECTS_INTERMED_PATH)
+    # df_projects = pd.read_csv(path_to_CSV)
+    # df_publications = pd.read_csv(config.PUBLICATIONS_INTERMED_PATH)
+    print(f"Loaded files from {config.OUTPUT_DIR}.")
 
     # Special handling
-    df_publications = remove_publications_before_projects(df_publications, 
-                                                          df_projects)
+    # df_publications = remove_publications_before_projects(df_publications, 
+    #                                                       df_projects)
 
     # Final packaging
-    df_programs_output = package_programs(df_programs, column_configs)
+    # df_programs_output = package_programs(df_programs, column_configs)
     df_grants_output = package_grants(df_grants, column_configs)
-    df_projects_output = package_projects(df_projects, column_configs)
-    df_publications_output = package_publications(df_publications, column_configs)
+    # df_projects_output = package_projects(df_projects, column_configs)
+    # df_publications_output = package_publications(df_publications, column_configs)
 
     # Return a dictionary of DataFrames
     return {
-        'programs_output': df_programs_output,
+        # 'programs_output': df_programs_output,
         'grants_output': df_grants_output,
-        'projects_output': df_projects_output,
-        'publications_output': df_publications_output
+        # 'projects_output': df_projects_output,
+        # 'publications_output': df_publications_output
     }
 
 
@@ -155,7 +193,7 @@ if __name__ == "__main__":
     outputs = package_output_data()
 
     # Access DataFrames using keys
-    df_programs_output = outputs['programs_output']
+    # df_programs_output = outputs['programs_output']
     df_grants_output = outputs['grants_output']
-    df_projects_output = outputs['projects_output']
-    df_publications_output = outputs['publications_output']
+    # df_projects_output = outputs['projects_output']
+    # df_publications_output = outputs['publications_output']
