@@ -462,6 +462,7 @@ if __name__ == "__main__":
 
     # Load cleaned programs data
     key_programs_df = pd.read_csv(config.CLEANED_KEY_PROGRAMS_CSV)
+    print(f"Loading Program data from {config.CLEANED_KEY_PROGRAMS_CSV}")
 
     # Gather grants data
     all_cleaned_grants = gather_grant_data(key_programs_df, print_meta=False)
