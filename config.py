@@ -259,7 +259,7 @@ COLUMN_CONFIGS = {
             'project_start_date': 'project_start_date',
             'project_end_date': 'project_end_date',
             'opportunity_number': 'opportunity_number',
-            'api_source_search': 'api_source_search'
+            'api_source_search': 'api_source_search',
         },
         'list_like_cols': ['keywords', 'principal_investigators'],
     },
@@ -284,11 +284,11 @@ COLUMN_CONFIGS = {
     #     'list_like_cols': [],
     # },
     # 'publication': {
-    #     'node_id': 'publication_id',
+    #     'node_id': 'pmid',
     #     'link_id': 'project.project_id', 
     #     'keep_and_rename': {
     #         'type': 'type',
-    #         'pmid': 'publication_id',
+    #         'pmid': 'pmid',
     #         'coreproject': 'project.project_id',
     #         'title': 'title',
     #         'authors': 'authors',

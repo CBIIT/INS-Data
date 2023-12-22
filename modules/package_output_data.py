@@ -51,6 +51,12 @@ def reorder_columns(df, column_configs, datatype):
     # Extract relevant information from the configuration
     keep_and_rename = config.get('keep_and_rename', {})
 
+    # Check if all desired columns are present before renaming
+    if not set(keep_and_rename.keys()).issubset(set(df.columns)):
+        missing_columns = set(keep_and_rename.keys()) - set(df.columns)
+        raise ValueError(f"Fields missing from intermediate {datatype} data: "
+                         f"{', '.join(missing_columns)}")
+
     # Rename columns using keep_and_rename
     df.rename(columns=keep_and_rename, inplace=True)
 
@@ -60,13 +66,43 @@ def reorder_columns(df, column_configs, datatype):
     # Drop any columns not part of keep_and_rename
     dropped_columns = set(df.columns) - set(columns_to_keep)
     if dropped_columns:
-        print(f"Columns dropped from {datatype} output: {', '.join(dropped_columns)}")
+        print(f"Columns dropped from {datatype} output: "
+              f"{', '.join(dropped_columns)}")
 
     # Keep and reorder columns
-    df = df[columns_to_keep]
+    df_reordered = df[columns_to_keep]
 
-    return df
+    return df_reordered
 
+
+
+def validate_first_columns(df, column_configs, datatype):
+    """Validate that type, node_id, and link_id (opt) are first columns."""
+
+    # Check if the datatype exists in column_configs and then get it
+    if datatype not in column_configs:
+        raise ValueError(f"Invalid datatype: {datatype}")
+    config = column_configs.get(datatype)
+
+    # Get values from column configuration
+    node_id = config.get('node_id')
+    link_id = config.get('link_id', None)
+
+    # If link_id exists, add it to the list of expected columns 
+    expected_cols = ['type', node_id]
+    if link_id:
+        expected_cols.append(link_id)
+
+    # Check the order of columns in df
+    if list(df.columns[:len(expected_cols)]) != expected_cols:
+        raise ValueError(f"First columns in {datatype} output are not in the "
+                         f"expected order. Reorder columns in config.py to fix.\n"
+                         f"Expected order: {', '.join(expected_cols)}.\n"
+                         f"Actual order:   "
+                         f"{', '.join(df.columns[:len(expected_cols)])}"
+                         )
+    
+    return None
 
 
 def remove_special_characters(df):
@@ -98,11 +134,16 @@ def validate_unique_node_id(df, column_configs):
 
 def standardize_data(df, column_configs, datatype):
     """Group standardization functions common to all data types"""
+    
+    # Edit data to standardize
     df = add_type_column(df, datatype)
     df = reorder_columns(df, column_configs, datatype)
     df = remove_special_characters(df)
     df = format_list_like_columns(df, column_configs)
     df = validate_unique_node_id(df, column_configs)
+
+    # Validate that data meets loading standards
+    validate_first_columns(df, column_configs, datatype)
 
     return df
 
