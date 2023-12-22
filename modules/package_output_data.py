@@ -9,6 +9,7 @@ to prepare them for INS ingestion. These outputs are saved as TSVs.
 
 import os
 import sys
+import unicodedata
 
 import pandas as pd
 import re
@@ -99,17 +100,61 @@ def validate_first_columns(df, column_configs, datatype):
                          f"expected order. Reorder columns in config.py to fix.\n"
                          f"Expected order: {', '.join(expected_cols)}.\n"
                          f"Actual order:   "
-                         f"{', '.join(df.columns[:len(expected_cols)])}"
-                         )
+                         f"{', '.join(df.columns[:len(expected_cols)])}")
     
     return None
 
 
-def remove_special_characters(df):
-    """Remove any special characters, unusuaul breakpoints, etc. from all values"""
-    # Placeholder for code
-    df_standard_characters = df # do stuff
-    return df_standard_characters
+
+def replace_defined_characters(text):
+    """Use a mappping to replace specific non-standard characters in text."""
+
+    # Return NaN and non-string values as-is
+    if pd.isna(text) or not isinstance(text, str):
+        return text
+
+    # Define translation table to replace characters
+    translation_table = str.maketrans({
+        '\u2019': "'",  # Apostrophe with diacritic
+        # Add mappings here in the future as needed
+    })
+    #
+    replaced_text = (text.translate(translation_table) 
+                     if isinstance(text, str) else text)
+    
+    # Use translate only for strings
+    return replaced_text
+
+
+
+def normalize_encoding(text):
+    """Normalizes text encoding for consistency and compatibility."""
+
+    # Return NaN and non-string values as-is
+    if pd.isna(text) or not isinstance(text, str):
+        return text
+
+    # Encode and decode text into ASCII to normalize
+    try:
+        formatted_text = (unicodedata.normalize('NFKC', text)
+                          .encode('ascii', 'ignore').decode('ascii'))
+        return formatted_text
+    
+    # Second catch to handle non-string values as-is
+    except TypeError:
+        return text
+
+
+
+def process_special_characters(df):
+    """Cleans a DataFrame by normalizing special characters and encoding."""
+
+    # Replace specific non-standard characters
+    df = df.map(replace_defined_characters)
+    # General normalization to ascii encoding
+    df_cleaned = df.map(normalize_encoding)
+
+    return df_cleaned
 
 
 
@@ -134,11 +179,11 @@ def validate_unique_node_id(df, column_configs):
 
 def standardize_data(df, column_configs, datatype):
     """Group standardization functions common to all data types"""
-    
+
     # Edit data to standardize
     df = add_type_column(df, datatype)
     df = reorder_columns(df, column_configs, datatype)
-    df = remove_special_characters(df)
+    df = process_special_characters(df)
     df = format_list_like_columns(df, column_configs)
     df = validate_unique_node_id(df, column_configs)
 
@@ -148,13 +193,25 @@ def standardize_data(df, column_configs, datatype):
     return df
 
 
+
 # def package_programs(df_programs, column_configs):
 #     """Placeholder
 #     """
 #     # Placeholder for code
-#     df_programs_output = standardize_data(df_programs, column_configs, datatype='program')
+#     #df_programs_output = standardize_data(df_programs, column_configs, datatype='program')
 
-#     return df_programs_output # Also export as TSV
+#     # During dev:
+#     df_programs = add_type_column(df_programs, datatype='program')
+#     df_programs = process_special_characters(df_programs)
+
+#     df_programs_output = df_programs
+
+#     # Export as TSV
+#     output_filepath = config.PROGRAMS_OUTPUT_PATH
+#     os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
+#     df_programs_output.to_csv(output_filepath, sep='\t', index=False, encoding='utf-8')
+
+#     return df_programs_output
 
 
 
@@ -164,9 +221,10 @@ def package_grants(df_grants, column_configs):
     # Placeholder for code
     df_grants_output = standardize_data(df_grants, column_configs, datatype='grant')
 
+    # Export as TSV
     output_filepath = config.PROJECTS_OUTPUT_PATH
     os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
-    df_grants_output.to_csv(output_filepath, sep='\t', index=False)
+    df_grants_output.to_csv(output_filepath, sep='\t', index=False, encoding='utf-8')
 
     return df_grants_output
 
@@ -199,7 +257,7 @@ def package_output_data():
     column_configs = config.COLUMN_CONFIGS 
 
     # Load all files as dfs
-    # df_programs = pd.read_csv(path_to_CSV)
+    # df_programs = pd.read_csv(config.CLEANED_KEY_PROGRAMS_CSV)
     df_grants = pd.read_csv(config.PROJECTS_INTERMED_PATH)
     # df_projects = pd.read_csv(path_to_CSV)
     # df_publications = pd.read_csv(config.PUBLICATIONS_INTERMED_PATH)
