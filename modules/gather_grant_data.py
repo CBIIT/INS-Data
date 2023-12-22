@@ -172,8 +172,8 @@ def concatenate_full_names(row):
     # Check for blank row, then get each full name
     if row:
         full_names = [item['full_name'] for item in row]
-        # Concatenate with a comma space between
-        return ', '.join(full_names)
+        # Concatenate with a semi-colon space between
+        return '; '.join(full_names)
     else:
         # Return blank output for blank input
         return ''

@@ -279,7 +279,7 @@ def format_authors(author_list):
         author_list (list): List of authors
 
     Returns:
-        str: Comma-separated formatted author names
+        str: Semi-colon-separated formatted author names
     """
 
     formatted_authors = []
@@ -289,7 +289,7 @@ def format_authors(author_list):
         formatted_author = f"{first_name} {last_name}".strip()
         formatted_authors.append(formatted_author)
 
-    return ', '.join(formatted_authors)
+    return '; '.join(formatted_authors)
 
 
 
