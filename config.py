@@ -16,43 +16,52 @@ QUALTRICS_VERSION = "2023-08-30"    # <-- CHANGE VERSION HERE
 QUALTRICS_TYPE = "manual_fix"       # <-- Define "raw" or "manual_fix" type of the input csv
 
 # Version of bulk download from iCite
-ICITE_VERSION = '2023-11'           # <-- CHANGE VERSION HERE
+ICITE_VERSION = "2023-11"           # <-- CHANGE VERSION HERE
 
 # An override date can be used instead of today's date for pulling and saving data versions
 # This is useful when running downstream modules on grants data gathered before today
 
-OVERRIDE_DATE = None    # <-- Optional. Define override date (e.g. '2023-12-14'). Default None.
+OVERRIDE_DATE = None    # <-- Optional. Define override date (e.g. "2023-12-14"). Default None.
 
 
 
 # --- DO NOT EDIT BELOW FOR ROUTINE DATA GATHERING ---
 
+INPUT_DIR = "data/00_input/"
+INTERMED_DIR = "data/01_intermediate/"
+OUTPUT_DIR = "data/02_output/"
+
 
 
 # FILEPATH (CONTINUED)
-QUALTRICS_CSV_PATH = "data/raw/qualtrics_output_" + QUALTRICS_VERSION +"_"+ QUALTRICS_TYPE + ".csv"
-CLEANED_KEY_PROGRAMS_CSV = "data/cleaned/key_programs_" + QUALTRICS_VERSION + ".csv"
+QUALTRICS_CSV_PATH = INPUT_DIR + "qualtrics/qualtrics_output_" + QUALTRICS_VERSION +"_"+ QUALTRICS_TYPE + ".csv"
+CLEANED_KEY_PROGRAMS_CSV = INTERMED_DIR + QUALTRICS_VERSION +"/"+ "key_programs_" + QUALTRICS_VERSION + ".csv"
 
 # Add timestamp to note when grants were gathered from API
 # The same Qualtrics input file can have different outputs depending upon API gathering date
-TIMESTAMP = 'api-gathered-'+datetime.now().strftime('%Y-%m-%d')
+TIMESTAMP = "gathered-"+datetime.now().strftime("%Y-%m-%d")
 
 # Use optional override date if provided
 if OVERRIDE_DATE:
-    TIMESTAMP = 'api-gathered-' + OVERRIDE_DATE
+    TIMESTAMP = "gathered-" + OVERRIDE_DATE
     print(f"\n---TIMESTAMP OVERRIDE IN USE---\n"
           f"---Performing action using {OVERRIDE_DATE} instead of current timestamp.---\n"
           f"---Change the OVERRIDE_DATE in config.py to None to restore default behavior.---\n\n")
 
 # Versioned directories for intermediates and outputs
-PROCESSED_DIR = "data/processed/" + QUALTRICS_VERSION + "/" + TIMESTAMP
+GATHERED_DIR = INTERMED_DIR + QUALTRICS_VERSION +"/"+ TIMESTAMP
+OUTPUT_QUALTRICS_DIR = OUTPUT_DIR + QUALTRICS_VERSION
+OUTPUT_GATHERED_DIR = OUTPUT_QUALTRICS_DIR +"/"+ TIMESTAMP
+
 REPORTS_DIR = "reports/" + QUALTRICS_VERSION
-API_REPORTS_DIR = REPORTS_DIR + "/" + TIMESTAMP
-REVIEWED_DIR = "data/reviewed/" + QUALTRICS_VERSION
+REPORTS_GATHERED_DIR = REPORTS_DIR +"/"+ TIMESTAMP
 
+# Programs output
+PROGRAMS_OUTPUT_PATH = OUTPUT_GATHERED_DIR +"/"+ "program.tsv"
 
-# Projects output filename
-PROJECTS_OUTPUT_FILENAME = "project.tsv"
+# Projects output
+PROJECTS_INTERMED_PATH = GATHERED_DIR +"/"+ "project.csv"
+PROJECTS_OUTPUT_PATH = OUTPUT_GATHERED_DIR +"/"+ "project.tsv"
 
 # ---
 # DATA PREPARATION CONFIGURATION
@@ -76,14 +85,14 @@ QUALTRICS_COLS = {
 }
 
 # Invalid NOFO reports
-INVALID_NOFOS_REPORT = REPORTS_DIR + "/invalidNofoReport_" + QUALTRICS_TYPE + ".csv"
-CORRECTED_INVALID_NOFOS_REPORT = REPORTS_DIR + "/invalidNofoReport_corrected.csv"
-REVIEWED_NOFO_INPUT = REVIEWED_DIR + "/invalidNofoReport_reviewed.csv"
+INVALID_NOFOS_REPORT = REPORTS_DIR +"/"+ "invalidNofoReport_" + QUALTRICS_TYPE + ".csv"
+CORRECTED_INVALID_NOFOS_REPORT = REPORTS_DIR +"/"+ "invalidNofoReport_corrected.csv"
+REVIEWED_NOFO_INPUT = INTERMED_DIR + QUALTRICS_VERSION +"/"+ "invalidNofoReport_reviewed.csv"
 
 # Invalid Award reports 
-INVALID_AWARD_REPORT = REPORTS_DIR + "/invalidAwardReport_" + QUALTRICS_TYPE + ".csv"
-CORRECTED_INVALID_AWARD_REPORT = REPORTS_DIR + "/invalidAwardReport_corrected.csv"
-REVIEWED_AWARD_INPUT = REVIEWED_DIR + "/invalidAwardReport_reviewed.csv"
+INVALID_AWARD_REPORT = REPORTS_DIR +"/"+ "invalidAwardReport_" + QUALTRICS_TYPE + ".csv"
+CORRECTED_INVALID_AWARD_REPORT = REPORTS_DIR +"/"+ "invalidAwardReport_corrected.csv"
+REVIEWED_AWARD_INPUT = INTERMED_DIR + QUALTRICS_VERSION +"/"+ "invalidAwardReport_reviewed.csv"
 
 # ---
 # GRANTS CLEANING CONFIGURATION
@@ -144,7 +153,7 @@ API_FIELD_RENAMER = {
 }
 
 # Define column for project ID sorting
-PROJECT_ID_FIELDNAME = "project_id"
+PROJECT_ID_FIELDNAME = 'project_id'
 
 # Define name for new program ID field
 PROGRAM_ID_FIELDNAME = 'program.program_id'
@@ -164,25 +173,26 @@ STAT_CORE_PROJECT_COL = 'queried_project_id'
 
 
 # Summary statistic export filenames
-STAT_GRANTS_BY_PROGRAM_FILENAME = API_REPORTS_DIR + '/' + 'grantsStatsByProgram.csv'
-STAT_SHARED_PROJECT_PROGRAM_PAIRS_FILENAME = API_REPORTS_DIR + '/' 'sharedProjectsByProgramPair.csv'
+STAT_GRANTS_BY_PROGRAM_FILENAME = REPORTS_GATHERED_DIR +"/"+ "grantsStatsByProgram.csv"
+STAT_SHARED_PROJECT_PROGRAM_PAIRS_FILENAME = REPORTS_GATHERED_DIR +"/"+ "sharedProjectsByProgramPair.csv"
 
 
 # ---
 # PUBLICATIONS CONFIGURATION
 
 # ICite bulk download csv.zip location
-ICITE_FILENAME = 'data/raw/icite/' + ICITE_VERSION + '/' + 'icite_metadata.zip'
+ICITE_FILENAME = INPUT_DIR +"icite/"+ ICITE_VERSION +"/"+ "icite_metadata.zip"
 
 # Versioned directories for intermediates and outputs
-TEMP_PUBLICATION_DIR = PROCESSED_DIR + '/' + 'temp_pubmed_chunkfiles'
-REMOVED_PUBLICATIONS = API_REPORTS_DIR + '/' + 'removedPublicationsReport.csv'
-PROJECT_PMIDS = PROCESSED_DIR + '/' + 'projectPMIDs.csv'
-ICITE_PMID_DATA = PROCESSED_DIR + '/' + 'icitePMIDData.csv'
-MERGED_PMID_DATA = PROCESSED_DIR + '/' + 'mergedPMIDData.csv'
+TEMP_PUBLICATION_DIR = GATHERED_DIR +"/"+ "temp_pubmed_chunkfiles"
+REMOVED_PUBLICATIONS = REPORTS_GATHERED_DIR +"/"+ "removedPublicationsReport.csv"
+PROJECT_PMIDS = GATHERED_DIR +"/"+ "projectPMIDs.csv"
+ICITE_PMID_DATA = GATHERED_DIR +"/"+ "icitePMIDData.csv"
+MERGED_PMID_DATA = GATHERED_DIR +"/"+ "mergedPMIDData.csv"
 
-# Projects output filename
-PUBLICATIONS_OUTPUT = PROCESSED_DIR + '/' + "publication.tsv"
+# Publications output filepath
+PUBLICATIONS_INTERMED_PATH = GATHERED_DIR +"/"+ "publication.csv"
+PUBLICATIONS_OUTPUT_PATH = OUTPUT_GATHERED_DIR +"/"+ "publication.tsv"
 
 # Earliest Publication year
 PUBLICATION_YEAR_CUTOFF = 2000
@@ -193,3 +203,105 @@ PUB_DATA_CHUNK_SIZE = 2000
 # iCite columns of interest
 ICITE_COLUMNS_TO_PULL = ['pmid','title','authors','year',
                          'citation_count','relative_citation_ratio']
+
+
+# ---
+# DATA PACKAGING CONFIGURATION
+
+# Report subfolder for data packaing reports
+PACKAGING_REPORTS = REPORTS_GATHERED_DIR +'/'+ 'packagingReports/'
+REMOVED_DUPLICATES = PACKAGING_REPORTS + 'duplicate_' # Add datatype.csv in code
+
+# Dictionary of columns and types to use in final data packaging
+COLUMN_CONFIGS = {
+    # # Data type
+    # # Programs pending INS-822
+    # 'program': {
+    #     # Identifying node_id column name
+    #     'node_id': 'program_id',
+    #     # Idenfiying column name for relationship link
+    #     'link_id': None,
+    #     # Dict of old:new column names. Includes only columns to include in output
+    #     'keep_and_rename': {
+    #         'type': 'type',
+    #         'program_id': 'program_id',
+    #         'program_name': 'program_name',
+    #         'program_acronym': 'program_acronym',
+    #         'focus_area': 'focus_area',
+    #         'doc': 'doc',
+    #         'contact_pi': 'contact_pi',
+    #         'contact_pi_email': 'contact_pi_email',
+    #         'contact_nih': 'contact_nih',
+    #         'contact_nih_email': 'contact_nih_email',
+    #         'nofo': 'nofo',
+    #         'award': 'award',
+    #         'program_link': 'program_link',
+    #         'data_link': 'data_link',
+    #         'cancer_type': 'cancer_type'
+    #     },
+    #     # List of any list-like columns that need semicolon separators
+    #     'list_like_cols': ['focus_area', 'doc', 'cancer_type'],
+    # },
+    'grant': {
+        'node_id': 'grant_id',
+        'link_id': 'program.program_id', #'project.project_id', PENDING INS-821
+        'keep_and_rename': {
+            'type': 'type',
+            'project_id': 'grant_id',
+            'program.program_id': 'program.program_id', # PENDING INS-821
+            'queried_project_id': 'project.project_id',
+            'application_id': 'application_id',
+            'fiscal_year': 'fiscal_year',
+            'project_title': 'grant_title',
+            'abstract_text': 'abstract_text',
+            'keywords': 'keywords',
+            'org_name': 'org_name',
+            'org_city': 'org_city',
+            'org_state': 'org_state',
+            'org_country': 'org_country',
+            'principal_investigators': 'principal_investigators',
+            'program_officers': 'program_officers',
+            'award_amount': 'award_amount',
+            'nci_funded_amount': 'nci_funded_amount',
+            'award_notice_date': 'award_notice_date',
+            'project_start_date': 'project_start_date',
+            'project_end_date': 'project_end_date',
+            'opportunity_number': 'opportunity_number', 
+        },
+        'list_like_cols': ['keywords', 'principal_investigators'],
+    },
+    # Projects pending INS-821
+    # 'project': {
+    #     'node_id': 'project_id',
+    #     'link_id': 'program.program_id',
+    #     'keep_and_rename': {
+    #         'type': 'type',
+    #         'project_id': 'project_id',
+    #         'project_title': 'project_title',
+    #         'abstract_text': 'abstract_text',
+    #         'org_name': 'org_name',
+    #         'org_city': 'org_city',
+    #         'org_state': 'org_state',
+    #         'org_country': 'org_country',
+    #         'project_start_date': 'project_start_date',
+    #         'project_end_date': 'project_end_date',
+    #         'opportunity_number': 'opportunity_number',
+    #     },
+    #     'list_like_cols': [],
+    # },
+    'publication': {
+        'node_id': 'pmid',
+        'link_id': 'project.project_id', 
+        'keep_and_rename': {
+            'type': 'type',
+            'pmid': 'pmid',
+            'coreproject': 'project.project_id',
+            'title': 'title',
+            'authors': 'authors',
+            'publication_date': 'publication_date',
+            'citation_count': 'cited_by',
+            'relative_citation_ratio': 'relative_citation_ratio'
+        },
+        'list_like_cols': ['authors'],
+    }
+}

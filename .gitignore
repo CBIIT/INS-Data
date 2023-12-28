@@ -10,5 +10,5 @@ notebooks/scrap_files/
 .env
 
 # Large data
-data/raw/icite/20*
-data/processed/*/api-gathered-*/temp_pubmed_chunkfiles/
+data/00_input/icite/20*
+data/01_intermediate/*/gathered-*/temp_pubmed_chunkfiles/

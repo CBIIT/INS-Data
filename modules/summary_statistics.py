@@ -1,12 +1,15 @@
-# summary_statistics.py
-# 2023-09-08 ZD
+"""
+summary_statistics.py
+2023-09-08 ZD
 
-# This script defines functions that will generate summary statistics relevant
-# to data gathered for the INS project. The goal of these statistics are not 
-# to ingest into the site, but rather for use in testing, validation, and 
-# general reporting. 
-# Summary statistics will be output to the reports/ directory with a versioning
-# structure identical to the data/ directory. 
+This script defines main function get_summary_statistics that will generate 
+summary statistics relevant to data gathered for the INS project. The goal of 
+these statistics are not to ingest into the site, but rather for use in testing,
+validation, and general reporting. 
+
+Summary statistics will be output to the reports/ directory with a versioning
+structure identical to the data/ directory. 
+"""
 
 import pandas as pd
 import os
@@ -17,21 +20,6 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import config
 
-def get_summary_statistics(all_grants_data:pd.DataFrame):
-    """Create reports with summary statistics of high-level grants info"""
-
-    # Define directory to store reports. Create if doesn't already exist
-    reports_dir = config.API_REPORTS_DIR
-    if not os.path.exists(reports_dir):
-        os.makedirs(reports_dir)  
-
-    # Summary 1: Group by Program and get aggregated grant stats
-    get_grant_stats_by_program(all_grants_data)
-
-    # Summary 2: Get pairs of Key Programs that share projects
-    get_shared_projects_by_program_pair(all_grants_data)
-
-    
 
 def get_grant_stats_by_program(all_grants_data:pd.DataFrame):
     """Group grants by program and get aggregated summaries"""
@@ -52,6 +40,7 @@ def get_grant_stats_by_program(all_grants_data:pd.DataFrame):
     grant_stats_by_program.to_csv(config.STAT_GRANTS_BY_PROGRAM_FILENAME, 
                                   index=False)
     
+
 
 def get_shared_projects_by_program_pair(all_grants_data: pd.DataFrame):
     """Get pairs of Key Programs and the count of projects they share"""
@@ -94,18 +83,36 @@ def get_shared_projects_by_program_pair(all_grants_data: pd.DataFrame):
     df_shared_programs.to_csv(shared_programs_filename, index=False)
 
 
+
+def get_summary_statistics(all_grants_data:pd.DataFrame):
+    """Create reports with summary statistics of high-level grants info"""
+
+    # Define directory to store reports. Create if doesn't already exist
+    reports_dir = config.REPORTS_GATHERED_DIR
+    if not os.path.exists(reports_dir):
+        os.makedirs(reports_dir)  
+
+    # Summary 1: Group by Program and get aggregated grant stats
+    get_grant_stats_by_program(all_grants_data)
+
+    # Summary 2: Get pairs of Key Programs that share projects
+    get_shared_projects_by_program_pair(all_grants_data)
+
+    print(f"Summary statistic reports for grants data successfully generated.\n"
+        f"Results can be found in {config.REPORTS_GATHERED_DIR}.\n---")
+
+
+
 # Run module as a standalone script when called directly
 if __name__ == "__main__":
 
     print(f"Running {os.path.basename(__file__)} as standalone module...")
 
-    # Load projects.tsv as a dataframe
-    project_filename = os.path.join(config.PROCESSED_DIR, 
-                                    config.PROJECTS_OUTPUT_FILENAME)
-    print(f"Generating report statistics on {project_filename}...")
-    all_cleaned_grants = pd.read_csv(project_filename, sep='\t')
+    # Load project.csv as a dataframe
+    project_filepath = config.PROJECTS_INTERMED_PATH
+    print(f"Generating report statistics on {project_filepath}...")
+    all_cleaned_grants = pd.read_csv(project_filepath)
 
     # Run stats module
     get_summary_statistics(all_cleaned_grants)
-    print(f"Summary reports for grants data successfully generated.\n"
-          f"Results can be found in {config.API_REPORTS_DIR}.\n---")
+
