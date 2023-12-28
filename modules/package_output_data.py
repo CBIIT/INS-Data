@@ -161,14 +161,30 @@ def process_special_characters(df):
 
 
 
-def format_list_like_columns(df, column_configs):
-    """Use a list of column names from config.py to structure list-like strings
-    into semicolon-separated strings. Remove whitespace and/or delimiters like 
-    commas."""
-    # Placeholder for code
-    df_structured_lists = df # do stuff
+def validate_listlike_columns(df, column_configs, datatype):
+    """Validate semicolon separation without spaces in list-like columns."""
 
-    return df_structured_lists
+    # Get predefined list-like columns from configuration
+    listlike_cols = column_configs[datatype].get('list_like_cols', None)
+
+    # Iterate through expected list-like columns
+    if listlike_cols is not None:
+
+        for col in listlike_cols:
+
+            # Check that expected column exists
+            if col not in df.columns:
+                raise ValueError(f"Expected list-like column {col} not found "
+                                 f"within data. Check data or redefine config.")
+
+            # Replace any semicolons followed by whitespace with just semicolon
+            df[col] = df[col].str.replace('; ', ';')
+
+            # Check if any semicolons exist in any value of the column
+            if not df[col].astype(str).str.contains(';').any():
+                print(f"WARNING: No semicolons found in list-like column {col}")
+
+    return df
 
 
 
@@ -261,7 +277,7 @@ def standardize_data(df, column_configs, datatype):
     df = add_type_column(df, datatype)
     df = reorder_columns(df, column_configs, datatype)
     df = process_special_characters(df)
-    df = format_list_like_columns(df, column_configs)
+    df = validate_listlike_columns(df, column_configs, datatype)
     df = validate_and_clean_unique_nodes(df, column_configs, datatype)
 
     # Validate that data meets loading standards
