@@ -19,6 +19,8 @@ import re
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import config
 
+
+
 # On hold until INS-807
 # def remove_publications_before_projects(df_publications, df_projects):
 #     """Remove publications published before the associated project date"""
@@ -313,17 +315,19 @@ def standardize_data(df, column_configs, datatype):
 
 
 def package_grants(df_grants, column_configs):
-    """Placeholder
-    """
+    """Package grants data for INS loading."""
+
     print(f"---\nFinalizing TSV for grant data...")
 
-    # Placeholder for code
-    df_grants_output = standardize_data(df_grants, column_configs, datatype='grant')
+    # Standardize and validate data
+    df_grants_output = standardize_data(df_grants, column_configs, 
+                                        datatype='grant')
 
     # Export as TSV
     output_filepath = config.PROJECTS_OUTPUT_PATH
     os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
-    df_grants_output.to_csv(output_filepath, sep='\t', index=False, encoding='utf-8')
+    df_grants_output.to_csv(output_filepath, sep='\t', index=False, 
+                            encoding='utf-8')
 
     print(f"Done! Final grant data saved as {output_filepath}.")
 
@@ -345,16 +349,24 @@ def package_grants(df_grants, column_configs):
 
 
 
-# def package_publications(df_publications, column_configs):
-#     """Placeholder
-#      """
-#     print(f"Finalizing TSV for publication data...")
+def package_publications(df_publications, column_configs):
+    """Package publications data for INS loading."""
 
-#     df_publications_output = standardize_data(df_publications, column_configs, datatype='publication')
+    print(f"---\nFinalizing TSV for publications data...") 
 
-#    print(f"Done! Publication data exported to TSV.")
+    # Standardize and validate data
+    df_publications_output = standardize_data(df_publications, column_configs, 
+                                        datatype='publication')
 
-#     return df_publications_output # Also export as TSV
+    # Export as TSV
+    output_filepath = config.PUBLICATIONS_OUTPUT_PATH
+    os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
+    df_publications_output.to_csv(output_filepath, sep='\t', index=False, 
+                            encoding='utf-8')
+
+    print(f"Done! Final publication data saved as {output_filepath}.")
+
+    return df_publications_output
 
 
 
@@ -368,10 +380,10 @@ def package_output_data():
     # df_programs = pd.read_csv(config.CLEANED_KEY_PROGRAMS_CSV)
     df_grants = pd.read_csv(config.PROJECTS_INTERMED_PATH)
     # df_projects = pd.read_csv(path_to_CSV)
-    # df_publications = pd.read_csv(config.PUBLICATIONS_INTERMED_PATH)
+    df_publications = pd.read_csv(config.PUBLICATIONS_INTERMED_PATH)
     print(f"Loaded files from {config.GATHERED_DIR}.")
 
-    # Special handling
+    # Special handling [PLACEHOLDER]
     # df_publications = remove_publications_before_projects(df_publications, 
     #                                                       df_projects)
 
@@ -379,14 +391,14 @@ def package_output_data():
     # df_programs_output = package_programs(df_programs, column_configs)
     df_grants_output = package_grants(df_grants, column_configs)
     # df_projects_output = package_projects(df_projects, column_configs)
-    # df_publications_output = package_publications(df_publications, column_configs)
+    df_publications_output = package_publications(df_publications, column_configs)
 
     # Return a dictionary of DataFrames
     return {
         # 'programs_output': df_programs_output,
         'grants_output': df_grants_output,
         # 'projects_output': df_projects_output,
-        # 'publications_output': df_publications_output
+        'publications_output': df_publications_output
     }
 
 
@@ -403,4 +415,4 @@ if __name__ == "__main__":
     # df_programs_output = outputs['programs_output']
     df_grants_output = outputs['grants_output']
     # df_projects_output = outputs['projects_output']
-    # df_publications_output = outputs['publications_output']
+    df_publications_output = outputs['publications_output']

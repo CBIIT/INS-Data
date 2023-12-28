@@ -214,7 +214,7 @@ REMOVED_DUPLICATES = PACKAGING_REPORTS + 'duplicate_' # Add datatype.csv in code
 
 # Dictionary of columns and types to use in final data packaging
 COLUMN_CONFIGS = {
-    # Data type
+    # # Data type
     # # Programs pending INS-822
     # 'program': {
     #     # Identifying node_id column name
@@ -244,10 +244,11 @@ COLUMN_CONFIGS = {
     # },
     'grant': {
         'node_id': 'grant_id',
-        'link_id': 'project.project_id',
+        'link_id': 'program.program_id', #'project.project_id', PENDING INS-821
         'keep_and_rename': {
             'type': 'type',
             'project_id': 'grant_id',
+            'program.program_id': 'program.program_id', # PENDING INS-821
             'queried_project_id': 'project.project_id',
             'application_id': 'application_id',
             'fiscal_year': 'fiscal_year',
@@ -265,7 +266,7 @@ COLUMN_CONFIGS = {
             'award_notice_date': 'award_notice_date',
             'project_start_date': 'project_start_date',
             'project_end_date': 'project_end_date',
-            'opportunity_number': 'opportunity_number',
+            'opportunity_number': 'opportunity_number', 
         },
         'list_like_cols': ['keywords', 'principal_investigators'],
     },
@@ -288,19 +289,19 @@ COLUMN_CONFIGS = {
     #     },
     #     'list_like_cols': [],
     # },
-    # 'publication': {
-    #     'node_id': 'pmid',
-    #     'link_id': 'project.project_id', 
-    #     'keep_and_rename': {
-    #         'type': 'type',
-    #         'pmid': 'pmid',
-    #         'coreproject': 'project.project_id',
-    #         'title': 'title',
-    #         'authors': 'authors',
-    #         'publication_date': 'publication_date',
-    #         'cited_by': 'cited_by',
-    #         'relative_citation_ratio': 'relative_citation_ratio'
-    #     },
-    #     'list_like_cols': ['authors'],
-    # }
+    'publication': {
+        'node_id': 'pmid',
+        'link_id': 'project.project_id', 
+        'keep_and_rename': {
+            'type': 'type',
+            'pmid': 'pmid',
+            'coreproject': 'project.project_id',
+            'title': 'title',
+            'authors': 'authors',
+            'publication_date': 'publication_date',
+            'citation_count': 'cited_by',
+            'relative_citation_ratio': 'relative_citation_ratio'
+        },
+        'list_like_cols': ['authors'],
+    }
 }
