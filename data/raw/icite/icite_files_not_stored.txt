@@ -1,7 +1,0 @@
-iCite database snapshots are stored here within versioned subfolders (yyyy-mm) 
-as `icite_metadata.zip` files. 
-
-Each is about 10GB, so they are not git-controlled. 
-
-Download the latest iCite snapshot from NIH FigShare: 
-https://nih.figshare.com/collections/iCite_Database_Snapshots_NIH_Open_Citation_Collection_/4586573

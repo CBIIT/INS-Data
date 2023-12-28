@@ -2,11 +2,12 @@
 gather_publication_data.py
 2023-11-20 ZD
 
-This script defines functions that will accept the project.tsv and use it 
-along with the NIH RePORTER API, PubMed API, and iCite bulk download to 
-gather associated publications and descriptive data for those publications.
+This script defines primary function gather_publication_data that will accept 
+the project.csv and use it along with the NIH RePORTER API, PubMed API, and 
+iCite bulk download to gather associated publications and descriptive data f
+or those publications.
 
-The output `publications_df` and exported publication.tsv contain columns:
+The output `publications_df` and exported publication.csv contain columns:
     - coreproject
     - pmid
     - title
@@ -149,7 +150,7 @@ def get_pmids_from_projects(projects_df, print_meta=False):
         pd.DataFrame: Dataframe with 'coreproject' and 'pmid' columns
     """
 
-    # Get all unique project IDs from projects.tsv (loaded earlier in notebook)
+    # Get all unique project IDs from projects.csv (loaded earlier in notebook)
     project_id_list = projects_df['queried_project_id'].unique().tolist()
 
     print(f"{len(project_id_list)} total unique project IDs.")
@@ -278,7 +279,7 @@ def format_authors(author_list):
         author_list (list): List of authors
 
     Returns:
-        str: Comma-separated formatted author names
+        str: Semi-colon-separated formatted author names
     """
 
     formatted_authors = []
@@ -288,7 +289,7 @@ def format_authors(author_list):
         formatted_author = f"{first_name} {last_name}".strip()
         formatted_authors.append(formatted_author)
 
-    return ', '.join(formatted_authors)
+    return '; '.join(formatted_authors)
 
 
 
@@ -670,18 +671,31 @@ def merge_and_clean_project_pmid_info(df_pmids, df_pub_info):
 
 
 
-# Run module as a standalone script when called directly
-if __name__ == "__main__":
+def gather_publication_data(all_cleaned_grants, print_meta=False):
+    """Use multiple sources to gather publication data associated with projects.
 
-    print(f"Running {os.path.basename(__file__)} as standalone module...")
+    This function performs the following general steps:
+    1. Use the NIH RePORTER API to get PMIDs associated with each grant
+    2. Use the PubMed API to get publication info for each PMID
+    3. Use iCite download data to get additional publication info for each PMID
+    4. Merge and resolve publication info from PubMed and iCite
+    5. Merge PMID-specific info back into data associating publications 
+        and projects
+    6. Validate and clean data to remove publications before 2000 or those 
+        missing all data
+    7. Export publication data and a report of removed publications
 
-    # Load Grants data
-    project_filepath = os.path.join(config.PROCESSED_DIR, 
-                               config.PROJECTS_OUTPUT_FILENAME)
-    all_cleaned_grants = pd.read_csv(project_filepath, sep='\t')
-    print(f"Projects data loaded from {project_filepath}.")
+    Args:
+        all_cleaned_grants (pd.DataFrame): DataFrame of processed grants data
+        print_meta (bool): Boolean indicator. If True, print process results to 
+            the console in addition to any exported data. 
 
-    # Use existing PMID list if present
+    Returns:
+        None. Several CSVs defined within config.py are exported, including
+            publication.csv. 
+    """
+
+    # Use existing PMID list if already present for this gathering date
     if os.path.exists(config.PROJECT_PMIDS):
         print(f"---\nReusing PMIDs already gathered in {config.PROJECT_PMIDS}.")
         df_pmids = pd.read_csv(config.PROJECT_PMIDS)
@@ -690,7 +704,8 @@ if __name__ == "__main__":
         # Gather PMIDs from projects using NIH RePORTER API
         print(f"---\nGathering associated PMIDs for each project from "
               f"NIH RePORTER API...")
-        df_pmids = get_pmids_from_projects(all_cleaned_grants)
+        df_pmids = get_pmids_from_projects(all_cleaned_grants, 
+                                           print_meta=print_meta)
 
         # Store a checkpoint file of all gathered PMIDs and projects
         df_pmids.to_csv(config.PROJECT_PMIDS, index=False)
@@ -703,6 +718,7 @@ if __name__ == "__main__":
     build_pmid_info_data_chunks(df_pmids, 
                                 chunk_size=config.PUB_DATA_CHUNK_SIZE, 
                                 output_folder=config.TEMP_PUBLICATION_DIR)
+    
     # Run again to catch any timeouts or problematic PMIDs
     print(f"First pass successful!\n"
           f"Double-checking for any missing publication info...")
@@ -731,6 +747,7 @@ if __name__ == "__main__":
     # Load all partial PubMed files back into a single df
     print(f"---\nCombining and merging all publication data...")
     df_pubmed = load_all_directory_files_to_df(config.TEMP_PUBLICATION_DIR)
+
     # Reset string-ed dates back to datetime
     df_pubmed['publication_date'] = pd.to_datetime(df_pubmed['publication_date'])
 
@@ -747,12 +764,27 @@ if __name__ == "__main__":
                                                 df_pub_info)
     
     # Export final publication data
-    df_publications.to_csv(config.PUBLICATIONS_OUTPUT, sep='\t', index=False)
+    df_publications.to_csv(config.PUBLICATIONS_INTERMED_PATH, index=False)
     df_removed_publications.to_csv(config.REMOVED_PUBLICATIONS, index=False)
 
-    print(f"Success! Publication data saved to {config.PUBLICATIONS_OUTPUT}.\n"
+    print(f"Success! Publication data saved to {config.PUBLICATIONS_INTERMED_PATH}.\n"
           f"Removed publications saved to {config.REMOVED_PUBLICATIONS}")
     print(f"---\n")
     print(f"Total unique publications saved:  {df_publications['pmid'].nunique():>8}")
     print(f"Total removed publications:       {len(df_removed_publications):>8}")
     print(f"Project-publication associations: {len(df_publications):>8}")
+
+
+
+# Run module as a standalone script when called directly
+if __name__ == "__main__":
+
+    print(f"Running {os.path.basename(__file__)} as standalone module...")
+
+    # Load Grants data
+    project_filepath = config.PROJECTS_INTERMED_PATH
+    all_cleaned_grants = pd.read_csv(project_filepath)
+    print(f"Projects data loaded from {project_filepath}.")
+
+    # Gather, process, and save publication data
+    gather_publication_data(all_cleaned_grants, print_meta=False)

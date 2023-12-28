@@ -19,6 +19,7 @@ The INS-Data repository workflow follows the general outline below:
 2. [Grants](#grants)
 3. [Publications](#publications)
 
+Diagram needs updating (ZD 2023-12-20)
 ![INS-Data workflow. This diagram shows a rough visualization of the steps listed below.](images/ins-data-repo-diagram.png)
 
 
@@ -40,6 +41,7 @@ All program processing is handled in the `data_preparation.py` module. This will
 
 
 ### Grants
+All grants processing is handled within the `gather_grant_data.py` module, expect for the summary statistic step handled with the `summary_statistic.py` module. 
 
 1. **Get grants data from NIH RePORTER API**
     - This process takes approximately **5-10 minutes** for ~70 programs
@@ -49,7 +51,6 @@ All program processing is handled in the `data_preparation.py` module. This will
         - Subprojects are excluded
         - Grants prior to fiscal year 2000 are excluded
         - Grants receiving no funding from NCI are excluded
-    - Function(s) defined in `nih_reporter_api.py` module
 
 2. **Process grants data**
     - Reformat the data received from the NIH RePORTER API for use within INS. 
@@ -57,7 +58,6 @@ All program processing is handled in the `data_preparation.py` module. This will
         - Flatten nested JSON structures. In particular, the PI, PO, and agency funding fields have this structure. 
         - Format names to standardize capitalization
     - The fields expected are defined and can be modified in `config.py`
-    - Function(s) defined in `clean_grants_data.py` module
 
 3. **Save grants data for each Key Program**
     - Add a program.program_id to each grant.
@@ -179,6 +179,7 @@ All publication processing is handled within the `gather_publication_data.py` mo
         - NOTE: If running standalones, ensure that necessary output files from preceding modules already exist for the same start date (version)
         ```
         python modules/data_preparation.py
+        python modules/gather_grant_data.py
         python modules/summary_statistics.py
         python modules/gather_publication_data.py
         ```
@@ -193,47 +194,48 @@ In general, TSV output files are intended for ingestion into INS, while CSV file
 ```
 INS-Data
 ├── data/
-│   ├── cleaned/
-│   │   └── key_programs_{version}.csv
-│   ├── processed/
-│   │   └── {version}/
-│   │       └── api-gathered-{gathering date}/
-│   |           ├── temp_pubmed_chunkfiles/ # Not git-controlled
-│   |           |   └── Many publicationDetail.csvs limited to 2000 rows
-│   |           ├── icitePMIDData.csv
-│   |           ├── mergedPMIDData.csv
-│   |           ├── project.tsv
-│   |           ├── projectPMIDs.csv
-│   |           └── publication.tsv
-│   ├── raw/
-│   │   ├──icite
-│   │   |   ├── {version}/ # Not git-controlled
-│   │   |   |   └── icite_metadata.zip 
-│   │   |   └── icite_files_not_stored.txt
-│   │   └── qualtrics_output_{version}_{type}.csv
-│   └── reviewed/
-│       └── {version}/
-│           ├── invalidAwardReport_reviewed.csv
-│           └── invalidNofoReport_reviewed.csv
+│   ├── 00_input/
+│   │   ├── icite/
+│   │   │   └── {version}/ # Not git-controlled
+│   │   │       └── icite_metadata.zip
+│   │   └── qualtrics/
+│   │       └── qualtrics_output_{version}_{type}.csv
+│   ├── 01_intermediate/
+│   │   └── {qualtrics version}/
+│   │       ├── {gathered version}/
+│   │       │   ├── temp_pubmed_chunkfiles/ # Not git-controlled
+|   |       |   |   └── Partial PubMed files for iterative loading
+│   │       │   ├── icitePMIDData.csv
+│   │       │   ├── mergedPMIDData.csv
+│   │       │   ├── project.csv
+│   │       │   ├── projectPMIDs.csv
+│   │       │   └── publication.csv
+│   │       ├── invalidNofoReport_reviewed.csv
+│   │       └── key_programs_{version}.csv
+│   └── 02_output/ # Work in progress
+│       ├── program.tsv
+│       ├── project.tsv
+│       └── publication.tsv
 ├── images/
 │   ├── ins-data-repo-diagram.drawio
 │   └── ins-data-repo-diagram.png
 ├── modules/
-│   ├── clean_grants_data.py
 │   ├── data_preparation.py
+│   ├── gather_grant_data.py
 │   ├── gather_publication_data.py
-│   ├── nih_reporter_api.py
 │   └── summary_statistics.py
 ├── notebooks/
 │   └── Non-production Jupyter notebooks used during development
 ├── reports/
-│   └── {version}/
-│       ├── api-gathered-{gathering date}/
-│       │   ├── grantStatsByProgram.csv
+│   └── {qualtrics version}/
+│       ├── {gathered version}/
+│       │   ├── grantsStatsByProgram.csv
 │       │   ├── removedPublicationsReport.csv
 │       │   └── sharedProjectsByProgramPair.csv
-│       ├── invalidAwardReport_{type}.csv
-│       └── invalidNofoReport_{type}.csv
+│       ├── invalidAwardReport_raw.csv
+│       ├── invalidNofoReport_corrected.csv
+│       ├── invalidNofoReport_manual_fix.csv
+│       └── invalidNofoReport_raw.csv
 ├── .env # Not git-controlled
 ├── .gitignore
 ├── config.py
