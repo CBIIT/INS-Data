@@ -266,7 +266,6 @@ COLUMN_CONFIGS = {
             'project_start_date': 'project_start_date',
             'project_end_date': 'project_end_date',
             'opportunity_number': 'opportunity_number',
-            'api_source_search': 'api_source_search',
         },
         'list_like_cols': ['keywords', 'principal_investigators'],
     },
@@ -286,7 +285,6 @@ COLUMN_CONFIGS = {
     #         'project_start_date': 'project_start_date',
     #         'project_end_date': 'project_end_date',
     #         'opportunity_number': 'opportunity_number',
-    #         'api_source_search': 'api_source_search'
     #     },
     #     'list_like_cols': [],
     # },
