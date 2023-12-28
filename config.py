@@ -56,6 +56,9 @@ OUTPUT_GATHERED_DIR = OUTPUT_QUALTRICS_DIR +"/"+ TIMESTAMP
 REPORTS_DIR = "reports/" + QUALTRICS_VERSION
 REPORTS_GATHERED_DIR = REPORTS_DIR +"/"+ TIMESTAMP
 
+# Programs output
+PROGRAMS_OUTPUT_PATH = OUTPUT_GATHERED_DIR +"/"+ "program.tsv"
+
 # Projects output
 PROJECTS_INTERMED_PATH = GATHERED_DIR +"/"+ "project.csv"
 PROJECTS_OUTPUT_PATH = OUTPUT_GATHERED_DIR +"/"+ "project.tsv"
@@ -178,14 +181,14 @@ STAT_SHARED_PROJECT_PROGRAM_PAIRS_FILENAME = REPORTS_GATHERED_DIR +"/"+ "sharedP
 # PUBLICATIONS CONFIGURATION
 
 # ICite bulk download csv.zip location
-ICITE_FILENAME = "data/raw/icite/" + ICITE_VERSION +"/"+ "icite_metadata.zip"
+ICITE_FILENAME = INPUT_DIR +"icite/"+ ICITE_VERSION +"/"+ "icite_metadata.zip"
 
 # Versioned directories for intermediates and outputs
 TEMP_PUBLICATION_DIR = GATHERED_DIR +"/"+ "temp_pubmed_chunkfiles"
 REMOVED_PUBLICATIONS = REPORTS_GATHERED_DIR +"/"+ "removedPublicationsReport.csv"
-PROJECT_PMIDS = REPORTS_GATHERED_DIR +"/"+ "projectPMIDs.csv"
-ICITE_PMID_DATA = REPORTS_GATHERED_DIR +"/"+ "icitePMIDData.csv"
-MERGED_PMID_DATA = REPORTS_GATHERED_DIR +"/"+ "mergedPMIDData.csv"
+PROJECT_PMIDS = GATHERED_DIR +"/"+ "projectPMIDs.csv"
+ICITE_PMID_DATA = GATHERED_DIR +"/"+ "icitePMIDData.csv"
+MERGED_PMID_DATA = GATHERED_DIR +"/"+ "mergedPMIDData.csv"
 
 # Publications output filepath
 PUBLICATIONS_INTERMED_PATH = GATHERED_DIR +"/"+ "publication.csv"
@@ -204,6 +207,10 @@ ICITE_COLUMNS_TO_PULL = ['pmid','title','authors','year',
 
 # ---
 # DATA PACKAGING CONFIGURATION
+
+# Report subfolder for data packaing reports
+PACKAGING_REPORTS = REPORTS_GATHERED_DIR +'/'+ 'packagingReports/'
+REMOVED_DUPLICATES = PACKAGING_REPORTS + 'duplicate_' # Add datatype.csv in code
 
 # Dictionary of columns and types to use in final data packaging
 COLUMN_CONFIGS = {

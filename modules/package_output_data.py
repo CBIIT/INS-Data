@@ -115,10 +115,13 @@ def replace_defined_characters(text):
 
     # Define translation table to replace characters
     translation_table = str.maketrans({
-        '\u2019': "'",  # Apostrophe with diacritic
+        '\u2019': "'",  # Apostrophe with diacritic - replace with apostrophe
+        '\u2028': ' ',  # Line Separator (LS) - replace with space
+        '\u2029': ' ',   # Paragraph Separator (PS) - replace with space
         # Add mappings here in the future as needed
-    })
-    #
+        })
+
+    # Use translate only for strings
     replaced_text = (text.translate(translation_table) 
                      if isinstance(text, str) else text)
     
@@ -169,11 +172,85 @@ def format_list_like_columns(df, column_configs):
 
 
 
-def validate_unique_node_id(df, column_configs):
-    """Validate that each row with a matching node_id has identical values for 
-    all other columns except for link_id"""
-    # Placeholder for code
-    return df # If all good, throw error if not
+def validate_and_clean_unique_nodes(df, column_configs, datatype):
+    """
+    Validate that all node_ids are either unique values or valid duplicates.
+
+    Args:
+        df (pd.DataFrame): Input DataFrame
+        column_configs (dict): Configuration settings for columns, including 
+            node_id and link_id
+        datatype (str): Type of data in the DataFrame. Indicates which info
+            will be accessed from column_configs
+
+    Returns:
+        pd.DataFrame: A new DataFrame with invalid duplicate rows removed.
+
+    Raises:
+        ValueError: If the specified node_id column is not found in the DataFrame.
+
+    Notes:
+        This function checks for valid uniqueness or duplicates in node_ids 
+            based on the provided configuration.
+
+        - For many-to-many nodes, it ensures that any duplicates only differ 
+            in the link_id column.
+        - True duplicates (identical values in all columns) are kept in the 
+            first row for production.
+    """
+
+    # Get node_id and link_id from column configurations
+    node_id = column_configs[datatype].get('node_id')
+    link_id = column_configs[datatype].get('link_id', None)
+
+    # Check if the specified node_id column exists
+    if node_id not in df.columns:
+        raise ValueError(f"Node ID column '{node_id}' not found in DataFrame.")
+
+    # Get only rows with duplicated node_ids 
+    dup_nodes = df[df.duplicated(subset=node_id, keep=False)]
+    
+    # Get true duplicates where values in all columns are identical
+    true_duplicates = dup_nodes[dup_nodes.duplicated(keep=False)].assign(
+        error_reason=f"True duplicate in all columns. "
+                     f"Kept first row for production.")
+    
+    # Empty dataframe to store mismatch rows
+    mismatch_df = pd.DataFrame()
+
+    # Get list of value columns to check for mismatch
+    value_cols = list(set(df.columns) - set([node_id, link_id]))
+
+    # Group rows by node_id for shared value checking
+    for node, node_df in dup_nodes.groupby(node_id):
+        
+        # Check for mismatched values in other columns within the same node
+        value_mismatches = node_df[~node_df.duplicated(
+            subset=value_cols, keep=False)
+            ].assign(error_reason=f"Mismatched values in columns with same "
+                                  f"node_id. Both dropped for production.")
+
+        # Add to running list of rows with mismatched values
+        mismatch_df = pd.concat([mismatch_df, value_mismatches])
+
+    # Combine list of annotated invalid duplicates for export to csv
+    invalid_duplicates_df = pd.concat([true_duplicates, mismatch_df])
+
+    # Save any invalid duplicate rows to a report csv for troubleshooting
+    if len(invalid_duplicates_df) > 0:
+        invalid_duplicates_path = f"{config.REMOVED_DUPLICATES}{datatype}.csv"
+        os.makedirs(os.path.dirname(invalid_duplicates_path), exist_ok=True)
+        invalid_duplicates_df.to_csv(invalid_duplicates_path, index=False)
+        print(f"Invalid duplicate rows cleaned from output and recorded in "
+              f"{invalid_duplicates_path}.")
+
+    # Return a cleaned df with only unique node_ids or valid duplicates
+    # Remove all mismatched node_ids and any true duplicates after the first
+    valid_df = df[~df[node_id].isin(mismatch_df[node_id]) 
+                  & ~df.duplicated(subset=node_id, keep='first')
+                  ].reset_index(drop=True)
+
+    return valid_df
 
 
 
@@ -185,11 +262,11 @@ def standardize_data(df, column_configs, datatype):
     df = reorder_columns(df, column_configs, datatype)
     df = process_special_characters(df)
     df = format_list_like_columns(df, column_configs)
-    df = validate_unique_node_id(df, column_configs)
+    df = validate_and_clean_unique_nodes(df, column_configs, datatype)
 
     # Validate that data meets loading standards
     validate_first_columns(df, column_configs, datatype)
-
+    
     return df
 
 
@@ -198,6 +275,8 @@ def standardize_data(df, column_configs, datatype):
 #     """Placeholder
 #     """
 #     # Placeholder for code
+#     print(f"Finalizing TSV for project data...")
+
 #     #df_programs_output = standardize_data(df_programs, column_configs, datatype='program')
 
 #     # During dev:
@@ -211,6 +290,8 @@ def standardize_data(df, column_configs, datatype):
 #     os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
 #     df_programs_output.to_csv(output_filepath, sep='\t', index=False, encoding='utf-8')
 
+#    print(f"Done! Program data exported to TSV.")
+
 #     return df_programs_output
 
 
@@ -218,6 +299,8 @@ def standardize_data(df, column_configs, datatype):
 def package_grants(df_grants, column_configs):
     """Placeholder
     """
+    print(f"---\nFinalizing TSV for grant data...")
+
     # Placeholder for code
     df_grants_output = standardize_data(df_grants, column_configs, datatype='grant')
 
@@ -226,6 +309,8 @@ def package_grants(df_grants, column_configs):
     os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
     df_grants_output.to_csv(output_filepath, sep='\t', index=False, encoding='utf-8')
 
+    print(f"Done! Final grant data saved as {output_filepath}.")
+
     return df_grants_output
 
 
@@ -233,8 +318,12 @@ def package_grants(df_grants, column_configs):
 # def package_projects(df_projects, column_configs):
 #     """Placeholder
 #     """
+#     print(f"Finalizing TSV for project data...")
+
 #     # Placeholder for code
 #     df_projects_output = standardize_data(df_projects, column_configs, datatype='project')
+
+#    print(f"Done! Project data exported to TSV.")
 
 #     return df_projects_output # Also export as TSV
 
@@ -243,8 +332,11 @@ def package_grants(df_grants, column_configs):
 # def package_publications(df_publications, column_configs):
 #     """Placeholder
 #      """
-    
+#     print(f"Finalizing TSV for publication data...")
+
 #     df_publications_output = standardize_data(df_publications, column_configs, datatype='publication')
+
+#    print(f"Done! Publication data exported to TSV.")
 
 #     return df_publications_output # Also export as TSV
 
@@ -261,7 +353,7 @@ def package_output_data():
     df_grants = pd.read_csv(config.PROJECTS_INTERMED_PATH)
     # df_projects = pd.read_csv(path_to_CSV)
     # df_publications = pd.read_csv(config.PUBLICATIONS_INTERMED_PATH)
-    print(f"Loaded files from {config.OUTPUT_DIR}.")
+    print(f"Loaded files from {config.GATHERED_DIR}.")
 
     # Special handling
     # df_publications = remove_publications_before_projects(df_publications, 
