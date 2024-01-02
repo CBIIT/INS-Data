@@ -393,6 +393,21 @@ def validate_and_rename_columns(df: pd.DataFrame, col_dict: dict) -> pd.DataFram
 
 
 
+def force_replace_comma_separation(df: pd.DataFrame, replace_cols: list) -> pd.DataFrame:
+    """Replace any commas within specified columns with semicolons. Risky."""
+
+    for col in replace_cols:
+        # Check if the column exists in the DataFrame
+        if col in df.columns:
+            # Replace commas with semicolons in the specified column
+            df[col] = df[col].str.replace(',', ';')
+        else:
+            print(f"List-like column '{col}' not found in the DataFrame.")
+
+    return df
+
+
+
 def check_for_duplicate_names(df: pd.DataFrame) -> bool:
     """Check for duplicate values in program_name or program_acronym."""
 
@@ -499,6 +514,9 @@ def load_and_clean_programs(csv_filepath: str, col_dict: dict) -> (bool, pd.Data
 
     # Remove spaces and replace commas in NOFO and Award columns
     df = clean_nofo_and_award_cols(df)
+
+    # Brute force replacement of commas with semicolons in list-like cols
+    df = force_replace_comma_separation(df, ['focus_area', 'doc', 'cancer_type'])
 
     # Remove leading/trailing whitespace from program names
     df['program_name'] = df['program_name'].str.strip()
