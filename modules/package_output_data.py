@@ -376,12 +376,33 @@ def package_output_data():
     # Single data model dict defined in config
     column_configs = config.COLUMN_CONFIGS 
 
-    # Load all files as dfs
-    # df_programs = pd.read_csv(config.CLEANED_KEY_PROGRAMS_CSV)
-    df_grants = pd.read_csv(config.PROJECTS_INTERMED_PATH)
-    # df_projects = pd.read_csv(path_to_CSV)
-    df_publications = pd.read_csv(config.PUBLICATIONS_INTERMED_PATH)
-    print(f"Loaded files from {config.GATHERED_DIR}.")
+    # Load programs data
+    if os.path.exists(config.CLEANED_KEY_PROGRAMS_CSV):
+        programs_exist = True
+        df_programs = pd.read_csv(config.CLEANED_KEY_PROGRAMS_CSV)
+        print(f"Loaded Program file from {config.CLEANED_KEY_PROGRAMS_CSV}")
+    else: programs_exist = False
+    
+    # Load grants data
+    if os.path.exists(config.PROJECTS_INTERMED_PATH):
+        grants_exist = True
+        df_grants = pd.read_csv(config.PROJECTS_INTERMED_PATH)
+        print(f"Loaded Grants file from {config.PROJECTS_INTERMED_PATH}")
+    else: grants_exist = False
+
+    # Load projects data
+    if os.path.exists("path_to_CSV_placeholder"):
+        projects_exist = True
+        df_projects = pd.read_csv("path_to_CSV_placeholder")
+        print(f"Loaded Projects file from {'path_to_CSV_placeholder'}")
+    else: projects_exist = False
+
+    # Load publications data
+    if os.path.exists(config.PUBLICATIONS_INTERMED_PATH):
+        publications_exist = True
+        df_publications = pd.read_csv(config.PUBLICATIONS_INTERMED_PATH)
+        print(f"Loaded Publications file from {config.PUBLICATIONS_INTERMED_PATH}")
+    else: publications_exist = False
 
     # Special handling [PLACEHOLDER]
     # df_publications = remove_publications_before_projects(df_publications, 
@@ -389,17 +410,17 @@ def package_output_data():
 
     # Final packaging
     # df_programs_output = package_programs(df_programs, column_configs)
-    df_grants_output = package_grants(df_grants, column_configs)
+    df_grants_output = package_grants(df_grants, column_configs) if grants_exist else None
     # df_projects_output = package_projects(df_projects, column_configs)
-    df_publications_output = package_publications(df_publications, column_configs)
+    df_publications_output = package_publications(df_publications, column_configs) if publications_exist else None
 
-    # Return a dictionary of DataFrames
-    return {
-        # 'programs_output': df_programs_output,
-        'grants_output': df_grants_output,
-        # 'projects_output': df_projects_output,
-        'publications_output': df_publications_output
-    }
+    # # Return a dictionary of DataFrames
+    # return {
+    #     #programs_output': df_programs_output,
+    #     'grants_output': df_grants_output,
+    #     'projects_output': df_projects_output,
+    #     'publications_output': df_publications_output
+    # }
 
 
 
@@ -411,8 +432,8 @@ if __name__ == "__main__":
     # Placeholder for code
     outputs = package_output_data()
 
-    # Access DataFrames using keys
+    # # Access DataFrames using keys
     # df_programs_output = outputs['programs_output']
-    df_grants_output = outputs['grants_output']
+    # df_grants_output = outputs['grants_output']
     # df_projects_output = outputs['projects_output']
-    df_publications_output = outputs['publications_output']
+    # df_publications_output = outputs['publications_output']
