@@ -214,34 +214,33 @@ REMOVED_DUPLICATES = PACKAGING_REPORTS + 'duplicate_' # Add datatype.csv in code
 
 # Dictionary of columns and types to use in final data packaging
 COLUMN_CONFIGS = {
-    # # Data type
-    # # Programs pending INS-822
-    # 'program': {
-    #     # Identifying node_id column name
-    #     'node_id': 'program_id',
-    #     # Idenfiying column name for relationship link
-    #     'link_id': None,
-    #     # Dict of old:new column names. Includes only columns to include in output
-    #     'keep_and_rename': {
-    #         'type': 'type',
-    #         'program_id': 'program_id',
-    #         'program_name': 'program_name',
-    #         'program_acronym': 'program_acronym',
-    #         'focus_area': 'focus_area',
-    #         'doc': 'doc',
-    #         'contact_pi': 'contact_pi',
-    #         'contact_pi_email': 'contact_pi_email',
-    #         'contact_nih': 'contact_nih',
-    #         'contact_nih_email': 'contact_nih_email',
-    #         'nofo': 'nofo',
-    #         'award': 'award',
-    #         'program_link': 'program_link',
-    #         'data_link': 'data_link',
-    #         'cancer_type': 'cancer_type'
-    #     },
-    #     # List of any list-like columns that need semicolon separators
-    #     'list_like_cols': ['focus_area', 'doc', 'cancer_type'],
-    # },
+    # Data type
+    'program': {
+        # Identifying node_id column name
+        'node_id': 'program_id',
+        # Idenfiying column name for relationship link
+        'link_id': None,
+        # Dict of old:new column names. Includes only columns to include in output
+        'keep_and_rename': {
+            'type': 'type',
+            'program_id': 'program_id',
+            'program_name': 'program_name',
+            'program_acronym': 'program_acronym',
+            'focus_area': 'focus_area',
+            'doc': 'doc',
+            'contact_pi': 'contact_pi',
+            'contact_pi_email': 'contact_pi_email',
+            'contact_nih': 'contact_nih',
+            'contact_nih_email': 'contact_nih_email',
+            'nofo': 'nofo',
+            'award': 'award',
+            'program_link': 'program_link',
+            'data_link': 'data_link',
+            'cancer_type': 'cancer_type'
+        },
+        # List of any list-like columns that need semicolon separators
+        'list_like_cols': ['focus_area', 'doc', 'cancer_type'],
+    },
     'grant': {
         'node_id': 'grant_id',
         'link_id': 'program.program_id', #'project.project_id', PENDING INS-821
