@@ -264,6 +264,7 @@ def report_invalid_nofos(invalid_nofos_df:pd.DataFrame,
             print(invalid_nofos_df)
 
         # Export invalid NOFOs to csv
+        os.makedirs(os.path.dirname(report_path), exist_ok=True)
         invalid_nofos_df.to_csv(report_path, index=False)
         print(f"\tInvalid NOFOs saved for review and correction in {report_path}.")
     else: 
@@ -289,6 +290,7 @@ def report_invalid_awards(invalid_awards_df: pd.DataFrame,
             print(invalid_awards_df)
 
         # Export invalid awards to csv
+        os.makedirs(os.path.dirname(report_path), exist_ok=True)
         invalid_awards_df.to_csv(report_path, index=False)
         print(f"\tInvalid awards saved for review and correction in {report_path}.")
     else: 
@@ -497,8 +499,10 @@ if __name__ == "__main__":
 
     if continue_bool == True:
         # Export cleaned Key Programs file
-        key_programs_df.to_csv(config.CLEANED_KEY_PROGRAMS_CSV, index=False)
-        print(f"Success! Saved {config.CLEANED_KEY_PROGRAMS_CSV}.")
+        program_filepath = config.CLEANED_KEY_PROGRAMS_CSV
+        os.makedirs(os.path.dirname(program_filepath), exist_ok=True)
+        key_programs_df.to_csv(program_filepath, index=False)
+        print(f"Success! Saved {program_filepath}.")
 
     else:
         sys.exit("Process ended by user. Cleaned Key Programs csv not saved. "
