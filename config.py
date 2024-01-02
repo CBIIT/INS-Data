@@ -84,6 +84,9 @@ QUALTRICS_COLS = {
     "Login ID": "login_id"
 }
 
+# Dictionary of specific old:new values to replace within data
+PROGRAM_VALUE_REPLACEMENTS = {"This program focuses on cancer broadly - not limited to a primary cancer type": "Focus on Cancer Broadly"}
+
 # Invalid NOFO reports
 INVALID_NOFOS_REPORT = REPORTS_DIR +"/"+ "invalidNofoReport_" + QUALTRICS_TYPE + ".csv"
 CORRECTED_INVALID_NOFOS_REPORT = REPORTS_DIR +"/"+ "invalidNofoReport_corrected.csv"
