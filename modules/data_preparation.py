@@ -72,12 +72,19 @@ def clean_nofo_and_award_cols(df:pd.DataFrame) -> pd.DataFrame:
                          f"the DataFrame.")
 
     # Clean 'nofo' column. Remove spaces and replace any commas with semicolon
-    df['nofo'] = df['nofo'].apply(lambda x: str(x).replace(" ", "")
-                                  .replace(",", ";") if pd.notna(x) else x)
+    df['nofo'] = df['nofo'].apply(lambda x: str(x)
+                                  .replace(" ", "")
+                                  .replace("\u00A0", "") # Non-breaking space
+                                  .replace(",", ";")
+
+                                  if pd.notna(x) else x)
 
     # Clean 'award' column. Remove spaces and replace any commas with semicolon
-    df['award'] = df['award'].apply(lambda x: str(x).replace(" ", "")
-                                    .replace(",", ";") if pd.notna(x) else x)
+    df['award'] = df['award'].apply(lambda x: str(x)
+                                    .replace(" ", "")
+                                    .replace("\u00A0", "") # Non-breaking space
+                                    .replace(",", ";")
+                                    if pd.notna(x) else x)
 
     return df
 
@@ -330,8 +337,6 @@ def prompt_to_continue(invalid_df: pd.DataFrame) -> bool:
     
 
 
-        
-
 def apply_value_fix(key_programs_df: pd.DataFrame, 
                     reviewed_df: pd.DataFrame, 
                     column_name: str) -> pd.DataFrame:
@@ -365,6 +370,54 @@ def apply_value_fix(key_programs_df: pd.DataFrame,
 
 
 
+def validate_and_rename_columns(df: pd.DataFrame, col_dict: dict) -> pd.DataFrame:
+    """Validate and rename columns based on col_dict."""
+
+    # Validate that columns received match expected
+    actual_cols = df.columns.tolist()
+    expected_cols = list(col_dict.keys())
+    if actual_cols != expected_cols:
+        raise ValueError(f"Column names do not match expected.\n"
+                         f"Expected columns: {expected_cols}\n"
+                         f"Actual columns: {actual_cols}")
+    
+    # Rename columns based on dictionary
+    df.rename(columns=col_dict, inplace=True)
+
+    # Check that the last column is login_id and then drop it
+    if df.columns[-1] != "login_id":
+        raise ValueError(f"Unexpected final column: {df.columns[-1]}")
+    df = df.drop(columns=["login_id"])
+
+    return df
+
+
+
+def check_for_duplicate_names(df: pd.DataFrame) -> bool:
+    """Check for duplicate values in program_name or program_acronym."""
+
+    duplicate_program_names = df[df.duplicated(subset=['program_name'], keep=False)]
+    duplicate_program_acronyms = df[df.duplicated(subset=['program_acronym'], keep=False)]
+
+    if not duplicate_program_names.empty or not duplicate_program_acronyms.empty:
+        print("---\nWarning: Duplicate values found in program_name or program_acronym.")
+        
+        if not duplicate_program_names.empty:
+            print("\nProgram Names with Duplicates:")
+            print(duplicate_program_names[['program_name', 'program_acronym']])
+            
+        if not duplicate_program_acronyms.empty:
+            print("\nProgram Acronyms with Duplicates:")
+            print(duplicate_program_acronyms[['program_name', 'program_acronym']])
+        
+        print(f"\nConsider manual fixes to the Qualtrics CSV.")
+        continue_bool = input("\nContinue with duplicates? (Y/N): ").lower() == 'y'
+        return continue_bool
+
+    return True
+
+
+
 def load_and_clean_programs(csv_filepath: str, col_dict: dict) -> (bool, pd.DataFrame):
     """Load and clean Key Programs data from a Qualtrics CSV.
 
@@ -375,30 +428,15 @@ def load_and_clean_programs(csv_filepath: str, col_dict: dict) -> (bool, pd.Data
     :return pd.DataFrame df: The cleaned Key Programs data as a pandas DataFrame.
     """
 
-    # Get string of first key column to look for within file
-    # e.g. "Name of Key Program"
+    # Get string of first key column to look for within file and get row
     key_value = list(col_dict.keys())[0]
-
-    # Get row,col of given header text
-    # This will be used to determine how many irrelevant rows and columns to 
-    # skip/drop when processing the CSV.
     header_row, header_col = find_header_location(csv_filepath, key_value)
 
     # Load file, skip leading rows, and then drop leading columns
-    df = (pd.read_csv(csv_filepath, skiprows=header_row)
-      .iloc[:, header_col:])
-    
-    # Use dictionary to check for unexpected or missing columns in data
-    actual_cols = df.columns.tolist()
-    expected_cols = list(col_dict.keys())
-    if actual_cols != expected_cols:
-        raise ValueError(
-            f"Column names do not match expected.\n"
-            f"Expected columns: \n {expected_cols} \n"
-            f"Actual columns: \n {actual_cols}")
+    df = pd.read_csv(csv_filepath, skiprows=header_row).iloc[:, header_col:]
 
-    # Rename columns with defined dictionary
-    df = df.rename(columns=col_dict)
+    # Check and rename column names
+    df = validate_and_rename_columns(df, col_dict)
 
     # Drop second header row with survey question IDs
     df = df.drop(axis=0, index=0).reset_index(drop=True)
@@ -409,10 +447,10 @@ def load_and_clean_programs(csv_filepath: str, col_dict: dict) -> (bool, pd.Data
     # Remove leading/trailing whitespace from program names
     df['program_name'] = df['program_name'].str.strip()
 
-    # Check that the last column is login_id and then drop it
-    if df.columns[-1] != "login_id":
-        raise ValueError(f"Unexpected final column: {df.columns[-1]}")
-    df = df.drop(columns=["login_id"])
+    # Check for duplicate program names or acronyms
+    continue_bool_names = check_for_duplicate_names(df)
+    if not continue_bool_names:
+        return False, df
 
     # Detect potentially invalid NOFO values
     print("---\nChecking for NOFO validity...")
