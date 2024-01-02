@@ -418,6 +418,62 @@ def check_for_duplicate_names(df: pd.DataFrame) -> bool:
 
 
 
+def create_program_id(value):
+    """Create a valid program_id based on the specified column value.
+
+    Args:
+        value (str): The value from which to derive the program_id.
+
+    Returns:
+        str: The generated program_id.
+    """
+    # Replace hyphens and other non-alphanumeric characters with underscores
+    cleaned_value = ''.join('_' if not char.isalnum() 
+                            else char for char in str(value))
+
+    # Replace consecutive non-alphanumeric characters with a single underscore
+    cleaned_value = '_'.join(part for part in cleaned_value.split('_') if part)
+
+    # Convert to lowercase
+    return cleaned_value.lower()
+
+
+
+def generate_program_id_column(df: pd.DataFrame) -> pd.DataFrame:
+    """Generate a new program_id column based on the program_acronym or name.
+
+    Args:
+        df (pd.DataFrame): Input DataFrame with program_acronym and program_name
+            columns.
+
+    Returns:
+        pd.DataFrame: DataFrame with the new 'program_id' column added.
+    """
+    # Iterate through each row in the DataFrame
+    for index, row in df.iterrows():
+        program_acronym = str(row['program_acronym']).strip()
+
+        # Check if program_acronym exists and is not a blank space
+        if program_acronym and program_acronym.lower() != 'nan':
+            # Use program_acronym to generate program_id
+            df.at[index, 'program_id'] = create_program_id(program_acronym)
+        else:
+            # Use program_name to generate program_id
+            df.at[index, 'program_id'] = create_program_id(row['program_name'])
+
+            # Print warning for specific program_name values without program_acronym
+            if pd.isna(program_acronym) or program_acronym == '':
+                print(f"---\nNote: No program_acronym provided for "
+                      f"Program: {row['program_name']}")
+
+    # Move the program_id column to the first position
+    cols = ['program_id'] + [col for col in df.columns if col != 'program_id']
+    df = df[cols]
+
+    return df
+
+
+
 def load_and_clean_programs(csv_filepath: str, col_dict: dict) -> (bool, pd.DataFrame):
     """Load and clean Key Programs data from a Qualtrics CSV.
 
@@ -451,6 +507,9 @@ def load_and_clean_programs(csv_filepath: str, col_dict: dict) -> (bool, pd.Data
     continue_bool_names = check_for_duplicate_names(df)
     if not continue_bool_names:
         return False, df
+
+    # Add a program_id column to the first position
+    df = generate_program_id_column(df)
 
     # Detect potentially invalid NOFO values
     print("---\nChecking for NOFO validity...")
