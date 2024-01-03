@@ -33,9 +33,8 @@ OUTPUT_DIR = "data/02_output/"
 
 
 
-# FILEPATH (CONTINUED)
+# Qualtrics Programs input path
 QUALTRICS_CSV_PATH = INPUT_DIR + "qualtrics/qualtrics_output_" + QUALTRICS_VERSION +"_"+ QUALTRICS_TYPE + ".csv"
-CLEANED_KEY_PROGRAMS_CSV = INTERMED_DIR + QUALTRICS_VERSION +"/"+ "key_programs_" + QUALTRICS_VERSION + ".csv"
 
 # Add timestamp to note when grants were gathered from API
 # The same Qualtrics input file can have different outputs depending upon API gathering date
@@ -57,6 +56,7 @@ REPORTS_DIR = "reports/" + QUALTRICS_VERSION
 REPORTS_GATHERED_DIR = REPORTS_DIR +"/"+ TIMESTAMP
 
 # Programs output
+PROGRAMS_INTERMED_PATH = INTERMED_DIR + QUALTRICS_VERSION +"/"+ "program.csv"
 PROGRAMS_OUTPUT_PATH = OUTPUT_GATHERED_DIR +"/"+ "program.tsv"
 
 # Projects output

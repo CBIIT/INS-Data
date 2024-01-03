@@ -1,34 +1,32 @@
-# data_preparation.py
-# 2023-07-27 ZD 
-#
-# This script defines primary function `load_and_clean_programs` that will 
-# input a versioned `qualtrics_output_{YYYY-MM-DD}.csv` file, perform validation, 
-# cleaning, and processing steps, and then output a `key_programs` DataFrame.
-#
-# It also defines helper function `find_header_location`, which is called 
-# to identify where the desired data begins within the CSV. i.e. it identifies
-# the location of the desired "top-left, A1 cell" and extracts the data of 
-# interest from that anchor location.
-#
-# The output `key_programs` df contains the following columns: 
-# 'program_name'
-# 'program_acronym'
-# 'focus_area'
-# 'doc'
-# 'contact_pi'
-# 'contact_pi_email'
-# 'contact_nih'
-# 'contact_nih_email'
-# 'nofo'
-# 'award'
-# 'program_link'
-# 'data_link'
-# 'cancer_type
+"""
+gather_program_data.py
+2023-07-27 ZD 
 
-import pandas as pd
-import re
+This script defines primary function `load_and_clean_programs` that will 
+input a versioned qualtrics CSV containing curated program data. It will read 
+configured values, perform validation, cleaning, and processing steps, and 
+then output a DataFrame and matching CSV file containing programs.
+
+The output dataframe contains the following columns: 
+    program_id
+    program_name
+    program_acronym
+    focus_area
+    doc
+    contact_pi
+    contact_pi_email
+    contact_nih
+    contact_nih_email
+    nofo,award
+    program_link
+    data_link
+    cancer_type
+"""
+
 import os
+import re
 import sys
+import pandas as pd
 # Append the project's root directory to the Python path
 # This allows for importing config when running as part of main.py or alone
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -39,15 +37,15 @@ import config
 def find_header_location(csv_filepath:str, key_value:str) -> 'tuple[int,int]':
     """Detect the row and column where the given key_value is found.
 
-    :param csv_filepath: Path to the CSV file to load. Defined in config.py.
-    :type csv_filepath: str
+        Args:
+            csv_filepath (str): Path to the CSV file to load. Defined in 
+                config.py.
+            key_value (str): String value to search for within CSV.
 
-    :param key_value: String value to search for within CSV.
-    :type key_value: str
-
-    :return: The row, column location of the key value within the CSV.
-    :rtype: tuple[int,int]
-    """
+        Returns:
+            tuple[int, int]: The row, column location of the key value within 
+                the CSV.
+        """
 
     with open(csv_filepath, 'r') as file:
         for row, line in enumerate(file):
@@ -91,11 +89,17 @@ def clean_nofo_and_award_cols(df:pd.DataFrame) -> pd.DataFrame:
 
 
 def clean_and_split_nofo_award_strings(value_list):
-    """Parse string list into actual [list], separating by semicolon"""
+    """Parse string list into an actual [list], separating by a semicolon."""
 
+    # Check if value_list is empty or contains 'nan'
     if pd.isna(value_list) or value_list.lower() == 'nan':
         return []
-    return [nf.strip() for nf in str(value_list).split(';') if nf.strip()]
+
+    # Split string by semicolon, strip whitespaces, filter out empty strings
+    cleaned_values = [nf.strip() for nf in str(value_list)
+                      .split(';') if nf.strip()]
+
+    return cleaned_values
 
 
 
@@ -117,8 +121,11 @@ def is_valid_nofo(nofo:str) -> bool:
     Where "X" is any letter, "#" is any number, "-" is a hyphen, and any explicit
     letters ("PAR", "OTA", "RFA") must be those exact letters.
 
-    :param str nofo: NOFO string to be validated.
-    :return bool: True if the NOFO is valid, False otherwise.
+    Args:
+        nofo (str): NOFO string to be validated.
+
+    Returns:
+        bool: True if the NOFO is valid, False otherwise.
     """
 
     # Define the valid NOFO regex pattern
@@ -152,9 +159,13 @@ def is_valid_award(award: str) -> bool:
     Where X is any letter, # is any number, and any other character must be an 
     explicit match ("-", "A", "S")
 
-    :param str award: Award string to be validated.
-    :return bool: True if the award is valid, False otherwise.
+    Args:
+        award (str): Award string to be validated.
+
+    Returns:
+        bool: True if the award is valid, False otherwise.
     """
+
     # Define the valid award regex patterns
     pattern_grant_type1 = re.compile(r'^[A-Z]\d{2}[A-Z]{2}\d{6}-\d{2}[A-Z]\d[S]$')
     pattern_grant_type2 = re.compile(r'^[A-Z]\d{2}[A-Z]{2}\d{6}-\d{2}[A-Z]$')
@@ -174,13 +185,17 @@ def is_valid_award(award: str) -> bool:
 
 
 def validate_nofos(program_name:str, nofo_list:list) -> pd.DataFrame:
-    """Validate that provided NOFOs fit the expected regex format. Output any 
-    potential errors for manual review and resolution.
+    """Validate that provided NOFOs fit the expected regex format. Output any
+    potential issues for manual review and correction.
 
-    :param str program_name: Name of associated program
-    :param list nofo_list: Parsed list of NOFO strings
-    :return pd.DataFrame: Pandas DataFrame of invalid NOFOs and programs, or empty
+    Args:
+        program_name (str): Name of the associated program.
+        nofo_list (list): Parsed list of NOFO strings.
+
+    Returns:
+        pd.DataFrame: DataFrame of invalid NOFOs and programs, or empty.
     """
+    
     # Create list of invalid NOFO strings
     invalid_nofos = [nf for nf in nofo_list if not is_valid_nofo(nf) 
                                                 and nf.lower() != 'nan']
@@ -197,12 +212,15 @@ def validate_nofos(program_name:str, nofo_list:list) -> pd.DataFrame:
 
 
 def validate_awards(program_name: str, award_list: list) -> pd.DataFrame:
-    """Validate that provided awards fit the expected regex format. Output any 
-    potential errors for manual review and resolution.
+    """Validate that provided awards fit the expected regex format. Output any
+    potential issues for manual review and correction.
 
-    :param str program_name: Name of the associated program
-    :param list award_list: Parsed list of award strings
-    :return pd.DataFrame: Pandas DataFrame of invalid awards and programs, or empty
+    Args:
+        program_name (str): Name of the associated program.
+        award_list (list): Parsed list of award strings.
+
+    Returns:
+        pd.DataFrame: DataFrame of invalid awards and programs, or empty.
     """
     # Create a list of invalid award strings
     invalid_awards = [award for award in award_list if not is_valid_award(award)
@@ -222,9 +240,14 @@ def validate_awards(program_name: str, award_list: list) -> pd.DataFrame:
 def detect_invalid_nofos(df:pd.DataFrame) -> pd.DataFrame:
     """Detect rows with potentially invalid NOFOs for manual review.
 
-    :param pd.DataFrame df: Input DataFrame containing 'program_name' 
-                            and 'nofo' columns.
+    Args:
+        df (pd.DataFrame): Input DataFrame containing 'program_name' and 
+            'nofo' columns.
+
+    Returns:
+        pd.DataFrame: DataFrame of potentially invalid NOFOs and programs.
     """
+
     # Create a new column of parsed nofos as list
     df['parsed_nofos'] = df['nofo'].apply(clean_and_split_nofo_award_strings)
 
@@ -240,9 +263,14 @@ def detect_invalid_nofos(df:pd.DataFrame) -> pd.DataFrame:
 def detect_invalid_awards(df: pd.DataFrame) -> pd.DataFrame:
     """Detect rows with potentially invalid awards for manual review.
 
-    :param pd.DataFrame df: Input DataFrame containing 'program_name' 
-                            and 'award' columns.
+    Args:
+        df (pd.DataFrame): Input DataFrame containing 'program_name' and 
+            'award' columns.
+
+    Returns:
+        pd.DataFrame: DataFrame of potentially invalid awards and programs.
     """
+
     # Create a new column of parsed awards as a list
     df['parsed_awards'] = df['award'].apply(clean_and_split_nofo_award_strings)
 
@@ -260,9 +288,10 @@ def report_invalid_nofos(invalid_nofos_df:pd.DataFrame,
                          printout:bool = False) -> None:
     """Print and export output of invalid NOFOs found within key programs df.
 
-    :param pd.DataFrame invalid_nofos_df: DataFrame containing invalid NOFOs.
-    :param str report_path: Filepath for csv export of invalid NOFO report.
-    :param bool printout: If true, print output to terminal. Default False.
+    Args:
+        invalid_nofos_df (pd.DataFrame): DataFrame containing invalid NOFOs.
+        report_path (str): Filepath for CSV export of the invalid NOFO report.
+        printout (bool): If true, print output to the terminal. Default False.
     """
 
     if not invalid_nofos_df.empty:
@@ -273,7 +302,8 @@ def report_invalid_nofos(invalid_nofos_df:pd.DataFrame,
         # Export invalid NOFOs to csv
         os.makedirs(os.path.dirname(report_path), exist_ok=True)
         invalid_nofos_df.to_csv(report_path, index=False)
-        print(f"\tInvalid NOFOs saved for review and correction in {report_path}.")
+        print(f"\tInvalid NOFOs saved for review "
+              f"and correction in {report_path}.")
     else: 
         print("\tAll good. No potentialy invalid NOFOs detected.")
     
@@ -286,9 +316,10 @@ def report_invalid_awards(invalid_awards_df: pd.DataFrame,
                           printout: bool = False) -> None:
     """Print and export the output of invalid awards found within key programs df.
 
-    :param pd.DataFrame invalid_awards_df: DataFrame containing invalid awards.
-    :param str report_path: Filepath for csv export of invalid awards report.
-    :param bool printout: If true, print output to the terminal. Default False.
+    Args:
+        invalid_awards_df (pd.DataFrame): DataFrame containing invalid awards.
+        report_path (str): Filepath for CSV export of the invalid awards report.
+        printout (bool): If true, print output to the terminal. Default False.
     """
 
     if not invalid_awards_df.empty:
@@ -299,7 +330,8 @@ def report_invalid_awards(invalid_awards_df: pd.DataFrame,
         # Export invalid awards to csv
         os.makedirs(os.path.dirname(report_path), exist_ok=True)
         invalid_awards_df.to_csv(report_path, index=False)
-        print(f"\tInvalid awards saved for review and correction in {report_path}.")
+        print(f"\tInvalid awards saved for review "
+              f"and correction in {report_path}.")
     else: 
         print("\tAll good. No potentially invalid awards detected.")
     
@@ -309,11 +341,13 @@ def report_invalid_awards(invalid_awards_df: pd.DataFrame,
 
 def prompt_to_continue(invalid_df: pd.DataFrame) -> bool:
     """Provide the user with a prompt to continue or stop the workflow if 
-    issues are present.
+        issues are present.
 
-    :param pd.DataFrame invalid_df: DataFrame containing invalid data.
-    :param str filepath: Path to the location of saved invalid report
-    :return bool: True if the user wants to continue, False otherwise.
+    Args:
+        invalid_df (pd.DataFrame): DataFrame containing invalid data.
+
+    Returns:
+        bool: True if the user wants to continue, False otherwise.
     """
 
     # If no invalid values detected, skip the user prompt
@@ -327,11 +361,12 @@ def prompt_to_continue(invalid_df: pd.DataFrame) -> bool:
         print(f"---\n"
             f"Please review {len(invalid_df)} potential "
             f"{val_type} issues. \n"
-            f"\tConsider manual fixes to the Qualtrics CSV or creating a versioned "
-            f"`invalid{val_type}Report_reviewed.csv` "
+            f"\tConsider manual fixes to the Qualtrics CSV or creating a "
+            f"versioned invalid{val_type}Report_reviewed.csv` "
             f"in the data/reviewed/ directory")
         
-        continue_bool = input(f"\n\tContinue with known {val_type} issues? (Y/N): "
+        continue_bool = input(f"\n\tContinue with known {val_type} "
+                              f"issues? (Y/N): "
                                ).upper()
         return continue_bool == 'Y'
     
@@ -340,13 +375,15 @@ def prompt_to_continue(invalid_df: pd.DataFrame) -> bool:
 def apply_value_fix(key_programs_df: pd.DataFrame, 
                     reviewed_df: pd.DataFrame, 
                     column_name: str) -> pd.DataFrame:
-    """
-    Apply fixes from the reviewed file to the key programs DataFrame.
+    """Apply fixes from the reviewed file to the key programs DataFrame.
 
-    :param pd.DataFrame key_programs_df: The original key programs DataFrame.
-    :param pd.DataFrame reviewed_df: The DataFrame containing fixes.
-    :param str column_name: The name of the column to apply fixes to.
-    :return pd.DataFrame: The key programs DataFrame with applied fixes.
+    Args:
+        key_programs_df (pd.DataFrame): The original key programs DataFrame.
+        reviewed_df (pd.DataFrame): The DataFrame containing fixes.
+        column_name (str): The name of the column to apply fixes to.
+
+    Returns:
+        pd.DataFrame: The key programs DataFrame with applied fixes.
     """
 
     # Iterate through each row in the reviewed DataFrame
@@ -356,22 +393,33 @@ def apply_value_fix(key_programs_df: pd.DataFrame,
         suggested_fix = row['suggested_fix']
 
         # Find the row in key_programs_df where program_name matches
-        program_rows = key_programs_df[key_programs_df['program_name'] == program_name]
+        program_rows = key_programs_df[
+                        key_programs_df['program_name'] == program_name]
 
-        # Iterate through the program_rows and update invalid_value with suggested_fix
+        # Iterate through rows to update invalid_value with suggested_fix
         for idx, program_row in program_rows.iterrows():
             # Check if the invalid_value is present in the current row
             if invalid_value in program_row[column_name]:
                 # Apply the suggested_fix
-                key_programs_df.at[idx, column_name] = program_row[column_name].replace(
-                    invalid_value, suggested_fix)
+                key_programs_df.at[idx, column_name] = program_row[
+                    column_name].replace(invalid_value, suggested_fix)
 
     return key_programs_df
 
 
 
-def validate_and_rename_columns(df: pd.DataFrame, col_dict: dict) -> pd.DataFrame:
-    """Validate and rename columns based on col_dict."""
+def validate_and_rename_columns(df: pd.DataFrame, 
+                                col_dict: dict) -> pd.DataFrame:
+    """Validate and rename columns based on col_dict.
+
+    Args:
+        df (pd.DataFrame): Input DataFrame.
+        col_dict (dict): Dictionary of column names to expect within the CSV 
+            and new names to assign to each. {old_name: new_name, ...}
+
+    Returns:
+        pd.DataFrame: DataFrame with validated and renamed columns.
+    """
 
     # Validate that columns received match expected
     actual_cols = df.columns.tolist()
@@ -393,8 +441,18 @@ def validate_and_rename_columns(df: pd.DataFrame, col_dict: dict) -> pd.DataFram
 
 
 
-def force_replace_comma_separation(df: pd.DataFrame, replace_cols: list) -> pd.DataFrame:
-    """Replace any commas within specified columns with semicolons. Risky."""
+def force_replace_comma_separation(df: pd.DataFrame, 
+                                   replace_cols: list) -> pd.DataFrame:
+    """Replace any commas within specified columns with semicolons. This is
+    risky and should be reviewed for unexpected splitting of list values. 
+
+    Args:
+        df (pd.DataFrame): Input DataFrame.
+        replace_cols (list): List of column names to replace commas in.
+
+    Returns:
+        pd.DataFrame: DataFrame with replaced commas in specified columns.
+    """
 
     for col in replace_cols:
         # Check if the column exists in the DataFrame
@@ -409,26 +467,42 @@ def force_replace_comma_separation(df: pd.DataFrame, replace_cols: list) -> pd.D
 
 
 def check_for_duplicate_names(df: pd.DataFrame) -> bool:
-    """Check for duplicate values in program_name or program_acronym."""
+    """Check for duplicate values in program_name or program_acronym.
 
-    duplicate_program_names = df[df.duplicated(subset=['program_name'], keep=False)]
-    duplicate_program_acronyms = df[df.duplicated(subset=['program_acronym'], keep=False)]
+    Args:
+        df (pd.DataFrame): Input DataFrame.
 
-    if not duplicate_program_names.empty or not duplicate_program_acronyms.empty:
-        print("---\nWarning: Duplicate values found in program_name or program_acronym.")
-        
-        if not duplicate_program_names.empty:
+    Returns:
+        bool: True if no duplicates are found. If duplicates found, user has
+            the option to continue (True) or end (False) the process with input.
+    """
+
+    # Find rows with duplicate names or acronyms
+    dup_names = df[df.duplicated(subset=['program_name'], keep=False)]
+    dup_acronyms = df[df.duplicated(subset=['program_acronym'], keep=False)]
+
+    # Check if duplicates exist before proceeding
+    if not dup_names.empty or not dup_acronyms.empty:
+        print(f"---\nWarning: "
+              f"Duplicate values found in program_name or program_acronym.")
+
+        # Print out any duplicates
+        if not dup_names.empty:
             print("\nProgram Names with Duplicates:")
-            print(duplicate_program_names[['program_name', 'program_acronym']])
-            
-        if not duplicate_program_acronyms.empty:
+            print(dup_names[['program_name', 'program_acronym']])
+        if not dup_acronyms.empty:
             print("\nProgram Acronyms with Duplicates:")
-            print(duplicate_program_acronyms[['program_name', 'program_acronym']])
-        
+            print(dup_acronyms[['program_name', 'program_acronym']])
+
         print(f"\nConsider manual fixes to the Qualtrics CSV.")
-        continue_bool = input("\nContinue with duplicates? (Y/N): ").lower() == 'y'
+
+        # Prompt user to continue or stop with duplicates
+        continue_bool = input(f"\nContinue with duplicates? (Y/N): "
+                              ).lower() == 'y'
+        
         return continue_bool
 
+    # If there are no duplicates, return True to continue
     return True
 
 
@@ -442,6 +516,7 @@ def create_program_id(value):
     Returns:
         str: The generated program_id.
     """
+
     # Replace hyphens and other non-alphanumeric characters with underscores
     cleaned_value = ''.join('_' if not char.isalnum() 
                             else char for char in str(value))
@@ -464,6 +539,10 @@ def generate_program_id_column(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.DataFrame: DataFrame with the new 'program_id' column added.
     """
+
+    # Create empty program_id column
+    df['program_id'] = ''
+
     # Iterate through each row in the DataFrame
     for index, row in df.iterrows():
         program_acronym = str(row['program_acronym']).strip()
@@ -473,10 +552,10 @@ def generate_program_id_column(df: pd.DataFrame) -> pd.DataFrame:
             # Use program_acronym to generate program_id
             df.at[index, 'program_id'] = create_program_id(program_acronym)
         else:
-            # Use program_name to generate program_id
+            # If no acronym, use program_name to generate program_id
             df.at[index, 'program_id'] = create_program_id(row['program_name'])
 
-            # Print warning for specific program_name values without program_acronym
+            # Print warning for missing acronym
             if pd.isna(program_acronym) or program_acronym == '':
                 print(f"---\nNote: No program_acronym provided for "
                       f"Program: {row['program_name']}")
@@ -492,11 +571,14 @@ def generate_program_id_column(df: pd.DataFrame) -> pd.DataFrame:
 def load_and_clean_programs(csv_filepath: str, col_dict: dict) -> (bool, pd.DataFrame):
     """Load and clean Key Programs data from a Qualtrics CSV.
 
-    :param str csv_filepath: Path to the CSV file to load. Defined in config.py
-    :param dict col_dict: Dictionary of column names to expect within CSV and new
-                    names to assign to each. {old_name: new_name, ...}
-    :return bool continue_bool: True/False indicator to continue or stop process
-    :return pd.DataFrame df: The cleaned Key Programs data as a pandas DataFrame.
+    Args:
+        csv_filepath (str): Path to the CSV file to load. Defined in config.py
+        col_dict (dict): Dictionary of column names to expect within CSV and new
+                        names to assign to each. {old_name: new_name, ...}
+
+    Returns:
+        bool: True/False indicator to continue or stop the process
+        pd.DataFrame: The cleaned Key Programs data as a pandas DataFrame.
     """
 
     # Get string of first key column to look for within file and get row
@@ -604,26 +686,46 @@ def load_and_clean_programs(csv_filepath: str, col_dict: dict) -> (bool, pd.Data
 
 
 
+def gather_program_data(qualtrics_csv: str) -> pd.DataFrame:
+    """Process a curated Qualtrics CSV containing NCI programs and associated 
+    funding values. Validate, clean, and prepare for downstream data gathering.
+
+    Args:
+        qualtrics_csv (str): Filepath to the Qualtrics CSV to ingest and process
+
+    Returns: 
+        pd.DataFrame: Formatted DataFrame of programs and details
+    """
+
+    # Load and clean programs data
+    print(f"Loading and processing {qualtrics_csv}...")
+
+    # Load and clean Key Programs
+    continue_bool, programs_df = load_and_clean_programs(
+                                    csv_filepath = qualtrics_csv, 
+                                    col_dict = config.QUALTRICS_COLS)
+
+    if continue_bool == True:
+        # Export cleaned Key Programs file
+        program_filepath = config.PROGRAMS_INTERMED_PATH
+        os.makedirs(os.path.dirname(program_filepath), exist_ok=True)
+        programs_df.to_csv(program_filepath, index=False)
+        print(f"Success! Saved {program_filepath}.")
+
+    else:
+        sys.exit(f"\n---\n"
+                 f"Process ended by user. Cleaned programs CSV not saved. "
+                 f"Make manual edits to input CSV and retry.")
+        
+    return programs_df
+
+
+
+
 # Run module as a standalone script when called directly
 if __name__ == "__main__":
 
     print(f"Running {os.path.basename(__file__)} as standalone module...")
 
-    # STEP 1: Data Prep - Load and clean Key Programs data
-    print(f"Loading and processing {config.QUALTRICS_CSV_PATH}...")
-
-    # Load and clean Key Programs
-    continue_bool, key_programs_df = load_and_clean_programs(
-                                    csv_filepath = config.QUALTRICS_CSV_PATH, 
-                                    col_dict = config.QUALTRICS_COLS)
-
-    if continue_bool == True:
-        # Export cleaned Key Programs file
-        program_filepath = config.CLEANED_KEY_PROGRAMS_CSV
-        os.makedirs(os.path.dirname(program_filepath), exist_ok=True)
-        key_programs_df.to_csv(program_filepath, index=False)
-        print(f"Success! Saved {program_filepath}.")
-
-    else:
-        sys.exit("Process ended by user. Cleaned Key Programs csv not saved. "
-            "Make manual edits to input CSV and retry.")
+    # Gather program data. Load, clean, and validate from curated file.
+    programs_df = gather_program_data(config.QUALTRICS_CSV_PATH)

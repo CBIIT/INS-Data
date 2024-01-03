@@ -461,8 +461,8 @@ if __name__ == "__main__":
     print(f"Running {os.path.basename(__file__)} as standalone module...")
 
     # Load cleaned programs data
-    key_programs_df = pd.read_csv(config.CLEANED_KEY_PROGRAMS_CSV)
-    print(f"Loading Program data from {config.CLEANED_KEY_PROGRAMS_CSV}")
+    programs_df = pd.read_csv(config.PROGRAMS_INTERMED_PATH)
+    print(f"Loading Program data from {config.PROGRAMS_INTERMED_PATH}")
 
     # Gather grants data
-    all_cleaned_grants = gather_grant_data(key_programs_df, print_meta=False)
+    all_cleaned_grants = gather_grant_data(programs_df, print_meta=False)

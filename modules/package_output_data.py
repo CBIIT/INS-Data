@@ -379,10 +379,10 @@ def package_output_data():
     column_configs = config.COLUMN_CONFIGS 
 
     # Load programs data
-    if os.path.exists(config.CLEANED_KEY_PROGRAMS_CSV):
+    if os.path.exists(config.PROGRAMS_INTERMED_PATH):
         programs_exist = True
-        df_programs = pd.read_csv(config.CLEANED_KEY_PROGRAMS_CSV)
-        print(f"Loaded Programs file from {config.CLEANED_KEY_PROGRAMS_CSV}")
+        df_programs = pd.read_csv(config.PROGRAMS_INTERMED_PATH)
+        print(f"Loaded Programs file from {config.PROGRAMS_INTERMED_PATH}")
     else: programs_exist = False
     
     # Load grants data
