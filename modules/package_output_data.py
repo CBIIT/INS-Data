@@ -264,9 +264,15 @@ def validate_and_clean_unique_nodes(df, column_configs, datatype):
 
     # Return a cleaned df with only unique node_ids or valid duplicates
     # Remove all mismatched node_ids and any true duplicates after the first
-    valid_df = df[~df[node_id].isin(mismatch_df[node_id]) 
-                  & ~df.duplicated(subset=node_id, keep='first')
-                  ].reset_index(drop=True)
+    if not mismatch_df.empty:
+        valid_df = df[~df[node_id].isin(mismatch_df[node_id])
+                    & ~df.duplicated(subset=node_id, keep='first')
+                    ].reset_index(drop=True)
+        
+    # If no mismatches found, then just remove true duplicates
+    else:
+        valid_df = df[~df.duplicated(subset=node_id, keep='first')
+                       ].reset_index(drop=True)
 
     return valid_df
 
@@ -289,28 +295,24 @@ def standardize_data(df, column_configs, datatype):
 
 
 
-# def package_programs(df_programs, column_configs):
-#     """Placeholder
-#     """
-#     # Placeholder for code
-#     print(f"Finalizing TSV for project data...")
+def package_programs(df_programs, column_configs):
+    """Package programs data for INS loading."""
 
-#     #df_programs_output = standardize_data(df_programs, column_configs, datatype='program')
+    print(f"---\nFinalizing TSV for program data...")
 
-#     # During dev:
-#     df_programs = add_type_column(df_programs, datatype='program')
-#     df_programs = process_special_characters(df_programs)
+    # Standardize and validate data
+    df_programs_output = standardize_data(df_programs, column_configs, 
+                                        datatype='program')
 
-#     df_programs_output = df_programs
+    # Export as TSV
+    output_filepath = config.PROGRAMS_OUTPUT_PATH
+    os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
+    df_programs_output.to_csv(output_filepath, sep='\t', index=False, 
+                            encoding='utf-8')
 
-#     # Export as TSV
-#     output_filepath = config.PROGRAMS_OUTPUT_PATH
-#     os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
-#     df_programs_output.to_csv(output_filepath, sep='\t', index=False, encoding='utf-8')
+    print(f"Done! Final program data saved as {output_filepath}.")
 
-#    print(f"Done! Program data exported to TSV.")
-
-#     return df_programs_output
+    return df_programs_output
 
 
 
@@ -376,30 +378,51 @@ def package_output_data():
     # Single data model dict defined in config
     column_configs = config.COLUMN_CONFIGS 
 
-    # Load all files as dfs
-    # df_programs = pd.read_csv(config.CLEANED_KEY_PROGRAMS_CSV)
-    df_grants = pd.read_csv(config.PROJECTS_INTERMED_PATH)
-    # df_projects = pd.read_csv(path_to_CSV)
-    df_publications = pd.read_csv(config.PUBLICATIONS_INTERMED_PATH)
-    print(f"Loaded files from {config.GATHERED_DIR}.")
+    # Load programs data
+    if os.path.exists(config.PROGRAMS_INTERMED_PATH):
+        programs_exist = True
+        df_programs = pd.read_csv(config.PROGRAMS_INTERMED_PATH)
+        print(f"Loaded Programs file from {config.PROGRAMS_INTERMED_PATH}")
+    else: programs_exist = False
+    
+    # Load grants data
+    if os.path.exists(config.PROJECTS_INTERMED_PATH):
+        grants_exist = True
+        df_grants = pd.read_csv(config.PROJECTS_INTERMED_PATH)
+        print(f"Loaded Grants file from {config.PROJECTS_INTERMED_PATH}")
+    else: grants_exist = False
+
+    # Load projects data
+    if os.path.exists("path_to_CSV_placeholder"):
+        projects_exist = True
+        df_projects = pd.read_csv("path_to_CSV_placeholder")
+        print(f"Loaded Projects file from {'path_to_CSV_placeholder'}")
+    else: projects_exist = False
+
+    # Load publications data
+    if os.path.exists(config.PUBLICATIONS_INTERMED_PATH):
+        publications_exist = True
+        df_publications = pd.read_csv(config.PUBLICATIONS_INTERMED_PATH)
+        print(f"Loaded Publications file from {config.PUBLICATIONS_INTERMED_PATH}")
+    else: publications_exist = False
 
     # Special handling [PLACEHOLDER]
     # df_publications = remove_publications_before_projects(df_publications, 
     #                                                       df_projects)
 
     # Final packaging
-    # df_programs_output = package_programs(df_programs, column_configs)
-    df_grants_output = package_grants(df_grants, column_configs)
-    # df_projects_output = package_projects(df_projects, column_configs)
-    df_publications_output = package_publications(df_publications, column_configs)
+    df_programs_output = package_programs(df_programs, column_configs) if programs_exist else None
+    df_grants_output = package_grants(df_grants, column_configs) if grants_exist else None
+    #df_projects_output = package_projects(df_projects, column_configs) if projects_exist else None
+    df_publications_output = package_publications(df_publications, column_configs) if publications_exist else None
 
-    # Return a dictionary of DataFrames
-    return {
-        # 'programs_output': df_programs_output,
-        'grants_output': df_grants_output,
-        # 'projects_output': df_projects_output,
-        'publications_output': df_publications_output
-    }
+    # # Return a dictionary of DataFrames
+    # return {
+    #     #programs_output': df_programs_output,
+    #     'grants_output': df_grants_output,
+    #     'projects_output': df_projects_output,
+    #     'publications_output': df_publications_output
+    # }
 
 
 
@@ -411,8 +434,8 @@ if __name__ == "__main__":
     # Placeholder for code
     outputs = package_output_data()
 
-    # Access DataFrames using keys
+    # # Access DataFrames using keys
     # df_programs_output = outputs['programs_output']
-    df_grants_output = outputs['grants_output']
+    # df_grants_output = outputs['grants_output']
     # df_projects_output = outputs['projects_output']
-    df_publications_output = outputs['publications_output']
+    # df_publications_output = outputs['publications_output']

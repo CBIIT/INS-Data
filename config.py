@@ -12,7 +12,7 @@ from datetime import datetime
 # Inputs and outputs will use this versioning
 # Version must match suffix in input filename
 
-QUALTRICS_VERSION = "2023-08-30"    # <-- CHANGE VERSION HERE
+QUALTRICS_VERSION = "2023-12-29"    # <-- CHANGE VERSION HERE
 QUALTRICS_TYPE = "manual_fix"       # <-- Define "raw" or "manual_fix" type of the input csv
 
 # Version of bulk download from iCite
@@ -33,9 +33,8 @@ OUTPUT_DIR = "data/02_output/"
 
 
 
-# FILEPATH (CONTINUED)
+# Qualtrics Programs input path
 QUALTRICS_CSV_PATH = INPUT_DIR + "qualtrics/qualtrics_output_" + QUALTRICS_VERSION +"_"+ QUALTRICS_TYPE + ".csv"
-CLEANED_KEY_PROGRAMS_CSV = INTERMED_DIR + QUALTRICS_VERSION +"/"+ "key_programs_" + QUALTRICS_VERSION + ".csv"
 
 # Add timestamp to note when grants were gathered from API
 # The same Qualtrics input file can have different outputs depending upon API gathering date
@@ -57,6 +56,7 @@ REPORTS_DIR = "reports/" + QUALTRICS_VERSION
 REPORTS_GATHERED_DIR = REPORTS_DIR +"/"+ TIMESTAMP
 
 # Programs output
+PROGRAMS_INTERMED_PATH = INTERMED_DIR + QUALTRICS_VERSION +"/"+ "program.csv"
 PROGRAMS_OUTPUT_PATH = OUTPUT_GATHERED_DIR +"/"+ "program.tsv"
 
 # Projects output
@@ -83,6 +83,9 @@ QUALTRICS_COLS = {
     "What type of cancer is the primary focus of the program? (Check all that\napply)": "cancer_type",
     "Login ID": "login_id"
 }
+
+# Dictionary of specific old:new values to replace within data
+PROGRAM_VALUE_REPLACEMENTS = {"This program focuses on cancer broadly - not limited to a primary cancer type": "Focus on Cancer Broadly"}
 
 # Invalid NOFO reports
 INVALID_NOFOS_REPORT = REPORTS_DIR +"/"+ "invalidNofoReport_" + QUALTRICS_TYPE + ".csv"
@@ -214,34 +217,33 @@ REMOVED_DUPLICATES = PACKAGING_REPORTS + 'duplicate_' # Add datatype.csv in code
 
 # Dictionary of columns and types to use in final data packaging
 COLUMN_CONFIGS = {
-    # # Data type
-    # # Programs pending INS-822
-    # 'program': {
-    #     # Identifying node_id column name
-    #     'node_id': 'program_id',
-    #     # Idenfiying column name for relationship link
-    #     'link_id': None,
-    #     # Dict of old:new column names. Includes only columns to include in output
-    #     'keep_and_rename': {
-    #         'type': 'type',
-    #         'program_id': 'program_id',
-    #         'program_name': 'program_name',
-    #         'program_acronym': 'program_acronym',
-    #         'focus_area': 'focus_area',
-    #         'doc': 'doc',
-    #         'contact_pi': 'contact_pi',
-    #         'contact_pi_email': 'contact_pi_email',
-    #         'contact_nih': 'contact_nih',
-    #         'contact_nih_email': 'contact_nih_email',
-    #         'nofo': 'nofo',
-    #         'award': 'award',
-    #         'program_link': 'program_link',
-    #         'data_link': 'data_link',
-    #         'cancer_type': 'cancer_type'
-    #     },
-    #     # List of any list-like columns that need semicolon separators
-    #     'list_like_cols': ['focus_area', 'doc', 'cancer_type'],
-    # },
+    # Data type
+    'program': {
+        # Identifying node_id column name
+        'node_id': 'program_id',
+        # Idenfiying column name for relationship link
+        'link_id': None,
+        # Dict of old:new column names. Includes only columns to include in output
+        'keep_and_rename': {
+            'type': 'type',
+            'program_id': 'program_id',
+            'program_name': 'program_name',
+            'program_acronym': 'program_acronym',
+            'focus_area': 'focus_area',
+            'doc': 'doc',
+            'contact_pi': 'contact_pi',
+            'contact_pi_email': 'contact_pi_email',
+            'contact_nih': 'contact_nih',
+            'contact_nih_email': 'contact_nih_email',
+            'nofo': 'nofo',
+            'award': 'award',
+            'program_link': 'program_link',
+            'data_link': 'data_link',
+            'cancer_type': 'cancer_type'
+        },
+        # List of any list-like columns that need semicolon separators
+        'list_like_cols': ['focus_area', 'doc', 'cancer_type'],
+    },
     'grant': {
         'node_id': 'grant_id',
         'link_id': 'program.program_id', #'project.project_id', PENDING INS-821

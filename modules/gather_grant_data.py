@@ -373,10 +373,11 @@ def gather_grant_data(key_programs_df, print_meta=False):
     # Initialize a counter for total records
     total_records_count = 0
 
-    # Iterate through each Key Program to get name, NOFOs, and Awards
+    # Iterate through each Key Program to get name, id, NOFOs, and Awards
     for index, row in tqdm(key_programs_df.iterrows(), 
                            total=len(key_programs_df), ncols=80):
         program_name = row['program_name']
+        program_id = row['program_id']
         nofo_str = row['nofo']
         award_str = row['award']
 
@@ -426,8 +427,7 @@ def gather_grant_data(key_programs_df, print_meta=False):
         cleaned_grants_data = clean_grants_data(grants_data, 
                                                 print_meta=print_meta)
 
-        # Add program id column from alphanumeric program name
-        program_id = ''.join(filter(str.isalnum, program_name))
+        # Carry the program_id over to grants data as a new column
         cleaned_grants_data[config.PROGRAM_ID_FIELDNAME] = program_id
 
         # Combine and save cleaned grants data
@@ -461,8 +461,8 @@ if __name__ == "__main__":
     print(f"Running {os.path.basename(__file__)} as standalone module...")
 
     # Load cleaned programs data
-    key_programs_df = pd.read_csv(config.CLEANED_KEY_PROGRAMS_CSV)
-    print(f"Loading Program data from {config.CLEANED_KEY_PROGRAMS_CSV}")
+    programs_df = pd.read_csv(config.PROGRAMS_INTERMED_PATH)
+    print(f"Loading Program data from {config.PROGRAMS_INTERMED_PATH}")
 
     # Gather grants data
-    all_cleaned_grants = gather_grant_data(key_programs_df, print_meta=False)
+    all_cleaned_grants = gather_grant_data(programs_df, print_meta=False)
