@@ -138,12 +138,12 @@ def get_pmids_from_nih_reporter_api(project_id,
     return pmid_data
 
 
-def get_pmids_from_projects(projects_df, print_meta=False):
-    """Iterate through project data and use NIH RePORTER API to get all PMIDs.
+def get_pmids_from_projects(grants_df, print_meta=False):
+    """Iterate through grant data and use NIH RePORTER API to get all PMIDs.
 
     Args:
-        projects_df (pd.Dataframe): DataFrame of all cleaned projects from the
-            grants workflow
+        grants_df (pd.Dataframe): DataFrame of all cleaned grants from the
+            grants workflow including core project IDs
         print_meta (bool): Boolean indicator. If True, print status to console
 
     Returns:
@@ -151,7 +151,7 @@ def get_pmids_from_projects(projects_df, print_meta=False):
     """
 
     # Get all unique project IDs from projects.csv (loaded earlier in notebook)
-    project_id_list = projects_df['queried_project_id'].unique().tolist()
+    project_id_list = grants_df['queried_project_id'].unique().tolist()
 
     print(f"{len(project_id_list)} total unique project IDs.")
 
@@ -782,9 +782,9 @@ if __name__ == "__main__":
     print(f"Running {os.path.basename(__file__)} as standalone module...")
 
     # Load Grants data
-    project_filepath = config.PROJECTS_INTERMED_PATH
-    all_cleaned_grants = pd.read_csv(project_filepath)
-    print(f"Projects data loaded from {project_filepath}.")
+    grant_filepath = config.GRANTS_INTERMED_PATH
+    all_cleaned_grants = pd.read_csv(grant_filepath)
+    print(f"Grants data loaded from {grant_filepath}.")
 
     # Gather, process, and save publication data
     gather_publication_data(all_cleaned_grants, print_meta=False)

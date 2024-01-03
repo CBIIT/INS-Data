@@ -326,7 +326,7 @@ def package_grants(df_grants, column_configs):
                                         datatype='grant')
 
     # Export as TSV
-    output_filepath = config.PROJECTS_OUTPUT_PATH
+    output_filepath = config.GRANTS_OUTPUT_PATH
     os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
     df_grants_output.to_csv(output_filepath, sep='\t', index=False, 
                             encoding='utf-8')
@@ -386,10 +386,10 @@ def package_output_data():
     else: programs_exist = False
     
     # Load grants data
-    if os.path.exists(config.PROJECTS_INTERMED_PATH):
+    if os.path.exists(config.GRANTS_INTERMED_PATH):
         grants_exist = True
-        df_grants = pd.read_csv(config.PROJECTS_INTERMED_PATH)
-        print(f"Loaded Grants file from {config.PROJECTS_INTERMED_PATH}")
+        df_grants = pd.read_csv(config.GRANTS_INTERMED_PATH)
+        print(f"Loaded Grants file from {config.GRANTS_INTERMED_PATH}")
     else: grants_exist = False
 
     # Load projects data

@@ -59,9 +59,9 @@ REPORTS_GATHERED_DIR = REPORTS_DIR +"/"+ TIMESTAMP
 PROGRAMS_INTERMED_PATH = INTERMED_DIR + QUALTRICS_VERSION +"/"+ "program.csv"
 PROGRAMS_OUTPUT_PATH = OUTPUT_GATHERED_DIR +"/"+ "program.tsv"
 
-# Projects output
-PROJECTS_INTERMED_PATH = GATHERED_DIR +"/"+ "project.csv"
-PROJECTS_OUTPUT_PATH = OUTPUT_GATHERED_DIR +"/"+ "project.tsv"
+# Grants output
+GRANTS_INTERMED_PATH = GATHERED_DIR +"/"+ "grant.csv"
+GRANTS_OUTPUT_PATH = OUTPUT_GATHERED_DIR +"/"+ "grant.tsv"
 
 # ---
 # DATA PREPARATION CONFIGURATION
@@ -148,15 +148,15 @@ ABSTRACT_TEXT_FIELD = 'abstract_text'
 # Dictionary of old:new column names. Rename API fields to match INS terms
 # Any terms not included will remain as retrieved from API
 API_FIELD_RENAMER = {
-    "project_num": "project_id", # also used as PROJECT_ID_FIELDNAME
+    "project_num": "grant_id", # also used as GRANT_ID_FIELDNAME
     "core_project_num": "queried_project_id",
     "appl_id": "application_id",
     "pref_terms": "keywords",
     "agency_ic_fundings": "nci_funded_amount"
 }
 
-# Define column for project ID sorting
-PROJECT_ID_FIELDNAME = 'project_id'
+# Define column for grant ID sorting
+GRANT_ID_FIELDNAME = 'grant_id'
 
 # Define name for new program ID field
 PROGRAM_ID_FIELDNAME = 'program.program_id'
@@ -168,7 +168,7 @@ PROGRAM_ID_FIELDNAME = 'program.program_id'
 STAT_AGG_FUNCS_BY_COL = {
     'api_source_search': 'nunique',
     'queried_project_id': 'nunique',
-    'project_id': 'nunique',
+    'grant_id': 'nunique',
     'fiscal_year': 'min',
 }
 STAT_FISCALYEAR_COL = 'fiscal_year'
@@ -246,11 +246,10 @@ COLUMN_CONFIGS = {
     },
     'grant': {
         'node_id': 'grant_id',
-        'link_id': 'program.program_id', #'project.project_id', PENDING INS-821
+        'link_id': 'project.project_id',
         'keep_and_rename': {
             'type': 'type',
-            'project_id': 'grant_id',
-            'program.program_id': 'program.program_id', # PENDING INS-821
+            'grant_id': 'grant_id',
             'queried_project_id': 'project.project_id',
             'application_id': 'application_id',
             'fiscal_year': 'fiscal_year',
@@ -272,25 +271,24 @@ COLUMN_CONFIGS = {
         },
         'list_like_cols': ['keywords', 'principal_investigators'],
     },
-    # Projects pending INS-821
-    # 'project': {
-    #     'node_id': 'project_id',
-    #     'link_id': 'program.program_id',
-    #     'keep_and_rename': {
-    #         'type': 'type',
-    #         'project_id': 'project_id',
-    #         'project_title': 'project_title',
-    #         'abstract_text': 'abstract_text',
-    #         'org_name': 'org_name',
-    #         'org_city': 'org_city',
-    #         'org_state': 'org_state',
-    #         'org_country': 'org_country',
-    #         'project_start_date': 'project_start_date',
-    #         'project_end_date': 'project_end_date',
-    #         'opportunity_number': 'opportunity_number',
-    #     },
-    #     'list_like_cols': [],
-    # },
+    'project': {
+        'node_id': 'project_id',
+        'link_id': 'program.program_id',
+        'keep_and_rename': {
+            'type': 'type',
+            'project_id': 'project_id',
+            'project_title': 'project_title',
+            'abstract_text': 'abstract_text',
+            'org_name': 'org_name',
+            'org_city': 'org_city',
+            'org_state': 'org_state',
+            'org_country': 'org_country',
+            'project_start_date': 'project_start_date',
+            'project_end_date': 'project_end_date',
+            'opportunity_number': 'opportunity_number',
+        },
+        'list_like_cols': [],
+    },
     'publication': {
         'node_id': 'pmid',
         'link_id': 'project.project_id', 

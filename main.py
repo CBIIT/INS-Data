@@ -2,7 +2,8 @@
 main.py
 2023-07-26 ZD
 
-Main function for the INS-Data project meant to be run as a single command. 
+Main function for INS-Data gathering processes intended to be run as a 
+single command. 
 
 Inputs required:
 - Curated Qualtrics CSV of Key Programs
@@ -12,8 +13,9 @@ Inputs required:
 
 Ouputs generated:
 - data/01_intermediate/
-    - CSVs for all gathered data types, including programs, publications, and 
-    projects. These will be passed through data packaging before INS ingestion.
+    - CSVs for all gathered data types, including programs, publications, 
+    grants, and projects. These will be passed through data packaging before 
+    INS ingestion.
     - Additional CSV outputs and checkpoint files gathered during the process. 
     These are useful for troubleshooting and validation.
 

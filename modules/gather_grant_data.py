@@ -276,11 +276,6 @@ def clean_grants_data(grants_data, print_meta=False):
 
     Returns:
         pandas.DataFrame: Cleaned DataFrame containing grants information
-
-    Notes:
-        Exports a project.csv to the versioned intermediate directory
-        This function uses various helper functions and configuration parameters
-            defined in the config module
     """
 
     # Step 1: Load JSON grants data as pandas dataframe and select columns
@@ -435,21 +430,21 @@ def gather_grant_data(key_programs_df, print_meta=False):
                                         cleaned_grants_data]) 
 
     # Define versioned output directory using config.py
-    project_filepath = config.PROJECTS_INTERMED_PATH
-    os.makedirs(os.path.dirname(project_filepath), exist_ok=True)
+    grant_filepath = config.GRANTS_INTERMED_PATH
+    os.makedirs(os.path.dirname(grant_filepath), exist_ok=True)
 
-    # Sort by program and project for consistency
+    # Sort by program and grant for consistency
     all_cleaned_grants.sort_values(by=[config.PROGRAM_ID_FIELDNAME,
-                                    config.PROJECT_ID_FIELDNAME], 
+                                    config.GRANT_ID_FIELDNAME], 
                                     inplace=True, ignore_index=True)
 
     # Export to csv
-    all_cleaned_grants.to_csv(project_filepath, index=False)
+    all_cleaned_grants.to_csv(grant_filepath, index=False)
     
     print(f"---\nSuccess! NIH RePORTER API data gathered, cleaned, and saved.\n"
         f"{total_records_count} grants gathered across all Awards and NOFOs.\n"
         f"{len(all_cleaned_grants)} NCI-funded grants retained for INS. \n"
-        f"Results can be found in {project_filepath}.\n---") 
+        f"Results can be found in {grant_filepath}.\n---") 
 
     return all_cleaned_grants
 
