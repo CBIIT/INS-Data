@@ -63,6 +63,10 @@ PROGRAMS_OUTPUT_PATH = OUTPUT_GATHERED_DIR +"/"+ "program.tsv"
 GRANTS_INTERMED_PATH = GATHERED_DIR +"/"+ "grant.csv"
 GRANTS_OUTPUT_PATH = OUTPUT_GATHERED_DIR +"/"+ "grant.tsv"
 
+# Projects output
+PROJECTS_INTERMED_PATH = GATHERED_DIR +"/"+ "project.csv"
+PROJECTS_OUTPUT_PATH = OUTPUT_GATHERED_DIR +"/"+ "project.tsv"
+
 # ---
 # DATA PREPARATION CONFIGURATION
 
@@ -96,6 +100,8 @@ REVIEWED_NOFO_INPUT = INTERMED_DIR + QUALTRICS_VERSION +"/"+ "invalidNofoReport_
 INVALID_AWARD_REPORT = REPORTS_DIR +"/"+ "invalidAwardReport_" + QUALTRICS_TYPE + ".csv"
 CORRECTED_INVALID_AWARD_REPORT = REPORTS_DIR +"/"+ "invalidAwardReport_corrected.csv"
 REVIEWED_AWARD_INPUT = INTERMED_DIR + QUALTRICS_VERSION +"/"+ "invalidAwardReport_reviewed.csv"
+
+
 
 # ---
 # GRANTS CLEANING CONFIGURATION
@@ -174,10 +180,16 @@ STAT_AGG_FUNCS_BY_COL = {
 STAT_FISCALYEAR_COL = 'fiscal_year'
 STAT_CORE_PROJECT_COL = 'queried_project_id'
 
-
 # Summary statistic export filenames
 STAT_GRANTS_BY_PROGRAM_FILENAME = REPORTS_GATHERED_DIR +"/"+ "grantsStatsByProgram.csv"
 STAT_SHARED_PROJECT_PROGRAM_PAIRS_FILENAME = REPORTS_GATHERED_DIR +"/"+ "sharedProjectsByProgramPair.csv"
+
+
+#---
+# PROJECTS CONFIGURATION
+
+# Report of shared project value validation
+MISMATCHED_PROJECT_VALUES_REPORT = REPORTS_GATHERED_DIR +"/"+ "mismatchedProjectValuesReport.csv"
 
 
 # ---
@@ -251,6 +263,7 @@ COLUMN_CONFIGS = {
             'type': 'type',
             'grant_id': 'grant_id',
             'queried_project_id': 'project.project_id',
+            'program.program_id': 'program.program_id', # Only until Projects complete
             'application_id': 'application_id',
             'fiscal_year': 'fiscal_year',
             'project_title': 'grant_title',
