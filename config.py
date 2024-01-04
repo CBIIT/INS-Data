@@ -12,8 +12,8 @@ from datetime import datetime
 # Inputs and outputs will use this versioning
 # Version must match suffix in input filename
 
-QUALTRICS_VERSION = "2023-12-29"    # <-- CHANGE VERSION HERE
-QUALTRICS_TYPE = "manual_fix"       # <-- Define "raw" or "manual_fix" type of the input csv
+QUALTRICS_VERSION = "2024-01-04"    # <-- CHANGE VERSION HERE
+QUALTRICS_TYPE = "raw"              # <-- Define "raw" or "manual_fix" type of the input csv
 
 # Version of bulk download from iCite
 ICITE_VERSION = "2023-11"           # <-- CHANGE VERSION HERE
@@ -263,7 +263,7 @@ COLUMN_CONFIGS = {
             'type': 'type',
             'grant_id': 'grant_id',
             'queried_project_id': 'project.project_id',
-            'program.program_id': 'program.program_id', # Only until Projects complete
+            #'program.program_id': 'program.program_id', # Only until Projects complete
             'application_id': 'application_id',
             'fiscal_year': 'fiscal_year',
             'project_title': 'grant_title',
