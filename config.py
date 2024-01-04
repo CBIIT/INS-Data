@@ -290,6 +290,7 @@ COLUMN_CONFIGS = {
         'keep_and_rename': {
             'type': 'type',
             'project_id': 'project_id',
+            'program.program_id': 'program.program_id',
             'project_title': 'project_title',
             'abstract_text': 'abstract_text',
             'org_name': 'org_name',
@@ -300,7 +301,7 @@ COLUMN_CONFIGS = {
             'project_end_date': 'project_end_date',
             'opportunity_number': 'opportunity_number',
         },
-        'list_like_cols': [],
+        'list_like_cols': ['opportunity_number'],
     },
     'publication': {
         'node_id': 'pmid',

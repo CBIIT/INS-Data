@@ -337,24 +337,31 @@ def package_grants(df_grants, column_configs):
 
 
 
-# def package_projects(df_projects, column_configs):
-#     """Placeholder
-#     """
-#     print(f"Finalizing TSV for project data...")
+def package_projects(df_projects, column_configs):
+    """Package projects data for INS loading."""
 
-#     # Placeholder for code
-#     df_projects_output = standardize_data(df_projects, column_configs, datatype='project')
+    print(f"---\nFinalizing TSV for project data...") 
 
-#    print(f"Done! Project data exported to TSV.")
+    # Standardize and validate data
+    df_projects_output = standardize_data(df_projects, column_configs, 
+                                        datatype='project')
 
-#     return df_projects_output # Also export as TSV
+    # Export as TSV
+    output_filepath = config.PROJECTS_OUTPUT_PATH
+    os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
+    df_projects_output.to_csv(output_filepath, sep='\t', index=False, 
+                            encoding='utf-8')
+
+    print(f"Done! Final projects data saved as {output_filepath}.")
+
+    return df_projects_output
 
 
 
 def package_publications(df_publications, column_configs):
     """Package publications data for INS loading."""
 
-    print(f"---\nFinalizing TSV for publications data...") 
+    print(f"---\nFinalizing TSV for publication data...") 
 
     # Standardize and validate data
     df_publications_output = standardize_data(df_publications, column_configs, 
@@ -393,10 +400,10 @@ def package_output_data():
     else: grants_exist = False
 
     # Load projects data
-    if os.path.exists("path_to_CSV_placeholder"):
+    if os.path.exists(config.PROJECTS_INTERMED_PATH):
         projects_exist = True
-        df_projects = pd.read_csv("path_to_CSV_placeholder")
-        print(f"Loaded Projects file from {'path_to_CSV_placeholder'}")
+        df_projects = pd.read_csv(config.PROJECTS_INTERMED_PATH)
+        print(f"Loaded Projects file from {config.PROJECTS_INTERMED_PATH}")
     else: projects_exist = False
 
     # Load publications data
@@ -411,18 +418,10 @@ def package_output_data():
     #                                                       df_projects)
 
     # Final packaging
-    df_programs_output = package_programs(df_programs, column_configs) if programs_exist else None
-    df_grants_output = package_grants(df_grants, column_configs) if grants_exist else None
-    #df_projects_output = package_projects(df_projects, column_configs) if projects_exist else None
-    df_publications_output = package_publications(df_publications, column_configs) if publications_exist else None
-
-    # # Return a dictionary of DataFrames
-    # return {
-    #     #programs_output': df_programs_output,
-    #     'grants_output': df_grants_output,
-    #     'projects_output': df_projects_output,
-    #     'publications_output': df_publications_output
-    # }
+    package_programs(df_programs, column_configs) if programs_exist else None
+    package_grants(df_grants, column_configs) if grants_exist else None
+    package_projects(df_projects, column_configs) if projects_exist else None
+    package_publications(df_publications, column_configs) if publications_exist else None
 
 
 
@@ -433,9 +432,3 @@ if __name__ == "__main__":
 
     # Placeholder for code
     outputs = package_output_data()
-
-    # # Access DataFrames using keys
-    # df_programs_output = outputs['programs_output']
-    # df_grants_output = outputs['grants_output']
-    # df_projects_output = outputs['projects_output']
-    # df_publications_output = outputs['publications_output']
