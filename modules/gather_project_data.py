@@ -124,7 +124,9 @@ def gather_project_data(grants_df):
     """Aggregates grants data into project-level information, handling 
     inconsistencies and validation."""
 
-    field_aggregation_map = {
+    # Define how values are selected from grants to populate project values
+    # program.program_id is excluded and added later
+    field_agg_map = {
         'queried_project_id': 'identical',
         'project_title': 'newest',
         'abstract_text': 'newest',
@@ -136,15 +138,14 @@ def gather_project_data(grants_df):
         'org_city': 'identical',
         'org_state': 'identical',
         'org_country': 'identical',
-        'program.program_id': 'identical'
     }
 
     # Build empty projects df and mismatch df
-    projects_df = pd.DataFrame(columns=field_aggregation_map.keys())
+    projects_df = pd.DataFrame(columns=field_agg_map.keys())
     df_mismatch = pd.DataFrame()
 
     # Validate and aggregate fields based on aggregation type
-    for field_name, agg_type in field_aggregation_map.items():
+    for field_name, agg_type in field_agg_map.items():
 
         # Validate identical values
         if agg_type == 'identical':
@@ -166,6 +167,18 @@ def gather_project_data(grants_df):
         # List all distinct values within a project as the project value(s)
         elif agg_type == 'list':
             projects_df[field_name] = get_list_values(grants_df, field_name)
+
+    # Reset index to prep for merging programs
+    projects_df = projects_df.reset_index(drop=True)
+
+    # Get new df of all unique project-program combinations
+    project_program_df = grants_df[['queried_project_id']
+                                   ].drop_duplicates().reset_index(drop=True)
+
+    # Add program IDs so each project has a single row for each program
+    projects_df = projects_df.merge(project_program_df,
+                                    on='queried_project_id',
+                                    how='outer')
 
     # Rename 'queried_project_id' to 'project_id'
     projects_df.rename(columns={'queried_project_id': 'project_id'}, 
