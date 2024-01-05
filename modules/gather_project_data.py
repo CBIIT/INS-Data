@@ -57,20 +57,56 @@ def validate_identical_values(df, field_name):
 
 
 
-def get_newest_or_oldest_value(df, field_name, newest=True):
-    """Returns the newest or oldest value of a field based on 'award_notice_date'."""
+def get_newest_or_oldest_value(df: pd.DataFrame, field_name: str, agg_type: str):
+    """
+    Retrieves the newest or oldest value of a specified field within each 
+    project group.
 
-    value = (df.sort_values('award_notice_date', ascending=not newest)
-             .groupby(['queried_project_id'])
-             [field_name].first())
+    Args:
+        df (pd.DataFrame): The DataFrame containing the data.
+        field_name (str): The name of the field to extract the value from.
+        agg_type (str): Specifies whether to retrieve the newest or oldest value.
+            Valid options are 'newest' and 'oldest'.
+
+    Returns:
+        str: The extracted newest or oldest value of the specified field for 
+            each project.
+
+    Raises:
+        ValueError: If an invalid agg_type is provided.
+    """
+
+    if agg_type == 'newest':
+        sort_new = True
+    elif agg_type == 'oldest':
+        sort_new = False
+    else:
+        raise ValueError(f"Invalid agg_type input: {agg_type}. Check Config.")
+
+    # Determine the appropriate sorting column based on the field name
+    if field_name in ('project_start_date', 'project_end_date'):
+        sort_col = field_name
+    else:
+        sort_col = 'award_notice_date'  # Default sorting column
+
+    # Use fiscal_year as a fallback if the default sorting column contains NaNs
+    if df.groupby('queried_project_id')[sort_col].apply(pd.isna).any():
+        sort_col = 'fiscal_year'
+
+    # Sort values, group by project, and extract the first value
+    value = (
+        df.sort_values(sort_col, ascending=sort_new)
+        .groupby('queried_project_id')[field_name]
+        .first()
+    )
 
     return value
 
 
 
 def get_list_values(df, field_name):
-    """Collects unique values within a field and concatenates them as a semicolon-separated string,
-       handling potential type mismatches and missing values."""
+    """Collects unique values within a field and lists them as a 
+    semicolon-separated string."""
 
     # Filter for string values if only strings are valid
     if not pd.api.types.is_string_dtype(df[field_name]):
@@ -85,21 +121,22 @@ def get_list_values(df, field_name):
 
 
 def gather_project_data(grants_df):
-    """Aggregates grants data into project-level information, handling inconsistencies and validation."""
+    """Aggregates grants data into project-level information, handling 
+    inconsistencies and validation."""
 
     field_aggregation_map = {
-        'queried_project_id': 'Identical',
-        'project_title': 'Newest',
-        'abstract_text': 'Newest',
-        'project_start_date': 'Oldest',
-        'project_end_date': 'Newest',
-        'opportunity_number': 'List',
-        'api_source_search': 'Identical',
-        'org_name': 'Identical',
-        'org_city': 'Identical',
-        'org_state': 'Identical',
-        'org_country': 'Identical',
-        'program.program_id': 'Identical'
+        'queried_project_id': 'identical',
+        'project_title': 'newest',
+        'abstract_text': 'newest',
+        'project_start_date': 'oldest',
+        'project_end_date': 'newest',
+        'opportunity_number': 'list',
+        'api_source_search': 'identical',
+        'org_name': 'identical',
+        'org_city': 'identical',
+        'org_state': 'identical',
+        'org_country': 'identical',
+        'program.program_id': 'identical'
     }
 
     # Build empty projects df and mismatch df
@@ -107,33 +144,32 @@ def gather_project_data(grants_df):
     df_mismatch = pd.DataFrame()
 
     # Validate and aggregate fields based on aggregation type
-    for field_name, aggregation_type in field_aggregation_map.items():
+    for field_name, agg_type in field_aggregation_map.items():
 
-        # Validate identical values and use the first for project value
-        if aggregation_type == 'Identical':
-
+        # Validate identical values
+        if agg_type == 'identical':
+            # Gather any mismatched values that should be identical
             mismatched_rows = validate_identical_values(grants_df, field_name)
-            df_mismatch = pd.concat([df_mismatch, mismatched_rows], ignore_index=True)
-
-            projects_df[field_name] = grants_df.groupby(['queried_project_id'])[field_name].first()
+            df_mismatch = pd.concat([df_mismatch, mismatched_rows], 
+                                    ignore_index=True)
+            # Default to using values from newest projects 
+            projects_df[field_name] = get_newest_or_oldest_value(grants_df, 
+                                                                 field_name, 
+                                                                 'newest')
 
         # Use the newest or oldest award date to select the project value
-        elif aggregation_type in ('Newest', 'Oldest'):
-
-            projects_df[field_name] = get_newest_or_oldest_value(grants_df, field_name, newest=aggregation_type == 'Newest')
+        elif agg_type in ('newest', 'oldest'):
+            projects_df[field_name] = get_newest_or_oldest_value(grants_df, 
+                                                                 field_name, 
+                                                                 agg_type)
 
         # List all distinct values within a project as the project value(s)
-        elif aggregation_type == 'List':
-
+        elif agg_type == 'list':
             projects_df[field_name] = get_list_values(grants_df, field_name)
 
-            # mismatched_rows = grants_df[grants_df.groupby(['queried_project_id'])[field_name].transform('nunique') > 1].copy()
-            # mismatched_rows['mismatched_field'] = field_name
-            # df_mismatch = pd.concat([df_mismatch, mismatched_rows], ignore_index=True)
-
-
     # Rename 'queried_project_id' to 'project_id'
-    projects_df.rename(columns={'queried_project_id': 'project_id'}, inplace=True)
+    projects_df.rename(columns={'queried_project_id': 'project_id'}, 
+                       inplace=True)
 
     # Export as csv
     projects_df.to_csv(config.PROJECTS_INTERMED_PATH, index=False)
