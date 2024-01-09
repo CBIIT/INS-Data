@@ -76,10 +76,10 @@ def get_newest_or_oldest_value(df: pd.DataFrame, field_name: str, agg_type: str)
         ValueError: If an invalid agg_type is provided.
     """
 
-    if agg_type == 'newest':
-        sort_new = True
-    elif agg_type == 'oldest':
-        sort_new = False
+    if agg_type == 'oldest':
+        get_oldest = True
+    elif agg_type == 'newest':
+        get_oldest = False
     else:
         raise ValueError(f"Invalid agg_type input: {agg_type}. Check Config.")
 
@@ -87,7 +87,8 @@ def get_newest_or_oldest_value(df: pd.DataFrame, field_name: str, agg_type: str)
     if field_name in ('project_start_date', 'project_end_date'):
         sort_col = field_name
     else:
-        sort_col = 'award_notice_date'  # Default sorting column
+        # Default sorting column
+        sort_col = 'award_notice_date'
 
     # Use fiscal_year as a fallback if the default sorting column contains NaNs
     if df.groupby('queried_project_id')[sort_col].apply(pd.isna).any():
@@ -95,7 +96,7 @@ def get_newest_or_oldest_value(df: pd.DataFrame, field_name: str, agg_type: str)
 
     # Sort values, group by project, and extract the first value
     value = (
-        df.sort_values(sort_col, ascending=sort_new)
+        df.sort_values(sort_col, ascending=get_oldest)
         .groupby('queried_project_id')[field_name]
         .first()
     )
