@@ -173,7 +173,7 @@ def gather_project_data(grants_df):
     projects_df = projects_df.reset_index(drop=True)
 
     # Get new df of all unique project-program combinations
-    project_program_df = grants_df[['queried_project_id']
+    project_program_df = grants_df[['queried_project_id', 'program.program_id']
                                    ].drop_duplicates().reset_index(drop=True)
 
     # Add program IDs so each project has a single row for each program
