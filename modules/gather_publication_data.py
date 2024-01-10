@@ -350,6 +350,26 @@ def extract_medline_date_components(date_str):
 
 
 
+def convert_month(month):
+  """Converts a month string, int, or numeric string to a numeric value."""
+
+  # If month is already an integer, use that (e.g. 8)
+  if isinstance(month, int):
+    return month
+  
+  # If month string is numeric, convert to integer (e.g. "08")
+  elif month.isnumeric():
+    return int(month)
+  
+  # If string is not numeric use month dictionary (e.g. "Aug")
+  else:
+    month_dict = {'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 
+                 'May': 5, 'Jun': 6, 'Jul': 7, 'Aug': 8, 
+                 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12}
+    return month_dict.get(month, 1)
+
+
+
 def format_publication_date(pub_date):
     """Format publication date API response as a standardized datetime. 
     Replace any missing months or dates with 1. (i.e. January or the 1st)
@@ -370,15 +390,8 @@ def format_publication_date(pub_date):
 
     # If year is present, parse expected format into datetime
     if year:
-        # Get month. If not present, default to January (01)
-        month = pub_date.get('Month', 1)
-
-        # If month is not numeric, convert string month to number value
-        if not month.isnumeric():
-            month_dict = {'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 
-                          'May': 5, 'Jun': 6, 'Jul': 7, 'Aug': 8, 
-                          'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12}
-            month = month_dict.get(month, 1)
+        # Get month and process it. If not present, default to January (01)
+        month = convert_month(pub_date.get('Month', 1))
 
         # Get day. If not present, default to 1st (01)
         day = pub_date.get('Day', 1)
