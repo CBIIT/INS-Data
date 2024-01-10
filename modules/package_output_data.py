@@ -436,13 +436,18 @@ def remove_publications_before_projects(df_publications: pd.DataFrame,
         pd.to_datetime(df_early_pubs['publication_date'],utc=True)
         ).dt.days
 
-    # Export report of removed early publications
+    
     if not df_early_pubs.empty:
+
+        # Define and make directory for report
         early_pub_report_path = config.REMOVED_EARLY_PUBLICATIONS
+        os.makedirs(os.path.dirname(early_pub_report_path), exist_ok=True)
+
+        # Export report of removed early publications
         df_early_pubs.to_csv(early_pub_report_path, index=False)
         print(f"---\nEarly Publications detected:\n"
               f"{len(df_early_pubs)} Publications with publication date more "
-              f"than {diff} before the associated project start date were"
+              f"than {diff} before the associated project start date were "
               f"removed and saved to {early_pub_report_path}")
         
     # Validate that columns have not changed in returned filtered list
