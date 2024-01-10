@@ -373,14 +373,14 @@ def format_publication_date(pub_date):
         # Get month. If not present, default to January (01)
         month = pub_date.get('Month', 1)
 
-        # If month is provided as a string, convert to numerical representation
-        if isinstance(month, str):
+        # If month is not numeric, convert string month to number value
+        if not month.isnumeric():
             month_dict = {'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 
                           'May': 5, 'Jun': 6, 'Jul': 7, 'Aug': 8, 
                           'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12}
             month = month_dict.get(month, 1)
 
-        # Get day. If not present, efault to 1st (01)
+        # Get day. If not present, default to 1st (01)
         day = pub_date.get('Day', 1)
 
         # Combine components into datetime
