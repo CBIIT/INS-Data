@@ -20,16 +20,6 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import config
 
 
-
-# On hold until INS-807
-# def remove_publications_before_projects(df_publications, df_projects):
-#     """Remove publications published before the associated project date"""
-#     # Placeholder for code
-#     df_publications_filtered = df_publications # do stuff
-#     return df_publications_filtered
-
-
-
 def add_type_column(df, datatype):
     """Add a column for datatype and fill with specified datatype."""
 
@@ -379,6 +369,93 @@ def package_publications(df_publications, column_configs):
 
 
 
+def remove_publications_before_projects(df_publications: pd.DataFrame, 
+                                        df_projects: pd.DataFrame, 
+                                        day_diff_allowed:int=0) -> pd.DataFrame:
+    """Remove publications published before the associated project start date.
+    
+    Args:
+        df_publications (pd.DataFrame): DataFrame containing publication data.
+        df_projects (pd.DataFrame): DataFrame containing project information.
+        day_diff_allowed (int, optional): Allowable difference in days between
+            publication date and project start date. Defaults to 0. 
+            If None, then no filtering is applied and original publications
+            are returned.
+
+    Returns:
+        pd.DataFrame: DataFrame containing publications with valid dates. 
+            If day_diff_allowed == None, returns original df_publications.
+
+    Raises:
+        ValueError: If column structure of the filtered DataFrame is altered
+
+    Notes:
+        Exports the DataFrame of removed publications as CSV to a location
+            defined in config.py.
+    """
+
+    # Skip this function entirely if None provided for day_diff_allowed 
+    if not day_diff_allowed:
+        print(f"Filter NOT applied for publications published before project "
+              f"start date. Keeping all. Change this in config.py if desired.")
+        return df_publications
+
+    # Validate day difference and convert to pd.Timedelta value
+    if not isinstance(day_diff_allowed, int):
+        raise ValueError(f"Expected int value for `day_diff_allowed` but found "
+                         f"{type(day_diff_allowed)}. Fix this in config.py.")
+    diff = str(day_diff_allowed) + ' days'
+
+    # Merge project start dates with publication data
+    df_merged = pd.merge(left=df_publications, 
+                        right=df_projects[['project_id','project_start_date']], 
+                        how='left',left_on='coreproject', right_on='project_id',
+                        # Ignore duplicate projects listed for multiple programs
+                        ).drop_duplicates()
+
+    # Get subset where publication pub date is earlier than project start date
+    df_early_pubs = df_merged[
+        # Convert dates to datetime for more accurate comparison
+        (pd.to_datetime(df_merged['publication_date'],utc=True) 
+         # Add in allowable day difference
+        + pd.Timedelta(diff))
+        < pd.to_datetime(df_merged['project_start_date'],utc=True)
+        # Set on a copy to avoid SettingWithCopyWarning
+        ].copy()
+
+    # Get publications to keep after early pubs removed
+    df_keep_pubs = df_merged[~df_merged.index.isin(df_early_pubs.index)]
+
+    # Drop merged columns and reindex filtered publications
+    df_keep_pubs = df_keep_pubs.drop(columns=['project_id','project_start_date']
+                                     ).reset_index(drop=True)
+    
+    # Add column showing difference between pub date and project start date
+    df_early_pubs.loc[:,'day_diff'] = (
+        pd.to_datetime(df_early_pubs['project_start_date'],utc=True) -
+        pd.to_datetime(df_early_pubs['publication_date'],utc=True)
+        ).dt.days
+
+    # Export report of removed early publications
+    if not df_early_pubs.empty:
+        early_pub_report_path = config.REMOVED_EARLY_PUBLICATIONS
+        df_early_pubs.to_csv(early_pub_report_path, index=False)
+        print(f"---\nEarly Publications detected:\n"
+              f"{len(df_early_pubs)} Publications with publication date more "
+              f"than {diff} before the associated project start date were"
+              f"removed and saved to {early_pub_report_path}")
+        
+    # Validate that columns have not changed in returned filtered list
+    if df_publications.columns.tolist() != df_keep_pubs.columns.tolist():
+        raise ValueError(f"Unexpected change in columns during "
+                         f"`remove_publications_before_projects()`.\n"
+                         f"Expected: {df_publications.columns.tolist()}\n"
+                         f"Actual:   {df_keep_pubs.columns.tolist()}")
+
+    return df_keep_pubs
+
+
+
 def package_output_data():
     """Run all data packaging steps for all data types."""
 
@@ -413,9 +490,12 @@ def package_output_data():
         print(f"Loaded Publications file from {config.PUBLICATIONS_INTERMED_PATH}")
     else: publications_exist = False
 
-    # Special handling [PLACEHOLDER]
-    # df_publications = remove_publications_before_projects(df_publications, 
-    #                                                       df_projects)
+    # Special handling
+    print(f"---\nApplying special handling steps...")
+    df_publications = remove_publications_before_projects(
+                        df_publications,
+                        df_projects,
+                        day_diff_allowed=config.PUB_PROJECT_DAY_DIFF_ALLOWANCE)
 
     # Final packaging
     package_programs(df_programs, column_configs) if programs_exist else None
@@ -430,5 +510,5 @@ if __name__ == "__main__":
 
     print(f"Running {os.path.basename(__file__)} as standalone module...")
 
-    # Placeholder for code
-    outputs = package_output_data()
+    # Run main packaging function for all data
+    package_output_data()

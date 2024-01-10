@@ -226,6 +226,10 @@ ICITE_COLUMNS_TO_PULL = ['pmid','title','authors','year',
 # Report subfolder for data packaing reports
 PACKAGING_REPORTS = REPORTS_GATHERED_DIR +'/'+ 'packagingReports/'
 REMOVED_DUPLICATES = PACKAGING_REPORTS + 'duplicate_' # Add datatype.csv in code
+REMOVED_EARLY_PUBLICATIONS = PACKAGING_REPORTS + 'removedEarlyPublications.csv'
+
+# Allowable difference between publication date and later project start date
+PUB_PROJECT_DAY_DIFF_ALLOWANCE = 365
 
 # Dictionary of columns and types to use in final data packaging
 COLUMN_CONFIGS = {
