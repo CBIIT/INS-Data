@@ -295,17 +295,17 @@ def report_invalid_nofos(invalid_nofos_df:pd.DataFrame,
     """
 
     if not invalid_nofos_df.empty:
-        print(f"\t{len(invalid_nofos_df)} potentially invalid NOFOs found.")
+        print(f"{len(invalid_nofos_df)} potentially invalid NOFOs found.")
         if printout:
             print(invalid_nofos_df)
 
         # Export invalid NOFOs to csv
         os.makedirs(os.path.dirname(report_path), exist_ok=True)
         invalid_nofos_df.to_csv(report_path, index=False)
-        print(f"\tInvalid NOFOs saved for review "
+        print(f"Invalid NOFOs saved for review "
               f"and correction in {report_path}.")
     else: 
-        print("\tAll good. No potentialy invalid NOFOs detected.")
+        print("All good. No potentialy invalid NOFOs detected.")
     
     return None
 
@@ -323,17 +323,17 @@ def report_invalid_awards(invalid_awards_df: pd.DataFrame,
     """
 
     if not invalid_awards_df.empty:
-        print(f"\t{len(invalid_awards_df)} potentially invalid awards found.")
+        print(f"{len(invalid_awards_df)} potentially invalid awards found.")
         if printout:
             print(invalid_awards_df)
 
         # Export invalid awards to csv
         os.makedirs(os.path.dirname(report_path), exist_ok=True)
         invalid_awards_df.to_csv(report_path, index=False)
-        print(f"\tInvalid awards saved for review "
+        print(f"Invalid awards saved for review "
               f"and correction in {report_path}.")
     else: 
-        print("\tAll good. No potentially invalid awards detected.")
+        print("All good. No potentially invalid awards detected.")
     
     return None
 
@@ -361,7 +361,7 @@ def prompt_to_continue(invalid_df: pd.DataFrame) -> bool:
         print(f"---\n"
             f"Please review {len(invalid_df)} potential "
             f"{val_type} issues. \n"
-            f"\tConsider manual fixes to the Qualtrics CSV or creating a "
+            f"Consider manual fixes to the Qualtrics CSV or creating a "
             f"versioned invalid{val_type}Report_reviewed.csv` "
             f"in the data/reviewed/ directory")
         
@@ -497,7 +497,7 @@ def check_for_duplicate_names(df: pd.DataFrame) -> bool:
         print(f"\nConsider manual fixes to the Qualtrics CSV.")
 
         # Prompt user to continue or stop with duplicates
-        continue_bool = input(f"\nContinue with duplicates? (Y/N): "
+        continue_bool = input(f"\n\tContinue with duplicates? (Y/N): "
                               ).lower() == 'y'
         
         return continue_bool
@@ -630,8 +630,8 @@ def load_and_clean_programs(csv_filepath: str, col_dict: dict) -> (bool, pd.Data
 
     # Check if corrections to invalid NOFOs already exist
     if os.path.exists(config.REVIEWED_NOFO_INPUT):
-        print(f"\n\tReviewed NOFO file found: {config.REVIEWED_NOFO_INPUT} \n"
-              f"\tApplying corrections and rerunning NOFO validation...")
+        print(f"\nReviewed NOFO file found: {config.REVIEWED_NOFO_INPUT} \n"
+              f"Applying corrections and rerunning NOFO validation...")
         
         # Read csv with NOFO corrections and then apply
         reviewed_df = pd.read_csv(config.REVIEWED_NOFO_INPUT)
@@ -662,8 +662,8 @@ def load_and_clean_programs(csv_filepath: str, col_dict: dict) -> (bool, pd.Data
 
     # Check if corrections to invalid Awards already exist
     if os.path.exists(config.REVIEWED_AWARD_INPUT):
-        print(f"\n\tReviewed 'Award' file found: {config.REVIEWED_AWARD_INPUT} \n"
-              f"\tApplying corrections and rerunning Award validation...")
+        print(f"\nReviewed 'Award' file found: {config.REVIEWED_AWARD_INPUT} \n"
+              f"Applying corrections and rerunning Award validation...")
 
         # Read CSV with 'Award' corrections and then apply
         reviewed_awards_df = pd.read_csv(config.REVIEWED_AWARD_INPUT)
@@ -697,10 +697,11 @@ def gather_program_data(qualtrics_csv: str) -> pd.DataFrame:
         pd.DataFrame: Formatted DataFrame of programs and details
     """
 
+    print(f"\n---\nPROGRAMS:\n"
+          f"Gathering, cleaning, and saving programs data...\n---\n")
+
     # Load and clean programs data
     print(f"Loading and processing {qualtrics_csv}...")
-
-    # Load and clean Key Programs
     continue_bool, programs_df = load_and_clean_programs(
                                     csv_filepath = qualtrics_csv, 
                                     col_dict = config.QUALTRICS_COLS)

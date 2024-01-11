@@ -359,8 +359,9 @@ def gather_grant_data(key_programs_df, print_meta=False):
             Key Program.
     """
 
-    print(f"---\nGathering, cleaning, and saving grants data from NIH "
-        f"Reporter API for each Key Program...")
+    print(f"\n---\nGRANTS:\n"
+          f"Gathering, cleaning, and saving grants data from "
+          f"NIH Reporter API for each Program...\n---\n")
 
     # Create empty DataFrame to fill with grants
     all_cleaned_grants = pd.DataFrame()

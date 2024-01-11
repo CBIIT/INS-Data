@@ -125,6 +125,10 @@ def gather_project_data(grants_df):
     """Aggregates grants data into project-level information, handling 
     inconsistencies and validation."""
 
+    print(f"\n---\nPROJECTS:\n"
+          f"Aggregating and formatting project data from grants...\n---\n")
+
+
     # Define how values are selected from grants to populate project values
     # program.program_id is excluded and added later
     field_agg_map = {

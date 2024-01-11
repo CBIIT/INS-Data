@@ -464,6 +464,9 @@ def remove_publications_before_projects(df_publications: pd.DataFrame,
 def package_output_data():
     """Run all data packaging steps for all data types."""
 
+    print(f"\n---\nDATA PACKAGING:\n"
+          f"Performing final data packaging steps...\n---\n")
+
     # Single data model dict defined in config
     column_configs = config.COLUMN_CONFIGS 
 

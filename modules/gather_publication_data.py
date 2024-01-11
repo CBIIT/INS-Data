@@ -708,6 +708,9 @@ def gather_publication_data(all_cleaned_grants, print_meta=False):
             publication.csv. 
     """
 
+    print(f"\n---\nPUBLICATIONS:\n"
+          f"Gathering, formatting, and saving Publication data...\n---\n")
+
     # Use existing PMID list if already present for this gathering date
     if os.path.exists(config.PROJECT_PMIDS):
         print(f"---\nReusing PMIDs already gathered in {config.PROJECT_PMIDS}.")

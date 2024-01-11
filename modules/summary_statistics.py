@@ -93,6 +93,9 @@ def get_shared_projects_by_program_pair(all_grants_data: pd.DataFrame):
 def get_summary_statistics(all_grants_data:pd.DataFrame):
     """Create reports with summary statistics of high-level grants info"""
 
+    print(f"\n---\nSUMMARY STATISTICS:\n"
+          f"Generating summary statistics reports for grants...\n---\n")
+
     # Define directory to store reports. Create if doesn't already exist
     reports_dir = config.REPORTS_GATHERED_DIR
     if not os.path.exists(reports_dir):
@@ -104,8 +107,8 @@ def get_summary_statistics(all_grants_data:pd.DataFrame):
     # Summary 2: Get pairs of Key Programs that share projects
     get_shared_projects_by_program_pair(all_grants_data)
 
-    print(f"Summary statistic reports for grants data successfully generated.\n"
-        f"Results can be found in {config.REPORTS_GATHERED_DIR}.\n---")
+    print(f"Done! Results can be found in {config.REPORTS_GATHERED_DIR}.")
+        
 
 
 
