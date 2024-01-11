@@ -472,35 +472,44 @@ def package_output_data():
         programs_exist = True
         df_programs = pd.read_csv(config.PROGRAMS_INTERMED_PATH)
         print(f"Loaded Programs file from {config.PROGRAMS_INTERMED_PATH}")
-    else: programs_exist = False
+    else: 
+        programs_exist = False
+        print(f"No Programs file found.")
     
     # Load grants data
     if os.path.exists(config.GRANTS_INTERMED_PATH):
         grants_exist = True
         df_grants = pd.read_csv(config.GRANTS_INTERMED_PATH)
         print(f"Loaded Grants file from {config.GRANTS_INTERMED_PATH}")
-    else: grants_exist = False
+    else: 
+        grants_exist = False
+        print(f"No Grants file found.")
 
     # Load projects data
     if os.path.exists(config.PROJECTS_INTERMED_PATH):
         projects_exist = True
         df_projects = pd.read_csv(config.PROJECTS_INTERMED_PATH)
         print(f"Loaded Projects file from {config.PROJECTS_INTERMED_PATH}")
-    else: projects_exist = False
+    else: 
+        projects_exist = False
+        print(f"No Projects file found.")
 
     # Load publications data
     if os.path.exists(config.PUBLICATIONS_INTERMED_PATH):
         publications_exist = True
         df_publications = pd.read_csv(config.PUBLICATIONS_INTERMED_PATH)
         print(f"Loaded Publications file from {config.PUBLICATIONS_INTERMED_PATH}")
-    else: publications_exist = False
+    else: 
+        publications_exist = False
+        print(f"No Publications file found.")
 
     # Special handling
     print(f"---\nApplying special handling steps...")
-    df_publications = remove_publications_before_projects(
-                        df_publications,
-                        df_projects,
-                        day_diff_allowed=config.PUB_PROJECT_DAY_DIFF_ALLOWANCE)
+    if publications_exist and projects_exist:
+        df_publications = remove_publications_before_projects(
+                                df_publications,
+                                df_projects,
+                                day_diff_allowed=config.PUB_PROJECT_DAY_DIFF)
 
     # Final packaging
     package_programs(df_programs, column_configs) if programs_exist else None
