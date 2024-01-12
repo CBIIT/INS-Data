@@ -461,6 +461,58 @@ def remove_publications_before_projects(df_publications: pd.DataFrame,
 
 
 
+def get_enum_values(df, cols, output="enums.txt"):
+    """Extracts unique values from specified columns in a DataFrame,
+    sorts them, and writes them to a YAML-like text file.
+
+    Args:
+        df (pd.DataFrame): The DataFrame to process.
+        cols (list): A list of column names to extract unique values from.
+        output (str, optional): The output file path. Defaults to "enums.txt".
+    """
+
+    # Get data type
+    df_type = df['type'][0]
+
+    # Build empty dict
+    enums_dict = {}
+
+    for col in cols:
+        # Get unique values from semicolon-separated strings
+        unique_vals = df[col].dropna().str.split(";").explode().unique()
+        # Sort for conistency
+        unique_vals = sorted(list(unique_vals))
+        # Add "Enum" header to match data model yaml structure
+        enums_dict[col] = {"Enum": unique_vals}
+
+    # Save as txt with yaml-like formatting 
+    with open(output, "w") as f:
+        # Use 2-space indents
+        indent = "  "
+
+        # Manually imitate formatting of yaml structure and get data type
+        f.write(f"PropDefinitions:\n"
+                f"{indent}#properties of {df_type}\n"
+                f"{indent}...\n")
+        
+        # Add columns as headers
+        for col, enum_data in enums_dict.items():
+            f.write(f"{indent}{col}:\n"
+                        f"{indent*2}... \n"
+                        f"{indent*2}Type:\n"
+                                f"{indent*3}value_type: list\n"
+                                f"{indent*3}Enum:\n")
+            
+            for val in enum_data["Enum"]:
+                            # Iterate through unique values as enums
+                            f.write(f"{indent*4}- {val}\n")
+            # Add trailing ... to end of section
+            f.write(f"{indent*2}...\n")
+
+    print(f"Done! Enumerated values for {df_type}s: {cols} saved to {output}")
+
+
+
 def package_output_data():
     """Run all data packaging steps for all data types."""
 
@@ -515,12 +567,21 @@ def package_output_data():
                                 day_diff_allowed=config.PUB_PROJECT_DAY_DIFF)
 
     # Final packaging
-    package_programs(df_programs, column_configs) if programs_exist else None
-    package_grants(df_grants, column_configs) if grants_exist else None
-    package_projects(df_projects, column_configs) if projects_exist else None
-    package_publications(df_publications, column_configs) if publications_exist else None
+    if programs_exist:
+        df_programs_out = package_programs(df_programs, column_configs)
+    if grants_exist:
+        df_grants_out = package_grants(df_grants, column_configs)
+    if projects_exist:
+        df_projects_out = package_projects(df_projects, column_configs)
+    if publications_exist:
+        df_publications_out = package_publications(df_publications, column_configs)
 
-
+    # Special post-processing handling
+    print(f"---\nGenerating enumerated values for data model...")
+    if programs_exist:
+        get_enum_values(df_programs_out, 
+                        cols = config.ENUM_PROGRAM_COLS, 
+                        output = config.ENUM_PROGRAM_PATH)
 
 # Run module as a standalone script when called directly
 if __name__ == "__main__":

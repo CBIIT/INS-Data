@@ -231,6 +231,10 @@ REMOVED_EARLY_PUBLICATIONS = PACKAGING_REPORTS + 'removedEarlyPublications.csv'
 # Allowable difference between publication date and later project start date
 PUB_PROJECT_DAY_DIFF = 365
 
+# Generation of enum value lists
+ENUM_PROGRAM_COLS = ['focus_area','cancer_type']
+ENUM_PROGRAM_PATH = PACKAGING_REPORTS + 'program_enums.txt'
+
 # Dictionary of columns and types to use in final data packaging
 COLUMN_CONFIGS = {
     # Data type
