@@ -57,7 +57,45 @@ def validate_identical_values(df, field_name):
 
 
 
-def get_newest_or_oldest_value(df: pd.DataFrame, field_name: str, agg_type: str):
+def detect_supplement(grant_id:str):
+    """Checks if a grant ID string indicates a supplement."""
+
+    # Get characters after the last hyphen in the string
+    suffix = grant_id.split("-")[-1]
+
+    # Check if the last part contains "A" and/or "S"
+    return any(char in suffix for char in ("A", "S"))
+
+
+
+def drop_extra_supplement_rows(df):
+    """
+    Drops rows containing supplement grants if non-supplement grants exist
+    for the same project.
+    """
+    
+    # Create new column determining if grant is supplement
+    df['is_supplement'] = df['grant_id'].apply(detect_supplement)
+
+    # Get a list of all projects containing ONLY supplement grants
+    only_supplements = []
+    for project_id, group in df.groupby('queried_project_id'):
+        if group['is_supplement'].all():
+            only_supplements.append(project_id)
+    
+    # Filter to keep non-supplements OR projects that are only supplements
+    no_extra_supplements = df[(df['is_supplement'] == False) |
+                              (df['queried_project_id'].isin(only_supplements))]
+    
+    # Drop helper column
+    no_extra_supplements = no_extra_supplements.drop(columns='is_supplement')
+    
+    return no_extra_supplements
+
+
+
+def get_newest_or_oldest_value(df: pd.DataFrame, field_name: str, 
+                               agg_type: str, remove_supplements: bool=True):
     """
     Retrieves the newest or oldest value of a specified field within each 
     project group.
@@ -67,6 +105,8 @@ def get_newest_or_oldest_value(df: pd.DataFrame, field_name: str, agg_type: str)
         field_name (str): The name of the field to extract the value from.
         agg_type (str): Specifies whether to retrieve the newest or oldest value.
             Valid options are 'newest' and 'oldest'.
+        remove_supplements (bool): Option to remove supplements for projects 
+            that also contain non-supplement grants. Default True. 
 
     Returns:
         str: The extracted newest or oldest value of the specified field for 
@@ -93,6 +133,11 @@ def get_newest_or_oldest_value(df: pd.DataFrame, field_name: str, agg_type: str)
     # Use fiscal_year as a fallback if the default sorting column contains NaNs
     if df.groupby('queried_project_id')[sort_col].apply(pd.isna).any():
         sort_col = 'fiscal_year'
+
+    # Drop any rows containing supplements for projects that contain both 
+    # supplement and non-supplement grants
+    if remove_supplements:
+        df = drop_extra_supplement_rows(df)
 
     # Sort values, group by project, and extract the first value
     value = (
@@ -161,13 +206,15 @@ def gather_project_data(grants_df):
             # Default to using values from newest projects 
             projects_df[field_name] = get_newest_or_oldest_value(grants_df, 
                                                                  field_name, 
-                                                                 'newest')
+                                                                 'newest',
+                                                                 True)
 
         # Use the newest or oldest award date to select the project value
         elif agg_type in ('newest', 'oldest'):
             projects_df[field_name] = get_newest_or_oldest_value(grants_df, 
                                                                  field_name, 
-                                                                 agg_type)
+                                                                 agg_type,
+                                                                 True)
 
         # List all distinct values within a project as the project value(s)
         elif agg_type == 'list':
