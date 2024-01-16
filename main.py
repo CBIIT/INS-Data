@@ -51,19 +51,19 @@ def main():
 
     # STEP 2: GRANTS
     # Gather, format, and save grants data for each program
-    all_cleaned_grants = gather_grant_data(programs_df, print_meta=False)
+    grants_df = gather_grant_data(programs_df, print_meta=False)
 
     # STEP 3: STATS
     # Build and save reports describing the programs and grants data
-    get_summary_statistics(all_cleaned_grants)
+    get_summary_statistics(grants_df)
 
     # STEP 4: PROJECTS
     # Aggregate, format, and save project data from grants data
-    gather_project_data(all_cleaned_grants)
+    projects_df = gather_project_data(grants_df)
 
     # STEP 5: PUBLICATIONS
     # Gather, process, and save publication data
-    gather_publication_data(all_cleaned_grants, print_meta=False)
+    gather_publication_data(projects_df, print_meta=False)
 
     # STEP 6: PACKAGE
     # Final packaging steps to store output files as TSVs
