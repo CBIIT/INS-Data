@@ -1,51 +1,76 @@
 # INS-Data Repository
 
-Welcome to the INS-Data repository for the [Index of NCI Studies (INS)](https://studycatalog.cancer.gov/)! This repository is designed to use a curated list of Key NCI Programs to build a list of all associated extramural grants and their associated publications. This  repository accesses resources from  the [NIH RePORTER API](https://api.reporter.nih.gov/), [NIH iCite bulk downloads](https://icite.od.nih.gov/api), and the [NCBI PubMed API](https://www.ncbi.nlm.nih.gov/books/NBK25497/) (through [BioPython](https://biopython.org/docs/1.75/api/Bio.Entrez.html)).
+Welcome to the INS-Data repository for the [Index of NCI Studies (INS)](https://studycatalog.cancer.gov/)! This repository is designed to use a curated list of key NCI Programs to build lists of all associated extramural grants, projects and their associated publications. This repository accesses resources from  the [NIH RePORTER API](https://api.reporter.nih.gov/), [NIH iCite bulk downloads](https://icite.od.nih.gov/api), and the [NCBI PubMed API](https://www.ncbi.nlm.nih.gov/books/NBK25497/) (through [BioPython](https://biopython.org/docs/1.75/api/Bio.Entrez.html)).
 
 
 
-## Table of Contents
+# Table of Contents
 
-- [Worfklow](#workflow)
-- [Usage](#usage)
-- [Data Structure](#data-structure)
+- [Data Gathering Workflow](#data-gathering-workflow)
+- [How to Use this Repository](#how-to-use-this-repo)
+- [Repository Structure](#data-structure)
 
 
 
-## Workflow
+# Data Gathering Workflow
 
 The INS-Data repository workflow follows the general outline below:  
 1. [Programs](#programs)
 2. [Grants](#grants)
-3. [Publications](#publications)
+3. [Projects](#projects)
+4. [Publications](#publications)
+5. [Data Packaging](#data-packaging)
 
 Diagram needs updating (ZD 2023-12-20)
 ![INS-Data workflow. This diagram shows a rough visualization of the steps listed below.](images/ins-data-repo-diagram.png)
 
 
 
-### Programs
-All program processing is handled in the `data_preparation.py` module. This will be updated/expanded in the future.
+## Programs
 
-1. **Process Qualtrics CSV**
-    - Receive curated CSV of Key Programs from the NCI Office of Data Sharing (ODS). This CSV is an export of survey results from the Qualtrics survey tool. Each Key Program in this export includes a curation of associated Notices of Funding Opportunities (NOFOs) and/or Awards.
-        - NOTE: Though similar terms, 'Award' is used throughout this documentation to refer to the Award values provided within the Qualtrics CSV, while 'Grant' is used to refer to the grants gathered from NIH RePORTER and used in downstream processing.
-    - Validate that all provided NOFOs and Awards match expected format patterns
-        - Generate versioned `invalidAwardReport` and `invalidNofoReport` in the `reports` directory if any unexpected patterns are found
-        - Prompt user to review and correct any issues. There are two ways to make corrections:
-            1. Make manual changes within the raw qualtrics file `qualtrics_output_{version}_raw.csv` and save as `qualtrics_output_{version}_manual_fix.csv`. Change `QUALTRICS_TYPE` to `manual_fix` within `config.py`.
-            2. Add `suggested_fix` and optional `comment` column(s) to the `invalidAwardReport` or `invalidNofoReport` csv and save to the `data/reviewed/{version}/` directory with the `_reviewed` suffix. The validation step will automatically check to see if this file exists and make any suggested changes specified within. If any invalid values still remain after this fix, an `invalidAwardReport_corrected.csv` or `invalidNofoReport_corrected.csv` is generated in the `reports` directory. 
-    - Save cleaned Key Programs CSV for reference and downstream use
+All program processing is handled in the `gather_program_data.py` module.
+
+It can be run as an independent process with the command: 
+```
+python modules/gather_program_data.py
+```
+
+1. **Process Qualtrics Input**
+    - Processes the curated CSV of Programs received from the NCI Office of Data Sharing (ODS). This CSV is an export of survey results from the Qualtrics survey tool. Each Program in this export includes a curation of associated Notices of Funding Opportunities (NOFOs) or Awards.
+    - NOTE: Though similar terms, 'Award' is used throughout this documentation to refer to the Award values provided within the Qualtrics CSV, while 'Grant' is used to refer to the grants gathered from NIH RePORTER and used in downstream processing.
+
+2. **Validate provided NOFOs and Awards**
+    - Compares each NOFO or Award to expected string formatting patterns to check for validity
+    - Generates versioned `invalidAwardReport` and `invalidNofoReport` in the `reports` directory if any unexpected patterns are found
+    - Prompts user to review and correct any issues. There are two ways to make corrections:
+        1. Make manual changes within the raw qualtrics file `qualtrics_output_{version}_raw.csv` and save as `qualtrics_output_{version}_manual_fix.csv`. Change `QUALTRICS_TYPE` to `manual_fix` within `config.py`.
+        2. Add `suggested_fix` and optional `comment` column(s) to the `invalidAwardReport` or `invalidNofoReport` csv and save to the `data/reviewed/{version}/` directory with the `_reviewed` suffix. The validation step will automatically check to see if this file exists and make any suggested changes specified within. If any invalid values still remain after this fix, an `invalidAwardReport_corrected.csv` or `invalidNofoReport_corrected.csv` is generated in the `reports` directory. 
+
+3. **Validate Program names and generate IDs**
+    - Checks for duplicates or unexpected combinations in Program Names and Program Acronyms
+        - If duplicates are found, then a manual fix must be made to the qualtrics input file to avoid downstream issues. 
+        - Save the fixed file as `qualtrics_output_{version}_manual_fix.csv`. Change `QUALTRICS_TYPE` to `manual_fix` within `config.py`.
+    - Generates a `program_id` from the Program Acronym
+
+4. **Generate clean Program file**
+    - Saves intermediate `program.csv` in versioned `data/01_intermediate/` directory for reference and downstream use
     - The fields expected are defined and can be modified in `config.py`
 
 
 
-### Grants
-All grants processing is handled within the `gather_grant_data.py` module, expect for the summary statistic step handled with the `summary_statistic.py` module. 
+## Grants
+
+All grants processing is handled within the `gather_grant_data.py` module, except for the summary statistic step handled with the `summary_statistic.py` module. 
+
+They can be run as independent processes with the commands: 
+```
+python modules/gather_grant_data.py
+python modules/summary_statistics.py
+```
 
 1. **Get grants data from NIH RePORTER API**
     - This process takes approximately **5-10 minutes** for ~70 programs
-    - For each Key Program, query the NIH RePORTER API to gather a list of all associated extramural grants along with descriptive data for each grant. 
+    - For each Key Program, this queries the NIH RePORTER API to gather a list of all associated extramural grants along with descriptive data for each grant. 
     - The NOFOs (e.g. `RFA-CA-21-038`; `PAR21-346`) and/or Awards (e.g. `1 U24 CA274274-01`; `P50CA221745`; `3U24CA055727-26S1`) provided for each Key Program are used as the query. 
     - The following exclusion are also applied within the query:
         - Subprojects are excluded
@@ -53,37 +78,70 @@ All grants processing is handled within the `gather_grant_data.py` module, expec
         - Grants receiving no funding from NCI are excluded
 
 2. **Process grants data**
-    - Reformat the data received from the NIH RePORTER API for use within INS. 
-        - Remove extraneous fields and rename fields to match the existing INS data model.
-        - Flatten nested JSON structures. In particular, the PI, PO, and agency funding fields have this structure. 
-        - Format names to standardize capitalization
+    - Reformats the data received from the NIH RePORTER API for use within INS. 
+        - Removes extraneous fields and rename fields to match the existing INS data model.
+        - Flattens nested JSON structures. In particular, the PI, PO, and agency funding fields have this structure. 
+        - Formats names to standardize capitalization
     - The fields expected are defined and can be modified in `config.py`
 
-3. **Save grants data for each Key Program**
-    - Add a program.program_id to each grant.
-        - Note: Because not all Key Programs have an ID, acronym, etc., IDs are created using a form of the Key Program name where spaces and non-alphanumeric characters are removed. (e.g. `BarrettsEsophagusTranslationalResearchNetworkBETRNet`)
-    - Combine grants data from all programs and store as a versioned `project.tsv` within the `data/processed/` directory.
+3. **Save grants data for each Program**
+    - Adds the associated Program ID to each grant
+    - Combines grants data from all programs and store as a versioned `grant.csv` within the `data/01_intermediate/` directory.
 
 4. **Generate summary statistics**
-    - Build reports useful for testing and validation but not intended for ingestion into the site
+    - Builds reports useful for testing and validation but not intended for ingestion into the site
         - `grantsStatsByProgram.csv` groups grants data by Key Program and aggregates counts of grants, projects, searched values, and earliest fiscal year
         - `sharedProjectsByProgramPair.csv` lists pairs of Key Programs and counts of projects that are associated with both
+    - Summary statistics are handled within the `summary_statistics.py` module
 
 
 
-### Publications
+## Projects
+
+All projects processing is handled within the `gather_project_data.py` module.
+
+It can be run as an independent process with the command: 
+```
+python modules/gather_project_data.py
+```
+
+1. **Aggregate grants into projects**
+    - Using the intermediate grants file `grant.csv` as input, this process builds a table of all projects and fills it with information pulled from grants for each project.
+    - Each project field is populated using the appropriate aggregation type:
+
+        - **Newest/Oldest**: Some fields should be populated with values from either the newest (e.g. project title, abstract) or oldest (e.g. project start date) grant.
+        - **Identical**: Some fields are identical across all grants within a project (e.g. organization and location details). For consistency, the project value is populated with the value from the newest non-supplement grant.
+        - **List**: Some fields are populated by gathering and listing all values from all grants within a project (e.g. opportunity number)
+
+    - Newest/oldest grants are decided using the award notice date if available. If not available, fiscal year is used. 
+    - Because grant supplements are not always representative of the project, supplements are ignored when pulling newest/oldest values when non-supplement grants are available within a project. 
+
+2. **Validate values and add Program IDs**
+    - Validates that all values that should be identical between grants within a project are identical. Any mismatches are reported in `mismatchedProjectValueReport.csv` in the `reports` directory. 
+    - Adds Program IDs to projects. To support the data model, any project associated with more than one program will appear multiple times (once for each program).
+    - Stores project data in the versioned `project.csv` within the `data/01_intermediate/` directory.
+
+
+
+## Publications
+
 All publication processing is handled within the `gather_publication_data.py` module.
+
+It can be run as an independent process with the command:
+```
+python modules/gather_publication_data.py
+```
 
 1. **Get associated PMIDs from the NIH RePORTER API**
     - This process takes approximately **45 minutes** for ~2500 project IDs
-    - For each project in `project.tsv`, query the NIH RePORTER API to gather a list of all associated PubMed IDs (PMIDs)
+    - For each project in `project.csv`, this queries the NIH RePORTER API to gather a list of all associated PubMed IDs (PMIDs)
         - For information on how NIH RePORTER links projects to publications, [see their FAQ](https://report.nih.gov/faqs#:~:text=How%20are%20projects%20linked%20to%20Publications%3F)
     - Note that the project-to-publication link is many-to-many. A single project can be associated with multiple publications, and a single publication can be associated with multiple projects
     - These are stored in the intermediate "checkpoint" file `projectPMIDs.csv`. For subsequent data gathering runs on the same start date (version), this file can be used instead of gathering PMIDs again.
 
 2. **Gather select PubMed information for each PMID**
-    - This process can take approximately **8 hours** to gather information for ~150,000 PMIDs and is usually run overnight. 
-    - Use the [BioPython Entrez](https://biopython.org/docs/1.75/api/Bio.Entrez.html) package to access the PubMed API via Entrez e-Utilities and query PMIDs for PubMed information.
+    - NOTE: This process can take **several hours** to gather information and is highly dependent upon the number of PMIDs gathered. The rate is approximately 15,000-20,000 publications per hour and it is recommended to run this outside of peak hours (9am - 5pm EST)
+    - Uses the [BioPython Entrez](https://biopython.org/docs/1.75/api/Bio.Entrez.html) package to access the PubMed API via Entrez e-Utilities and query PMIDs for PubMed information.
     - The following fields are pulled from PubMed:
         - Title
         - Authors
@@ -94,34 +152,48 @@ All publication processing is handled within the `gather_publication_data.py` mo
         - Whenever this workflow is run for the same start date (version), any existing checkpoint files are all loaded together and the unique PMIDs within are accounted for. Each run will check for any missing PMIDs and restart the data gathering wherever it left off. This allows the publications workflow to be stopped and restarted without problems. 
 
 3. **Gather iCite information for each PMID**
-    - Use the most recent [NIH iCite bulk download](https://nih.figshare.com/collections/iCite_Database_Snapshots_NIH_Open_Citation_Collection_/4586573/48) (zipped CSV) to access iCite data for each PMID
+    - Uses the most recent [NIH iCite bulk download](https://nih.figshare.com/collections/iCite_Database_Snapshots_NIH_Open_Citation_Collection_/4586573/48) (zipped CSV) to access iCite data for each PMID
     - This manual download process must be completed **before starting the automated workflow**
         - The downloaded `icite_metadata.zip` should be stored in a versioned (e.g. `2023-11/`) directory in the `data/raw/icite/` directory
             - Note: iCite files are ~10GB and are not stored under git control
         - The download takes **2-4 hours** depending upon download speed. 
-        - Note: The iCite API was explored, but operates much slower than the PubMed API. Additional runtime was estimated at 20+ hours to gather required fields for ~150,000 publications. 
+        - Note: The iCite API was explored, but operates much slower (3-4x) than the PubMed API. 
     - The following fields are pulled from iCite:
         - Title
         - Authors
         - Publication Year
         - Citation Count
         - Relative Citation Ratio (RCR)
-    - Save checkpoint file `icitePMIDData.csv` containing all iCite data fields for PMIDs of interest
+    - Saves checkpoint file `icitePMIDData.csv` containing all iCite data fields for PMIDs of interest
 
 4. **Combine and clean PubMed and iCite data for each PMID**
-    - Add the unique metrics from iCite (Citation Count & RCR) to the PubMed data for each PMID
-    - Check for any missing values in the PubMed information and fill in with iCite information where available
+    - Adds the unique metrics from iCite (Citation Count & RCR) to the PubMed data for each PMID
+    - Checks for any missing values in the PubMed information and fill in with iCite information where available
         - When values are conflicting, PubMed is used as the default. iCite values are only used when PubMed value is completely missing
-    - Save checkpoint file `mergedPMIDData.csv` containing all merged PubMed and iCite data for PMIDs of interest
-    - Clean the publications data by removing rows with the following issues:
+    - Saves checkpoint file `mergedPMIDData.csv` containing all merged PubMed and iCite data for PMIDs of interest
+    - Cleans the publications data by removing rows with the following issues:
         - Publication year before 2000
         - No publication information for any fields from PubMed or iCite
-    - Store a report of removed publications in a versioned `removedPublicationsReport.csv` within the `reports/` directory
-    - Store the final publication output `publication.tsv` in a versioned `data/processed/` directory
+    - Stores a report of removed publications in a versioned `removedPublicationsReport.csv` within the `reports/` directory
+    - Stores the intermediate publication output `publication.csv` in the versioned `data/01_intermediate/` directory
     
 
 
-## Usage
+## Data Packaging
+
+All final data packaging steps are handled within the `package_output_data.py` module.
+
+It can be run as an independent process with the command: 
+```
+python modules/package_output_data.py
+```
+
+
+
+
+
+# How to Use this Repository
+To recreate the INS data gathering process, follow the steps below.
 
 1. **Clone the repo to your local machine**
     - **Option 1**: Use the [built-in GitHub cloning method](https://docs.github.com/en/desktop/adding-and-cloning-repositories/cloning-and-forking-repositories-from-github-desktop) or a tool like [GitHub desktop](https://desktop.github.com/) 
@@ -148,7 +220,7 @@ All publication processing is handled within the `gather_publication_data.py` mo
     
 3. **Add or update the input CSV from ODS** 
     - If necessary, update the Qualtrics CSV received from ODS
-    - Rename and place it in the `data/raw/` folder
+    - Rename and place it in the `data/00_input/qualtrics/` folder
         - Name should be in the format `qualtrics_output_{version}_{type}.csv` (e.g. `qualtrics_output_2023-07-19_raw.csv`)
     - If the Qualtrics CSV is updated, also update the values for `QUALTRICS_VERSION` and `QUALTRICS_TYPE` in `config.py` to match the Qualtrics CSV as needed.
 
@@ -175,21 +247,23 @@ All publication processing is handled within the `gather_publication_data.py` mo
     python main.py
     ```
     - This will run all steps of the workflow and save all output files in file locations defined in `config.py`
-    - **OPTIONAL** - Instead of `main.py`, most modules can be run as standalones with the following commands:
-        - NOTE: If running standalones, ensure that necessary output files from preceding modules already exist for the same start date (version)
+    - **OPTIONAL** - Instead of `main.py`, most modules can be run as independent processes with the following commands:
         ```
-        python modules/data_preparation.py
+        python modules/gather_program_data.py
         python modules/gather_grant_data.py
         python modules/summary_statistics.py
+        python modules/gather_project_data.py
         python modules/gather_publication_data.py
+        python modules/package_output_data.py
         ```
+    - NOTE: If running modules independently, ensure that necessary output files from preceding modules already exist for the same start date (version)
 
 
 
-## Structure
+# Repository Structure
 
-The entire workflow is captured within `main.py` for simplicity of use and reproducibility of data. Functions used within `main.py` are defined in scripts within the `modules/` directory to allow for additional processing steps if needed in the future.  
-In general, TSV output files are intended for ingestion into INS, while CSV files are used as intermediates or for troubleshooting/reporting.
+The entire workflow is captured within `main.py` for simplicity and reproducibility. Functions used within `main.py` are defined in scripts within the `modules/` directory to allow for additional processing steps if needed in the future.  
+In general, TSV output files are intended for ingestion into INS, while CSV files are used as inputs, intermediates, or for troubleshooting/reporting.
 
 ```
 INS-Data
