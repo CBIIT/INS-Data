@@ -1,6 +1,6 @@
 # INS-Data Repository
 
-Welcome to the INS-Data repository for the [Index of NCI Studies (INS)](https://studycatalog.cancer.gov/)! This repository is designed to use a curated list of key NCI Programs to build lists of all associated extramural grants, projects and their associated publications. This repository accesses resources from  the [NIH RePORTER API](https://api.reporter.nih.gov/), [NIH iCite bulk downloads](https://icite.od.nih.gov/api), and the [NCBI PubMed API](https://www.ncbi.nlm.nih.gov/books/NBK25497/) (through [BioPython](https://biopython.org/docs/1.75/api/Bio.Entrez.html)).
+Welcome to the INS-Data repository for the [Index of NCI Studies (INS)](https://studycatalog.cancer.gov/)! This repository is designed to use a curated list of key National Cancer Institute (NCI) Programs to build lists of all associated extramural grants, projects and their associated publications. This repository accesses resources from  the [NIH RePORTER API](https://api.reporter.nih.gov/), [NIH iCite bulk downloads](https://icite.od.nih.gov/api), and the [NCBI PubMed API](https://www.ncbi.nlm.nih.gov/books/NBK25497/) (through [BioPython](https://biopython.org/docs/1.75/api/Bio.Entrez.html)).
 
 
 
@@ -15,22 +15,32 @@ Welcome to the INS-Data repository for the [Index of NCI Studies (INS)](https://
 # Data Gathering Workflow
 
 The INS-Data repository workflow follows the general outline below:  
-1. [Programs](#programs)
-2. [Grants](#grants)
-3. [Projects](#projects)
-4. [Publications](#publications)
-5. [Data Packaging](#data-packaging)
+1. [Gather Programs](#gather-programs)
+2. [Gather Grants](#gather-grants)
+3. [Gather Projects](#gather-projects)
+4. [Gather Publications](#gather-publications)
+5. [Package Data](#package-data)
 
 Diagram needs updating (ZD 2023-12-20)
 ![INS-Data workflow. This diagram shows a rough visualization of the steps listed below.](images/ins-data-repo-diagram.png)
 
 
 
-## Programs
+## Gather Programs
 
-All program processing is handled in the `gather_program_data.py` module.
+**This step gathers programs curated by the [NCI Office of Data Sharing (ODS)](https://datascience.cancer.gov/about/organization#ods)**
 
-It can be run as an independent process with the command: 
+**Programs** represent a coherent assembly of plans, project activities, and supporting resources contained within an administrative framework, the purpose of which is to implement an organization's mission or some specific program-related aspect of that mission.
+
+Within INS, programs are the highest-level node. Programs contain projects. 
+
+**Examples**
+- [The Childhood Cancer Data Initiative (CCDI)](https://www.cancer.gov/research/areas/childhood/childhood-cancer-data-initiative/about)
+- [Cancer Target Discovery and Development (CTD^2)](https://www.cancer.gov/ccg/research/functional-genomics/ctd2)
+
+### Program Workflow
+
+All program processing is handled in the `gather_program_data.py` module and can be run as an independent process with the command: 
 ```
 python modules/gather_program_data.py
 ```
@@ -58,11 +68,23 @@ python modules/gather_program_data.py
 
 
 
-## Grants
+## Gather Grants
 
-All grants processing is handled within the `gather_grant_data.py` module, except for the summary statistic step handled with the `summary_statistic.py` module. 
+**This step gathers grants from the [NIH RePORTER](https://reporter.nih.gov/). Only grants associated with programs (above) are gathered.**
 
-They can be run as independent processes with the commands: 
+**Grants** are financial assistance mechanisms providing money, property, or both to an eligible entity to carry out an approved project or activity. A grant is used whenever the NIH Institute or Center anticipates no substantial programmatic involvement with the recipient during performance of the financially assisted activities. 
+
+Within INS, a grant is usually an annual support to a multi-year project. 
+
+**Examples**
+- [5U24CA209999-02](https://reporter.nih.gov/project-details/9338199) | Monitoring tumor subclonal heterogeneity over time and space (FY2017)
+- [5U24CA209999-03](https://reporter.nih.gov/project-details/9537424) | Monitoring tumor subclonal heterogeneity over time and space (FY2018)
+- [5U10CA031946-23](https://reporter.nih.gov/project-details/6749547) | Cancer and Leukemia Group B (FY2004)
+- [1P50CA217691-01A1](https://reporter.nih.gov/project-details/9633845) | Emory University Lung Cancer SPORE (FY2019)
+
+### Grant Workflow
+
+All grants processing is handled within the `gather_grant_data.py` module, except for the summary statistic step handled with the `summary_statistic.py` module. They can be run as independent processes with the commands: 
 ```
 python modules/gather_grant_data.py
 python modules/summary_statistics.py
@@ -96,11 +118,21 @@ python modules/summary_statistics.py
 
 
 
-## Projects
+## Gather Projects
 
-All projects processing is handled within the `gather_project_data.py` module.
+**This step derives projects from the grants data gathered from [NIH RePORTER](https://reporter.nih.gov/). All projects are associated with at least one program.**
 
-It can be run as an independent process with the command: 
+**Projects** are the primary unit of collaborative research effort, sometimes also known as core projects or parent projects. Projects receive funding from awards to conduct research and produce outputs, often across multiple years. 
+
+Within INS, projects are organized as a grouping of grants with identical Activity Code, Institute Code, and Serial Number. 
+
+**Examples**
+- [U24CA209999](https://reporter.nih.gov/search/DvzsIDCVf0u9UAR7mykmnA/projects) | Monitoring tumor subclonal heterogeneity over time and space
+- [U10CA031946](https://reporter.nih.gov/search/dCmUr6fTQki-RDNTHA81TA/projects) | Cancer and Leukemia Group B
+
+### Project Workflow
+
+All projects processing is handled within the `gather_project_data.py` module and can be run as an independent process with the command: 
 ```
 python modules/gather_project_data.py
 ```
@@ -123,11 +155,15 @@ python modules/gather_project_data.py
 
 
 
-## Publications
+## Gather Publications
 
-All publication processing is handled within the `gather_publication_data.py` module.
+**This step gathers publication data from [NIH RePORTER](https://reporter.nih.gov/), [NCBI PubMed](https://pubmed.ncbi.nlm.nih.gov/), and [NIH iCite](https://icite.od.nih.gov/). All publications are associated with at least one project.**
 
-It can be run as an independent process with the command:
+**Publications** gathered for INS only include articles represented in PubMed with a unique PubMed ID.
+
+### Publication Workflow
+
+All publication processing is handled within the `gather_publication_data.py` module and can be run as an independent process with the command:
 ```
 python modules/gather_publication_data.py
 ```
@@ -179,15 +215,37 @@ python modules/gather_publication_data.py
     
 
 
-## Data Packaging
+## Package Data
 
-All final data packaging steps are handled within the `package_output_data.py` module.
+**This step standardizes, validates, and exports all data gathered from other steps of the process.**
 
-It can be run as an independent process with the command: 
+### Data Packaging Workflow
+
+All final data packaging steps are handled within the `package_output_data.py` module and can be run as an independent process with the command: 
 ```
 python modules/package_output_data.py
 ```
 
+1. **Finalize columns in output files**
+    - Adds a `type` column and fills with appropriate values required for data loading(e.g. `program` or `project`)
+    - Specifies columns and ordering for all files. These can be configured within `config.py`
+
+2. **Standardize characters**
+    - Normalizes any non-standard characters within data gathered from sources
+    - Characters were normalized using NFKC and then converted to ASCII before saving as UTF-8
+
+3. **Perform special handling steps**
+    - Removes any publications with a publication date more than 365 days before the associated project start date
+        - This helps to address the overcitation issue occasionally encountered when authors cite inappropriate grant support. See [this 2023 Office of Extramural Research article](https://nexus.od.nih.gov/all/2023/10/05/reminders-about-when-to-cite-an-nih-grant-in-a-paper-overcite-oversight/) for more details on the issue.
+        - Any publications removed in this process are saved in a `removedEarlyPublications.csv` in the `reports/../packagingReports` directory.
+        - The 365-day buffer can be modified within `config.py`
+
+4. **Validate and save final outputs**
+    - Validates that files do not contain duplicates or other inconsistencies 
+        - NOTE: Nodes with many-to-many relationships (e.g. `publications`) will have duplicate records where all values are identical __except__ for the linking column (e.g. `project.project_id`). This is intentional. 
+    - Validates that all list-like columns are separated by semicolons
+    - Generates a list of enumerated values for each column specified in `config.py`. These can be used to update the [INS Data Model](https://github.com/CBIIT/ins-model) before loading.
+    - Saves all final outputs as TSV files in the `data/02_outputs` directory. These are ready for INS data loading.
 
 
 
