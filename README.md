@@ -21,14 +21,15 @@ The INS-Data repository workflow follows the general outline below:
 4. [Gather Publications](#gather-publications)
 5. [Package Data](#package-data)
 
-Diagram needs updating (ZD 2023-12-20)
+
+
 ![INS-Data workflow. This diagram shows a rough visualization of the steps listed below.](images/ins-data-repo-diagram.png)
 
 
 
 ## Gather Programs
 
-**This step gathers programs curated by the [NCI Office of Data Sharing (ODS)](https://datascience.cancer.gov/about/organization#ods)**
+**This step gathers programs curated by the [NCI Office of Data Sharing (ODS)](https://datascience.cancer.gov/about/organization#ods).**
 
 **Programs** represent a coherent assembly of plans, project activities, and supporting resources contained within an administrative framework, the purpose of which is to implement an organization's mission or some specific program-related aspect of that mission.
 
