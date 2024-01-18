@@ -1,8 +1,9 @@
 # INS-Data Repository
 
-Welcome to the INS-Data repository for the [Index of NCI Studies (INS)](https://studycatalog.cancer.gov/)! This repository is designed to use a curated list of key National Cancer Institute (NCI) Programs to build lists of all associated extramural grants, projects and their associated publications. This repository accesses resources from  the [NIH RePORTER API](https://api.reporter.nih.gov/), [NIH iCite bulk downloads](https://icite.od.nih.gov/api), and the [NCBI PubMed API](https://www.ncbi.nlm.nih.gov/books/NBK25497/) (through [BioPython](https://biopython.org/docs/1.75/api/Bio.Entrez.html)).
+**Welcome to the Data Gathering Repository for the [Index of NCI Studies (INS)](https://studycatalog.cancer.gov/)!**  
+This repository is designed to use a curated list of key National Cancer Institute (NCI) programs to gather data for grants, projects and publications associated with each program in an automated way. This repository accesses resources from  the [NIH RePORTER API](https://api.reporter.nih.gov/), [NIH iCite bulk downloads](https://icite.od.nih.gov/api), and the [NCBI PubMed API](https://www.ncbi.nlm.nih.gov/books/NBK25497/) (through [BioPython](https://biopython.org/docs/1.75/api/Bio.Entrez.html)).
 
-
+**To access file outputs of the data gathering process**, [follow the instructions below](#accessing-output-files).
 
 # Table of Contents
 
@@ -252,7 +253,18 @@ python modules/package_output_data.py
 
 
 # How to Use this Repository
-To recreate the INS data gathering process, follow the steps below.
+
+### Accessing output files: 
+
+1. Go to the [data/02_output](data/02_output/) directory.
+2. Open the folder named with the most recent date. This notes the date that the Programs file was recevied from ODS.
+3. Open the folder named with the most recent gathered date. This notes the date that the data gathering pipeline was run.
+
+    For example, the files within `data/02_output/` `2024-01-04/` `gathered-2024-01-10/` used a Program file received on January 4th, 2024 as the input into the gathering process run on January 10th, 2024. 
+4. Download the TSV files within this directory. These represent the latest, finalized data intended for loading into INS. 
+
+
+### Recreating the INS data gathering process:
 
 1. **Clone the repo to your local machine**
     - **Option 1**: Use the [built-in GitHub cloning method](https://docs.github.com/en/desktop/adding-and-cloning-repositories/cloning-and-forking-repositories-from-github-desktop) or a tool like [GitHub desktop](https://desktop.github.com/) 
@@ -267,7 +279,7 @@ To recreate the INS data gathering process, follow the steps below.
     conda env create -f environment.yaml
     ```
     - This will read `environment.yaml`, setup a matching environment, and install any requirements
-    - Active the environment either through the [Anaconda Navigator](https://docs.anaconda.com/free/navigator/tutorials/manage-environments/) or with the terminal command:
+    - Activate the environment either through the [Anaconda Navigator](https://docs.anaconda.com/free/navigator/tutorials/manage-environments/) or with the terminal command:
     ```
     conda activate ins-data-env
     ```
@@ -298,7 +310,7 @@ To recreate the INS data gathering process, follow the steps below.
     - Replace the values above (without <>) with your email and key
     - NOTE: Because `.env` is listed in `.gitignore`, this file will not be added to GitHub. 
     - **Never commit API keys to GitHub. Keep them on your local.** 
-    - Failure to add a valid API key here will increase the 8+ hour PubMed API gathering process to 24+ hours
+    - Failure to add a valid API key here will triple the time required for the PubMed API data gathering process.
 
 6. **Run the pipeline**
     - In the command terminal, run the main workflow from the INS-Data root directory with:
