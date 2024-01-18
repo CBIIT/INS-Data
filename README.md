@@ -7,8 +7,8 @@ Welcome to the INS-Data repository for the [Index of NCI Studies (INS)](https://
 # Table of Contents
 
 - [Data Gathering Workflow](#data-gathering-workflow)
-- [How to Use this Repository](#how-to-use-this-repo)
-- [Repository Structure](#data-structure)
+- [How to Use this Repository](#how-to-use-this-repository)
+- [Repository Structure](#repository-structure)
 
 
 
@@ -338,30 +338,41 @@ INS-Data
 │   │       ├── {gathered version}/
 │   │       │   ├── temp_pubmed_chunkfiles/ # Not git-controlled
 |   |       |   |   └── Partial PubMed files for iterative loading
+│   │       │   ├── grant.csv
 │   │       │   ├── icitePMIDData.csv
 │   │       │   ├── mergedPMIDData.csv
 │   │       │   ├── project.csv
 │   │       │   ├── projectPMIDs.csv
 │   │       │   └── publication.csv
 │   │       ├── invalidNofoReport_reviewed.csv
-│   │       └── key_programs_{version}.csv
-│   └── 02_output/ # Work in progress
-│       ├── program.tsv
-│       ├── project.tsv
-│       └── publication.tsv
+│   │       └── program.csv
+│   └── 02_output/
+│       └── {qualtrics version}/
+│           └── {gathered version}/
+│               ├── grant.tsv
+│               ├── program.tsv
+│               ├── project.tsv
+│               └── publication.tsv
 ├── images/
 │   ├── ins-data-repo-diagram.drawio
 │   └── ins-data-repo-diagram.png
 ├── modules/
-│   ├── data_preparation.py
 │   ├── gather_grant_data.py
+│   ├── gather_program_data.py
+│   ├── gather_project_data.py
 │   ├── gather_publication_data.py
+│   ├── package_output_data.py
 │   └── summary_statistics.py
 ├── notebooks/
 │   └── Non-production Jupyter notebooks used during development
 ├── reports/
 │   └── {qualtrics version}/
 │       ├── {gathered version}/
+│       │   ├── packagingReports
+│       │   |   ├── duplicate_{type}.csv
+│       │   |   ├── {type}_enums.txt
+│       │   |   └── removedEarlyPublications.csv
+│       │   ├── mismatchedProjectValuesReport.csv
 │       │   ├── grantsStatsByProgram.csv
 │       │   ├── removedPublicationsReport.csv
 │       │   └── sharedProjectsByProgramPair.csv
