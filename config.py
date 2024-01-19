@@ -16,7 +16,7 @@ QUALTRICS_VERSION = "2024-01-19"    # <-- CHANGE VERSION HERE
 QUALTRICS_TYPE = "raw"              # <-- Define "raw" or "manual_fix" type of the input csv
 
 # Version of bulk download from iCite
-ICITE_VERSION = "2023-11"           # <-- CHANGE VERSION HERE
+ICITE_VERSION = "2023-12"           # <-- CHANGE VERSION HERE
 
 # An override date can be used instead of today's date for pulling and saving data versions
 # This is useful when running downstream modules on grants data gathered before today
