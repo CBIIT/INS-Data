@@ -3,9 +3,9 @@ summary_statistics.py
 2023-09-08 ZD
 
 This script defines main function get_summary_statistics that will generate 
-summary statistics relevant to data gathered for the INS project. The goal of 
-these statistics are not to ingest into the site, but rather for use in testing,
-validation, and general reporting. 
+summary statistics relevant to data gathered for the INS grants and projects. 
+The goal of these statistics are not to ingest into the site, but rather for 
+use in testing, validation, and general reporting. 
 
 Summary statistics will be output to the reports/ directory with a versioning
 structure identical to the data/ directory. 
@@ -75,9 +75,15 @@ def get_shared_projects_by_program_pair(all_grants_data: pd.DataFrame):
     df_shared_programs.rename(columns={'count':'unique_core_project_count'},
                               inplace=True)
 
-    # Drop rows where 'program_2' is NaN or blank to keep only shared projects
-    df_shared_programs = df_shared_programs.dropna(subset=['program_2'])
-
+    # Check if shared programs exist
+    if 'program_2' in df_shared_programs:
+        # Drop rows where program_2 is NaN or blank to keep only shared projects
+        df_shared_programs = df_shared_programs.dropna(subset=['program_2'])
+    else:
+        # If no shared programs, create a DataFrame with message
+        df_shared_programs = pd.DataFrame(
+            {'NOTICE': ['No shared projects between programs']})
+        
     # Export as report
     shared_programs_filename = config.STAT_SHARED_PROJECT_PROGRAM_PAIRS_FILENAME
     df_shared_programs.to_csv(shared_programs_filename, index=False)
@@ -86,6 +92,9 @@ def get_shared_projects_by_program_pair(all_grants_data: pd.DataFrame):
 
 def get_summary_statistics(all_grants_data:pd.DataFrame):
     """Create reports with summary statistics of high-level grants info"""
+
+    print(f"\n---\nSUMMARY STATISTICS:\n"
+          f"Generating summary statistics reports for grants...\n---\n")
 
     # Define directory to store reports. Create if doesn't already exist
     reports_dir = config.REPORTS_GATHERED_DIR
@@ -98,8 +107,8 @@ def get_summary_statistics(all_grants_data:pd.DataFrame):
     # Summary 2: Get pairs of Key Programs that share projects
     get_shared_projects_by_program_pair(all_grants_data)
 
-    print(f"Summary statistic reports for grants data successfully generated.\n"
-        f"Results can be found in {config.REPORTS_GATHERED_DIR}.\n---")
+    print(f"Done! Results can be found in {config.REPORTS_GATHERED_DIR}.")
+        
 
 
 
@@ -108,10 +117,10 @@ if __name__ == "__main__":
 
     print(f"Running {os.path.basename(__file__)} as standalone module...")
 
-    # Load project.csv as a dataframe
-    project_filepath = config.PROJECTS_INTERMED_PATH
-    print(f"Generating report statistics on {project_filepath}...")
-    all_cleaned_grants = pd.read_csv(project_filepath)
+    # Load grant.csv as a dataframe
+    grant_filepath = config.GRANTS_INTERMED_PATH
+    print(f"Generating report statistics on {grant_filepath}...")
+    all_cleaned_grants = pd.read_csv(grant_filepath)
 
     # Run stats module
     get_summary_statistics(all_cleaned_grants)

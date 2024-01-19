@@ -20,16 +20,6 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import config
 
 
-
-# On hold until INS-807
-# def remove_publications_before_projects(df_publications, df_projects):
-#     """Remove publications published before the associated project date"""
-#     # Placeholder for code
-#     df_publications_filtered = df_publications # do stuff
-#     return df_publications_filtered
-
-
-
 def add_type_column(df, datatype):
     """Add a column for datatype and fill with specified datatype."""
 
@@ -326,7 +316,7 @@ def package_grants(df_grants, column_configs):
                                         datatype='grant')
 
     # Export as TSV
-    output_filepath = config.PROJECTS_OUTPUT_PATH
+    output_filepath = config.GRANTS_OUTPUT_PATH
     os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
     df_grants_output.to_csv(output_filepath, sep='\t', index=False, 
                             encoding='utf-8')
@@ -337,24 +327,31 @@ def package_grants(df_grants, column_configs):
 
 
 
-# def package_projects(df_projects, column_configs):
-#     """Placeholder
-#     """
-#     print(f"Finalizing TSV for project data...")
+def package_projects(df_projects, column_configs):
+    """Package projects data for INS loading."""
 
-#     # Placeholder for code
-#     df_projects_output = standardize_data(df_projects, column_configs, datatype='project')
+    print(f"---\nFinalizing TSV for project data...") 
 
-#    print(f"Done! Project data exported to TSV.")
+    # Standardize and validate data
+    df_projects_output = standardize_data(df_projects, column_configs, 
+                                        datatype='project')
 
-#     return df_projects_output # Also export as TSV
+    # Export as TSV
+    output_filepath = config.PROJECTS_OUTPUT_PATH
+    os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
+    df_projects_output.to_csv(output_filepath, sep='\t', index=False, 
+                            encoding='utf-8')
+
+    print(f"Done! Final projects data saved as {output_filepath}.")
+
+    return df_projects_output
 
 
 
 def package_publications(df_publications, column_configs):
     """Package publications data for INS loading."""
 
-    print(f"---\nFinalizing TSV for publications data...") 
+    print(f"---\nFinalizing TSV for publication data...") 
 
     # Standardize and validate data
     df_publications_output = standardize_data(df_publications, column_configs, 
@@ -372,8 +369,155 @@ def package_publications(df_publications, column_configs):
 
 
 
+def remove_publications_before_projects(df_publications: pd.DataFrame, 
+                                        df_projects: pd.DataFrame, 
+                                        day_diff_allowed:int=0) -> pd.DataFrame:
+    """Remove publications published before the associated project start date.
+    
+    Args:
+        df_publications (pd.DataFrame): DataFrame containing publication data.
+        df_projects (pd.DataFrame): DataFrame containing project information.
+        day_diff_allowed (int, optional): Allowable difference in days between
+            publication date and project start date. Defaults to 0. 
+            If None, then no filtering is applied and original publications
+            are returned.
+
+    Returns:
+        pd.DataFrame: DataFrame containing publications with valid dates. 
+            If day_diff_allowed == None, returns original df_publications.
+
+    Raises:
+        ValueError: If column structure of the filtered DataFrame is altered
+
+    Notes:
+        Exports the DataFrame of removed publications as CSV to a location
+            defined in config.py.
+    """
+
+    # Skip this function entirely if None provided for day_diff_allowed 
+    if not day_diff_allowed:
+        print(f"Filter NOT applied for publications published before project "
+              f"start date. Keeping all. Change this in config.py if desired.")
+        return df_publications
+
+    # Validate day difference and convert to pd.Timedelta value
+    if not isinstance(day_diff_allowed, int):
+        raise ValueError(f"Expected int value for `day_diff_allowed` but found "
+                         f"{type(day_diff_allowed)}. Fix this in config.py.")
+    diff = str(day_diff_allowed) + ' days'
+
+    # Merge project start dates with publication data
+    df_merged = pd.merge(left=df_publications, 
+                        right=df_projects[['project_id','project_start_date']], 
+                        how='left',left_on='coreproject', right_on='project_id',
+                        # Ignore duplicate projects listed for multiple programs
+                        ).drop_duplicates()
+
+    # Get subset where publication pub date is earlier than project start date
+    df_early_pubs = df_merged[
+        # Convert dates to datetime for more accurate comparison
+        (pd.to_datetime(df_merged['publication_date'],utc=True) 
+         # Add in allowable day difference
+        + pd.Timedelta(diff))
+        < pd.to_datetime(df_merged['project_start_date'],utc=True)
+        # Set on a copy to avoid SettingWithCopyWarning
+        ].copy()
+
+    # Get publications to keep after early pubs removed
+    df_keep_pubs = df_merged[~df_merged.index.isin(df_early_pubs.index)]
+
+    # Drop merged columns and reindex filtered publications
+    df_keep_pubs = df_keep_pubs.drop(columns=['project_id','project_start_date']
+                                     ).reset_index(drop=True)
+    
+    # Add column showing difference between pub date and project start date
+    df_early_pubs.loc[:,'day_diff'] = (
+        pd.to_datetime(df_early_pubs['project_start_date'],utc=True) -
+        pd.to_datetime(df_early_pubs['publication_date'],utc=True)
+        ).dt.days
+
+    
+    if not df_early_pubs.empty:
+
+        # Define and make directory for report
+        early_pub_report_path = config.REMOVED_EARLY_PUBLICATIONS
+        os.makedirs(os.path.dirname(early_pub_report_path), exist_ok=True)
+
+        # Export report of removed early publications
+        df_early_pubs.to_csv(early_pub_report_path, index=False)
+        print(f"---\nEarly Publications detected:\n"
+              f"{len(df_early_pubs)} Publications with publication date more "
+              f"than {diff} before the associated project start date were "
+              f"removed and saved to {early_pub_report_path}")
+        
+    # Validate that columns have not changed in returned filtered list
+    if df_publications.columns.tolist() != df_keep_pubs.columns.tolist():
+        raise ValueError(f"Unexpected change in columns during "
+                         f"`remove_publications_before_projects()`.\n"
+                         f"Expected: {df_publications.columns.tolist()}\n"
+                         f"Actual:   {df_keep_pubs.columns.tolist()}")
+
+    return df_keep_pubs
+
+
+
+def get_enum_values(df, cols, output="enums.txt"):
+    """Extracts unique values from specified columns in a DataFrame,
+    sorts them, and writes them to a YAML-like text file.
+
+    Args:
+        df (pd.DataFrame): The DataFrame to process.
+        cols (list): A list of column names to extract unique values from.
+        output (str, optional): The output file path. Defaults to "enums.txt".
+    """
+
+    # Get data type
+    df_type = df['type'][0]
+
+    # Build empty dict
+    enums_dict = {}
+
+    for col in cols:
+        # Get unique values from semicolon-separated strings
+        unique_vals = df[col].dropna().str.split(";").explode().unique()
+        # Sort for conistency
+        unique_vals = sorted(list(unique_vals))
+        # Add "Enum" header to match data model yaml structure
+        enums_dict[col] = {"Enum": unique_vals}
+
+    # Save as txt with yaml-like formatting 
+    with open(output, "w") as f:
+        # Use 2-space indents
+        indent = "  "
+
+        # Manually imitate formatting of yaml structure and get data type
+        f.write(f"PropDefinitions:\n"
+                f"{indent}#properties of {df_type}\n"
+                f"{indent}...\n")
+        
+        # Add columns as headers
+        for col, enum_data in enums_dict.items():
+            f.write(f"{indent}{col}:\n"
+                        f"{indent*2}... \n"
+                        f"{indent*2}Type:\n"
+                                f"{indent*3}value_type: list\n"
+                                f"{indent*3}Enum:\n")
+            
+            for val in enum_data["Enum"]:
+                            # Iterate through unique values as enums
+                            f.write(f"{indent*4}- {val}\n")
+            # Add trailing ... to end of section
+            f.write(f"{indent*2}...\n")
+
+    print(f"Done! Enumerated values for {df_type}s: {cols} saved to {output}")
+
+
+
 def package_output_data():
     """Run all data packaging steps for all data types."""
+
+    print(f"\n---\nDATA PACKAGING:\n"
+          f"Performing final data packaging steps...\n---\n")
 
     # Single data model dict defined in config
     column_configs = config.COLUMN_CONFIGS 
@@ -383,59 +527,66 @@ def package_output_data():
         programs_exist = True
         df_programs = pd.read_csv(config.PROGRAMS_INTERMED_PATH)
         print(f"Loaded Programs file from {config.PROGRAMS_INTERMED_PATH}")
-    else: programs_exist = False
+    else: 
+        programs_exist = False
+        print(f"No Programs file found.")
     
     # Load grants data
-    if os.path.exists(config.PROJECTS_INTERMED_PATH):
+    if os.path.exists(config.GRANTS_INTERMED_PATH):
         grants_exist = True
-        df_grants = pd.read_csv(config.PROJECTS_INTERMED_PATH)
-        print(f"Loaded Grants file from {config.PROJECTS_INTERMED_PATH}")
-    else: grants_exist = False
+        df_grants = pd.read_csv(config.GRANTS_INTERMED_PATH)
+        print(f"Loaded Grants file from {config.GRANTS_INTERMED_PATH}")
+    else: 
+        grants_exist = False
+        print(f"No Grants file found.")
 
     # Load projects data
-    if os.path.exists("path_to_CSV_placeholder"):
+    if os.path.exists(config.PROJECTS_INTERMED_PATH):
         projects_exist = True
-        df_projects = pd.read_csv("path_to_CSV_placeholder")
-        print(f"Loaded Projects file from {'path_to_CSV_placeholder'}")
-    else: projects_exist = False
+        df_projects = pd.read_csv(config.PROJECTS_INTERMED_PATH)
+        print(f"Loaded Projects file from {config.PROJECTS_INTERMED_PATH}")
+    else: 
+        projects_exist = False
+        print(f"No Projects file found.")
 
     # Load publications data
     if os.path.exists(config.PUBLICATIONS_INTERMED_PATH):
         publications_exist = True
         df_publications = pd.read_csv(config.PUBLICATIONS_INTERMED_PATH)
         print(f"Loaded Publications file from {config.PUBLICATIONS_INTERMED_PATH}")
-    else: publications_exist = False
+    else: 
+        publications_exist = False
+        print(f"No Publications file found.")
 
-    # Special handling [PLACEHOLDER]
-    # df_publications = remove_publications_before_projects(df_publications, 
-    #                                                       df_projects)
+    # Special handling
+    print(f"---\nApplying special handling steps...")
+    if publications_exist and projects_exist:
+        df_publications = remove_publications_before_projects(
+                                df_publications,
+                                df_projects,
+                                day_diff_allowed=config.PUB_PROJECT_DAY_DIFF)
 
     # Final packaging
-    df_programs_output = package_programs(df_programs, column_configs) if programs_exist else None
-    df_grants_output = package_grants(df_grants, column_configs) if grants_exist else None
-    #df_projects_output = package_projects(df_projects, column_configs) if projects_exist else None
-    df_publications_output = package_publications(df_publications, column_configs) if publications_exist else None
+    if programs_exist:
+        df_programs_out = package_programs(df_programs, column_configs)
+    if grants_exist:
+        df_grants_out = package_grants(df_grants, column_configs)
+    if projects_exist:
+        df_projects_out = package_projects(df_projects, column_configs)
+    if publications_exist:
+        df_publications_out = package_publications(df_publications, column_configs)
 
-    # # Return a dictionary of DataFrames
-    # return {
-    #     #programs_output': df_programs_output,
-    #     'grants_output': df_grants_output,
-    #     'projects_output': df_projects_output,
-    #     'publications_output': df_publications_output
-    # }
-
-
+    # Special post-processing handling
+    print(f"---\nGenerating enumerated values for data model...")
+    if programs_exist:
+        get_enum_values(df_programs_out, 
+                        cols = config.ENUM_PROGRAM_COLS, 
+                        output = config.ENUM_PROGRAM_PATH)
 
 # Run module as a standalone script when called directly
 if __name__ == "__main__":
 
     print(f"Running {os.path.basename(__file__)} as standalone module...")
 
-    # Placeholder for code
-    outputs = package_output_data()
-
-    # # Access DataFrames using keys
-    # df_programs_output = outputs['programs_output']
-    # df_grants_output = outputs['grants_output']
-    # df_projects_output = outputs['projects_output']
-    # df_publications_output = outputs['publications_output']
+    # Run main packaging function for all data
+    package_output_data()

@@ -36,7 +36,7 @@ import config
 
 
 # This is similar but separate from the `get_nih_reporter_grants` function
-# within the nih_reporter_api.py module
+# within the grants gathering module
 def get_pmids_from_nih_reporter_api(project_id,
                                     print_meta=False):
     """Get PMIDs associated with a single provided Project ID. 
@@ -97,7 +97,7 @@ def get_pmids_from_nih_reporter_api(project_id,
             if response.status_code == 200:
                 pmids = response.json()
 
-                # Add grants to running list
+                # Add pmids to running list
                 pmid_data.extend(pmids['results'])
 
                 # Increase offset by limit to get next "page"
@@ -142,17 +142,16 @@ def get_pmids_from_projects(projects_df, print_meta=False):
     """Iterate through project data and use NIH RePORTER API to get all PMIDs.
 
     Args:
-        projects_df (pd.Dataframe): DataFrame of all cleaned projects from the
-            grants workflow
+        projects_df (pd.Dataframe): DataFrame of all projects from the workflow
+            that aggregates grants into project values
         print_meta (bool): Boolean indicator. If True, print status to console
 
     Returns:
         pd.DataFrame: Dataframe with 'coreproject' and 'pmid' columns
     """
 
-    # Get all unique project IDs from projects.csv (loaded earlier in notebook)
-    project_id_list = projects_df['queried_project_id'].unique().tolist()
-
+    # Get all unique project IDs from projects 
+    project_id_list = projects_df['project_id'].unique().tolist()
     print(f"{len(project_id_list)} total unique project IDs.")
 
     # Create empty df
@@ -273,13 +272,13 @@ def get_full_publication_record(pmid):
 
 
 def format_authors(author_list):
-    """Format author names as 'FirstName LastName'.
+    """Format author names as 'FirstName LastName' with semicolon separator.
 
     Args:
         author_list (list): List of authors
 
     Returns:
-        str: Semi-colon-separated formatted author names
+        str: Semicolon-separated formatted author names
     """
 
     formatted_authors = []
@@ -350,6 +349,26 @@ def extract_medline_date_components(date_str):
 
 
 
+def convert_month(month):
+  """Converts a month string, int, or numeric string to a numeric value."""
+
+  # If month is already an integer, use that (e.g. 8)
+  if isinstance(month, int):
+    return month
+  
+  # If month string is numeric, convert to integer (e.g. "08")
+  elif month.isnumeric():
+    return int(month)
+  
+  # If string is not numeric use month dictionary (e.g. "Aug")
+  else:
+    month_dict = {'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 
+                 'May': 5, 'Jun': 6, 'Jul': 7, 'Aug': 8, 
+                 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12}
+    return month_dict.get(month, 1)
+
+
+
 def format_publication_date(pub_date):
     """Format publication date API response as a standardized datetime. 
     Replace any missing months or dates with 1. (i.e. January or the 1st)
@@ -370,17 +389,10 @@ def format_publication_date(pub_date):
 
     # If year is present, parse expected format into datetime
     if year:
-        # Get month. If not present, default to January (01)
-        month = pub_date.get('Month', 1)
+        # Get month and process it. If not present, default to January (01)
+        month = convert_month(pub_date.get('Month', 1))
 
-        # If month is provided as a string, convert to numerical representation
-        if isinstance(month, str):
-            month_dict = {'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 
-                          'May': 5, 'Jun': 6, 'Jul': 7, 'Aug': 8, 
-                          'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12}
-            month = month_dict.get(month, 1)
-
-        # Get day. If not present, efault to 1st (01)
+        # Get day. If not present, default to 1st (01)
         day = pub_date.get('Day', 1)
 
         # Combine components into datetime
@@ -440,7 +452,7 @@ def get_pubmed_info_from_pmid(pmid):
             publication_date = (record['Journal']['JournalIssue']
                                         ['PubDate'].get('MedlineDate', ''))
 
-        # Use the format_publication_date function
+        # Standardize the publication date from various sources
         publication_date = format_publication_date(publication_date)
 
         publication_info = {
@@ -671,11 +683,11 @@ def merge_and_clean_project_pmid_info(df_pmids, df_pub_info):
 
 
 
-def gather_publication_data(all_cleaned_grants, print_meta=False):
+def gather_publication_data(projects_df, print_meta=False):
     """Use multiple sources to gather publication data associated with projects.
 
     This function performs the following general steps:
-    1. Use the NIH RePORTER API to get PMIDs associated with each grant
+    1. Use the NIH RePORTER API to get PMIDs associated with each project
     2. Use the PubMed API to get publication info for each PMID
     3. Use iCite download data to get additional publication info for each PMID
     4. Merge and resolve publication info from PubMed and iCite
@@ -686,7 +698,7 @@ def gather_publication_data(all_cleaned_grants, print_meta=False):
     7. Export publication data and a report of removed publications
 
     Args:
-        all_cleaned_grants (pd.DataFrame): DataFrame of processed grants data
+        projects_df (pd.DataFrame): DataFrame of processed (core) project data
         print_meta (bool): Boolean indicator. If True, print process results to 
             the console in addition to any exported data. 
 
@@ -694,6 +706,9 @@ def gather_publication_data(all_cleaned_grants, print_meta=False):
         None. Several CSVs defined within config.py are exported, including
             publication.csv. 
     """
+
+    print(f"\n---\nPUBLICATIONS:\n"
+          f"Gathering, formatting, and saving Publication data...\n---\n")
 
     # Use existing PMID list if already present for this gathering date
     if os.path.exists(config.PROJECT_PMIDS):
@@ -704,7 +719,7 @@ def gather_publication_data(all_cleaned_grants, print_meta=False):
         # Gather PMIDs from projects using NIH RePORTER API
         print(f"---\nGathering associated PMIDs for each project from "
               f"NIH RePORTER API...")
-        df_pmids = get_pmids_from_projects(all_cleaned_grants, 
+        df_pmids = get_pmids_from_projects(projects_df, 
                                            print_meta=print_meta)
 
         # Store a checkpoint file of all gathered PMIDs and projects
@@ -781,10 +796,10 @@ if __name__ == "__main__":
 
     print(f"Running {os.path.basename(__file__)} as standalone module...")
 
-    # Load Grants data
+    # Load Projects data
     project_filepath = config.PROJECTS_INTERMED_PATH
-    all_cleaned_grants = pd.read_csv(project_filepath)
+    projects_df = pd.read_csv(project_filepath)
     print(f"Projects data loaded from {project_filepath}.")
 
     # Gather, process, and save publication data
-    gather_publication_data(all_cleaned_grants, print_meta=False)
+    gather_publication_data(projects_df, print_meta=False)

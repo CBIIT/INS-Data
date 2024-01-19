@@ -6,7 +6,7 @@ This script defines primary function gather_grant_data.
 
 First, get_nih_reporter_grants calls the public NIH RePORTER API to gather 
 grants data for the provided NOFO (Notice of Funding Opportunity) and/or awards 
-(i.e. grants, supplements, or parent projects) for each Key Program in the Key 
+(i.e. grants, supplements, or parent projects) for each Program in the  
 Programs CSV. Next, clean_grants_data calls helper functions to process the 
 grants data to filter and reformat for use within INS.
 
@@ -276,11 +276,6 @@ def clean_grants_data(grants_data, print_meta=False):
 
     Returns:
         pandas.DataFrame: Cleaned DataFrame containing grants information
-
-    Notes:
-        Exports a project.csv to the versioned intermediate directory
-        This function uses various helper functions and configuration parameters
-            defined in the config module
     """
 
     # Step 1: Load JSON grants data as pandas dataframe and select columns
@@ -349,33 +344,34 @@ def clean_grants_data(grants_data, print_meta=False):
 
 
 
-def gather_grant_data(key_programs_df, print_meta=False):
+def gather_grant_data(programs_df, print_meta=False):
     """Use the NIH RePORTER to gather grants data for each Program and then 
     process the grants data for use within INS.
 
     Args:
-        key_programs_df (pd.DataFrame): DataFrame containing Program info. Must 
+        programs_df (pd.DataFrame): DataFrame containing Program info. Must 
             include 'nofo' and/or 'award' columns listing API search terms. 
         print_meta (bool): Boolean indicator. If True, print API gathering 
             process results to the console.
 
     Returns:
-        pd.DataFrame: Cleaned DataFrame containing grants information for each 
-            Key Program.
+        pd.DataFrame: DataFrame containing processed grants information for 
+        each Program.
     """
 
-    print(f"---\nGathering, cleaning, and saving grants data from NIH "
-        f"Reporter API for each Key Program...")
+    print(f"\n---\nGRANTS:\n"
+          f"Gathering, cleaning, and saving grants data from "
+          f"NIH Reporter API for each Program...\n---\n")
 
     # Create empty DataFrame to fill with grants
-    all_cleaned_grants = pd.DataFrame()
+    grants_df = pd.DataFrame()
 
     # Initialize a counter for total records
     total_records_count = 0
 
-    # Iterate through each Key Program to get name, id, NOFOs, and Awards
-    for index, row in tqdm(key_programs_df.iterrows(), 
-                           total=len(key_programs_df), ncols=80):
+    # Iterate through each Program to get name, id, NOFOs, and Awards
+    for index, row in tqdm(programs_df.iterrows(), 
+                           total=len(programs_df), ncols=80):
         program_name = row['program_name']
         program_id = row['program_id']
         nofo_str = row['nofo']
@@ -431,27 +427,27 @@ def gather_grant_data(key_programs_df, print_meta=False):
         cleaned_grants_data[config.PROGRAM_ID_FIELDNAME] = program_id
 
         # Combine and save cleaned grants data
-        all_cleaned_grants = pd.concat([all_cleaned_grants,
+        grants_df = pd.concat([grants_df,
                                         cleaned_grants_data]) 
 
     # Define versioned output directory using config.py
-    project_filepath = config.PROJECTS_INTERMED_PATH
-    os.makedirs(os.path.dirname(project_filepath), exist_ok=True)
+    grant_filepath = config.GRANTS_INTERMED_PATH
+    os.makedirs(os.path.dirname(grant_filepath), exist_ok=True)
 
-    # Sort by program and project for consistency
-    all_cleaned_grants.sort_values(by=[config.PROGRAM_ID_FIELDNAME,
-                                    config.PROJECT_ID_FIELDNAME], 
+    # Sort by program and grant for consistency
+    grants_df.sort_values(by=[config.PROGRAM_ID_FIELDNAME,
+                                    config.GRANT_ID_FIELDNAME], 
                                     inplace=True, ignore_index=True)
 
     # Export to csv
-    all_cleaned_grants.to_csv(project_filepath, index=False)
+    grants_df.to_csv(grant_filepath, index=False)
     
     print(f"---\nSuccess! NIH RePORTER API data gathered, cleaned, and saved.\n"
         f"{total_records_count} grants gathered across all Awards and NOFOs.\n"
-        f"{len(all_cleaned_grants)} NCI-funded grants retained for INS. \n"
-        f"Results can be found in {project_filepath}.\n---") 
+        f"{len(grants_df)} NCI-funded grants retained for INS. \n"
+        f"Results can be found in {grant_filepath}.\n---") 
 
-    return all_cleaned_grants
+    return grants_df
 
 
 
@@ -465,4 +461,4 @@ if __name__ == "__main__":
     print(f"Loading Program data from {config.PROGRAMS_INTERMED_PATH}")
 
     # Gather grants data
-    all_cleaned_grants = gather_grant_data(programs_df, print_meta=False)
+    grants_df = gather_grant_data(programs_df, print_meta=False)

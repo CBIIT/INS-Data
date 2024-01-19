@@ -2,7 +2,8 @@
 main.py
 2023-07-26 ZD
 
-Main function for the INS-Data project meant to be run as a single command. 
+Main function for INS-Data gathering processes intended to be run as a 
+single command. 
 
 Inputs required:
 - Curated Qualtrics CSV of Key Programs
@@ -12,8 +13,9 @@ Inputs required:
 
 Ouputs generated:
 - data/01_intermediate/
-    - CSVs for all gathered data types, including programs, publications, and 
-    projects. These will be passed through data packaging before INS ingestion.
+    - CSVs for all gathered data types, including programs, publications, 
+    grants, and projects. These will be passed through data packaging before 
+    INS ingestion.
     - Additional CSV outputs and checkpoint files gathered during the process. 
     These are useful for troubleshooting and validation.
 
@@ -34,6 +36,7 @@ import pandas as pd
 import config
 from modules.gather_program_data import gather_program_data
 from modules.gather_grant_data import gather_grant_data
+from modules.gather_project_data import gather_project_data
 from modules.summary_statistics import get_summary_statistics
 from modules.gather_publication_data import gather_publication_data
 from modules.package_output_data import package_output_data
@@ -47,18 +50,22 @@ def main():
     programs_df = gather_program_data(config.QUALTRICS_CSV_PATH)
 
     # STEP 2: GRANTS
-    # Gather, format, and save grants data for each Key Program
-    all_cleaned_grants = gather_grant_data(programs_df, print_meta=False)
+    # Gather, format, and save grants data for each program
+    grants_df = gather_grant_data(programs_df, print_meta=False)
 
     # STEP 3: STATS
     # Build and save reports describing the programs and grants data
-    get_summary_statistics(all_cleaned_grants)
+    get_summary_statistics(grants_df)
 
-    # STEP 4: PUBLICATIONS
+    # STEP 4: PROJECTS
+    # Aggregate, format, and save project data from grants data
+    projects_df = gather_project_data(grants_df)
+
+    # STEP 5: PUBLICATIONS
     # Gather, process, and save publication data
-    gather_publication_data(all_cleaned_grants, print_meta=False)
+    gather_publication_data(projects_df, print_meta=False)
 
-    # STEP 5: PACKAGE
+    # STEP 6: PACKAGE
     # Final packaging steps to store output files as TSVs
     package_output_data()
 
