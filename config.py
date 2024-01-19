@@ -12,7 +12,7 @@ from datetime import datetime
 # Inputs and outputs will use this versioning
 # Version must match suffix in input filename
 
-QUALTRICS_VERSION = "2024-01-04"    # <-- CHANGE VERSION HERE
+QUALTRICS_VERSION = "2024-01-19"    # <-- CHANGE VERSION HERE
 QUALTRICS_TYPE = "raw"              # <-- Define "raw" or "manual_fix" type of the input csv
 
 # Version of bulk download from iCite
@@ -74,7 +74,7 @@ PROJECTS_OUTPUT_PATH = OUTPUT_GATHERED_DIR +"/"+ "project.tsv"
 QUALTRICS_COLS = {
     "Name of Key Program": "program_name",
     "Acronym for key program": "program_acronym",
-    "Focus Area (select all that apply)": "focus_area",
+    "Focus Area (select all that apply)": "obsolete_column_01",
     "DOC": "doc",
     "Primary Contact (PI)": "contact_pi",
     "Primary Contact (PI) email": "contact_pi_email",
@@ -84,12 +84,12 @@ QUALTRICS_COLS = {
     "Grant/Award number {parent award FORMAT LL#CA######, eg. UG3CA260607} (If more than one, separate with ; semicolon)": "award",
     "Link to program website": "program_link",
     "Link to data or DCC if available": "data_link",
-    "What type of cancer is the primary focus of the program? (Check all that\napply)": "cancer_type",
+    "What type of cancer is the primary focus of the program? (Check all that\napply)": "focus_area",
     "Login ID": "login_id"
 }
 
 # Dictionary of specific old:new values to replace within data
-PROGRAM_VALUE_REPLACEMENTS = {"This program focuses on cancer broadly - not limited to a primary cancer type": "Focus on Cancer Broadly"}
+PROGRAM_VALUE_REPLACEMENTS = {"This program focuses on cancer broadly - not limited to a primary cancer type": "Broad Cancer Types"}
 
 # Invalid NOFO reports
 INVALID_NOFOS_REPORT = REPORTS_DIR +"/"+ "invalidNofoReport_" + QUALTRICS_TYPE + ".csv"
@@ -232,7 +232,7 @@ REMOVED_EARLY_PUBLICATIONS = PACKAGING_REPORTS + 'removedEarlyPublications.csv'
 PUB_PROJECT_DAY_DIFF = 365
 
 # Generation of enum value lists
-ENUM_PROGRAM_COLS = ['focus_area','cancer_type']
+ENUM_PROGRAM_COLS = ['focus_area']
 ENUM_PROGRAM_PATH = PACKAGING_REPORTS + 'program_enums.txt'
 
 # Dictionary of columns and types to use in final data packaging
@@ -259,10 +259,9 @@ COLUMN_CONFIGS = {
             'award': 'award',
             'program_link': 'program_link',
             'data_link': 'data_link',
-            'cancer_type': 'cancer_type'
         },
         # List of any list-like columns that need semicolon separators
-        'list_like_cols': ['focus_area', 'doc', 'cancer_type'],
+        'list_like_cols': ['focus_area', 'doc'],
     },
     'grant': {
         'node_id': 'grant_id',

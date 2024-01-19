@@ -471,6 +471,9 @@ def get_enum_values(df, cols, output="enums.txt"):
         output (str, optional): The output file path. Defaults to "enums.txt".
     """
 
+    # Make directory if it doesn't already exist
+    os.makedirs(os.path.dirname(output), exist_ok=True)
+
     # Get data type
     df_type = df['type'][0]
 

@@ -20,7 +20,6 @@ The output dataframe contains the following columns:
     nofo,award
     program_link
     data_link
-    cancer_type
 """
 
 import os
@@ -58,6 +57,20 @@ def find_header_location(csv_filepath:str, key_value:str) -> 'tuple[int,int]':
     # If the loop finishes without finding the key_value, raise an Error
     raise ValueError(f"Key value '{key_value}' not found in file.")
 
+
+
+def drop_obsolete_columns(df:pd.DataFrame, obsolete_str:str="obsolete"):
+    """Drop columns with header containing 'obsolete' string added during 
+    config renaming."""
+
+    # Identify any column headers renamed to include 'obsolete' string
+    obsolete_cols = [col for col in df.columns if obsolete_str in col]
+
+    # If any are found, drop them from the dataframe
+    if obsolete_cols:
+        df = df.drop(obsolete_cols, axis=1)
+    
+    return df
 
 
 
@@ -591,6 +604,9 @@ def load_and_clean_programs(csv_filepath: str, col_dict: dict) -> (bool, pd.Data
     # Check and rename column names
     df = validate_and_rename_columns(df, col_dict)
 
+    # Drop obsolete columns specified in config.py
+    df = drop_obsolete_columns(df, obsolete_str="obsolete")
+
     # Drop second header row with survey question IDs
     df = df.drop(axis=0, index=0).reset_index(drop=True)
 
@@ -603,7 +619,7 @@ def load_and_clean_programs(csv_filepath: str, col_dict: dict) -> (bool, pd.Data
     df = clean_nofo_and_award_cols(df)
 
     # Brute force replacement of commas with semicolons in list-like cols
-    df = force_replace_comma_separation(df, ['focus_area', 'doc', 'cancer_type'])
+    df = force_replace_comma_separation(df, ['focus_area', 'doc'])
 
     # Remove leading/trailing whitespace from program names
     df['program_name'] = df['program_name'].str.strip()
@@ -719,7 +735,6 @@ def gather_program_data(qualtrics_csv: str) -> pd.DataFrame:
                  f"Make manual edits to input CSV and retry.")
         
     return programs_df
-
 
 
 

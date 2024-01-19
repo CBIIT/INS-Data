@@ -393,7 +393,7 @@ def gather_grant_data(programs_df, print_meta=False):
 
         # If neither NOFO nor Awards provided
         if pd.isna(nofo_str) and pd.isna(award_str):
-            tqdm.write(f"NOTICE: No NOFOs or Awards defined for {program_name}." 
+            tqdm.write(f"NOTICE: No NOFOs or Awards defined for {program_name}. " 
                        f"Skipping program.")
             continue
 
