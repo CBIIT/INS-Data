@@ -256,12 +256,12 @@ def validate_and_clean_unique_nodes(df, column_configs, datatype):
     # Remove all mismatched node_ids and any true duplicates after the first
     if not mismatch_df.empty:
         valid_df = df[~df[node_id].isin(mismatch_df[node_id])
-                    & ~df.duplicated(subset=node_id, keep='first')
+                    & ~df.duplicated(keep='first')
                     ].reset_index(drop=True)
         
     # If no mismatches found, then just remove true duplicates
     else:
-        valid_df = df[~df.duplicated(subset=node_id, keep='first')
+        valid_df = df[~df.duplicated(keep='first')
                        ].reset_index(drop=True)
 
     return valid_df
