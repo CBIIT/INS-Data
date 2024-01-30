@@ -273,6 +273,7 @@ def get_full_publication_record(pmid):
 
 def format_authors(author_list):
     """Format author names as 'FirstName LastName' with semicolon separator.
+        Recognize and use collaborative group names if available.
 
     Args:
         author_list (list): List of authors
@@ -281,14 +282,24 @@ def format_authors(author_list):
         str: Semicolon-separated formatted author names
     """
 
+    # Build empty list to fill with formatted authors
     formatted_authors = []
-    for author in author_list:
-        last_name = author.get('LastName', '')
-        first_name = author.get('ForeName', '')
-        formatted_author = f"{first_name} {last_name}".strip()
-        formatted_authors.append(formatted_author)
 
-    return '; '.join(formatted_authors)
+    for author in author_list:
+
+        # Check for collaborative group name field
+        collective_name = author.get('CollectiveName')
+        if collective_name:
+            formatted_authors.append(collective_name)
+
+        # Combine FirstName LastName
+        else:
+            last_name = author.get('LastName', '')
+            first_name = author.get('ForeName', '')
+            formatted_author = f"{first_name} {last_name}".strip()
+            formatted_authors.append(formatted_author)
+
+    return ';'.join(formatted_authors)
 
 
 
