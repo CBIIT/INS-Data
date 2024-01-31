@@ -94,6 +94,19 @@ def drop_extra_supplement_rows(df):
 
 
 
+def get_first_non_nan_value(group_values):
+    """Returns the first non-NaN value in a group, or NaN if no alternative."""
+
+    # Iterate through all values until a non-NaN value is found
+    for index, value in enumerate(group_values):
+        if not pd.isna(value):
+            return value
+        
+        # Return the last NaN value if no other values found
+    return value
+
+
+
 def get_newest_or_oldest_value(df: pd.DataFrame, field_name: str, 
                                agg_type: str, remove_supplements: bool=True):
     """
@@ -143,7 +156,7 @@ def get_newest_or_oldest_value(df: pd.DataFrame, field_name: str,
     value = (
         df.sort_values(sort_col, ascending=get_oldest)
         .groupby('queried_project_id')[field_name]
-        .first()
+        .apply(get_first_non_nan_value)
     )
 
     return value
