@@ -1,0 +1,175 @@
+INS Data Gathering Log
+2024-02-01
+
+---
+PROGRAMS:
+Gathering, cleaning, and saving programs data...
+---
+
+Loading and processing data/00_input/qualtrics/qualtrics_output_2024-01-19_manual_fix.csv...
+---
+Checking for NOFO validity...
+8 potentially invalid NOFOs found.
+Invalid NOFOs saved for review and correction in reports/2024-01-19/invalidNofoReport_manual_fix.csv.
+---
+Please review 8 potential Nofo issues.
+Consider manual fixes to the Qualtrics CSV or creating a versioned invalidNofoReport_reviewed.csv` in the data/reviewed/ directory
+
+        Continue with known Nofo issues? (Y/N): y
+---
+Checking for Award validity...
+All good. No potentially invalid awards detected.
+Success! Saved data/01_intermediate/2024-01-19/program.csv.
+
+---
+GRANTS:
+Gathering, cleaning, and saving grants data from NIH Reporter API for each Program...
+---
+
+NOTICE: No NOFOs or Awards defined for Connect for Cancer Prevention Study. Skipping program.
+NOTICE: No NOFOs or Awards defined for Childhood Cancer Data Initiative. Skipping program.
+NOTICE: No NOFOs or Awards defined for My Pediatric and Adult Rare Tumor Network. Skipping program.
+NOTICE: No NOFOs or Awards defined for National Childhood Cancer Registry. Skipping program.
+NOTICE: No NOFOs or Awards defined for The Therapeutically Applicable Research to Generate Effective Treatments. Skipping program.
+100%|███████████████████████████████████████████| 83/83 [02:48<00:00,  2.03s/it]
+---
+Success! NIH RePORTER API data gathered, cleaned, and saved.
+2995 grants gathered across all Awards and NOFOs.
+2941 NCI-funded grants retained for INS.
+Results can be found in data/01_intermediate/2024-01-19/gathered-2024-02-01/grant.csv.
+---
+
+---
+SUMMARY STATISTICS:
+Generating summary statistics reports for grants...
+---
+
+Done! Results can be found in reports/2024-01-19/gathered-2024-02-01.
+
+---
+PROJECTS:
+Aggregating and formatting project data from grants...
+---
+
+Success! Project data exported to data/01_intermediate/2024-01-19/gathered-2024-02-01/project.csv
+DataFrame with mismatched rows exported to reports/2024-01-19/gathered-2024-02-01/mismatchedProjectValuesReport.csv
+
+---
+PUBLICATIONS:
+Gathering, formatting, and saving Publication data...
+---
+
+---
+Gathering associated PMIDs for each project from NIH RePORTER API...
+694 total unique project IDs.
+100%|█████████████████████████████████████████| 694/694 [06:12<00:00,  1.86it/s]
+---
+Complete! PMIDs successfully gathered.
+27202 total publication results.
+21893 unique PMIDs found across
+598 unique Project IDs.
+Gathered PMIDs saved to data/01_intermediate/2024-01-19/gathered-2024-02-01/projectPMIDs.csv.
+---
+Gathering PubMed data for all PMIDs...
+---NOTE: THIS STEP CAN TAKE 8+ HOURS.---
+Saving partial files to data/01_intermediate/2024-01-19/gathered-2024-02-01/temp_pubmed_chunkfiles throughout.
+Error fetching information for PMID 24277953: list index out of range
+Error fetching information for PMID 25513250: list index out of range
+Error fetching information for PMID 25513417: list index out of range
+Error fetching information for PMID 25513479: list index out of range
+Error fetching information for PMID 31850586: Failed to find tag 'pubmed' in the DTD. To skip all tags that are not represented in the DTD, please call Bio.Entrez.read or Bio.Entrez.parse with validate=False.
+Error fetching information for PMID 31993221: list index out of range
+Error fetching information for PMID 32123530: list index out of range
+Error fetching information for PMID 32332490: list index out of range
+Error fetching information for PMID 33574267: list index out of range
+Error fetching information for PMID 33574288: list index out of range
+Error fetching information for PMID 33579955: list index out of range
+Error fetching information for PMID 33597657: list index out of range
+Error fetching information for PMID 34233275: list index out of range
+Error fetching information for PMID 34236997: list index out of range
+Error fetching information for PMID 35556265: list index out of range
+Error fetching information for PMID 36480292: list index out of range
+Error fetching information for PMID 36775354: list index out of range
+Error fetching information for PMID 37501622: list index out of range
+100%|███████████████████████████████████| 21893/21893 [1:25:20<00:00,  4.28it/s]
+First pass successful!
+Double-checking for any missing publication info...
+---
+Reusing existing publication details for 21875 PMIDs found in data/01_intermediate/2024-01-19/gathered-2024-02-01/temp_pubmed_chunkfiles.
+---
+Error fetching information for PMID 24277953: list index out of range
+Error fetching information for PMID 25513250: list index out of range
+Error fetching information for PMID 25513417: list index out of range
+Error fetching information for PMID 25513479: list index out of range
+Error fetching information for PMID 31993221: list index out of range
+Error fetching information for PMID 32123530: list index out of range
+Error fetching information for PMID 32332490: list index out of range
+Error fetching information for PMID 33574267: list index out of range
+Error fetching information for PMID 33574288: list index out of range
+Error fetching information for PMID 33579955: list index out of range
+Error fetching information for PMID 33597657: list index out of range
+Error fetching information for PMID 34233275: list index out of range
+Error fetching information for PMID 34236997: list index out of range
+Error fetching information for PMID 35556265: list index out of range
+Error fetching information for PMID 36480292: list index out of range
+Error fetching information for PMID 36775354: list index out of range
+Error fetching information for PMID 37501622: list index out of range
+100%|███████████████████████████████████| 21893/21893 [00:03<00:00, 6583.72it/s]
+Success! PubMed publication data gathered for all PMIDs.
+---
+Gathering iCite data for all PMIDs...
+ 99%|█████████████████████████████████████▋| 145/146 [07:57<00:03,  3.18s/chunk]C:\Users\dormanza\AppData\Local\anaconda3\envs\ins-data-env\Lib\site-packages\tqdm\std.py:1178: DtypeWarning: Columns (20) have mixed types. Specify dtype option on import or set low_memory=False.
+  for obj in iterable:
+100%|██████████████████████████████████████| 146/146 [08:00<00:00,  3.13s/chunk]C:\Users\dormanza\AppData\Local\anaconda3\envs\ins-data-env\Lib\site-packages\tqdm\std.py:1178: DtypeWarning: Columns (20) have mixed types. Specify dtype option on import or set low_memory=False.
+  for obj in iterable:
+147chunk [08:02,  3.28s/chunk]
+---
+iCite data for PMIDS saved to data/01_intermediate/2024-01-19/gathered-2024-02-01/icitePMIDData.csv.
+---
+Combining and merging all publication data...
+Merged PMID data saved to data/01_intermediate/2024-01-19/gathered-2024-02-01/mergedPMIDData.csv.
+---
+Merging PMID data back to Core Projects...
+Success! Publication data saved to data/01_intermediate/2024-01-19/gathered-2024-02-01/publication.csv.
+Removed publications saved to reports/2024-01-19/gathered-2024-02-01/removedPublicationsReport.csv
+---
+
+Total unique publications saved:     21515
+Total removed publications:            382
+Project-publication associations:    26820
+
+---
+DATA PACKAGING:
+Performing final data packaging steps...
+---
+
+Loaded Programs file from data/01_intermediate/2024-01-19/program.csv
+Loaded Grants file from data/01_intermediate/2024-01-19/gathered-2024-02-01/grant.csv
+Loaded Projects file from data/01_intermediate/2024-01-19/gathered-2024-02-01/project.csv
+Loaded Publications file from data/01_intermediate/2024-01-19/gathered-2024-02-01/publication.csv
+---
+Applying special handling steps...
+---
+Early Publications detected:
+134 Publications with publication date more than 365 days before the associated project start date were removed and saved to reports/2024-01-19/gathered-2024-02-01/packagingReports/removedEarlyPublications.csv
+---
+Finalizing TSV for program data...
+Done! Final program data saved as data/02_output/2024-01-19/gathered-2024-02-01/program.tsv.
+---
+Finalizing TSV for grant data...
+Columns dropped from grant output: program.program_id, api_source_search
+Invalid duplicate rows cleaned from output and recorded in reports/2024-01-19/gathered-2024-02-01/packagingReports/duplicate_grant.csv.
+Done! Final grant data saved as data/02_output/2024-01-19/gathered-2024-02-01/grant.tsv.
+---
+Finalizing TSV for project data...
+Columns dropped from project output: api_source_search
+Done! Final projects data saved as data/02_output/2024-01-19/gathered-2024-02-01/project.tsv.
+---
+Finalizing TSV for publication data...
+Done! Final publication data saved as data/02_output/2024-01-19/gathered-2024-02-01/publication.tsv.
+---
+Generating enumerated values for data model...
+Done! Enumerated values for programs: ['focus_area'] saved to reports/2024-01-19/gathered-2024-02-01/packagingReports/program_enums.txt
+---
+Generating md5 hashes for file validation...
+Done! MD5 hashes saved to data/02_output/2024-01-19/gathered-2024-02-01\_md5.txt.
