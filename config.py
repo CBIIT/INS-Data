@@ -219,6 +219,8 @@ PUB_DATA_CHUNK_SIZE = 2000
 ICITE_COLUMNS_TO_PULL = ['pmid','title','authors','year',
                          'citation_count','relative_citation_ratio']
 
+# List of programs to exclude from downstream publication gathering
+PROGRAMS_EXCLUDE_FROM_PUBS = ['ccdi']
 
 # ---
 # DATA PACKAGING CONFIGURATION

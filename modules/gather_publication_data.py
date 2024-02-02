@@ -150,9 +150,20 @@ def get_pmids_from_projects(projects_df, print_meta=False):
         pd.DataFrame: Dataframe with 'coreproject' and 'pmid' columns
     """
 
-    # Get all unique project IDs from projects 
-    project_id_list = projects_df['project_id'].unique().tolist()
-    print(f"{len(project_id_list)} total unique project IDs.")
+    # Get all unique project IDs except for those in excluded programs
+    excluded_programs = config.PROGRAMS_EXCLUDE_FROM_PUBS
+    excluded_program_projects = (projects_df[projects_df['program.program_id']
+                                             .isin(excluded_programs)])
+
+    project_id_list = (projects_df[~projects_df['program.program_id']
+                                  .isin(excluded_programs)]['project_id']
+                                  .unique().tolist())
+    if len(excluded_program_projects)>0:
+        print(f"{len(excluded_program_projects)} projects in programs: "
+            f"{excluded_programs} excluded from publication gathering steps.")
+    
+    print(f"{len(project_id_list)} total unique project IDs kept for "
+          f"publication gathering.")              
 
     # Create empty df
     all_pmids = []
