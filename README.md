@@ -161,7 +161,7 @@ python modules/gather_project_data.py
 
 **This step gathers publication data from [NIH RePORTER](https://reporter.nih.gov/), [NCBI PubMed](https://pubmed.ncbi.nlm.nih.gov/), and [NIH iCite](https://icite.od.nih.gov/). All publications are associated with at least one project.**
 
-**Publications** gathered for INS only include articles represented in PubMed with a unique PubMed ID.
+**Publications** gathered for INS only include articles represented in PubMed with a unique PubMed ID. Projects associated with the CCDI program are excluded from the publications workflow. 
 
 ### Publication Workflow
 

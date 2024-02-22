@@ -1,0 +1,31 @@
+PropDefinitions:
+  #properties of program
+  ...
+  focus_area:
+    ... 
+    Type:
+      value_type: list
+      Enum:
+        - Bladder Cancer
+        - Brain Cancer
+        - Breast Cancer
+        - Broad Cancer Types
+        - Cervical Cancer
+        - Colorectal Cancer
+        - Esophageal Cancer
+        - Gastric Cancer
+        - HIV/AIDS
+        - Health Disparities
+        - Kidney Cancer
+        - Leukemia
+        - Liver Cancer
+        - Lung Cancer
+        - Lymphoma
+        - Multiple Myeloma
+        - Osteosarcoma
+        - Ovarian Cancer
+        - Pancreas Cancer
+        - Pediatric/AYA
+        - SPORE
+        - Thyroid Cancer
+    ...

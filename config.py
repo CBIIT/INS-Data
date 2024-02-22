@@ -13,10 +13,10 @@ from datetime import datetime
 # Version must match suffix in input filename
 
 QUALTRICS_VERSION = "2024-01-19"    # <-- CHANGE VERSION HERE
-QUALTRICS_TYPE = "raw"              # <-- Define "raw" or "manual_fix" type of the input csv
+QUALTRICS_TYPE = "manual_fix"              # <-- Define "raw" or "manual_fix" type of the input csv
 
 # Version of bulk download from iCite
-ICITE_VERSION = "2023-12"           # <-- CHANGE VERSION HERE
+ICITE_VERSION = "2024-01"           # <-- CHANGE VERSION HERE
 
 # An override date can be used instead of today's date for pulling and saving data versions
 # This is useful when running downstream modules on grants data gathered before today
@@ -219,6 +219,8 @@ PUB_DATA_CHUNK_SIZE = 2000
 ICITE_COLUMNS_TO_PULL = ['pmid','title','authors','year',
                          'citation_count','relative_citation_ratio']
 
+# List of programs to exclude from downstream publication gathering
+PROGRAMS_EXCLUDE_FROM_PUBS = ['ccdi']
 
 # ---
 # DATA PACKAGING CONFIGURATION

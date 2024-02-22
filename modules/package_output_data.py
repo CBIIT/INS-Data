@@ -10,9 +10,10 @@ to prepare them for INS ingestion. These outputs are saved as TSVs.
 import os
 import sys
 import unicodedata
+import hashlib
 
 import pandas as pd
-import re
+
 
 # Append the project's root directory to the Python path
 # This allows for importing config when running as part of main.py or alone
@@ -516,6 +517,34 @@ def get_enum_values(df, cols, output="enums.txt"):
 
 
 
+def generate_md5_hash(file_path):
+    """Generates the MD5 hash for a given file."""
+
+    with open(file_path, "rb") as f:
+        data = f.read()
+        md5_hash = hashlib.md5(data).hexdigest()
+
+    return md5_hash
+
+
+
+def generate_md5_hash_file(directory):
+    """Generate MD5s for all TSVs in a directory and list in a text file."""
+
+    hashes_file = os.path.join(directory, "_md5.txt")
+
+    with open(hashes_file, "w") as f:
+        for root, _, files in os.walk(directory):
+            for file in files:
+                if file.endswith(".tsv"):
+                    file_path = os.path.join(root, file)
+                    md5_hash = generate_md5_hash(file_path)
+                    f.write(f"{md5_hash}\t{file_path}\n")
+    
+    print(f"Done! MD5 hashes saved to {hashes_file}.")
+
+
+
 def package_output_data():
     """Run all data packaging steps for all data types."""
 
@@ -585,6 +614,10 @@ def package_output_data():
         get_enum_values(df_programs_out, 
                         cols = config.ENUM_PROGRAM_COLS, 
                         output = config.ENUM_PROGRAM_PATH)
+        
+    # Generate md5.txt
+    print(f"---\nGenerating md5 hashes for file validation...")
+    generate_md5_hash_file(config.OUTPUT_GATHERED_DIR)
 
 # Run module as a standalone script when called directly
 if __name__ == "__main__":

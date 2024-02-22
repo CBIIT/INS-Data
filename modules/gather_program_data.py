@@ -434,6 +434,9 @@ def validate_and_rename_columns(df: pd.DataFrame,
         pd.DataFrame: DataFrame with validated and renamed columns.
     """
 
+    # Replace any carriage returns newlines with newlines in headers
+    df.columns = df.columns.str.replace('\r\n', '\n')
+
     # Validate that columns received match expected
     actual_cols = df.columns.tolist()
     expected_cols = list(col_dict.keys())
