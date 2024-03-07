@@ -30,9 +30,10 @@ import pandas as pd
 # This allows for importing config when running as part of main.py or alone
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import config
+from prefect import flow,task
 
 
-
+#@task(name="Find Header Location")
 def find_header_location(csv_filepath:str, key_value:str) -> 'tuple[int,int]':
     """Detect the row and column where the given key_value is found.
 
@@ -58,7 +59,7 @@ def find_header_location(csv_filepath:str, key_value:str) -> 'tuple[int,int]':
     raise ValueError(f"Key value '{key_value}' not found in file.")
 
 
-
+#@task(name="Drop Obsolete Columns")
 def drop_obsolete_columns(df:pd.DataFrame, obsolete_str:str="obsolete"):
     """Drop columns with header containing 'obsolete' string added during 
     config renaming."""
@@ -73,7 +74,7 @@ def drop_obsolete_columns(df:pd.DataFrame, obsolete_str:str="obsolete"):
     return df
 
 
-
+#@task(name="Clean obvious formatting mistakes from NOFO")
 def clean_nofo_and_award_cols(df:pd.DataFrame) -> pd.DataFrame:
     """Clean obvious formatting mistakes from NOFO and Award strings."""
 
@@ -100,7 +101,7 @@ def clean_nofo_and_award_cols(df:pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-
+#@task(name="Parse string list into an actual [list]")
 def clean_and_split_nofo_award_strings(value_list):
     """Parse string list into an actual [list], separating by a semicolon."""
 
@@ -115,7 +116,7 @@ def clean_and_split_nofo_award_strings(value_list):
     return cleaned_values
 
 
-
+#@task(name="is_valid_nofo")
 def is_valid_nofo(nofo:str) -> bool:
     """Check if the provided NOFO follows a valid format.
 
@@ -152,7 +153,7 @@ def is_valid_nofo(nofo:str) -> bool:
                 pattern_par_ota.match(nofo)))
 
 
-
+#@task(name="is_valid_award")
 def is_valid_award(award: str) -> bool:
     """Check if the provided award follows a valid format.
 
@@ -196,7 +197,7 @@ def is_valid_award(award: str) -> bool:
                 pattern_contract_type.match(award)))
 
 
-
+#@task(name="validate_nofos")
 def validate_nofos(program_name:str, nofo_list:list) -> pd.DataFrame:
     """Validate that provided NOFOs fit the expected regex format. Output any
     potential issues for manual review and correction.
@@ -223,7 +224,7 @@ def validate_nofos(program_name:str, nofo_list:list) -> pd.DataFrame:
     return pd.DataFrame()
 
 
-
+#@task(name="validate_awards")
 def validate_awards(program_name: str, award_list: list) -> pd.DataFrame:
     """Validate that provided awards fit the expected regex format. Output any
     potential issues for manual review and correction.
@@ -249,7 +250,7 @@ def validate_awards(program_name: str, award_list: list) -> pd.DataFrame:
     return pd.DataFrame()
 
 
-
+#@task(name="detect_invalid_nofos")
 def detect_invalid_nofos(df:pd.DataFrame) -> pd.DataFrame:
     """Detect rows with potentially invalid NOFOs for manual review.
 
@@ -272,7 +273,7 @@ def detect_invalid_nofos(df:pd.DataFrame) -> pd.DataFrame:
     return invalid_nofos_df
     
 
-
+#@task(name="detect_invalid_awards")
 def detect_invalid_awards(df: pd.DataFrame) -> pd.DataFrame:
     """Detect rows with potentially invalid awards for manual review.
 
@@ -295,7 +296,7 @@ def detect_invalid_awards(df: pd.DataFrame) -> pd.DataFrame:
     return invalid_awards_df
 
 
-
+#@task(name="report_invalid_nofos")
 def report_invalid_nofos(invalid_nofos_df:pd.DataFrame, 
                          report_path:str,
                          printout:bool = False) -> None:
@@ -323,7 +324,7 @@ def report_invalid_nofos(invalid_nofos_df:pd.DataFrame,
     return None
 
 
-
+#@task(name="report_invalid_awards")
 def report_invalid_awards(invalid_awards_df: pd.DataFrame,
                           report_path: str,
                           printout: bool = False) -> None:
@@ -351,7 +352,7 @@ def report_invalid_awards(invalid_awards_df: pd.DataFrame,
     return None
 
 
-
+#@task(name="prompt_to_continue")
 def prompt_to_continue(invalid_df: pd.DataFrame) -> bool:
     """Provide the user with a prompt to continue or stop the workflow if 
         issues are present.
@@ -365,7 +366,7 @@ def prompt_to_continue(invalid_df: pd.DataFrame) -> bool:
 
     # If no invalid values detected, skip the user prompt
     if invalid_df.empty:
-        return True
+        print(f"No invalid values detected")
     
     else:
         # Parse award or nofo type from "invalid_{col_name}"
@@ -378,13 +379,15 @@ def prompt_to_continue(invalid_df: pd.DataFrame) -> bool:
             f"versioned invalid{val_type}Report_reviewed.csv` "
             f"in the data/reviewed/ directory")
         
-        continue_bool = input(f"\n\tContinue with known {val_type} "
-                              f"issues? (Y/N): "
-                               ).upper()
-        return continue_bool == 'Y'
+        # continue_bool = input(f"\n\tContinue with known {val_type} "
+        #                       f"issues? (Y/N): "
+        #                        ).upper()
+
+                
+        return True
     
 
-
+#@task(name="apply_value_fix")
 def apply_value_fix(key_programs_df: pd.DataFrame, 
                     reviewed_df: pd.DataFrame, 
                     column_name: str) -> pd.DataFrame:
@@ -420,7 +423,7 @@ def apply_value_fix(key_programs_df: pd.DataFrame,
     return key_programs_df
 
 
-
+#@task(name="validate_and_rename_columns")
 def validate_and_rename_columns(df: pd.DataFrame, 
                                 col_dict: dict) -> pd.DataFrame:
     """Validate and rename columns based on col_dict.
@@ -456,7 +459,7 @@ def validate_and_rename_columns(df: pd.DataFrame,
     return df
 
 
-
+#@task(name="force_replace_comma_separation")
 def force_replace_comma_separation(df: pd.DataFrame, 
                                    replace_cols: list) -> pd.DataFrame:
     """Replace any commas within specified columns with semicolons. This is
@@ -481,7 +484,7 @@ def force_replace_comma_separation(df: pd.DataFrame,
     return df
 
 
-
+#@task(name="check_for_duplicate_names")
 def check_for_duplicate_names(df: pd.DataFrame) -> bool:
     """Check for duplicate values in program_name or program_acronym.
 
@@ -513,16 +516,16 @@ def check_for_duplicate_names(df: pd.DataFrame) -> bool:
         print(f"\nConsider manual fixes to the Qualtrics CSV.")
 
         # Prompt user to continue or stop with duplicates
-        continue_bool = input(f"\n\tContinue with duplicates? (Y/N): "
-                              ).lower() == 'y'
-        
+        # continue_bool = input(f"\n\tContinue with duplicates? (Y/N): "
+        #                       ).lower() == 'y'
+        continue_bool = "y"
         return continue_bool
 
     # If there are no duplicates, return True to continue
     return True
 
 
-
+#@task(name="create_program_id")
 def create_program_id(value):
     """Create a valid program_id based on the specified column value.
 
@@ -544,7 +547,7 @@ def create_program_id(value):
     return cleaned_value.lower()
 
 
-
+#@task(name="generate_program_id_column")
 def generate_program_id_column(df: pd.DataFrame) -> pd.DataFrame:
     """Generate a new program_id column based on the program_acronym or name.
 
@@ -583,7 +586,7 @@ def generate_program_id_column(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-
+@task(name="load_and_clean_programs")
 def load_and_clean_programs(csv_filepath: str, col_dict: dict) -> (bool, pd.DataFrame):
     """Load and clean Key Programs data from a Qualtrics CSV.
 
@@ -704,7 +707,7 @@ def load_and_clean_programs(csv_filepath: str, col_dict: dict) -> (bool, pd.Data
     return continue_bool, df
 
 
-
+@flow(log_prints=True)
 def gather_program_data(qualtrics_csv: str) -> pd.DataFrame:
     """Process a curated Qualtrics CSV containing NCI programs and associated 
     funding values. Validate, clean, and prepare for downstream data gathering.
