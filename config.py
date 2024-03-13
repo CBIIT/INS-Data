@@ -292,6 +292,7 @@ COLUMN_CONFIGS = {
             'opportunity_number': 'opportunity_number', 
         },
         'list_like_cols': ['keywords', 'principal_investigators'],
+        'datetime_cols': ['award_notice_date', 'project_start_date', 'project_end_date']
     },
     'project': {
         'node_id': 'project_id',
@@ -311,6 +312,7 @@ COLUMN_CONFIGS = {
             'opportunity_number': 'opportunity_number',
         },
         'list_like_cols': ['opportunity_number'],
+        'datetime_cols': ['project_start_date', 'project_end_date']
     },
     'publication': {
         'node_id': 'pmid',
