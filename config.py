@@ -272,7 +272,6 @@ COLUMN_CONFIGS = {
             'type': 'type',
             'grant_id': 'grant_id',
             'queried_project_id': 'project.project_id',
-            #'program.program_id': 'program.program_id', # Only until Projects complete
             'application_id': 'application_id',
             'fiscal_year': 'fiscal_year',
             'project_title': 'grant_title',
@@ -328,5 +327,6 @@ COLUMN_CONFIGS = {
             'relative_citation_ratio': 'relative_citation_ratio'
         },
         'list_like_cols': ['authors'],
+        'html_tag_cols': ['title']
     }
 }
