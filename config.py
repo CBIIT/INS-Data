@@ -12,11 +12,11 @@ from datetime import datetime
 # Inputs and outputs will use this versioning
 # Version must match suffix in input filename
 
-QUALTRICS_VERSION = "2024-01-19"    # <-- CHANGE VERSION HERE
-QUALTRICS_TYPE = "manual_fix"              # <-- Define "raw" or "manual_fix" type of the input csv
+QUALTRICS_VERSION = "2024-03-12"    # <-- CHANGE VERSION HERE
+QUALTRICS_TYPE = "raw"              # <-- Define "raw" or "manual_fix" type of the input csv
 
 # Version of bulk download from iCite
-ICITE_VERSION = "2024-01"           # <-- CHANGE VERSION HERE
+ICITE_VERSION = "2024-02"           # <-- CHANGE VERSION HERE
 
 # An override date can be used instead of today's date for pulling and saving data versions
 # This is useful when running downstream modules on grants data gathered before today
