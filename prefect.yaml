@@ -1,0 +1,48 @@
+# Welcome to your prefect.yaml file! You can use this file for storing and managing
+# configuration for deploying your flows. We recommend committing this file to source
+# control along with your flow code.
+
+# Generic metadata about this project
+name: INS-Prefect-Workflow
+prefect-version: 2.16.0
+
+# build section allows you to manage and build docker images
+build:
+
+# push section allows you to manage if and how this project is uploaded to remote locations
+push:
+
+# pull section allows you to provide instructions for cloning this project in remote locations
+
+pull:
+- prefect.projects.steps.git_clone_project:
+    id: clone-step
+    repository: https://github.com/CBIIT/INS-Data.git
+    branch: prefect-test
+- prefect.projects.steps.pip_install_requirements:
+    requirements_file: requirements.txt
+    directory: '{{ clone-step.directory }}'
+    stream_output: false
+
+# the deployments section allows you to provide configuration for deploying flows
+deployments:
+  # base metadata
+- name: akm-local-gather-program
+  version:
+  tags: []
+  description: "Process a curated Qualtrics CSV containing NCI programs and associated\
+    \ \nfunding values. Validate, clean, and prepare for downstream data gathering.\n\
+    \nArgs:\n    qualtrics_csv (str): Filepath to the Qualtrics CSV to ingest and\
+    \ process\n\nReturns: \n    pd.DataFrame: Formatted DataFrame of programs and\
+    \ details"
+  entrypoint: modules/gather_program_data.py:gather_program_data
+  parameters:
+    bucket_name: sample-bucket
+    qualtrics_version: "2024-01-19"
+    qualtrics_type: manual_fix
+    
+  work_pool:
+    name: akm-pool
+    work_queue_name:
+    job_variables: {}
+  schedules: []

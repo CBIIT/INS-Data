@@ -1,0 +1,6 @@
+Bio==1.6.2
+biopython==1.83
+pandas==2.2.1
+prefect==2.16.2
+Requests==2.31.0
+tqdm==4.65.0
