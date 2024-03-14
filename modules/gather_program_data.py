@@ -31,7 +31,7 @@ import pandas as pd
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import config
 from prefect import flow,task
-
+from utils import get_time
 # This is a variable that determines if the operations are executed locally or remotely
 remote = os.getenv('REMOTE')
 #@task(name="Find Header Location")
@@ -708,7 +708,7 @@ def load_and_clean_programs(csv_filepath: str, col_dict: dict) -> (bool, pd.Data
     return continue_bool, df
 
 
-@flow(log_prints=True, flow_run_name="gather_program_data}")
+@flow(log_prints=True, flow_run_name="gather_program_data-{get_time()}")
 def gather_program_data(qualtrics_csv: str = config.QUALTRICS_CSV_PATH, bucket_name: str = "sample-bucket", qualtrics_version: str = config.QUALTRICS_VERSION, qualtrics_type: str = "manual_fix") -> pd.DataFrame:
     """Process a curated Qualtrics CSV containing NCI programs and associated 
     funding values. Validate, clean, and prepare for downstream data gathering.
