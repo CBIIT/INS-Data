@@ -38,7 +38,7 @@ deployments:
   entrypoint: modules/gather_program_data.py:gather_program_data
   parameters:
     bucket_name: sample-bucket
-    runner: your_uniq_id
+    qualtrics_csv: local-csv-file
   work_pool:
     name: akm-pool
     work_queue_name:
