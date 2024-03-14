@@ -377,8 +377,6 @@ INS-Data
 │   ├── gather_publication_data.py
 │   ├── package_output_data.py
 │   └── summary_statistics.py
-├── notebooks/
-│   └── Non-production Jupyter notebooks used during development
 ├── reports/
 │   └── {qualtrics version}/
 │       ├── {gathered version}/
