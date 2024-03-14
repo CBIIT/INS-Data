@@ -709,7 +709,7 @@ def load_and_clean_programs(csv_filepath: str, col_dict: dict) -> (bool, pd.Data
 
 
 @flow(log_prints=True)
-def gather_program_data(qualtrics_csv: str, bucket_name: str = "sample-bucket") -> pd.DataFrame:
+def gather_program_data(qualtrics_csv: str = config.QUALTRICS_CSV_PATH, bucket_name: str = "sample-bucket") -> pd.DataFrame:
     """Process a curated Qualtrics CSV containing NCI programs and associated 
     funding values. Validate, clean, and prepare for downstream data gathering.
 
