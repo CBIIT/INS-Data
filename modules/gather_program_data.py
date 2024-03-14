@@ -32,7 +32,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import config
 from prefect import flow,task
 
-
+# This is a variable that determines if the operations are executed locally or remotely
+remote = os.getenv('REMOTE')
 #@task(name="Find Header Location")
 def find_header_location(csv_filepath:str, key_value:str) -> 'tuple[int,int]':
     """Detect the row and column where the given key_value is found.
@@ -708,7 +709,7 @@ def load_and_clean_programs(csv_filepath: str, col_dict: dict) -> (bool, pd.Data
 
 
 @flow(log_prints=True)
-def gather_program_data(qualtrics_csv: str) -> pd.DataFrame:
+def gather_program_data(qualtrics_csv: str, bucket_name: str = "sample-bucket") -> pd.DataFrame:
     """Process a curated Qualtrics CSV containing NCI programs and associated 
     funding values. Validate, clean, and prepare for downstream data gathering.
 
@@ -718,7 +719,18 @@ def gather_program_data(qualtrics_csv: str) -> pd.DataFrame:
     Returns: 
         pd.DataFrame: Formatted DataFrame of programs and details
     """
+    remote = os.getenv('REMOTE')
+    local_run = True
+    if(remote is not None) and (remote.lower()=="true"):
+        local_run = False
+    # If running remotely use S3 paths
+    if (local_run == False):    
+        config.QUALTRICS_CSV_PATH = f"s3://{bucket_name}/{config.QUALTRICS_CSV_PATH}"
+        config.PROGRAMS_INTERMED_PATH = f"s3://{bucket_name}/{config.PROGRAMS_INTERMED_PATH}"
 
+
+    print(f"Qualtricks Input Path: {config.QUALTRICS_CSV_PATH}")
+    print(f"Qualtricks Intermed Path: {config.PROGRAMS_INTERMED_PATH}")
     print(f"\n---\nPROGRAMS:\n"
           f"Gathering, cleaning, and saving programs data...\n---\n")
 
@@ -731,7 +743,10 @@ def gather_program_data(qualtrics_csv: str) -> pd.DataFrame:
     if continue_bool == True:
         # Export cleaned Key Programs file
         program_filepath = config.PROGRAMS_INTERMED_PATH
-        os.makedirs(os.path.dirname(program_filepath), exist_ok=True)
+        if(local_run == False):
+            print("Running remotely")
+        else:
+            os.makedirs(os.path.dirname(program_filepath), exist_ok=True)
         programs_df.to_csv(program_filepath, index=False)
         print(f"Success! Saved {program_filepath}.")
 
