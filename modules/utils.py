@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 from pytz import timezone
 
 def get_time() -> str:
