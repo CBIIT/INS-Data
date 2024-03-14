@@ -38,6 +38,8 @@ deployments:
   entrypoint: modules/gather_program_data.py:gather_program_data
   parameters:
     bucket_name: sample-bucket
+    qualtrics_version: 2024-01-19
+    qualtrics_type: manual_fix
     
   work_pool:
     name: akm-pool

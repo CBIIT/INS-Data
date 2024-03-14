@@ -708,13 +708,16 @@ def load_and_clean_programs(csv_filepath: str, col_dict: dict) -> (bool, pd.Data
     return continue_bool, df
 
 
-@flow(log_prints=True, flow_run_name="gather_program_data-{datetime.datetime.now().strftime('%H:%M:%S')}")
-def gather_program_data(qualtrics_csv: str = config.QUALTRICS_CSV_PATH, bucket_name: str = "sample-bucket") -> pd.DataFrame:
+@flow(log_prints=True, flow_run_name="gather_program_data}")
+def gather_program_data(qualtrics_csv: str = config.QUALTRICS_CSV_PATH, bucket_name: str = "sample-bucket", qualtrics_version: str = config.QUALTRICS_VERSION, qualtrics_type: str = "manual_fix") -> pd.DataFrame:
     """Process a curated Qualtrics CSV containing NCI programs and associated 
     funding values. Validate, clean, and prepare for downstream data gathering.
 
     Args:
         qualtrics_csv (str): Filepath to the Qualtrics CSV to ingest and process
+        bucket_name (str): Bucket to write and read from for processing
+        qualtrics_version (str): Version of the Qualtrics Data received
+        qualtrics_type (str): Whether we are fixing manually or reading in raw
 
     Returns: 
         pd.DataFrame: Formatted DataFrame of programs and details
@@ -723,10 +726,14 @@ def gather_program_data(qualtrics_csv: str = config.QUALTRICS_CSV_PATH, bucket_n
     local_run = True
     if(remote is not None) and (remote.lower()=="true"):
         local_run = False
-    # If running remotely use S3 paths
-    if (local_run == False):    
-        config.QUALTRICS_CSV_PATH = f"s3://{bucket_name}/{config.QUALTRICS_CSV_PATH}"
-        config.PROGRAMS_INTERMED_PATH = f"s3://{bucket_name}/{config.PROGRAMS_INTERMED_PATH}"
+    # If running remotely use S3 paths. This is to allow for read from both config.csv (when running locally and when running on a Prefect Worker) and a Prefect flow
+    if (local_run == False):
+        # Creating temporary variables to replicate functionality for running  locally and in Prefect
+        PREFECT_QUALTRICS_CSV_PATH = config.INPUT_DIR + "qualtrics/qualtrics_output_" + qualtrics_version +"_"+ qualtrics_type + ".csv"
+        PREFECT_PROGRAMS_INTERMED_PATH = config.INTERMED_DIR + qualtrics_version +"/"+ "program.csv" 
+        # Overwriting the configuration paths when running in Prefect    
+        config.QUALTRICS_CSV_PATH = f"s3://{bucket_name}/{PREFECT_QUALTRICS_CSV_PATH}"
+        config.PROGRAMS_INTERMED_PATH = f"s3://{bucket_name}/{PREFECT_PROGRAMS_INTERMED_PATH}"
 
 
     print(f"Qualtricks Input Path: {config.QUALTRICS_CSV_PATH}")
