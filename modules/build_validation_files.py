@@ -48,7 +48,8 @@ def get_single_node_counts(df: pd.DataFrame):
 
 def get_all_node_counts(df_list: pd.DataFrame) -> pd.DataFrame:
     """
-    This function iterates through a list of node dataframes to get id counts.
+    Iterates through a list of node dataframes to get summary counts of ids for 
+        each node. Each node/dataframe is a specific data type (e.g. programs).
 
     Args:
         df_list (list): A list containing the DataFrames to analyze.
@@ -63,7 +64,7 @@ def get_all_node_counts(df_list: pd.DataFrame) -> pd.DataFrame:
                'unique_ids', 
                'total_ids', 
                'ids_in_more_than_one_row']
-    df_node_counts = pd.DataFrame(columns=columns)
+    id_count_summary_df = pd.DataFrame(columns=columns)
 
     # Iterate through each df
     for df in df_list:
@@ -84,10 +85,10 @@ def get_all_node_counts(df_list: pd.DataFrame) -> pd.DataFrame:
         result_row_df = pd.DataFrame(result_row, index=[0])
 
         # Append the dictionary as a new row to the result DataFrame
-        df_node_counts = pd.concat([df_node_counts, result_row_df], 
+        id_count_summary_df = pd.concat([id_count_summary_df, result_row_df], 
                                    ignore_index=True)
 
-    return df_node_counts
+    return id_count_summary_df
 
 
 
@@ -206,17 +207,85 @@ def build_single_program_output_counts(df_programs: pd.DataFrame,
 
 
 
-def build_validation_files(): 
-    """Generate summary files useful for data validation."""
+def save_dataframes_to_excel(df_dict: dict, output_file: str):
+    """
+    Saves a dictionary of DataFrames as tabs within an Excel file. 
+    including a report_info tab with information from a provided dictionary.
 
-    # Load data and make df_list
+    Args:
+        df_dict (dict): Dictionary containing DataFrames to save as tabs.
+            Keys are sheet names, values are the DataFrames.
+        output_file (str): Path to the output Excel file.
+    """
 
-    # Get unique and total id summary counts
+    # Initialize excel writer
+    writer = pd.ExcelWriter(output_file, engine='xlsxwriter')
 
-    # Test Program filtering
-        # Get program id(s) from program properties (DOC, Focus Area)
-        # Get project(s) from program id(s)
-        # Get grant(s) from project(s)
-        # Get publication(s) from project(s)
+    # Save each DataFrame to a separate sheet
+    for sheet_name, df in df_dict.items():
+        df.to_excel(writer, sheet_name=sheet_name, index=False)
+
+    # Format width of (descriptive) first sheet columns for readability
+    writer.sheets[list(df_dict.keys())[0]].set_column(0, 0, 40)
+    writer.sheets[list(df_dict.keys())[0]].set_column(1, 1, 20)
+
+    writer.close()
+
+
+
+def build_validation_file(): 
+    """Generate summary Excel file useful for data validation."""
+
+    print(f"\n---\nDATA VALIDATION:\n"
+        f"Generating file for data validation...\n---\n")
+
+    # Load data from output TSVs
+    df_programs = pd.read_csv(config.PROGRAMS_OUTPUT_PATH, sep='\t')
+    df_projects = pd.read_csv(config.PROJECTS_OUTPUT_PATH, sep='\t')
+    df_grants = pd.read_csv(config.GRANTS_OUTPUT_PATH, sep='\t')
+    df_publications = pd.read_csv(config.PUBLICATIONS_OUTPUT_PATH, sep='\t')
     
-    # Format output Excel for QA team
+    # Define list of dataframes for iteration
+    df_list = [df_programs, df_projects, df_grants, df_publications]
+
+    # Get unique and total ID counts for each dataframe
+    id_count_summary_df = get_all_node_counts(df_list)
+
+    # Get associated project, grant, and publication count for each program
+    df_single_program_results = build_single_program_output_counts(
+                                                    df_programs, 
+                                                    df_projects, 
+                                                    df_grants, 
+                                                    df_publications)
+
+    # Define version and descriptive info to include on first tab of Excel
+    # There's definitely a better way to format this, but it works...
+    report_info = pd.DataFrame({
+        'Qualtrics Version': config.QUALTRICS_VERSION,
+        'Data Gathering Date': config.TIMESTAMP,
+        'iCite Version': config.ICITE_VERSION,
+        'Qualtrics Type': config.QUALTRICS_TYPE,
+        '---': '---',
+        'This report generated': pd.Timestamp.now(),
+        }.items(),
+        columns=['INS Data Validation Report', ''])
+
+    # Define Excel tab names and dataframes for each tab
+    df_dict = {
+        'report_info': report_info,
+        'total_counts': id_count_summary_df,
+        'single_program_counts': df_single_program_results}
+
+    # Export file
+    save_dataframes_to_excel(df_dict, config.DATA_VALIDATION_EXCEL)
+    print(f"Done! Data validation file saved to {config.DATA_VALIDATION_EXCEL}.")
+    
+
+
+# Run module as a standalone script when called directly
+if __name__ == "__main__":
+
+    print(f"Running {os.path.basename(__file__)} as standalone module...")
+
+    # Run main function for data validation file generation
+    build_validation_file()
