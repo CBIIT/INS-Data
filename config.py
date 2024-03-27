@@ -12,11 +12,11 @@ from datetime import datetime
 # Inputs and outputs will use this versioning
 # Version must match suffix in input filename
 
-QUALTRICS_VERSION = "2024-01-19"    # <-- CHANGE VERSION HERE
-QUALTRICS_TYPE = "manual_fix"              # <-- Define "raw" or "manual_fix" type of the input csv
+QUALTRICS_VERSION = "2024-03-12"    # <-- CHANGE VERSION HERE
+QUALTRICS_TYPE = "raw"              # <-- Define "raw" or "manual_fix" type of the input csv
 
 # Version of bulk download from iCite
-ICITE_VERSION = "2024-01"           # <-- CHANGE VERSION HERE
+ICITE_VERSION = "2024-02"           # <-- CHANGE VERSION HERE
 
 # An override date can be used instead of today's date for pulling and saving data versions
 # This is useful when running downstream modules on grants data gathered before today
@@ -52,8 +52,12 @@ GATHERED_DIR = INTERMED_DIR + QUALTRICS_VERSION +"/"+ TIMESTAMP
 OUTPUT_QUALTRICS_DIR = OUTPUT_DIR + QUALTRICS_VERSION
 OUTPUT_GATHERED_DIR = OUTPUT_QUALTRICS_DIR +"/"+ TIMESTAMP
 
+# Reports directories
 REPORTS_DIR = "reports/" + QUALTRICS_VERSION
 REPORTS_GATHERED_DIR = REPORTS_DIR +"/"+ TIMESTAMP
+
+# Data validation for QA. Filename is tagged with the date it was generated
+DATA_VALIDATION_EXCEL = REPORTS_GATHERED_DIR +"/"+ "INS_DataValidation_Generated_" + datetime.now().strftime(("%Y-%m-%d"))+".xlsx"
 
 # Programs output
 PROGRAMS_INTERMED_PATH = INTERMED_DIR + QUALTRICS_VERSION +"/"+ "program.csv"
@@ -272,7 +276,6 @@ COLUMN_CONFIGS = {
             'type': 'type',
             'grant_id': 'grant_id',
             'queried_project_id': 'project.project_id',
-            #'program.program_id': 'program.program_id', # Only until Projects complete
             'application_id': 'application_id',
             'fiscal_year': 'fiscal_year',
             'project_title': 'grant_title',
@@ -292,6 +295,7 @@ COLUMN_CONFIGS = {
             'opportunity_number': 'opportunity_number', 
         },
         'list_like_cols': ['keywords', 'principal_investigators'],
+        'datetime_cols': ['award_notice_date', 'project_start_date', 'project_end_date']
     },
     'project': {
         'node_id': 'project_id',
@@ -311,6 +315,7 @@ COLUMN_CONFIGS = {
             'opportunity_number': 'opportunity_number',
         },
         'list_like_cols': ['opportunity_number'],
+        'datetime_cols': ['project_start_date', 'project_end_date']
     },
     'publication': {
         'node_id': 'pmid',
@@ -326,5 +331,6 @@ COLUMN_CONFIGS = {
             'relative_citation_ratio': 'relative_citation_ratio'
         },
         'list_like_cols': ['authors'],
+        'html_tag_cols': ['title']
     }
 }

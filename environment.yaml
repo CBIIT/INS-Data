@@ -11,8 +11,8 @@ dependencies:
   - biopython=1.78=py311h2bbff1b_0
   - brotli-python=1.1.0=py311h12c1d0e_0
   - bzip2=1.0.8=h8ffe710_4
-  - ca-certificates=2023.08.22=haa95532_0
-  - certifi=2023.7.22=py311haa95532_0
+  - ca-certificates=2024.3.11=haa95532_0
+  - certifi=2024.2.2=py311haa95532_0
   - charset-normalizer=3.2.0=pyhd8ed1ab_0
   - colorama=0.4.6=pyhd8ed1ab_0
   - comm=0.1.4=pyhd8ed1ab_0
@@ -96,6 +96,7 @@ dependencies:
   - wcwidth=0.2.8=pyhd8ed1ab_0
   - wheel=0.41.2=pyhd8ed1ab_0
   - win_inet_pton=1.1.0=pyhd8ed1ab_6
+  - xlsxwriter=3.1.1=py311haa95532_0
   - xz=5.2.6=h8d14728_0
   - zeromq=4.3.4=h0e60522_1
   - zipp=3.17.0=pyhd8ed1ab_0

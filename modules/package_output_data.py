@@ -13,6 +13,7 @@ import unicodedata
 import hashlib
 
 import pandas as pd
+import re
 
 
 # Append the project's root directory to the Python path
@@ -154,6 +155,64 @@ def process_special_characters(df):
 
 
 
+def remove_html_tags(text):
+    """Removes HTML tags using regular expressions."""
+
+    # Matches opening or closing tags with tag name like <i>italics</i>
+    tag_pattern = r'<(/?)(\w+)>'
+
+    return re.sub(tag_pattern, '', text)
+
+
+
+def remove_html_tags_from_df(df, column_configs, datatype):
+    """Removes HTML tags such as <i>italics</i> or <b>bold</b> from text."""
+
+    # Get predefined columns containing HTML tags from configuration
+    html_tag_cols = column_configs[datatype].get('html_tag_cols', None)
+
+    # Iterate through expected HTML-tagged columns
+    if html_tag_cols is not None:
+
+        for col in html_tag_cols:
+        
+            # Check that expected column exists
+            if col not in df.columns:
+                raise ValueError(f"Expected html-tagged column {col} not found "
+                                 f"within data. Check data or redefine config.")
+        
+            # Use regex to remove HTML tags but keep enclosed text
+            df[col] = df[col].apply(remove_html_tags)
+
+    return df
+
+
+
+def format_datetime_columns(df, column_configs, datatype):
+    """Converts datetime columns to "yyyy-mm-dd" strings."""
+
+    # Get predefined list-like columns from configuration
+    datetime_cols = column_configs[datatype].get('datetime_cols', None)
+
+    # Iterate through expected datetime-like columns
+    if datetime_cols is not None:
+
+        for col in datetime_cols:
+
+            # Check that expected column exists
+            if col not in df.columns:
+                raise ValueError(f"Expected datetime column {col} not found "
+                                 f"within data. Check data or redefine config.")
+            
+            # Convert datetime string values to datetime and back to string
+            format_string = '%Y-%m-%d'
+            df[col] = (pd.to_datetime(df[col], utc=True)
+                       .dt.strftime(format_string))
+
+    return df
+
+
+
 def validate_listlike_columns(df, column_configs, datatype):
     """Validate semicolon separation without spaces in list-like columns."""
 
@@ -276,7 +335,9 @@ def standardize_data(df, column_configs, datatype):
     df = add_type_column(df, datatype)
     df = reorder_columns(df, column_configs, datatype)
     df = process_special_characters(df)
+    df = remove_html_tags_from_df(df, column_configs, datatype)
     df = validate_listlike_columns(df, column_configs, datatype)
+    df = format_datetime_columns(df, column_configs, datatype)
     df = validate_and_clean_unique_nodes(df, column_configs, datatype)
 
     # Validate that data meets loading standards

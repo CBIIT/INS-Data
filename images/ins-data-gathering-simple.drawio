@@ -1,0 +1,89 @@
+<mxfile host="app.diagrams.net" modified="2024-03-06T15:39:16.768Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36" etag="1B2qVH1PQ0AV8pMewGen" version="24.0.2" type="device">
+  <diagram name="Page-1" id="cC7ulMRaXJ7rHWAYiB1d">
+    <mxGraphModel dx="900" dy="1613" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="6njIz8hXATih1NbLFoib-20" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;width=21;fillColor=#fff2cc;strokeColor=#d6b656;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="559" y="131" as="sourcePoint" />
+            <mxPoint x="632" y="195" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="559" y="195" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="6njIz8hXATih1NbLFoib-9" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;width=21;fillColor=#fff2cc;strokeColor=#d6b656;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="6njIz8hXATih1NbLFoib-6">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="280" y="120" as="sourcePoint" />
+            <mxPoint x="353" y="194" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="280" y="194" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="6njIz8hXATih1NbLFoib-1" value="&lt;b&gt;Programs&amp;nbsp;&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="80" y="170" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="6njIz8hXATih1NbLFoib-2" value="&lt;ul style=&quot;font-size: 10px;&quot;&gt;&lt;li style=&quot;font-size: 10px;&quot;&gt;&lt;b&gt;Programs&lt;/b&gt;&amp;nbsp;are curated by the NCI Office of Data Sharing (ODS) and annotated with known &lt;b style=&quot;background-color: initial;&quot;&gt;awards &lt;/b&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;and Notices of Funding Opportunities (&lt;/span&gt;&lt;b style=&quot;background-color: initial;&quot;&gt;NOFOs&lt;/b&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;)&lt;/span&gt;&lt;/li&gt;&lt;li style=&quot;font-size: 10px;&quot;&gt;&lt;b&gt;Programs &lt;/b&gt;represent collections of project activities and support&lt;/li&gt;&lt;/ul&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;fontSize=10;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="40" y="220" width="200" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="6njIz8hXATih1NbLFoib-4" value="&lt;b&gt;Grants&amp;nbsp;&lt;/b&gt;&lt;b style=&quot;background-color: initial;&quot;&gt;&amp;amp;&amp;nbsp;&lt;/b&gt;&lt;div&gt;&lt;b style=&quot;background-color: initial;&quot;&gt;Projects&lt;/b&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="360" y="170" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="6njIz8hXATih1NbLFoib-5" value="&lt;ul&gt;&lt;li&gt;Funding values for each &lt;b style=&quot;font-size: 10px;&quot;&gt;program &lt;/b&gt;are used to find associated &lt;b style=&quot;font-size: 10px;&quot;&gt;grants &lt;/b&gt;and &lt;b style=&quot;font-size: 10px;&quot;&gt;projects&lt;/b&gt;&amp;nbsp;from the&amp;nbsp;&lt;b style=&quot;font-size: 10px;&quot;&gt;NIH RePORTER&lt;/b&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 10px;&quot;&gt;&lt;b&gt;Grants &lt;/b&gt;represent specific funding years or supplements, while &lt;b&gt;projects&lt;/b&gt;&amp;nbsp;represent larger efforts&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;fontSize=10;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="320" y="220" width="200" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="6njIz8hXATih1NbLFoib-6" value="NIH RePORTER" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="240" y="50" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="6njIz8hXATih1NbLFoib-7" value="Funding identifiers" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;fontStyle=1;fontSize=9;width=14;fillColor=#dae8fc;strokeColor=#6c8ebf;labelBackgroundColor=none;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="210" y="194.67000000000002" as="sourcePoint" />
+            <mxPoint x="350" y="195" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="280" y="194.67000000000002" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="6njIz8hXATih1NbLFoib-10" value="NIH RePORTER" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="520" y="50" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="6njIz8hXATih1NbLFoib-11" value="Project identifiers" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;fontStyle=1;fontSize=9;width=14;fillColor=#d5e8d4;strokeColor=#82b366;labelBackgroundColor=none;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="490" y="194.67000000000002" as="sourcePoint" />
+            <mxPoint x="630" y="195" as="targetPoint" />
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="6njIz8hXATih1NbLFoib-13" value="Publications" style="rounded=1;whiteSpace=wrap;html=1;fontStyle=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="640" y="170" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="6njIz8hXATih1NbLFoib-14" value="&lt;ul&gt;&lt;li&gt;&lt;b&gt;Project &lt;/b&gt;IDs are used to find associated &lt;b&gt;publication &lt;/b&gt;IDs&amp;nbsp;using the &lt;b&gt;NIH RePORTER&lt;/b&gt;&lt;/li&gt;&lt;li&gt;&lt;b&gt;Publication &lt;/b&gt;IDs are used to gather additional information from &lt;b&gt;PubMed &lt;/b&gt;and &lt;b&gt;iCite&lt;/b&gt;&lt;/li&gt;&lt;/ul&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;fontSize=10;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="600" y="220" width="200" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="6njIz8hXATih1NbLFoib-15" value="NCBI&lt;div&gt;PubMed&lt;/div&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="620" y="50" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="6njIz8hXATih1NbLFoib-16" value="NIH&amp;nbsp;&lt;div&gt;iCite&lt;/div&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="700" y="50" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="6njIz8hXATih1NbLFoib-17" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;width=14;fillColor=#fff2cc;strokeColor=#d6b656;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.172;entryY=-0.08;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="6njIz8hXATih1NbLFoib-15" target="6njIz8hXATih1NbLFoib-13">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="660" y="120" as="sourcePoint" />
+            <mxPoint x="659.67" y="160" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="6njIz8hXATih1NbLFoib-18" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;width=14;fillColor=#fff2cc;strokeColor=#d6b656;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.839;entryY=-0.08;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="6njIz8hXATih1NbLFoib-16" target="6njIz8hXATih1NbLFoib-13">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="740" y="120" as="sourcePoint" />
+            <mxPoint x="739.67" y="160" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="6njIz8hXATih1NbLFoib-19" value="&lt;h1&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;INS Data Gathering&lt;/span&gt;&lt;br&gt;&lt;/h1&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="text;html=1;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="40" width="400" height="40" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -26,6 +26,7 @@ Ouputs generated:
 - reports/:
     - Summary statistic report csvs with high-levelgrant data
     - Report of publications removed from publication.csv with reasons
+    - Data validation Excel for QA testing
 """
 
 import os
@@ -40,6 +41,7 @@ from modules.gather_project_data import gather_project_data
 from modules.summary_statistics import get_summary_statistics
 from modules.gather_publication_data import gather_publication_data
 from modules.package_output_data import package_output_data
+from modules.build_validation_files import build_validation_file
 
 
 def main():
@@ -68,6 +70,10 @@ def main():
     # STEP 6: PACKAGE
     # Final packaging steps to store output files as TSVs
     package_output_data()
+
+    # STEP 7: VALIDATE
+    # Create report for QA testing of data within site UI
+    build_validation_file()
 
 
 if __name__ == "__main__":

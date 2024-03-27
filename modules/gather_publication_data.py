@@ -701,6 +701,9 @@ def merge_and_clean_project_pmid_info(df_pmids, df_pub_info):
     df_merged.drop('not_found_in_pub_info', axis=1, inplace=True)
     df_removed_publications.drop('not_found_in_pub_info', axis=1, inplace=True)
 
+    # Format citation_count as int
+    df_merged['citation_count'] = df_merged['citation_count'].fillna(0).astype(int)
+
     return df_merged, df_removed_publications
 
 
