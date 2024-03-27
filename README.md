@@ -306,6 +306,7 @@ python modules/build_validation_files.py
     ```
 2. **Setup environment**
     - Install either [Anaconda or Miniconda](https://docs.conda.io/projects/conda/en/stable/user-guide/install/download.html#anaconda-or-miniconda)
+        - For compatibility with setups that do not use conda, a `requirements.txt` is also available
     - In a command terminal, run the following command in the INS-Data directory:
     ```
     conda env create -f environment.yaml
@@ -315,9 +316,10 @@ python modules/build_validation_files.py
     ```
     conda activate ins-data-env
     ```
-    - If you make changes to the repo that require new or updated packages, update the `environment.yaml` with:
+    - If you make changes to the repo that require new or updated packages, update the `environment.yaml` and `requirements.txt` with:
     ```
     conda env export | findstr -v "^prefix:"  > environment.yaml
+    pip list --format=freeze > requirements.txt
     ```
     - NOTE: Replace the 'findstr' with 'grep' if using MacOS or Linux. This step removes the local path prefix from the environment.yaml for privacy. 
     
