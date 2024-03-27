@@ -25,6 +25,7 @@ The INS-Data repository workflow follows the general outline below:
 3. [Gather Projects](#gather-projects)
 4. [Gather Publications](#gather-publications)
 5. [Package Data](#package-data)
+6. [Validate Data](#validate-data)
 
 
 
@@ -255,6 +256,33 @@ python modules/package_output_data.py
 
 
 
+## Validate Data
+
+**This step builds a Data Validation Excel file with expected data values. It can be used to validate that data is loaded and displayed correctly in the INS UI.**
+
+### Data Validation Workflow
+
+All Data Validation Generation steps are handled within the `build_validation_files.py` module and can be run as an independent process with the command: 
+```
+python modules/build_validation_files.py
+```
+
+1. **Load data from finalized TSV output files**
+    - This reads final output TSVs to generate the validation file, but does not change or save the output TSVs.
+
+2. **Build "Report Info"**
+    - Each step will build a dataframe ready for export as a separate tab within the Excel output
+    - Each tab within the Excel will represent a different type of information or validation
+    - The first "report_info" tab lists basic versioning and timestamp information
+    - This tab can be used to verify that the data version matches the data validation version
+
+3. **Build "Single Program Results"**
+    - Creates a table where each program is listed with total counts of associated projects, grants, and publications
+    - Count of projects, grants, and publications should match counts on the INS Explore page when a single program is selected within the filter
+
+4. **Format and save all tables to Excel as separate tabs**
+    - Excel file is saved in the versioned `reports/` directory with a timestamp noting when it was generated
+
 
 # How to Use this Repository
 
@@ -278,6 +306,7 @@ python modules/package_output_data.py
     ```
 2. **Setup environment**
     - Install either [Anaconda or Miniconda](https://docs.conda.io/projects/conda/en/stable/user-guide/install/download.html#anaconda-or-miniconda)
+        - For compatibility with setups that do not use conda, a `requirements.txt` is also available
     - In a command terminal, run the following command in the INS-Data directory:
     ```
     conda env create -f environment.yaml
@@ -287,9 +316,10 @@ python modules/package_output_data.py
     ```
     conda activate ins-data-env
     ```
-    - If you make changes to the repo that require new or updated packages, update the `environment.yaml` with:
+    - If you make changes to the repo that require new or updated packages, update the `environment.yaml` and `requirements.txt` with:
     ```
     conda env export | findstr -v "^prefix:"  > environment.yaml
+    pip list --format=freeze > requirements.txt
     ```
     - NOTE: Replace the 'findstr' with 'grep' if using MacOS or Linux. This step removes the local path prefix from the environment.yaml for privacy. 
     
@@ -373,6 +403,7 @@ INS-Data
 │   ├── ins-data-repo-diagram.drawio
 │   └── ins-data-repo-diagram.png
 ├── modules/
+│   ├── build_validation_files.py
 │   ├── gather_grant_data.py
 │   ├── gather_program_data.py
 │   ├── gather_project_data.py
@@ -386,6 +417,7 @@ INS-Data
 │       │   |   ├── duplicate_{type}.csv
 │       │   |   ├── {type}_enums.txt
 │       │   |   └── removedEarlyPublications.csv
+│       │   ├── INS_DataValidation_Generated_{date}.xlsx
 │       │   ├── mismatchedProjectValuesReport.csv
 │       │   ├── grantsStatsByProgram.csv
 │       │   ├── removedPublicationsReport.csv

@@ -52,8 +52,12 @@ GATHERED_DIR = INTERMED_DIR + QUALTRICS_VERSION +"/"+ TIMESTAMP
 OUTPUT_QUALTRICS_DIR = OUTPUT_DIR + QUALTRICS_VERSION
 OUTPUT_GATHERED_DIR = OUTPUT_QUALTRICS_DIR +"/"+ TIMESTAMP
 
+# Reports directories
 REPORTS_DIR = "reports/" + QUALTRICS_VERSION
 REPORTS_GATHERED_DIR = REPORTS_DIR +"/"+ TIMESTAMP
+
+# Data validation for QA. Filename is tagged with the date it was generated
+DATA_VALIDATION_EXCEL = REPORTS_GATHERED_DIR +"/"+ "INS_DataValidation_Generated_" + datetime.now().strftime(("%Y-%m-%d"))+".xlsx"
 
 # Programs output
 PROGRAMS_INTERMED_PATH = INTERMED_DIR + QUALTRICS_VERSION +"/"+ "program.csv"

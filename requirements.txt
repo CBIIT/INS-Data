@@ -4,7 +4,7 @@ backcall==0.2.0
 backports.functools-lru-cache==1.6.5
 biopython==1.78
 Brotli==1.1.0
-certifi==2023.7.22
+certifi==2024.2.2
 charset-normalizer==3.2.0
 colorama==0.4.6
 comm==0.1.4
@@ -60,4 +60,5 @@ urllib3==2.0.5
 wcwidth==0.2.8
 wheel==0.41.2
 win-inet-pton==1.1.0
+XlsxWriter==3.1.1
 zipp==3.17.0
