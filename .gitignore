@@ -12,3 +12,6 @@ notebooks/
 # Large data
 data/00_input/icite/20*
 data/01_intermediate/*/gathered-*/temp_pubmed_chunkfiles/
+
+# Archived old data
+archive
