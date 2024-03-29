@@ -131,10 +131,10 @@ def normalize_encoding(text):
     if pd.isna(text) or not isinstance(text, str):
         return text
 
-    # Encode and decode text into ASCII to normalize
+    # Encode and decode text into utf-8 to normalize
     try:
         formatted_text = (unicodedata.normalize('NFKC', text)
-                          .encode('ascii', 'ignore').decode('ascii'))
+                          .encode('utf-8', 'ignore').decode('utf-8'))
         return formatted_text
     
     # Second catch to handle non-string values as-is
@@ -148,7 +148,7 @@ def process_special_characters(df):
 
     # Replace specific non-standard characters
     df = df.map(replace_defined_characters)
-    # General normalization to ascii encoding
+    # General normalization to utf-8 encoding
     df_cleaned = df.map(normalize_encoding)
 
     return df_cleaned
