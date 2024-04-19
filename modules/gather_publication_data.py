@@ -301,7 +301,8 @@ def format_authors(author_list):
         # Check for collaborative group name field
         collective_name = author.get('CollectiveName')
         if collective_name:
-            formatted_authors.append(collective_name)
+            clean_collective = collective_name.strip()
+            formatted_authors.append(clean_collective)
 
         # Combine FirstName LastName
         else:
