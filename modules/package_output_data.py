@@ -111,7 +111,8 @@ def replace_defined_characters(text):
     translation_table = str.maketrans({
         '\u2019': "'",  # Apostrophe with diacritic - replace with apostrophe
         '\u2028': ' ',  # Line Separator (LS) - replace with space
-        '\u2029': ' ',   # Paragraph Separator (PS) - replace with space
+        '\u2029': ' ',  # Paragraph Separator (PS) - replace with space
+        '\ufeff': '',   # Byte Order Mark (BOM) showing warning sign - remove
         # Add mappings here in the future as needed
         })
 
