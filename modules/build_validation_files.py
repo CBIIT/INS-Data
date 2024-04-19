@@ -12,6 +12,7 @@ order to build validation files.
 
 import os
 import sys
+import csv
 
 import pandas as pd
 
@@ -243,7 +244,8 @@ def build_validation_file():
     df_programs = pd.read_csv(config.PROGRAMS_OUTPUT_PATH, sep='\t')
     df_projects = pd.read_csv(config.PROJECTS_OUTPUT_PATH, sep='\t')
     df_grants = pd.read_csv(config.GRANTS_OUTPUT_PATH, sep='\t')
-    df_publications = pd.read_csv(config.PUBLICATIONS_OUTPUT_PATH, sep='\t')
+    df_publications = pd.read_csv(config.PUBLICATIONS_OUTPUT_PATH, sep='\t', 
+                                  quoting=csv.QUOTE_NONE)
     
     # Define list of dataframes for iteration
     df_list = [df_programs, df_projects, df_grants, df_publications]

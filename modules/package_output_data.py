@@ -11,6 +11,7 @@ import os
 import sys
 import unicodedata
 import hashlib
+import csv
 
 import pandas as pd
 import re
@@ -424,7 +425,7 @@ def package_publications(df_publications, column_configs):
     output_filepath = config.PUBLICATIONS_OUTPUT_PATH
     os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
     df_publications_output.to_csv(output_filepath, sep='\t', index=False, 
-                            encoding='utf-8')
+                                    encoding='utf-8', quoting=csv.QUOTE_NONE)
 
     print(f"Done! Final publication data saved as {output_filepath}.")
 
