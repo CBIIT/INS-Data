@@ -597,6 +597,36 @@ def generate_program_id_column(df: pd.DataFrame) -> pd.DataFrame:
 
 
 
+def remove_extra_default_list_values(df: pd.DataFrame, blank_filler_dict: dict):
+    """Remove default values from lists when those values should be mutually
+    exclusive with any other values. E.g. 'Broad Cancer Type' should be removed
+    when other cancer types are also listed. 
+    Args:
+        df (pd.DataFrame): Input pandas dataframe
+        blank_filler_dict (dict): Dictionary containing column names and default
+        values. Reusing from similar `replace_blank_values` function.
+    """
+
+    # Iterate through rows in df
+    for index, row in df.iterrows():
+
+        # Iterate through dictionary of columns and values from config
+        for col_name, default_value in blank_filler_dict.items():
+            # Separate strings by semicolons to get values
+            values = row[col_name].split(';')
+
+            # Remove mutually exclusive default value if present with others
+            if default_value in values and len(values) > 1:
+                print(f"Removed extra {default_value} in {row['program_acronym']}")
+                values.remove(default_value)
+
+            # Rejoin remaining values into semicolon separated string
+            df.loc[index, col_name] = ';'.join(values)
+
+    return df
+
+
+
 def load_and_clean_programs(csv_filepath: str, col_dict: dict) -> (bool, pd.DataFrame):
     """Load and clean Key Programs data from a Qualtrics CSV.
 
@@ -639,6 +669,9 @@ def load_and_clean_programs(csv_filepath: str, col_dict: dict) -> (bool, pd.Data
 
     # Brute force replacement of commas with semicolons in list-like cols
     df = force_replace_comma_separation(df, ['focus_area', 'cancer_type', 'doc'])
+
+    # Remove mutually exclusive default values if present in list-like cols
+    df = remove_extra_default_list_values(df, config.PROGRAM_BLANK_REPLACEMENTS)
 
     # Remove leading/trailing whitespace from program names
     df['program_name'] = df['program_name'].str.strip()
