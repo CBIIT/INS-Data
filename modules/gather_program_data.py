@@ -458,6 +458,18 @@ def validate_and_rename_columns(df: pd.DataFrame,
 
 
 
+def replace_blank_values(df: pd.DataFrame, blank_filler_dict: dict):
+    """Replace blank values within specific columns using config file."""
+
+    # Iterate through renaming dictionary defined in config
+    for column, filler in blank_filler_dict.items():
+        # Fill blank and NaN values
+        df[column] = df[column].fillna(filler)
+
+    return df
+
+
+
 def force_replace_comma_separation(df: pd.DataFrame, 
                                    replace_cols: list) -> pd.DataFrame:
     """Replace any commas within specified columns with semicolons. This is
@@ -618,6 +630,9 @@ def load_and_clean_programs(csv_filepath: str, col_dict: dict) -> (bool, pd.Data
     for old_value, new_value in config.PROGRAM_VALUE_REPLACEMENTS.items():
         # Use regex=True to enable regular expression replacement
         df = df.replace({r'\b{}\b'.format(re.escape(old_value)): new_value}, regex=True)
+
+    # Replace blank values in specific columns with filler values
+    df = replace_blank_values(df, config.PROGRAM_BLANK_REPLACEMENTS)
 
     # Remove spaces and replace commas in NOFO and Award columns
     df = clean_nofo_and_award_cols(df)

@@ -92,8 +92,17 @@ QUALTRICS_COLS = {
     "Login ID": "login_id"
 }
 
+# Generic value to use when no specific cancer type is specified
+PROGRAM_FILLER_CANCER_TYPE = 'Broad Cancer Types'
+
 # Dictionary of specific old:new values to replace within data
-PROGRAM_VALUE_REPLACEMENTS = {"This program focuses on cancer broadly - not limited to a primary cancer type": "Broad Cancer Types"}
+PROGRAM_VALUE_REPLACEMENTS = {"This program focuses on cancer broadly - not limited to a primary cancer type": PROGRAM_FILLER_CANCER_TYPE}
+
+# Dictionary of column_name:filler_value to replace blank values within specific columns
+PROGRAM_BLANK_REPLACEMENTS ={
+    'focus_area': 'No Focus Area',
+    'cancer_type': PROGRAM_FILLER_CANCER_TYPE
+}
 
 # Invalid NOFO reports
 INVALID_NOFOS_REPORT = REPORTS_DIR +"/"+ "invalidNofoReport_" + QUALTRICS_TYPE + ".csv"
