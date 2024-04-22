@@ -2,7 +2,7 @@
 gather_program_data.py
 2023-07-27 ZD 
 
-This script defines primary function `load_and_clean_programs` that will 
+This script defines primary function `gather_program_data` that will 
 input a versioned qualtrics CSV containing curated program data. It will read 
 configured values, perform validation, cleaning, and processing steps, and 
 then output a DataFrame and matching CSV file containing programs.
@@ -20,6 +20,7 @@ The output dataframe contains the following columns:
     nofo,award
     program_link
     data_link
+    cancer_type
 """
 
 import os
@@ -622,7 +623,7 @@ def load_and_clean_programs(csv_filepath: str, col_dict: dict) -> (bool, pd.Data
     df = clean_nofo_and_award_cols(df)
 
     # Brute force replacement of commas with semicolons in list-like cols
-    df = force_replace_comma_separation(df, ['focus_area', 'doc'])
+    df = force_replace_comma_separation(df, ['focus_area', 'cancer_type', 'doc'])
 
     # Remove leading/trailing whitespace from program names
     df['program_name'] = df['program_name'].str.strip()
