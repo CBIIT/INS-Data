@@ -2,7 +2,7 @@
 gather_program_data.py
 2023-07-27 ZD 
 
-This script defines primary function `load_and_clean_programs` that will 
+This script defines primary function `gather_program_data` that will 
 input a versioned qualtrics CSV containing curated program data. It will read 
 configured values, perform validation, cleaning, and processing steps, and 
 then output a DataFrame and matching CSV file containing programs.
@@ -20,6 +20,7 @@ The output dataframe contains the following columns:
     nofo,award
     program_link
     data_link
+    cancer_type
 """
 
 import os
@@ -457,6 +458,18 @@ def validate_and_rename_columns(df: pd.DataFrame,
 
 
 
+def replace_blank_values(df: pd.DataFrame, blank_filler_dict: dict):
+    """Replace blank values within specific columns using config file."""
+
+    # Iterate through renaming dictionary defined in config
+    for column, filler in blank_filler_dict.items():
+        # Fill blank and NaN values
+        df[column] = df[column].fillna(filler)
+
+    return df
+
+
+
 def force_replace_comma_separation(df: pd.DataFrame, 
                                    replace_cols: list) -> pd.DataFrame:
     """Replace any commas within specified columns with semicolons. This is
@@ -584,6 +597,36 @@ def generate_program_id_column(df: pd.DataFrame) -> pd.DataFrame:
 
 
 
+def remove_extra_default_list_values(df: pd.DataFrame, blank_filler_dict: dict):
+    """Remove default values from lists when those values should be mutually
+    exclusive with any other values. E.g. 'Broad Cancer Type' should be removed
+    when other cancer types are also listed. 
+    Args:
+        df (pd.DataFrame): Input pandas dataframe
+        blank_filler_dict (dict): Dictionary containing column names and default
+        values. Reusing from similar `replace_blank_values` function.
+    """
+
+    # Iterate through rows in df
+    for index, row in df.iterrows():
+
+        # Iterate through dictionary of columns and values from config
+        for col_name, default_value in blank_filler_dict.items():
+            # Separate strings by semicolons to get values
+            values = row[col_name].split(';')
+
+            # Remove mutually exclusive default value if present with others
+            if default_value in values and len(values) > 1:
+                print(f"Removed extra {default_value} in {row['program_acronym']}")
+                values.remove(default_value)
+
+            # Rejoin remaining values into semicolon separated string
+            df.loc[index, col_name] = ';'.join(values)
+
+    return df
+
+
+
 def load_and_clean_programs(csv_filepath: str, col_dict: dict) -> (bool, pd.DataFrame):
     """Load and clean Key Programs data from a Qualtrics CSV.
 
@@ -618,11 +661,17 @@ def load_and_clean_programs(csv_filepath: str, col_dict: dict) -> (bool, pd.Data
         # Use regex=True to enable regular expression replacement
         df = df.replace({r'\b{}\b'.format(re.escape(old_value)): new_value}, regex=True)
 
+    # Replace blank values in specific columns with filler values
+    df = replace_blank_values(df, config.PROGRAM_BLANK_REPLACEMENTS)
+
     # Remove spaces and replace commas in NOFO and Award columns
     df = clean_nofo_and_award_cols(df)
 
     # Brute force replacement of commas with semicolons in list-like cols
-    df = force_replace_comma_separation(df, ['focus_area', 'doc'])
+    df = force_replace_comma_separation(df, ['focus_area', 'cancer_type', 'doc'])
+
+    # Remove mutually exclusive default values if present in list-like cols
+    df = remove_extra_default_list_values(df, config.PROGRAM_BLANK_REPLACEMENTS)
 
     # Remove leading/trailing whitespace from program names
     df['program_name'] = df['program_name'].str.strip()
