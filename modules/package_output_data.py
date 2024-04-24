@@ -11,7 +11,6 @@ import os
 import sys
 import unicodedata
 import hashlib
-import csv
 
 import pandas as pd
 import re
@@ -110,6 +109,7 @@ def replace_defined_characters(text):
 
     # Define translation table to replace characters
     translation_table = str.maketrans({
+        '\"'    : '\'', # STANDARD Double Quotes - replace with single quote
         '\u2019': "'",  # Apostrophe with diacritic - replace with apostrophe
         '\u2028': ' ',  # Line Separator (LS) - replace with space
         '\u2029': ' ',  # Paragraph Separator (PS) - replace with space
@@ -425,7 +425,7 @@ def package_publications(df_publications, column_configs):
     output_filepath = config.PUBLICATIONS_OUTPUT_PATH
     os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
     df_publications_output.to_csv(output_filepath, sep='\t', index=False, 
-                                    encoding='utf-8', quoting=csv.QUOTE_NONE)
+                                    encoding='utf-8')
 
     print(f"Done! Final publication data saved as {output_filepath}.")
 
