@@ -101,7 +101,8 @@ def validate_first_columns(df, column_configs, datatype):
 
 
 def replace_defined_characters(text):
-    """Use a mappping to replace specific non-standard characters in text."""
+    """Use a mappping to replace specific non-standard characters in text. Any
+    non-ascii characters not included here will be dropped."""
 
     # Return NaN and non-string values as-is
     if pd.isna(text) or not isinstance(text, str):
@@ -109,11 +110,44 @@ def replace_defined_characters(text):
 
     # Define translation table to replace characters
     translation_table = str.maketrans({
-        '\"'    : '\'', # STANDARD Double Quotes - replace with single quote
-        '\u2019': "'",  # Apostrophe with diacritic - replace with apostrophe
-        '\u2028': ' ',  # Line Separator (LS) - replace with space
-        '\u2029': ' ',  # Paragraph Separator (PS) - replace with space
-        '\ufeff': '',   # Byte Order Mark (BOM) showing warning sign - remove
+        '\"'    : '\'',     # STANDARD double quotes - replace with single quote
+        '\u2028': ' ',      # Line Separator (LS) - replace with space
+        '\u2029': ' ',      # Paragraph Separator (PS) - replace with space
+        '\u00a0': ' ',      # Non-breaking space - replace with space
+        '\ufeff': '',       # Byte Order Mark (BOM) warning sign - remove
+        '\u2013': '-',      # En Dash - replace with dash
+        '\u2014': '-',      # Em Dash - replace with dash
+        '\u2010': '-',      # Hyphen - replace with dash
+        '\u201c': '\'',     # Left double quotes - replace with single quote
+        '\u201d': '\'',     # Right double quotes - replace with single quote
+        '\u2018': '\'',     # Left single quote - replace with single quote
+        '\u2019': '\'',     # Right single quote - replace with single quote
+        '\u0004': '',       # Unused unicode - remove
+        '\u0005': '',       # Unused unicode - remove
+        '\u0006': '',       # Unused unicode - remove
+        '\u0007': '',       # Unused unicode - remove
+        '\u03b1': 'a',      # Greek alpha - replace with a
+        '\u03b2': 'B',      # Greek beta - replace with B
+        '\u03b3': 'g',      # Greek gamma - replace with g
+        '\u03b4': 'd',      # Greek lower delta
+        '\u03F5': 'e',      # Greek lower epsilon
+        '\u03ba': 'k',      # Greek kappa - replace with k
+        '\u03bc': 'u',      # Greek mu - replace with u
+        '\u03BB': 'l',      # Greek lambda - replace with l
+        '\u0394': 'D',      # Greek upper delta
+        '\u2081': '1',      # Subscript 1
+        '\u2082': '2',      # Subscript 2
+        '\u2083': '3',      # Subscript 3
+        '\u2084': '4',      # Subscript 4
+        '\u2085': '5',      # Subscript 5
+        '\u2086': '6',      # Subscript 6
+        '\u2087': '7',      # Subscript 7
+        '\u2088': '8',      # Subscript 8
+        '\u2089': '9',      # Subscript 9
+        '\u00a9': '(C)',    # Copywrite symbol
+        '\u2264': '<=',     # Less than or equal to
+        '\u2265': '>=',     # Greater than or equal to
+
         # Add mappings here in the future as needed
         })
 
@@ -133,10 +167,12 @@ def normalize_encoding(text):
     if pd.isna(text) or not isinstance(text, str):
         return text
 
-    # Encode and decode text into utf-8 to normalize
+    # Encode and decode text through an ascii "filter" to normalize
     try:
-        formatted_text = (unicodedata.normalize('NFKC', text)
-                          .encode('utf-8', 'ignore').decode('utf-8'))
+        # Using NFD will decompose characters into base and combining accent
+        formatted_text = (unicodedata.normalize('NFD', text)
+                # 'ignore' argument will drop any non-ascii, including accents
+                          .encode('ascii', 'ignore').decode('utf-8'))
         return formatted_text
     
     # Second catch to handle non-string values as-is
