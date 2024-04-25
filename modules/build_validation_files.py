@@ -1,13 +1,13 @@
 """
-build_validation_files.py
+build_validation_file.py
 2024-03-18 ZD
 
-This module defines primary function build_validation_files that generates files
-useful for summarizing the data gathered in this pipeline. The files are intended
+This module defines primary function build_validation_file that generates a file
+useful for summarizing the data gathered in this pipeline. The file is intended
 to act as the expected source of truth when QA testing INS data functionality.
 
 Data output TSVs will not be changed by this module. It will only read them in 
-order to build validation files. 
+order to build the validation file. 
 """
 
 import os
@@ -110,7 +110,7 @@ def get_downstream_node_records(df_downstream: pd.DataFrame,
             matching linking values. 
 
     Example: 
-        To records for all projects associated with a program, use args:
+        To get records for all projects associated with a program, use args:
             df_downstream = df_projects,
             link_id = 'program.program_id' # Column within df_projects
             link_values = 'ccdi' # Program ID within program.program_id column
