@@ -37,7 +37,7 @@ from modules.gather_project_data import gather_project_data
 from modules.summary_statistics import get_summary_statistics
 from modules.gather_publication_data import gather_publication_data
 from modules.package_output_data import package_output_data
-from modules.build_validation_files import build_validation_file
+from modules.build_validation_file import build_validation_file
 
 
 def main():

@@ -1,13 +1,13 @@
 """
-build_validation_files.py
+build_validation_file.py
 2024-03-18 ZD
 
-This module defines primary function build_validation_files that generates files
-useful for summarizing the data gathered in this pipeline. The files are intended
+This module defines primary function build_validation_file that generates a file
+useful for summarizing the data gathered in this pipeline. The file is intended
 to act as the expected source of truth when QA testing INS data functionality.
 
 Data output TSVs will not be changed by this module. It will only read them in 
-order to build validation files. 
+order to build the validation file. 
 """
 
 import os
@@ -110,7 +110,7 @@ def get_downstream_node_records(df_downstream: pd.DataFrame,
             matching linking values. 
 
     Example: 
-        To records for all projects associated with a program, use args:
+        To get records for all projects associated with a program, use args:
             df_downstream = df_projects,
             link_id = 'program.program_id' # Column within df_projects
             link_values = 'ccdi' # Program ID within program.program_id column
@@ -129,7 +129,6 @@ def get_downstream_node_records(df_downstream: pd.DataFrame,
         linked_records = df_downstream[df_downstream[link_id].isin(link_values)]
 
     return linked_records
-
 
 
 
@@ -186,6 +185,18 @@ def build_single_program_output_counts(df_programs: pd.DataFrame,
                                                            project_id_list)
         publication_id_list = linked_publications['pmid'].unique()
 
+        # Get total of all downstream records
+        total_records = sum([len(project_id_list),
+                            len(grant_id_list),
+                            len(publication_id_list),
+                            ])
+
+        # Get detail page urls            
+        dev_url = get_detail_page_url(program_id, 'program', '-dev')
+        qa_url = get_detail_page_url(program_id, 'program', '-qa')
+        stage_url = get_detail_page_url(program_id, 'program', '-stage')
+        prod_url = get_detail_page_url(program_id, 'program', '')
+
         # Create a dictionary with results
         program_result_row = {
             'program_id': program_id,
@@ -193,8 +204,13 @@ def build_single_program_output_counts(df_programs: pd.DataFrame,
             'program_acronym': program_acronym,
             'projects': len(project_id_list),
             'grants': len(grant_id_list),
-            'publications': len(publication_id_list)
-            }
+            'publications': len(publication_id_list),
+            'total_records': total_records,
+            'dev_url': dev_url,
+            'qa_url': qa_url,
+            'stage_url': stage_url,
+            'prod_url': prod_url,
+        }
         
         # Convert to df
         result_row_df = pd.DataFrame(program_result_row, index=[0])
@@ -202,8 +218,111 @@ def build_single_program_output_counts(df_programs: pd.DataFrame,
         # Add to running list of full results
         df_program_results = pd.concat([df_program_results, result_row_df], 
                                        ignore_index=True)
+        
+    # Sort output df by total records
+    df_program_results.sort_values(by='total_records', ascending=False, 
+                                   inplace=True)
     
     return df_program_results
+
+
+
+def build_single_project_output_counts(df_projects: pd.DataFrame,
+                                       df_grants: pd.DataFrame,
+                                       df_publications: pd.DataFrame):
+    """
+    Generates a dataframe summarizing counts of outputs (grants and publications)
+    for each project.
+
+    Args:
+        df_projects (pd.DataFrame): Dataframe from project.tsv
+        df_grants (pd.DataFrame): Dataframe from grant.tsv
+        df_publications (pd.DataFrame): Dataframe from publication.tsv
+    """
+
+    # Build empty dataframe to store results
+    df_project_results = pd.DataFrame()
+
+    # Get list of all unique project ids
+    project_id_list = df_projects['project_id'].unique().tolist()
+
+    # Iterate through each project id
+    for project_id in project_id_list:
+
+        # Get single project record from projects df
+        df_project_filtered = (df_projects[
+                                df_projects['project_id'] == project_id]
+                                ).reset_index()
+
+        # Get project title for output
+        project_title = df_project_filtered['project_title']
+
+        # Get grants linked to project
+        linked_grants = get_downstream_node_records(df_grants,
+                                                    'project.project_id',
+                                                    project_id)
+        grant_id_list = linked_grants['grant_id'].unique()
+
+        # Get publications linked to project
+        linked_publications = get_downstream_node_records(df_publications,
+                                                          'project.project_id',
+                                                          project_id)
+        publication_id_list = linked_publications['pmid'].unique()
+
+        # Get total of all downstream records
+        total_records = sum([len(grant_id_list),
+                            len(publication_id_list),
+                            ])
+        
+        # Get detail page urls            
+        dev_url = get_detail_page_url(project_id, 'project', '-dev')
+        qa_url = get_detail_page_url(project_id, 'project', '-qa')
+        stage_url = get_detail_page_url(project_id, 'project', '-stage')
+        prod_url = get_detail_page_url(project_id, 'project', '')
+
+        # Create a dictionary with project results
+        project_result_row = {
+            'project_id': project_id,
+            'project_title': project_title,
+            'grants': len(grant_id_list),
+            'publications': len(publication_id_list),
+            'total_records': total_records,
+            'dev_url': dev_url,
+            'qa_url': qa_url,
+            'stage_url': stage_url,
+            'prod_url': prod_url,
+        }
+
+        # Convert to dataframe format
+        result_row_df = pd.DataFrame(project_result_row, index=[0])
+
+        # Add to running list of project results
+        df_project_results = pd.concat([df_project_results, result_row_df],
+                                       ignore_index=True)
+    # Sort output df by total records
+    df_project_results.sort_values(by='total_records', ascending=False, 
+                                   inplace=True)
+
+    return df_project_results
+
+
+
+def get_detail_page_url(node_id, node_type, tier):
+    """Build the URL to the relevant program or project detail page on INS for
+    easier QA testing.
+
+    Args:
+        node_id (str): ID of the program or project
+        node_type (str): 'program' or 'project' describing the node
+        tier (str): Site tier for url ('-dev', '-qa', '-stage', or None (prod))
+    """
+
+    if tier == '-prod' or '' or None:
+        tier = ''
+
+    url = f"https://studycatalog{tier}.cancer.gov/#/{node_type}/{node_id}"
+
+    return url
 
 
 
@@ -257,6 +376,12 @@ def build_validation_file():
                                                     df_projects, 
                                                     df_grants, 
                                                     df_publications)
+    
+    # Get associated grant and publication count for each project
+    df_single_project_results = build_single_project_output_counts(
+                                                    df_projects, 
+                                                    df_grants, 
+                                                    df_publications)
 
     # Define version and descriptive info to include on first tab of Excel
     # There's definitely a better way to format this, but it works...
@@ -274,7 +399,9 @@ def build_validation_file():
     df_dict = {
         'report_info': report_info,
         'total_counts': id_count_summary_df,
-        'single_program_counts': df_single_program_results}
+        'single_program_counts': df_single_program_results,
+        'single_project_counts': df_single_project_results,
+        }
 
     # Export file
     save_dataframes_to_excel(df_dict, config.DATA_VALIDATION_EXCEL)
