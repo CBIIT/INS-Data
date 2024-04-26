@@ -5,7 +5,7 @@ This repository is designed to use a curated list of key National Cancer Institu
 
 **To access file outputs of the data gathering process**, [follow the instructions below](#accessing-output-files).
 
-The data gathered here are compatible with [INS Data Model v1.0.0](https://github.com/CBIIT/ins-model/tree/fb6185addcd82c6f535ebfa5dff39f8cb64ce262).
+The data gathered here are compatible with [INS Data Model v1.0.1](https://github.com/CBIIT/ins-model/tree/v1.0.1).
 
 ![INS-Data simple workflow. This diagram shows a simplified flow of data gathering from programs to grants/projects to publications.](images/ins-data-gathering-simple.png)
 
@@ -195,7 +195,7 @@ python modules/gather_publication_data.py
         - Whenever this workflow is run for the same start date (version), any existing checkpoint files are all loaded together and the unique PMIDs within are accounted for. Each run will check for any missing PMIDs and restart the data gathering wherever it left off. This allows the publications workflow to be stopped and restarted without problems. 
 
 3. **Gather iCite information for each PMID**
-    - Uses the most recent [NIH iCite bulk download](https://nih.figshare.com/collections/iCite_Database_Snapshots_NIH_Open_Citation_Collection_/4586573/48) (zipped CSV) to access iCite data for each PMID
+    - Uses the most recent [NIH iCite bulk download](https://nih.figshare.com/collections/iCite_Database_Snapshots_NIH_Open_Citation_Collection_/4586573) (zipped CSV) to access iCite data for each PMID
     - This manual download process must be completed **before starting the automated workflow**
         - The downloaded `icite_metadata.zip` should be stored in a versioned (e.g. `2023-11/`) directory in the `data/raw/icite/` directory
             - Note: iCite files are ~10GB and are not stored under git control
@@ -262,9 +262,9 @@ python modules/package_output_data.py
 
 ### Data Validation Workflow
 
-All Data Validation Generation steps are handled within the `build_validation_files.py` module and can be run as an independent process with the command: 
+All Data Validation Generation steps are handled within the `build_validation_file.py` module and can be run as an independent process with the command: 
 ```
-python modules/build_validation_files.py
+python modules/build_validation_file.py
 ```
 
 1. **Load data from finalized TSV output files**
@@ -277,8 +277,12 @@ python modules/build_validation_files.py
     - This tab can be used to verify that the data version matches the data validation version
 
 3. **Build "Single Program Results"**
-    - Creates a table where each program is listed with total counts of associated projects, grants, and publications
-    - Count of projects, grants, and publications should match counts on the INS Explore page when a single program is selected within the filter
+    - Creates a table where each unique program is listed with total counts of associated projects, grants, and publications
+    - Count of projects, grants, and publications should match counts on the INS Program Details Page or on the Explore page when a single program is selected within the filter 
+
+4. **Build "Single Project Results"**
+    - Creates a table where each unique project is listed with total counts of associated grants and publications
+    - Count of grants and publications should match counts on the INS Project Details Page
 
 4. **Format and save all tables to Excel as separate tabs**
     - Excel file is saved in the versioned `reports/` directory with a timestamp noting when it was generated
@@ -329,7 +333,7 @@ python modules/build_validation_files.py
         - Name should be in the format `qualtrics_output_{version}_{type}.csv` (e.g. `qualtrics_output_2023-07-19_raw.csv`)
     - If the Qualtrics CSV is updated, also update the values for `QUALTRICS_VERSION` and `QUALTRICS_TYPE` in `config.py` to match the Qualtrics CSV as needed.
 
-4. **Download the most recent** [**iCite Database Snapshot**](https://nih.figshare.com/collections/iCite_Database_Snapshots_NIH_Open_Citation_Collection_/4586573/48) 
+4. **Download the most recent** [**iCite Database Snapshot**](https://nih.figshare.com/collections/iCite_Database_Snapshots_NIH_Open_Citation_Collection_/4586573) 
     - The file is a ~10GB zipped CSV and can take 2-4 hours to manually download
     - Place the file in a versioned raw data directory (i.e. `data/raw/icite/{version}/icite_metadata.zip`)
     - Update the value of `ICITE_VERSION` in `config.py` to match the version directory name (e.g. `2023-11`)
@@ -351,8 +355,8 @@ python modules/build_validation_files.py
     ```
     python main.py
     ```
-    - This will run all steps of the workflow and save all output files in file locations defined in `config.py`
-    - **OPTIONAL** - Instead of `main.py`, most modules can be run as independent processes with the following commands:
+    - This will run all steps of the workflow in order and save all output files in locations defined in `config.py`
+    - **OPTIONAL** - Instead of `main.py`, modules can be run as independent processes with the following commands:
         ```
         python modules/gather_program_data.py
         python modules/gather_grant_data.py
@@ -360,6 +364,7 @@ python modules/build_validation_files.py
         python modules/gather_project_data.py
         python modules/gather_publication_data.py
         python modules/package_output_data.py
+        python modules/build_validation_file.py
         ```
     - NOTE: If running modules independently, ensure that necessary output files from preceding modules already exist for the same start date (version)
 
@@ -403,7 +408,7 @@ INS-Data
 │   ├── ins-data-repo-diagram.drawio
 │   └── ins-data-repo-diagram.png
 ├── modules/
-│   ├── build_validation_files.py
+│   ├── build_validation_file.py
 │   ├── gather_grant_data.py
 │   ├── gather_program_data.py
 │   ├── gather_project_data.py
