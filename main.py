@@ -8,7 +8,7 @@ single command.
 Inputs required:
 - Curated Qualtrics CSV of Key Programs
 - iCite database download for publication details
-- Reviewed and corrected list of invalid NOFOs/Awards (Optional on subsequent runs)
+- Reviewed and corrected list of invalid NOFOs/Awards (Optional)
 - All other inputs are gathered via API
 
 Ouputs generated:
@@ -29,10 +29,6 @@ Ouputs generated:
     - Data validation Excel for QA testing
 """
 
-import os
-import sys
-
-import pandas as pd
 
 import config
 from modules.gather_program_data import gather_program_data
@@ -41,7 +37,7 @@ from modules.gather_project_data import gather_project_data
 from modules.summary_statistics import get_summary_statistics
 from modules.gather_publication_data import gather_publication_data
 from modules.package_output_data import package_output_data
-from modules.build_validation_files import build_validation_file
+from modules.build_validation_file import build_validation_file
 
 
 def main():

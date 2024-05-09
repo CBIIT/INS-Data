@@ -12,11 +12,11 @@ from datetime import datetime
 # Inputs and outputs will use this versioning
 # Version must match suffix in input filename
 
-QUALTRICS_VERSION = "2024-03-12"    # <-- CHANGE VERSION HERE
-QUALTRICS_TYPE = "raw"              # <-- Define "raw" or "manual_fix" type of the input csv
+QUALTRICS_VERSION = "2024-04-24"    # <-- CHANGE VERSION HERE
+QUALTRICS_TYPE = "manual_fix"       # <-- Define "raw" or "manual_fix" type of the input csv
 
 # Version of bulk download from iCite
-ICITE_VERSION = "2024-02"           # <-- CHANGE VERSION HERE
+ICITE_VERSION = "2024-03"           # <-- CHANGE VERSION HERE
 
 # An override date can be used instead of today's date for pulling and saving data versions
 # This is useful when running downstream modules on grants data gathered before today
@@ -78,7 +78,7 @@ PROJECTS_OUTPUT_PATH = OUTPUT_GATHERED_DIR +"/"+ "project.tsv"
 QUALTRICS_COLS = {
     "Name of Key Program": "program_name",
     "Acronym for key program": "program_acronym",
-    "Focus Area (select all that apply)": "obsolete_column_01",
+    "Focus Area (select all that apply)": "focus_area",
     "DOC": "doc",
     "Primary Contact (PI)": "contact_pi",
     "Primary Contact (PI) email": "contact_pi_email",
@@ -88,12 +88,21 @@ QUALTRICS_COLS = {
     "Grant/Award number {parent award FORMAT LL#CA######, eg. UG3CA260607} (If more than one, separate with ; semicolon)": "award",
     "Link to program website": "program_link",
     "Link to data or DCC if available": "data_link",
-    "What type of cancer is the primary focus of the program? (Check all that\napply)": "focus_area",
+    "What type of cancer is the primary focus of the program? (Check all that\napply)": "cancer_type",
     "Login ID": "login_id"
 }
 
+# Generic value to use when no specific cancer type is specified
+PROGRAM_FILLER_CANCER_TYPE = 'Broad Cancer Types'
+
 # Dictionary of specific old:new values to replace within data
-PROGRAM_VALUE_REPLACEMENTS = {"This program focuses on cancer broadly - not limited to a primary cancer type": "Broad Cancer Types"}
+PROGRAM_VALUE_REPLACEMENTS = {"This program focuses on cancer broadly - not limited to a primary cancer type": PROGRAM_FILLER_CANCER_TYPE}
+
+# Dictionary of column_name:filler_value to replace blank values within specific columns
+PROGRAM_BLANK_REPLACEMENTS ={
+    'focus_area': 'No Focus Area',
+    'cancer_type': PROGRAM_FILLER_CANCER_TYPE
+}
 
 # Invalid NOFO reports
 INVALID_NOFOS_REPORT = REPORTS_DIR +"/"+ "invalidNofoReport_" + QUALTRICS_TYPE + ".csv"
@@ -238,7 +247,7 @@ REMOVED_EARLY_PUBLICATIONS = PACKAGING_REPORTS + 'removedEarlyPublications.csv'
 PUB_PROJECT_DAY_DIFF = 365
 
 # Generation of enum value lists
-ENUM_PROGRAM_COLS = ['focus_area']
+ENUM_PROGRAM_COLS = ['focus_area', 'cancer_type']
 ENUM_PROGRAM_PATH = PACKAGING_REPORTS + 'program_enums.txt'
 
 # Dictionary of columns and types to use in final data packaging
@@ -256,6 +265,7 @@ COLUMN_CONFIGS = {
             'program_name': 'program_name',
             'program_acronym': 'program_acronym',
             'focus_area': 'focus_area',
+            'cancer_type': 'cancer_type',
             'doc': 'doc',
             'contact_pi': 'contact_pi',
             'contact_pi_email': 'contact_pi_email',
@@ -267,7 +277,7 @@ COLUMN_CONFIGS = {
             'data_link': 'data_link',
         },
         # List of any list-like columns that need semicolon separators
-        'list_like_cols': ['focus_area', 'doc'],
+        'list_like_cols': ['focus_area', 'cancer_type', 'doc'],
     },
     'grant': {
         'node_id': 'grant_id',
