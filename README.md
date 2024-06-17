@@ -14,12 +14,13 @@ The data gathered here are compatible with [INS Data Model v1.0.1](https://githu
 - [Data Gathering Workflow](#data-gathering-workflow)
 - [How to Use this Repository](#how-to-use-this-repository)
 - [Repository Structure](#repository-structure)
+- [Errors and Warnings](#errors-and-warnings)
 
 
 
 # Data Gathering Workflow
 
-The INS-Data repository workflow follows the general outline below:  
+The INS Data Gathering workflow consists of the following steps:
 1. [Gather Programs](#gather-programs)
 2. [Gather Grants](#gather-grants)
 3. [Gather Projects](#gather-projects)
@@ -438,3 +439,33 @@ INS-Data
 ├── main.py
 └── README.md
 ```
+
+# Errors and Warnings
+
+## PMID 500 Error
+
+During the PMID gathering step, you may see an error of the form
+
+```text
+Received a 500 error for <project_id>. Retrying after 2 seconds. Attempt <n>/5
+```
+
+This error is caused by issues with the NIH RePORTER API.
+When we previously had this issue, we sent a message to [NIH RePORTER support](mailto:report@mail.nih.gov), and they fixed the problem.
+
+## PubMed Index out of Range
+
+During the PubMed data gathering step, you may see an error of the form
+
+```text
+Error fetching information for PMID <pmid>: list index out of range
+```
+
+This error can be safely ignored.
+The out of range list indices come from NIH RePORTER returning old PMID's.
+These PMID's are generally from before the year 2000 and would be ignored later in the script even if they were gathered.
+
+## Peak Usage
+
+If the NIH RePORTER API is unresponsive, it could be because the API is receiving too many requests at a time.
+It could be worth trying to run this data gathering script during a time when the API is likely to receive fewer requests, such as overnight.
