@@ -14,6 +14,7 @@ The data gathered here are compatible with [INS Data Model v1.0.1](https://githu
 - [Data Gathering Workflow](#data-gathering-workflow)
 - [How to Use this Repository](#how-to-use-this-repository)
 - [Repository Structure](#repository-structure)
+- [Errors and Warnings](#errors-and-warnings)
 
 
 
@@ -26,7 +27,6 @@ The INS Data Gathering workflow consists of the following steps:
 4. [Gather Publications](#gather-publications)
 5. [Package Data](#package-data)
 6. [Validate Data](#validate-data)
-6. [Errors and Warnings](#errors-and-warnings)
 
 
 
