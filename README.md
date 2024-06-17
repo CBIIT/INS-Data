@@ -19,24 +19,14 @@ The data gathered here are compatible with [INS Data Model v1.0.1](https://githu
 
 # Data Gathering Workflow
 
-The INS-Data repository workflow follows the general outline below:  
+The INS Data Gathering workflow consists of the following steps:
 1. [Gather Programs](#gather-programs)
-   1. [Program Workflow](#program-workflow)
 2. [Gather Grants](#gather-grants)
-   1. [Grant Workflow](#grant-workflow)
 3. [Gather Projects](#gather-projects)
-   1. [Project Workflow](#project-workflow)
 4. [Gather Publications](#gather-publications)
-   1. [Publication Workflow](#publication-workflow)
 5. [Package Data](#package-data)
-   1. [Data Packaging Workflow](#data-packaging-workflow)
 6. [Validate Data](#validate-data)
-   1. [Data Validation Workflow](#data-validation-workflow)
-   2. [Accessing output files:](#accessing-output-files)
-   3. [Recreating the INS data gathering process:](#recreating-the-ins-data-gathering-process)
-7. [PMID 500 Error](#pmid-500-error)
-8. [PubMed Index out of Range](#pubmed-index-out-of-range)
-9. [Peak Usage](#peak-usage)
+6. [Errors and Warnings](#errors-and-warnings)
 
 
 
