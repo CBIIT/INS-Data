@@ -326,6 +326,53 @@ def get_detail_page_url(node_id, node_type, tier):
 
 
 
+def get_downstream_node_ids_from_list(df_downstream: pd.DataFrame, 
+                                        link_id: str, 
+                                        id_list: list, 
+                                        target_id_col: str) -> int:
+    """Input a list of upstream node ids and get the combined output ids. If 
+    downstream outputs are duplicated, only report unique values. 
+
+    Args:
+        df_downstream (pd.DataFrame): Dataframe containing a link_id that can
+            associate records with the upstream Dataframes
+        link_id (str): String name of column containing linking ids
+        id_list (list): List of ids to gather downstream data from 
+        target_id_col (str): The name of the column containing the target IDs 
+        whose unique values we want to find
+
+    Returns:
+        unique_id_list (list): List of all associated downstream node ids
+
+    Example:
+        To get counts for all projects associated with a list of programs, use:
+            df_downstream = df_projects 
+            link_id = 'program.program_id'      # Column within df_projects
+            id_list = ['ccdi', 'pivot']         # list of program ids
+            target_id_col (str): 'project_id'   # ID column within df_projects    
+    """
+
+    # Build empty dataframe to fill with results
+    combined_records = pd.DataFrame()
+
+    # Iterate through each id within the input list
+    for node_id in id_list:
+        
+        # Get downstream records for individual node id
+        linked_records = get_downstream_node_records(df_downstream, 
+                                                        link_id, 
+                                                        node_id)
+        # Combine with running list of combined outputs
+        combined_records = pd.concat([combined_records, linked_records], 
+                                     ignore_index=True)
+    
+    # Keep only unique output ids
+    unique_id_list = combined_records[target_id_col].unique().tolist()
+
+    return unique_id_list
+
+
+
 def save_dataframes_to_excel(df_dict: dict, output_file: str):
     """
     Saves a dictionary of DataFrames as tabs within an Excel file. 
