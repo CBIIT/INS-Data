@@ -373,6 +373,45 @@ def get_downstream_node_ids_from_list(df_downstream: pd.DataFrame,
 
 
 
+def build_multi_program_output_counts(program_list: list,
+                                      df_projects: pd.DataFrame,
+                                      df_grants: pd.DataFrame,
+                                      df_publications: pd.DataFrame):
+    
+    """Generates a dataframe summarizing counts of programs and outputs 
+    (projects, grants, and publications) for a list of programs.
+    """
+
+    # Get unique ids for all associated projects (from programs)
+    project_id_list = get_downstream_node_ids_from_list(df_projects,
+                                        'program.program_id',
+                                        program_list,
+                                        'project_id')
+
+    # Get unique ids for all associated grants (from projects)
+    grant_id_list = get_downstream_node_ids_from_list(df_grants,
+                                        'project.project_id',
+                                        project_id_list,
+                                        'grant_id')
+
+    # Get unique ids for all associated publications (from projects)
+    publication_id_list = get_downstream_node_ids_from_list(df_publications,
+                                        'project.project_id',
+                                        project_id_list,
+                                        'pmid')
+
+    # Create a dictionary with results
+    result_row = {
+        'programs': len(program_list),
+        'projects': len(project_id_list),
+        'grants': len(grant_id_list),
+        'publications': len(publication_id_list),
+    }
+
+    return result_row
+
+
+
 def save_dataframes_to_excel(df_dict: dict, output_file: str):
     """
     Saves a dictionary of DataFrames as tabs within an Excel file. 
