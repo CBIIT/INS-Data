@@ -412,6 +412,115 @@ def build_multi_program_output_counts(program_list: list,
 
 
 
+def get_single_filter_value_results(filter_field: str, 
+                                    filter_value: str,
+                                    node_df: pd.DataFrame,
+                                    node_id_col: str):
+    
+    """Retrieve a list of all node ids matching a single filter field value.
+    Note: This will need to be reworked for non-string filter values.
+
+    Args:
+        filter_field (str): Filter field to search for value within
+        filter_value (str): Filter value to match within filter_field
+        node_df (pd.DataFrame): Node dataframe
+        node_id (str): Column of node id
+
+    Returns:
+        id_list (list): List of all node ids matching the filter value
+
+    Example:
+        To get all program ids associated with Pancreas Cancer cancer_type, 
+            use parameters:
+            filter_field = 'cancer_type',
+            filter_value = 'Pancreas Cancer',
+            node_df = df_programs,
+            node_id_col = 'program_id'
+    """
+
+    # Find matching filter strings
+    df_filtered = node_df[node_df[filter_field].str.contains(filter_value)]
+
+    # Get list of unique associated program ids
+    id_list = df_filtered[node_id_col].unique().tolist()
+
+    return id_list
+
+
+
+def build_program_filter_output_counts(filter_field_list: list, 
+                                       df_programs: pd.DataFrame, 
+                                       df_projects: pd.DataFrame,
+                                       df_grants: pd.DataFrame,
+                                       df_publications: pd.DataFrame,
+                                       max_values: int=None):
+    
+    """Build a dataframe of program and output counts associated with each 
+    single facet filter selection.
+
+    Args:
+        df_programs (pd.DataFrame): Dataframe of programs
+        filter_field_list (list): List of all columns to include as filters
+        max_values (int, optional): Maximum number of values to include for 
+            fields with many values. Default None to include all.
+    
+    Returns:
+        filter_result_df (pd.DataFrame): Dataframe with columns for filter 
+            labels and expected program, project, grant, and publication counts. 
+    """
+
+    # Build empty dataframe to fill with results
+    filter_result_df = pd.DataFrame()
+
+    # Iterate through list of columns to consider filters
+    for filter_field in filter_field_list:
+        
+        # Separate list-like strings and get unique values
+        filter_value_list = (df_programs[filter_field].str.split(';')
+                                                .explode().unique().tolist())
+        
+        # Sort field alphabetically for consistency. Ignore case
+        filter_value_list = sorted(filter_value_list, key=str.casefold)
+
+        # Limit list size, if specified. Will select first alphabetically.
+        if max_values is not None:
+            filter_value_list = filter_value_list[0:max_values]
+        
+        # Iterate through each filter value option
+        for filter_value in filter_value_list:
+            
+            # Get all programs associated with single filter
+            program_list = get_single_filter_value_results(filter_field, 
+                                                           filter_value, 
+                                                           df_programs,
+                                                           'program_id')
+
+            # Get dictionary of output counts for program list
+            result_row = build_multi_program_output_counts(program_list, 
+                                                           df_projects, 
+                                                           df_grants, 
+                                                           df_publications)
+
+            # Add labels for filter field and value to the output
+            result_row['filter_field'] = filter_field
+            result_row['filter_value'] = filter_value
+
+            # Convert to df
+            result_row_df = pd.DataFrame(result_row, index=[0])
+
+            # Append as a new row in result DataFrame
+            filter_result_df = pd.concat([filter_result_df, result_row_df], 
+                                         ignore_index=True)
+            
+    # Rearrange columns in output dataframe for testing clarity
+    filter_result_df = filter_result_df[['filter_field','filter_value',
+                                         'programs','projects',
+                                         'grants','publications']]
+
+    return filter_result_df
+
+
+
 def save_dataframes_to_excel(df_dict: dict, output_file: str):
     """
     Saves a dictionary of DataFrames as tabs within an Excel file. 
