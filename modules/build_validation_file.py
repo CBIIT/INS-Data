@@ -366,8 +366,12 @@ def get_downstream_node_ids_from_list(df_downstream: pd.DataFrame,
         combined_records = pd.concat([combined_records, linked_records], 
                                      ignore_index=True)
     
-    # Keep only unique output ids
-    unique_id_list = combined_records[target_id_col].unique().tolist()
+    # Skip filtering step if no results found to avoid errors
+    if len(combined_records) == 0:
+        unique_id_list = []
+    else:
+        # Keep only unique output ids
+        unique_id_list = combined_records[target_id_col].unique().tolist()
 
     return unique_id_list
 
@@ -577,6 +581,13 @@ def build_validation_file():
                                                     df_projects, 
                                                     df_grants, 
                                                     df_publications)
+    
+    # Get expected counts when single facet filters are applied to programs
+    df_program_single_filter_results = build_program_filter_output_counts(
+                                    ['cancer_type','focus_area'],
+                                    df_programs, df_projects,
+                                    df_grants, df_publications,
+                                    max_values=None)
 
     # Define version and descriptive info to include on first tab of Excel
     # There's definitely a better way to format this, but it works...
@@ -596,6 +607,7 @@ def build_validation_file():
         'total_counts': id_count_summary_df,
         'single_program_counts': df_single_program_results,
         'single_project_counts': df_single_project_results,
+        'program_single_filter_counts': df_program_single_filter_results,
         }
 
     # Export file
