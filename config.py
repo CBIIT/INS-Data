@@ -18,6 +18,9 @@ QUALTRICS_TYPE = "manual_fix"       # <-- Define "raw" or "manual_fix" type of t
 # Version of bulk download from iCite
 ICITE_VERSION = "2024-03"           # <-- CHANGE VERSION HERE
 
+# Version of dbGaP dataset download
+DBGAP_CSV_VERSION = "2024-07-19_TEST"   # <-- CHANGE VERSION HERE
+
 # An override date can be used instead of today's date for pulling and saving data versions
 # This is useful when running downstream modules on grants data gathered before today
 
@@ -70,6 +73,8 @@ GRANTS_OUTPUT_PATH = OUTPUT_GATHERED_DIR +"/"+ "grant.tsv"
 # Projects output
 PROJECTS_INTERMED_PATH = GATHERED_DIR +"/"+ "project.csv"
 PROJECTS_OUTPUT_PATH = OUTPUT_GATHERED_DIR +"/"+ "project.tsv"
+
+
 
 # ---
 # DATA PREPARATION CONFIGURATION
@@ -180,6 +185,8 @@ GRANT_ID_FIELDNAME = 'grant_id'
 # Define name for new program ID field
 PROGRAM_ID_FIELDNAME = 'program.program_id'
 
+
+
 # ---
 # SUMMARY STATISTICS CONFIGURATION
 
@@ -198,11 +205,13 @@ STAT_GRANTS_BY_PROGRAM_FILENAME = REPORTS_GATHERED_DIR +"/"+ "grantsStatsByProgr
 STAT_SHARED_PROJECT_PROGRAM_PAIRS_FILENAME = REPORTS_GATHERED_DIR +"/"+ "sharedProjectsByProgramPair.csv"
 
 
+
 #---
 # PROJECTS CONFIGURATION
 
 # Report of shared project value validation
 MISMATCHED_PROJECT_VALUES_REPORT = REPORTS_GATHERED_DIR +"/"+ "mismatchedProjectValuesReport.csv"
+
 
 
 # ---
@@ -234,6 +243,8 @@ ICITE_COLUMNS_TO_PULL = ['pmid','title','authors','year',
 
 # List of programs to exclude from downstream publication gathering
 PROGRAMS_EXCLUDE_FROM_PUBS = ['ccdi']
+
+
 
 # ---
 # DATA PACKAGING CONFIGURATION
@@ -344,3 +355,14 @@ COLUMN_CONFIGS = {
         'html_tag_cols': ['title']
     }
 }
+
+
+
+# ---
+# DATASETS CONFIGURATION
+
+# dbGaP input file - CSV download of dbGaP search results
+DBGAP_INPUT_CSV = INPUT_DIR + "dbgap/" + "study_" + DBGAP_CSV_VERSION + ".csv"
+
+DBGAP_INTERMED_PATH = INTERMED_DIR + "dbgap/" + DBGAP_CSV_VERSION + "/" + "dbgap_study_metadata.json"
+DBGAP_PROCESSED_PATH = INTERMED_DIR + "dbgap/" + DBGAP_CSV_VERSION + "/" + "dbgap_datasets.csv"
