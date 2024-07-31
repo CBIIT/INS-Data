@@ -330,10 +330,10 @@ def gather_dbgap_data(input_csv:str):
     phs_list = df['accession']
 
     # Get raw responses from the dbGaP Study Metadata API and store as file
-    build_raw_study_metadata_records(phs_list, config.DBGAP_INTERMED_PATH)
+    build_raw_study_metadata_records(phs_list, config.DBGAP_META_INTERMED_PATH)
 
     # Load the Study Metadata records from stored file
-    with open(config.DBGAP_INTERMED_PATH, 'r') as file:
+    with open(config.DBGAP_META_INTERMED_PATH, 'r') as file:
         study_metadata_records = json.load(file)
 
     # Build emtpy list to fill with processed records

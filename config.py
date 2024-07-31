@@ -364,5 +364,11 @@ COLUMN_CONFIGS = {
 # dbGaP input file - CSV download of dbGaP search results
 DBGAP_INPUT_CSV = INPUT_DIR + "dbgap/" + "study_" + DBGAP_CSV_VERSION + ".csv"
 
-DBGAP_INTERMED_PATH = INTERMED_DIR + "dbgap/" + DBGAP_CSV_VERSION + "/" + "dbgap_study_metadata.json"
-DBGAP_PROCESSED_PATH = INTERMED_DIR + "dbgap/" + DBGAP_CSV_VERSION + "/" + "dbgap_datasets.csv"
+# dbGaP intermediate storage directory
+DBGAP_INTERMED_DIR = INTERMED_DIR + "dbgap/" + DBGAP_CSV_VERSION + "/"
+
+DBGAP_META_INTERMED_PATH = DBGAP_INTERMED_DIR + "dbgap_study_metadata.json"
+DBGAP_SSTR_INTERMED_PATH = DBGAP_INTERMED_DIR + "dbgap_sstr.json"
+
+DBGAP_PROCESSED_PATH = DBGAP_INTERMED_DIR + "dbgap_datasets.csv"
+
