@@ -83,7 +83,8 @@ def build_raw_study_metadata_records(phs_list:list, export_filename:str):
     else:
         
         # Create directory if it does not already exist
-        os.makedirs(os.path.dirname(config.DBGAP_INTERMED_PATH), exist_ok=True)
+        os.makedirs(os.path.dirname(config.DBGAP_META_INTERMED_PATH), 
+                    exist_ok=True)
 
         # Build empty list to fill with results
         all_records = []
@@ -108,6 +109,8 @@ def build_raw_study_metadata_records(phs_list:list, export_filename:str):
 
                 # Add record to the combined list
                 all_records.append(record)
+
+            # TO DO: Gather any failed phs into a report for reference
 
         # Export as json
         with open(export_filename, 'w') as outfile:
@@ -297,6 +300,208 @@ def clean_dbgap_study_metadata(record:str) -> dict:
 
 
 
+def get_dbgap_sstr_metadata(phs:str, api_option:str='summary'):
+    """Fetches study metadata from the dbGaP SSTR API in JSON format.
+
+    Args:
+        phs (str): dbGaP phs accession number, e.g. 'phs002790.v7.p1' 
+            If base accession is used e.g. ('phs002790'), the response will use
+            the most recent available version. 
+        api_option (str): 'subjects' or 'summary'. Determines which SSTR API 
+            response type will be called. Default 'summary'.
+
+    Returns:
+        A dictionary containing the entire JSON response from the dbGaP API,
+            or None if the request fails.
+    """ 
+
+    # Base URL for the dbGaP study metadata API
+    base_url = "https://www.ncbi.nlm.nih.gov/gap/sstr/api/v1/study/"
+
+    # Construct the complete URL with the phs accession number and API type
+    url = base_url + phs + "/" + api_option
+
+    # Send a GET request to the API using requests library
+    response = requests.get(url)
+
+    # Check for successful response (status code 200)
+    if response.status_code == 200:
+
+        # Parse the JSON response using json.loads
+        return json.loads(response.text)
+    
+    else:
+        print(f"Error: {phs} - API request failed with status code: "
+              f"{response.status_code}")
+        return None
+
+
+
+def build_raw_sstr_records(phs_list:list, export_filename:str):
+    """Build a JSON file with raw dbGaP SSTR API results for a list  
+    of provided phs accessions.  
+
+    Args:
+        phs_list (list): List of dbGaP phs accession strings
+        export_filename (str): Filename of output json
+
+    Returns:
+        None. JSON file is exported.
+    """
+
+    print(f"Gathering dbGaP SSTR Metadata for {len(phs_list)} studies...")
+
+    # Check to see if output file already exists
+    if os.path.exists(export_filename):
+        print(f"Reusing dbGaP SSTR Results "
+              f"found in {export_filename}.")
+
+    # Only proceed if file does not already exist
+    else:
+        
+        # Create directory if it does not already exist
+        os.makedirs(os.path.dirname(config.DBGAP_SSTR_INTERMED_PATH), 
+                    exist_ok=True)
+
+        # Build empty list to fill with results
+        all_records = []
+
+        # Iterate through each phs # ADD TQDM PROGRESS BAR
+        for phs in phs_list:
+
+            # If already gathered, skip this phs
+            if phs in all_records:
+                print(f"Duplicate skipped: {phs}")
+                continue
+
+            # Pull raw json data from the SSTR API
+            record = get_dbgap_sstr_metadata(phs)
+
+            # Proceed if response exists
+            if record:
+
+                # Add the full phs string used to retrieve the response
+                record['full_phs'] = phs
+
+                # Add record to the combined list
+                all_records.append(record)
+
+            # TO DO: Gather any failed phs into a report for reference
+
+        # Export as json
+        with open(export_filename, 'w') as outfile:
+            json.dump(all_records, outfile, indent=2)
+
+        print(f"---\nSuccess! SSTR Metdata for {len(all_records)} "
+              f"saved to {export_filename}.")
+
+
+
+def get_sstr_count(record:str, count_type:str):
+    """Sum count of participants (aka subjects) or samples across all SSTR 
+    study consent groups for a single dbGaP study.
+
+    Args:
+        record (str): JSON SSTR API response for a single study
+        count_type (str): 'participant' or 'sample'. Value to sum and return
+    """
+
+    # Derive targeted fields from count_type
+    if count_type == 'participant':
+        count_field = 'subject_count'
+    elif count_type == 'sample':
+        count_field = 'sample_count'
+
+    # Throw an error if incorrect count_type is used
+    else:
+        raise ValueError(f"Invalid 'count_type': '{count_type}'. Must be "
+                         f"either 'participant' or 'sample'.")
+        
+
+    # Find all consent groupings listed in the response
+    consent_groups = record['study']['consent_groups']
+
+    # Start a sum counter for across groups
+    total_count = 0
+    
+    # Pull and sum the defined type
+    for group in consent_groups:
+        total_count += group[count_field]
+        
+    return total_count
+
+
+
+def get_consent_codes(record:str):
+    """Pull all consent code values present within a single dbGaP study.
+
+    Args:
+        record (str): JSON SSTR API response for a single study
+    """
+
+    # Build empty set to fill with consent codes
+    code_list = set()
+
+    # Find all consent groupings listed in the response
+    consent_groups = record['study']['consent_groups']
+
+    # Find all consent codes and add code short name to running list
+    for group in consent_groups:
+        code_list.add(group['short_name'])
+
+    # Connect all results as strings with separator
+    consent_output = ';'.join(code_list)
+
+    return consent_output
+
+
+
+def get_assay_method(record:str):
+    """Pull all sample assay values present within a single dbGaP study.
+
+    Args:
+        record (str): JSON SSTR API response for a single study
+    """
+
+    # Build empty set to fill with assay methods
+    method_list = set()
+
+    # Find all consent and sample groupings listed in the response
+    sample_groups = record['study_stats']['cnt_by_consent_and_sample_use']
+
+    # Find all assay methods and add to running list
+    for group in sample_groups:
+        method_list.add(group['sample_use'])
+
+    # Connect all results as strings with separator
+    method_output = ';'.join(method_list)
+
+    return method_output
+
+
+
+def clean_dbgap_sstr_metadata(record:str) -> dict:
+    """Process SSTR response JSON into a standardized, flat dictionary. 
+
+    Args:
+        record (str): JSON results from the dbGaP SSTR API
+
+    Returns:
+        sstr_metadata: (dict): Flat dict of selected metadata
+    """
+
+    sstr_metadata = {
+        'full_phs': record['full_phs'],
+        'participant_count': get_sstr_count(record, count_type='participant'),
+        'sample_count': get_sstr_count(record, count_type='sample'),
+        'limitations_for_reuse': get_consent_codes(record),
+        'assay_method': get_assay_method(record)
+    }
+
+    return sstr_metadata
+
+
+
 def gather_dbgap_data(input_csv:str):
     """Gather dbGaP study data from multiple sources.
 
@@ -320,7 +525,7 @@ def gather_dbgap_data(input_csv:str):
         'name',
         'description',
         'Study Disease/Focus',
-        'Study Molecular Data Type',
+        #'Study Molecular Data Type',  # same values as SSTR assay method
         'Release Date',
         'Ancestry (computed)',
         'Related Terms'
@@ -328,6 +533,10 @@ def gather_dbgap_data(input_csv:str):
 
     # Get list of phs accessions of interest 
     phs_list = df['accession']
+
+    #---
+    # STUDY METADATA API
+    print(f"\nProcessing dbGaP Study Metadata API results...")
 
     # Get raw responses from the dbGaP Study Metadata API and store as file
     build_raw_study_metadata_records(phs_list, config.DBGAP_META_INTERMED_PATH)
@@ -337,20 +546,44 @@ def gather_dbgap_data(input_csv:str):
         study_metadata_records = json.load(file)
 
     # Build emtpy list to fill with processed records
-    processed_record_list = []
-
-    print(f"\nProcessing dbGaP Study Metadata API resuts...")
+    processed_meta_record_list = []
 
     # Iterate through study records for processing and add to running list
-    for record in tqdm(study_metadata_records, ncols=80):
-        processed_record = clean_dbgap_study_metadata(record)
-        processed_record_list.append(processed_record)
+    for meta_record in tqdm(study_metadata_records, ncols=80):
+        processed_record = clean_dbgap_study_metadata(meta_record)
+        processed_meta_record_list.append(processed_record)
 
     # Convert to dataframe
-    metadata_df = pd.DataFrame(processed_record_list)
+    metadata_df = pd.DataFrame(processed_meta_record_list)
 
-    # Merge dbGaP downloaded CSV results with Study Metaddata results
-    merged_df = pd.merge(df[csv_cols_to_keep], metadata_df, 
+    # Merge dbGaP downloaded CSV results with Study Metadata results
+    meta_merged_df = pd.merge(df[csv_cols_to_keep], metadata_df, 
+                         left_on='accession', right_on='full_phs', how='left')
+    meta_merged_df.drop('full_phs', axis=1, inplace=True)
+
+    #---
+    # SSTR API
+
+    # Get raw responses from the dbGaP SSTR API and store as file
+    build_raw_sstr_records(phs_list, config.DBGAP_SSTR_INTERMED_PATH)
+
+    # Load the SSTR records from stored file
+    with open(config.DBGAP_SSTR_INTERMED_PATH, 'r') as file:
+        study_sstr_records = json.load(file)
+
+    # Build emtpy list to fill with processed records
+    processed_sstr_list = []
+
+    # Iterate through sstr records for processing and add to running list
+    for sstr_record in tqdm(study_sstr_records, ncols=80):
+        processed_sstr = clean_dbgap_sstr_metadata(sstr_record)
+        processed_sstr_list.append(processed_sstr)
+
+    # Convert to dataframe
+    sstr_df = pd.DataFrame(processed_sstr_list)
+
+    # Merge SSTR fields with CSV download + Study Metadata
+    merged_df = pd.merge(meta_merged_df, sstr_df,
                          left_on='accession', right_on='full_phs', how='left')
     merged_df.drop('full_phs', axis=1, inplace=True)
 
