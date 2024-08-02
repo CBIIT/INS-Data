@@ -18,7 +18,7 @@ QUALTRICS_TYPE = "manual_fix"       # <-- Define "raw" or "manual_fix" type of t
 # Version of bulk download from iCite
 ICITE_VERSION = "2024-03"           # <-- CHANGE VERSION HERE
 
-# Version of dbGaP dataset download
+# Version of dbGaP seearch results download (download date)
 DBGAP_CSV_VERSION = "2024-07-19_TEST"   # <-- CHANGE VERSION HERE
 
 # An override date can be used instead of today's date for pulling and saving data versions
@@ -372,3 +372,7 @@ DBGAP_SSTR_INTERMED_PATH = DBGAP_INTERMED_DIR + "dbgap_sstr.json"
 
 DBGAP_PROCESSED_PATH = DBGAP_INTERMED_DIR + "dbgap_datasets.csv"
 
+# dbGaP reports and error logs
+DBGAP_REPORTS_DIR = "reports/dbgap/" + DBGAP_CSV_VERSION + "/"
+DBGAP_SSTR_ERRORS = DBGAP_REPORTS_DIR + "api_errors_sstr.csv"
+DBGAP_META_ERRORS = DBGAP_REPORTS_DIR + "api_errors_study_metadata.csv"
