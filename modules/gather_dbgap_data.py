@@ -194,7 +194,7 @@ def build_bulk_raw_dbgap_api_data(phs_list:list,
 
 
 
-def get_principle_investigators(record):
+def get_principal_investigators(record):
     """Parse a dbGaP Study Metadata record to get all Principal Investigators 
     as a semicolon-separated list-like string.
 
@@ -360,7 +360,7 @@ def clean_dbgap_study_metadata(record:str) -> dict:
 
     study_metadata = {
         'full_phs': record['full_phs'],
-        'principal_investigator': get_principle_investigators(record),
+        'principal_investigator': get_principal_investigators(record),
         'cited_publications': get_cited_publications(record),
         'funding_source': get_funding_attributions(record),
         'study_type': join_list(record['study_type']),
@@ -495,7 +495,7 @@ def build_dbgap_df_from_json(api_type: str,
     with open(input_filepath, 'r') as file:
         raw_records = json.load(file)
 
-    # Build emtpy list to fill with processed records
+    # Build empty list to fill with processed records
     processed_record_list = []
 
     # Iterate through records for processing and add to running list
