@@ -15,6 +15,7 @@ The output `dbgap_df` and exported dbgap.csv contain columns:
 import os
 import sys
 import json
+import re
 
 import pandas as pd
 import requests
@@ -194,13 +195,74 @@ def build_bulk_raw_dbgap_api_data(phs_list:list,
 
 
 
-def get_principal_investigators(record):
+def detect_pi_fieldnames(raw_records):
+    """Parse dbGaP Study Metadata records to get all attribute fieldnames likely
+    to include information about Principal Investigators (PIs).
+
+    Args:
+        raw_records (str): JSON Study Metadata API responses for all studies.
+            Records must contain 'attribute' field.
+
+    Returns:
+        set: Set of all nested "PI-like" titles within record[`attribute`]
+    """
+
+    # Define regex patterns to detect PI-like attribution fieldnames
+    # Structure as dict with re.compile flags as values
+    patterns = {
+        r"(?s:.)*PI(?s:.)*": re.NOFLAG,
+        r"(?s:.)*Prin(?s:.)*In(?s:.)*": re.IGNORECASE,
+        r"(?s:.)*Lead(?s:.)*In(?s:.)*": re.IGNORECASE
+    }
+
+    # Define regext patterns to exclude from detection
+    exclusion_patterns = {
+        r".*for princip*": re.IGNORECASE,
+        r".*of princip*": re.IGNORECASE,
+    }
+
+    # Build empty set to fill with PI-like fieldname titles
+    title_set = set()
+
+    # Iterate through each study record in the input json records
+    for record in raw_records:
+
+        # Iterate through all attribution titles within single study record
+        for attribution in record['attribution']:
+            title = attribution.get('title')
+
+            # Continue if any titles exist
+            if title:
+
+                # Iterate through the detection patterns
+                for pattern, flag in patterns.items():
+                    
+                    # Check if the given title matches the given pattern
+                    compiled_pattern = re.compile(pattern, flags=flag)
+
+                    # Check for exclusions after a pattern is matched
+                    if compiled_pattern.search(title): 
+                        is_excluded = any(re.search(exclusion, title, flag) 
+                                          for exclusion, flag 
+                                          in exclusion_patterns.items())
+
+                        if not is_excluded:
+                            # Add to running list to title fieldnames
+                            title_set.add(title)
+
+    return title_set
+
+
+
+def get_principal_investigators(record, pi_title_set):
     """Parse a dbGaP Study Metadata record to get all Principal Investigators 
     as a semicolon-separated list-like string.
 
     Args:
         record (str): Study Metadata API response for a single study.
             Must contain 'attribute' field.
+        pi_title_set (set): Set of attribution titles likely to include names
+            of Principal Investigators (PIs).
 
     Returns:
         str: Semicolon-separated list of Principal Investigators
@@ -209,15 +271,19 @@ def get_principal_investigators(record):
     # Build empty list to fill with PIs
     pi_list = []
 
-    # List of all possible 'title' strings of interest
-    title_list = ['Principal Investigator', 
-                  'Principal investigator',
-                  'Principal Investigators',
-                  'Principal investigators',]
+    # Customization option to add or exclude titles to the regex-generated set
+    add_titles = set('Principal Investigator',)
+    remove_titles = set('Known bad title',)
+
+    pi_title_set.update(add_titles)
+    pi_title_set = pi_title_set - remove_titles
+
+    # Convert set to list for downstream iteration
+    pi_title_list = list(pi_title_set)
 
     # Iterate through all attribution records to find matching titles
     for attribution in record['attribution']:
-        if attribution.get('title') in title_list:
+        if attribution.get('title') in pi_title_list:
 
             # Collect the name field and add to running list
             pi_list.append(attribution['name'])
@@ -348,7 +414,7 @@ def join_list(items, sep=';'):
 
 
 
-def clean_dbgap_study_metadata(record:str) -> dict:
+def clean_dbgap_study_metadata(record:str, pi_title_set:set) -> dict:
     """Process study metadata json into a standardized, flat dictionary. 
 
     Args:
@@ -360,7 +426,8 @@ def clean_dbgap_study_metadata(record:str) -> dict:
 
     study_metadata = {
         'full_phs': record['full_phs'],
-        'principal_investigator': get_principal_investigators(record),
+        'principal_investigator': get_principal_investigators(record, 
+                                                              pi_title_set),
         'cited_publications': get_cited_publications(record),
         'funding_source': get_funding_attributions(record),
         'study_type': join_list(record['study_type']),
@@ -498,14 +565,22 @@ def build_dbgap_df_from_json(api_type: str,
     # Build empty list to fill with processed records
     processed_record_list = []
 
+    # Detect attribute titles for Study Metadata fields of interest
+    if api_type == 'study_metadata':
+        pi_title_set = detect_pi_fieldnames(raw_records)
+
     # Iterate through records for processing and add to running list
     for record in raw_records:
 
-        # Use the correct function to clean and process data
+        # Use the correct functions to clean and process data
         if api_type == 'sstr_summary':
             processed_record = clean_dbgap_sstr_metadata(record)
+
         elif api_type == 'study_metadata':
-            processed_record = clean_dbgap_study_metadata(record)
+            processed_record = clean_dbgap_study_metadata(record,
+                                                          pi_title_set,
+                                                          )
+
         else:
             raise ValueError(f"Invalid 'api_type': '{api_type}'. Must be "
                             f"either 'study_metadata', or 'sstr_summary'. "
