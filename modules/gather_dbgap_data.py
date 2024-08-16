@@ -195,31 +195,52 @@ def build_bulk_raw_dbgap_api_data(phs_list:list,
 
 
 
-def detect_pi_fieldnames(raw_records):
+def detect_attribute_fieldnames(raw_records, title_type):
     """Parse dbGaP Study Metadata records to get all attribute fieldnames likely
-    to include information about Principal Investigators (PIs).
+    to include information about a specified field of interest.
+    Principal Investigators (PIs) and Funding Sources are supported.
 
     Args:
         raw_records (str): JSON Study Metadata API responses for all studies.
             Records must contain 'attribute' field.
+        title_type (str): 'pi' or 'funding'. Specifies which sets of regex 
+            patterns to use when detecting relevant titles. 
 
     Returns:
-        set: Set of all nested "PI-like" titles within record[`attribute`]
+        set: Set of all relevant titles within record[`attribute`]
     """
 
-    # Define regex patterns to detect PI-like attribution fieldnames
+    # Define regex patterns to detect relevant attribution fieldnames
     # Structure as dict with re.compile flags as values
-    patterns = {
-        r"(?s:.)*PI(?s:.)*": re.NOFLAG,
-        r"(?s:.)*Prin(?s:.)*In(?s:.)*": re.IGNORECASE,
-        r"(?s:.)*Lead(?s:.)*In(?s:.)*": re.IGNORECASE
-    }
 
-    # Define regext patterns to exclude from detection
-    exclusion_patterns = {
-        r".*for princip*": re.IGNORECASE,
-        r".*of princip*": re.IGNORECASE,
-    }
+    if title_type == 'pi':
+    # Define Principal Investigator search patterns
+        patterns = {
+            r"(?s:.)*PI(?s:.)*": re.NOFLAG,
+            r"(?s:.)*Prin(?s:.)*In(?s:.)*": re.IGNORECASE,
+            r"(?s:.)*Lead(?s:.)*In(?s:.)*": re.IGNORECASE
+        }
+
+        # Define regex patterns to exclude from detection
+        exclusion_patterns = {
+            r".*for princip*": re.IGNORECASE,
+            r".*of princip*": re.IGNORECASE,
+        }
+    
+    elif title_type == 'funding':
+    # Define Funding search patterns
+        patterns = {
+            r"(?s:.)*Funding(?s:.)*": re.IGNORECASE,
+            r"(?s:.)*Grant(?s:.)*": re.IGNORECASE,
+            r"(?s:.)*Award(?s:.)*": re.IGNORECASE,
+        }
+
+        # Define regex patterns to exclude from detection
+        exclusion_patterns = {}
+
+    else:
+        raise ValueError(f"Invalid 'title_type': '{title_type}'. Must be "
+                         f"either 'pi' or 'funding'.")
 
     # Build empty set to fill with PI-like fieldname titles
     title_set = set()
@@ -272,8 +293,10 @@ def get_principal_investigators(record, pi_title_set):
     pi_list = []
 
     # Customization option to add or exclude titles to the regex-generated set
-    add_titles = set('Principal Investigator',)
-    remove_titles = set('Known bad title',)
+    add_titles = set(['Principal Investigator',
+                     'Senior Principal Scientist',
+                     'John Prensner, MD PhD'])
+    remove_titles = set(['Known bad title',])
 
     pi_title_set.update(add_titles)
     pi_title_set = pi_title_set - remove_titles
@@ -328,13 +351,15 @@ def get_cited_publications(record):
 
 
 
-def get_funding_attributions(record):
+def get_funding_attributions(record, funding_title_set):
     """Parse a dbGaP Study Metadata record to get all funding information 
     as a semicolon-separated list-like string. 
 
     Args:
         record (str): Study Metadata API response for a single study. 
             Must contain 'attribution' field.
+        funding_title_set (set): Set of attribution titles likely to include
+            details about study funding.
 
     Returns:
         str: Semicolon-separated list of provided funding information
@@ -343,12 +368,20 @@ def get_funding_attributions(record):
     # Build empty list to fill with funding
     funding_list = []
 
-    # List of all possible 'title' strings of interest
-    title_list = ['Funding Source']
+    # Customization option to add or exclude titles to the regex-generated set
+    add_titles = set(['Funding Source',
+                      'Founding Source',])
+    remove_titles = set(['Known bad title',])
+
+    funding_title_set.update(add_titles)
+    funding_title_set = funding_title_set - remove_titles
+
+    # Convert set to list for downstream iteration
+    funding_title_list = list(funding_title_set)
 
     # Iterate through all attribution records to find matching titles
     for attribution in record['attribution']:
-        if attribution.get('title') in title_list:
+        if attribution.get('title') in funding_title_list:
 
             # Collect the name field and add to running list
             funding_list.append(attribution['name'])
@@ -414,7 +447,9 @@ def join_list(items, sep=';'):
 
 
 
-def clean_dbgap_study_metadata(record:str, pi_title_set:set) -> dict:
+def clean_dbgap_study_metadata(record:str, 
+                               pi_title_set:set, 
+                               funding_title_set:set) -> dict:
     """Process study metadata json into a standardized, flat dictionary. 
 
     Args:
@@ -429,7 +464,8 @@ def clean_dbgap_study_metadata(record:str, pi_title_set:set) -> dict:
         'principal_investigator': get_principal_investigators(record, 
                                                               pi_title_set),
         'cited_publications': get_cited_publications(record),
-        'funding_source': get_funding_attributions(record),
+        'funding_source': get_funding_attributions(record, 
+                                                   funding_title_set),
         'study_type': join_list(record['study_type']),
         'external_study_url': get_external_study_urls(record),
         'gene_keywords': join_list(record['gene']),
@@ -567,7 +603,8 @@ def build_dbgap_df_from_json(api_type: str,
 
     # Detect attribute titles for Study Metadata fields of interest
     if api_type == 'study_metadata':
-        pi_title_set = detect_pi_fieldnames(raw_records)
+        pi_title_set = detect_attribute_fieldnames(raw_records, 'pi')
+        funding_title_set = detect_attribute_fieldnames(raw_records, 'funding')
 
     # Iterate through records for processing and add to running list
     for record in raw_records:
@@ -579,7 +616,7 @@ def build_dbgap_df_from_json(api_type: str,
         elif api_type == 'study_metadata':
             processed_record = clean_dbgap_study_metadata(record,
                                                           pi_title_set,
-                                                          )
+                                                          funding_title_set)
 
         else:
             raise ValueError(f"Invalid 'api_type': '{api_type}'. Must be "
