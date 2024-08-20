@@ -581,6 +581,70 @@ def clean_dbgap_sstr_metadata(record:str) -> dict:
 
 
 
+def get_dbgap_url(accession:str):
+    """Build a url to the dbGaP study page using phs accession."""
+
+    base_url = 'https://www.ncbi.nlm.nih.gov/projects/gap/cgi-bin/study.cgi?study_id='
+
+    # Check that phs accession string begins with phs
+    if not accession.startswith('phs'):
+        raise ValueError(f"Invalid phs accession: '{accession}'. Must begin "
+                         f"with 'phs'.")
+
+    else:
+        # Get the shortened accession without versioning
+        short_accession = accession[0:9]
+        
+        # Combine with base url for study page
+        url = base_url + short_accession
+
+        return url
+
+
+def select_and_rename_columns(df:pd.DataFrame):
+    """Standardize columns for the datasets output file. 
+    NOTE: Consider integrating this into the `package_output_data.py` in the
+    future. 
+
+    Args:
+        df (dataframe): pandas dataframe of merged dataset metadata
+    """
+
+    # Define columns to keep, reorder, and rename
+    # Column names should match data model properties
+    dataset_cols = {
+        'name': 'dataset_title',
+        'description': 'description',
+        'accession': 'dbGaP_phs',
+        'dbGaP_URL': 'dbGaP_URL',
+        'principal_investigator': 'PI_name',
+        #'gpa': 'GPA',
+        #'doc': 'dataset_doc',
+        'cited_publications': 'dataset_pmid',
+        'funding_source': 'funding_source',
+        'Release Date': 'release_date',
+        'limitations_for_reuse': 'limitations_for_reuse',
+        'assay_method': 'assay_method',
+        'study_type': 'study_type',
+        'Study Disease/Focus': 'primary_disease',
+        'participant_count': 'participant_count',    
+        'sample_count': 'sample_count',
+        'external_study_url': 'study_links',
+        'gene_keywords': 'related_genes',
+        'disease_keywords': 'related_diseases',
+        'Related Terms': 'related_terms',
+    }
+
+    # Rename and reorder columns
+    df = df.rename(columns=dataset_cols)
+
+    # Keep only defined columns and drop others
+    df = df[list(dataset_cols.values())]
+
+    return df
+
+
+
 def build_dbgap_df_from_json(api_type: str,
                              input_filepath: str):
     """Process a JSON file of bulk raw dbGaP API results into a dataframe
@@ -655,7 +719,6 @@ def gather_dbgap_data(input_csv:str):
         'name',
         'description',
         'Study Disease/Focus',
-        #'Study Molecular Data Type',  # same values as SSTR assay method
         'Release Date',
         'Ancestry (computed)',
         'Related Terms'
@@ -690,6 +753,8 @@ def gather_dbgap_data(input_csv:str):
                                        config.DBGAP_SSTR_INTERMED_PATH)
 
 
+    print(f"\nMerging dbGaP data from multiple sources...")
+
     # Merge CSV download + Study Metadata
     meta_merged_df = pd.merge(df[csv_cols_to_keep], metadata_df, 
                          left_on='accession', right_on='full_phs', how='left')
@@ -700,10 +765,17 @@ def gather_dbgap_data(input_csv:str):
                          left_on='accession', right_on='full_phs', how='left')
     merged_df.drop('full_phs', axis=1, inplace=True)
 
-    print(f"\nMerging dbGaP data from multiple sources...")
+
+    print(f"\nFormatting dbGaP dataset output...")
+
+    # Add dbGaP URL column
+    merged_df['dbGaP_URL'] = merged_df['accession'].apply(get_dbgap_url)
+
+    # Reorder, rename, and select output columns
+    dbgap_df = select_and_rename_columns(merged_df)
 
     # Export final merged df as CSV 
-    merged_df.to_csv(config.DBGAP_PROCESSED_PATH, index=False)
+    dbgap_df.to_csv(config.DBGAP_PROCESSED_PATH, index=False)
 
     print(f"\nSuccess! dbGaP data saved to {config.DBGAP_PROCESSED_PATH}.\n")
 
