@@ -601,13 +601,50 @@ def get_dbgap_url(accession:str):
         return url
 
 
-def select_and_rename_columns(df:pd.DataFrame):
-    """Standardize columns for the datasets output file. 
-    NOTE: Consider integrating this into the `package_output_data.py` in the
-    future. 
+
+def get_gpa_and_doc(dbgap_df:pd.DataFrame):
+    """Add Grant Program Administrator (GPA) names and NCI Division, Offices, 
+    or Centers (DOC) labels for each dbGaP dataset. 
 
     Args:
-        df (dataframe): pandas dataframe of merged dataset metadata
+        dbgap_df (pd.DataFrame): pandas dataframe containing dbGaP information.
+            Must contain 'accession' column with dbGaP phs accessions.
+    """
+
+    # Load GPA table received from ODS
+    # This hold GPA names and associated phs accessions
+    gpa_df = pd.read_csv(config.DBGAP_GPA_LIST)
+
+    # Load gpa/doc lookup table
+    # This holds GPA names and associated DOCs
+    gpa_doc_lut_df = pd.read_csv(config.DBGAP_GPA_DOC_LUT)
+
+    # Merge the two GPA tables into one lookup table
+    merged_lut_df = pd.merge(left=gpa_df[['Accession','Primary GPA']], 
+                             right=gpa_doc_lut_df[['gpa', 'doc']],
+                             how='left', 
+                             left_on='Primary GPA', right_on='gpa')
+    
+    # Add the GPA and DOC columns to the main df
+    df_out = pd.merge(left=dbgap_df, 
+                      right=merged_lut_df[['Accession','gpa','doc']],
+                      how='left', 
+                      left_on='accession', right_on='Accession')
+    
+    # Drop the extra column
+    df_out.drop(columns='Accession',inplace=True)
+
+    return df_out
+
+
+
+def select_and_rename_columns(df:pd.DataFrame):
+    """Standardize columns for the datasets output file. 
+    NOTE: Consider integrating this into `config.py` and the 
+    `package_output_data.py` in the future for consistency.
+
+    Args:
+        df (pd.DataFrame): pandas dataframe of merged dataset metadata
     """
 
     # Define columns to keep, reorder, and rename
@@ -618,8 +655,8 @@ def select_and_rename_columns(df:pd.DataFrame):
         'accession': 'dbGaP_phs',
         'dbGaP_URL': 'dbGaP_URL',
         'principal_investigator': 'PI_name',
-        #'gpa': 'GPA',
-        #'doc': 'dataset_doc',
+        'gpa': 'GPA',
+        'doc': 'dataset_doc',
         'cited_publications': 'dataset_pmid',
         'funding_source': 'funding_source',
         'Release Date': 'release_date',
@@ -771,8 +808,11 @@ def gather_dbgap_data(input_csv:str):
     # Add dbGaP URL column
     merged_df['dbGaP_URL'] = merged_df['accession'].apply(get_dbgap_url)
 
+    # Add GPA and DOC columns
+    dbgap_df = get_gpa_and_doc(merged_df)
+
     # Reorder, rename, and select output columns
-    dbgap_df = select_and_rename_columns(merged_df)
+    dbgap_df = select_and_rename_columns(dbgap_df)
 
     # Export final merged df as CSV 
     dbgap_df.to_csv(config.DBGAP_PROCESSED_PATH, index=False)

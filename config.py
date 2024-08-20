@@ -376,3 +376,7 @@ DBGAP_PROCESSED_PATH = DBGAP_INTERMED_DIR + "dbgap_datasets.csv"
 DBGAP_REPORTS_DIR = "reports/dbgap/" + DBGAP_CSV_VERSION + "/"
 DBGAP_SSTR_ERRORS = DBGAP_REPORTS_DIR + "api_errors_sstr.csv"
 DBGAP_META_ERRORS = DBGAP_REPORTS_DIR + "api_errors_study_metadata.csv"
+
+# dbGaP GPA/DOC input files
+DBGAP_GPA_LIST = INPUT_DIR + "dbgap/gpa_tables/" + "gpa_study_table.csv"
+DBGAP_GPA_DOC_LUT = INPUT_DIR + "dbgap/gpa_tables/" + "gpa_doc_lookup_table.csv"
