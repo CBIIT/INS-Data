@@ -20,6 +20,7 @@ import re
 import pandas as pd
 import requests
 from tqdm import tqdm   # for progress bars
+from Bio import Entrez  # for PubMed API
 
 # Append the project's root directory to the Python path
 # This allows for importing config when running as part of main.py or alone
@@ -318,6 +319,60 @@ def get_principal_investigators(record, pi_title_set):
 
 
 
+def get_pmid_from_reference(search_string, type):
+    """Retrieves the PubMed ID (PMID) for a given title or author list.
+
+    Args:
+        search_term (str): The title of the article
+        type (str): 'title' or 'authors'. Input search type
+
+    Returns:
+        int: PMID of first resulting article, or None if no results are found.
+
+    Raises:
+        ValueError: If the input is not a string.
+        RuntimeError: If there's an unexpected error during the search.
+    """
+
+    # Get user email from hidden local env file. Use default if not defined
+    Entrez.email = os.environ.get('NCBI_EMAIL', 'your-email@example.com')
+    Entrez.api_key = os.environ.get('NCBI_API_KEY', '')
+
+    # Check for input type validity
+    if not isinstance(search_string, str):
+        raise ValueError("Article title must be a string.")
+
+    # Remove special character formatted words to avoid exact search issues
+    words = search_string.split()
+    filtered_words = []
+    for word in words:
+        if "&#" not in word:
+            filtered_words.append(word)
+    filtered_string = " ".join(filtered_words)
+    
+    try:
+        # Call the PubMed e-utilities via Entrez
+        handle = Entrez.esearch(db="pubmed", term=filtered_string, 
+                                retmax=1, field=type)
+        record = Entrez.read(handle)
+        handle.close()
+
+        # Return none if no matching records found
+        if record["Count"] == "0":
+            return None
+
+        # Get the first resulting PMID as an integer
+        pmid_out = int(record["IdList"][0])
+
+        return pmid_out
+
+    # Throw an error and identify any Entrez issues
+    except Exception as e:
+        tqdm.write(f"Error retriving PMID for {type} {filtered_string}: {str(e)}")
+        return None
+
+
+
 def get_cited_publications(record):
     """Parse a dbGaP Study Metadata record to get all cited publications 
     as a semicolon-separated list-like string. 
@@ -336,13 +391,28 @@ def get_cited_publications(record):
     # Iterate through all references listed
     for ref in record['reference']:
 
-        # Gather any PMIDs available 
+        # Set default pmid to None to avoid value error
+        pmid = None
+
+        # Gather any PMIDs directly available 
         if 'pmid' in ref:
             citation_list.append(ref['pmid'])
         
-        # If PMID not available, collect the article title
-        elif 'title' in ref:
-            citation_list.append(ref['title'])
+        # If not directly availabe, use Entrez e-utilities to get PMID
+        else:
+            # First try to find a PMID from the article title
+            if 'title' in ref:
+                pmid = get_pmid_from_reference(ref['title'], 'title')
+
+                # Then try to find a PMID from the authors
+                if pmid == None and 'authors' in ref:
+                    pmid = get_pmid_from_reference(ref['authors'], 'authors')
+
+            # Use PMID if found or article title if not
+            if pmid: 
+                citation_list.append(pmid)
+            else: 
+                citation_list.append(f"No PMID: {ref['title']}")
 
     # Connect all results as strings with separator
     citation_output = ';'.join(map(str, citation_list))
