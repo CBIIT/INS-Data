@@ -65,17 +65,30 @@ def get_dbgap_api_data(phs:str, api_type:str):
     # Call the API with requests
     response = requests.get(url)
 
-    # Parse the response as JSON
-    record = json.loads(response.text)
+    # Handle breaking 502 errors
+    if response.status_code == 502:
+        tqdm.write(f"Error: {phs} - API request failed with status code: 502")
 
-    # Check for unsuccessful response (status code 200 is success)
-    if response.status_code != 200:
-        
-        tqdm.write(f"Error: {phs} - API request failed with status code: "
-              f"{response.status_code}")
-        
-        # Add a field listing the response code for errors
-        record['error']['response_code'] = response.status_code
+        # Create filler record for 502 error info when response does not exist
+        record = dict()
+        record['error'] = {
+            'full_phs': phs,
+            'error_message': 'Bad Gateway server error (502 Error)',
+            'error_code': 'NA',
+            'response_code': 502}
+
+    else:
+        # Parse the response as JSON
+        record = json.loads(response.text)
+
+        # Check for other unsuccessful responses (status code 200 is success)
+        if response.status_code != 200:
+            
+            tqdm.write(f"Error: {phs} - API request failed with status code: "
+                f"{response.status_code}")
+            
+            # Add a field listing the response code for errors
+            record['error']['response_code'] = response.status_code
 
     return record
 
@@ -157,10 +170,6 @@ def build_bulk_raw_dbgap_api_data(phs_list:list,
                     success_records.append(record)
                 if record_type == 'error':
                     error_records.append(record)
-
-                # Throw warning if there is no response at all
-            else: 
-                raise Warning(f"Error: {phs} - No API response.")
 
         # Export error report as csv via pandas
         if len(error_records)>0:
