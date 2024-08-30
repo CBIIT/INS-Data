@@ -417,11 +417,11 @@ def get_cited_publications(record):
                 if pmid == None and 'authors' in ref:
                     pmid = get_pmid_from_reference(ref['authors'], 'authors')
 
-            # Use PMID if found or article title if not
+            # Use PMID if found or article title and authors if not
             if pmid: 
                 citation_list.append(pmid)
             else: 
-                citation_list.append(f"No PMID: {ref['title']}")
+                citation_list.append(f"No PMID: {ref['title']} | {ref['authors']}")
 
     # Connect all results as strings with separator
     citation_output = ';'.join(map(str, citation_list))
