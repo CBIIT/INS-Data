@@ -8,8 +8,30 @@ data gathered from the dbGaP Study Metadata API and dbGaP SSTR API. The output
 will be provided for manual curation of a final dbGaP data and eventual 
 integration with a datasets.tsv for INS ingestion.
 
+This script is intended to be called independently of the `main.py` workflow,
+as it does not depend upon or interact with the same program inputs.  
+
 The output `dbgap_df` and exported dbgap.csv contain columns:
-    - TO-DO: list fields here
+    - dataset_title
+    - description
+    - dbGaP_phs
+    - dbGaP_URL
+    - PI_name
+    - GPA
+    - dataset_doc
+    - dataset_pmid
+    - funding_source
+    - release_date
+    - limitations_for_reuse
+    - assay_method
+    - study_type
+    - primary_disease
+    - participant_count
+    - sample_count
+    - study_links
+    - related_genes
+    - related_diseases
+    - related_terms
 """
 
 import os
