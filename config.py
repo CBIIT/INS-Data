@@ -180,6 +180,10 @@ GRANT_ID_FIELDNAME = 'grant_id'
 # Define name for new program ID field
 PROGRAM_ID_FIELDNAME = 'program.program_id'
 
+# Failed NOFO/Award search export
+FAILED_GRANT_SEARCH_REPORT = REPORTS_GATHERED_DIR +"/"+ "failedNofoAwardSearches.csv"
+
+
 # ---
 # SUMMARY STATISTICS CONFIGURATION
 
