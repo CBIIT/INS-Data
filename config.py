@@ -93,14 +93,14 @@ QUALTRICS_COLS = {
 }
 
 # Generic value to use when no specific cancer type is specified
-PROGRAM_FILLER_CANCER_TYPE = 'Broad Cancer Types'
+PROGRAM_FILLER_CANCER_TYPE = 'Multiple Cancer Types'
 
 # Dictionary of specific old:new values to replace within data
 PROGRAM_VALUE_REPLACEMENTS = {"This program focuses on cancer broadly - not limited to a primary cancer type": PROGRAM_FILLER_CANCER_TYPE}
 
 # Dictionary of column_name:filler_value to replace blank values within specific columns
 PROGRAM_BLANK_REPLACEMENTS ={
-    'focus_area': 'No Focus Area',
+    'focus_area': 'General',
     'cancer_type': PROGRAM_FILLER_CANCER_TYPE
 }
 

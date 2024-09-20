@@ -599,8 +599,8 @@ def generate_program_id_column(df: pd.DataFrame) -> pd.DataFrame:
 
 def remove_extra_default_list_values(df: pd.DataFrame, blank_filler_dict: dict):
     """Remove default values from lists when those values should be mutually
-    exclusive with any other values. E.g. 'Broad Cancer Type' should be removed
-    when other cancer types are also listed. 
+    exclusive with any other values. E.g. 'Multiple Cancer Types' should be 
+    removed when other cancer types are also listed. 
     Args:
         df (pd.DataFrame): Input pandas dataframe
         blank_filler_dict (dict): Dictionary containing column names and default
