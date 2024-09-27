@@ -5,7 +5,7 @@ This repository is designed to use a curated list of key National Cancer Institu
 
 **To access file outputs of the data gathering process**, [follow the instructions below](#accessing-output-files).
 
-The data gathered here are compatible with [INS Data Model v1.0.1](https://github.com/CBIIT/ins-model/tree/v1.0.1).
+The data gathered here are compatible with [INS Data Model v2.0.0](https://github.com/CBIIT/ins-model/tree/v2.0.0).
 
 ![INS-Data simple workflow. This diagram shows a simplified flow of data gathering from programs to grants/projects to publications.](images/ins-data-gathering-simple.png)
 
