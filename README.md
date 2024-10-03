@@ -14,12 +14,13 @@ The data gathered here are compatible with [INS Data Model v1.0.1](https://githu
 - [Data Gathering Workflow](#data-gathering-workflow)
 - [How to Use this Repository](#how-to-use-this-repository)
 - [Repository Structure](#repository-structure)
+- [Errors and Warnings](#errors-and-warnings)
 
 
 
 # Data Gathering Workflow
 
-The INS-Data repository workflow follows the general outline below:  
+The INS Data Gathering workflow consists of the following steps designed to run together in order:
 1. [Gather Programs](#gather-programs)
 2. [Gather Grants](#gather-grants)
 3. [Gather Projects](#gather-projects)
@@ -27,6 +28,8 @@ The INS-Data repository workflow follows the general outline below:
 5. [Package Data](#package-data)
 6. [Validate Data](#validate-data)
 
+The workflow is supported by additional, independent steps run as needed:
+- [Gather Datasets](#gather-datasets)
 
 
 ![INS-Data workflow. This diagram shows a rough visualization of the steps listed below.](images/ins-data-repo-diagram.png)
@@ -288,6 +291,48 @@ python modules/build_validation_file.py
     - Excel file is saved in the versioned `reports/` directory with a timestamp noting when it was generated
 
 
+
+## Gather Datasets
+
+**This independenet step gathers NCI-supported datasets from the [NCBI dbGaP](https://www.ncbi.nlm.nih.gov/gap/). These are not necessarily associated with any of the Programs, Grants, Projects, or Publications gathered in the main workflow.**  
+
+**Datasets** within INS represent open-access or controlled data released as an output of an NCI-supported effort. Currently, INS datasets are sourced only from dbGaP study metadata, but future releases will expand to additional resources. 
+
+**Examples**
+- [phs002790](https://www.ncbi.nlm.nih.gov/projects/gap/cgi-bin/study.cgi?study_id=phs002790) | Childhood Cancer Data Initiative (CCDI): Molecular Characterization Initiative
+- [phs002153](https://www.ncbi.nlm.nih.gov/projects/gap/cgi-bin/study.cgi?study_id=phs002153) | Genomic Characterization CS-MATCH-0007 Arm S1
+
+### Dataset Workflow
+
+All Dataset gathering steps are handled within the `gather_dbgap_data.py` module.  
+**This module is not included in the `main.py` workflow and must be run indepenedently:**
+```
+python modules/gather_dbgap_data.py
+```
+NOTE: This module is intended to automate the effort to gather a large number of datasets, but the results must undergo manual review and curation. Because of this, the datasets module is not intended to be run as regularly as the main workflow. 
+
+1. **Load input CSV of NCI-supported dbGaP studies**
+    - CSV is retrieved from the dbGaP Advanced Search by filtering for IC: NCI and downloading resulting list
+    - This list has phs study accessions of interest along with some descriptive metadata
+
+2. **Enrich dataset data with dbGaP API resources**
+    - Use the [dbGaP Study Metadata API](https://submit.ncbi.nlm.nih.gov/dbgap/api/v1/docs/) to gather additional study metadata for each phs
+    - Use the [dbGaP SSTR API](https://www.ncbi.nlm.nih.gov/gap/sstr/swagger/) to gather additional study metadata for each phs
+
+3. **Enrich dataset data with NCI administrative information**
+    - Use a file received from the NCI Office of Data Sharing (ODS) that monitors dbGaP data submissions as input
+    - Associate Grant Program Administrators (GPAs) and NCI Divisions, Offices, and Centers (DOCs) with each phs
+    - Lookup tables associating GPAs and DOCs were built using public information from the following resources:
+        - [CBIIT GDS Policy Contact Information](https://datascience.cancer.gov/data-sharing/genomic-data-sharing/genomic-data-sharing-policy-contact)
+        - [NIH Scientific Data Sharing](https://sharing.nih.gov/genomic-data-sharing-policy/resources/contacts-and-help)
+
+3. **Manually review and curate final datasets file**
+    - Combine and clean all dataset inputs and export as a CSV for curation
+    - Missing, erroneous, or unstructured source data is refined by expert curation
+    - The curated file is validated and ready for INS data loading
+
+
+
 # How to Use this Repository
 
 ### Accessing output files: 
@@ -368,7 +413,17 @@ python modules/build_validation_file.py
         ```
     - NOTE: If running modules independently, ensure that necessary output files from preceding modules already exist for the same start date (version)
 
-
+7. **Gather/Curate Datasets (optional)**
+    - On the [NCBI dbGaP Advanced Search](https://www.ncbi.nlm.nih.gov/gap/advanced_search/), filter for "NIH Institute: NCI" and download the CSV with the "Save Results" button. Store this in `data/00_input/dbgap/study_{DBGAP_CSV_VERSION}.csv` where `DBGAP_CSV_VERSION` is the date of download
+    - Update the `DBGAP_CSV_VERSION` in `config.py`
+    - Obtain an updated GPA study list from a point of contact at the NCI Office of Data Sharing and store as `data/00_input/dbgap/gpa_tables/gpa_study_table.csv`
+    - If needed, manually update the `gpa_doc_lookup_table.csv` in the same folder
+    - Run the datasets gathering module with the following command:
+    ```
+    python modules/gather_dbgap_data.py
+    ```
+    - Manually review and curate results before storing as `dataset.tsv` for INS data loading
+        - It is recommended to continue additive manual curation of this file for each release rather than re-running the datasets module and repeating full curation unless necessary
 
 # Repository Structure
 
@@ -379,24 +434,34 @@ In general, TSV output files are intended for ingestion into INS, while CSV file
 INS-Data
 ├── data/
 │   ├── 00_input/
+│   │   ├── dbgap/
+│   │   │   ├── gpa_tables/
+│   │   │   |   ├── gpa_doc_lookup_table.csv
+│   │   │   |   └── gpa_study_table.csv
+|   |   |   └── study_{dbgap_version}.csv
 │   │   ├── icite/
 │   │   │   └── {version}/ # Not git-controlled
 │   │   │       └── icite_metadata.zip
 │   │   └── qualtrics/
 │   │       └── qualtrics_output_{version}_{type}.csv
 │   ├── 01_intermediate/
-│   │   └── {qualtrics version}/
-│   │       ├── {gathered version}/
-│   │       │   ├── temp_pubmed_chunkfiles/ # Not git-controlled
-|   |       |   |   └── Partial PubMed files for iterative loading
-│   │       │   ├── grant.csv
-│   │       │   ├── icitePMIDData.csv
-│   │       │   ├── mergedPMIDData.csv
-│   │       │   ├── project.csv
-│   │       │   ├── projectPMIDs.csv
-│   │       │   └── publication.csv
-│   │       ├── invalidNofoReport_reviewed.csv
-│   │       └── program.csv
+│   │   ├── {qualtrics version}/
+│   │   |   ├── {gathered version}/
+│   │   |   │   ├── temp_pubmed_chunkfiles/ # Not git-controlled
+|   |   |   |   |   └── Partial PubMed files for iterative loading
+│   │   |   │   ├── grant.csv
+│   │   |   │   ├── icitePMIDData.csv
+│   │   |   │   ├── mergedPMIDData.csv
+│   │   |   │   ├── project.csv
+│   │   |   │   ├── projectPMIDs.csv
+│   │   |   │   └── publication.csv
+│   │   |   ├── invalidNofoReport_reviewed.csv
+│   │   |   └── program.csv
+|   |   └── dbgap/
+|   |       └── {dbgap_version}/
+|   |           ├── dbgap_datasets.csv
+|   |           ├── dbgap_sstr.json
+|   |           └── dbgap_study_metadata.json
 │   └── 02_output/
 │       └── {qualtrics version}/
 │           └── {gathered version}/
@@ -438,3 +503,33 @@ INS-Data
 ├── main.py
 └── README.md
 ```
+
+# Errors and Warnings
+
+## PMID 500 Error
+
+During the PMID gathering step, you may see an error of the form
+
+```text
+Received a 500 error for <project_id>. Retrying after 2 seconds. Attempt <n>/5
+```
+
+This error is caused by issues with the NIH RePORTER API.
+When we previously had this issue, we sent a message to [NIH RePORTER support](mailto:report@mail.nih.gov), and they fixed the problem.
+
+## PubMed Index out of Range
+
+During the PubMed data gathering step, you may see an error of the form
+
+```text
+Error fetching information for PMID <pmid>: list index out of range
+```
+
+This error can be safely ignored.
+The out of range list indices come from NIH RePORTER returning old PMID's.
+These PMID's are generally from before the year 2000 and would be ignored later in the script even if they were gathered.
+
+## Peak Usage
+
+If the NIH RePORTER API is unresponsive, it could be because the API is receiving too many requests at a time.
+It could be worth trying to run this data gathering script during a time when the API is likely to receive fewer requests, such as overnight.
