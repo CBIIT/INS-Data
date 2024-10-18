@@ -1,4 +1,0 @@
-290b50e95b376e838ff127f208858f0d	data/02_output/2024-03-12/gathered-2024-03-13\grant.tsv
-93c97c67dc01d60395499e45f2a707c2	data/02_output/2024-03-12/gathered-2024-03-13\program.tsv
-65389eb0adff40e0214a6b74d6cb1d44	data/02_output/2024-03-12/gathered-2024-03-13\project.tsv
-7897d3a4dc14e43a6da99e24dc3a4f09	data/02_output/2024-03-12/gathered-2024-03-13\publication.tsv

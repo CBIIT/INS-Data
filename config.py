@@ -12,11 +12,11 @@ from datetime import datetime
 # Inputs and outputs will use this versioning
 # Version must match suffix in input filename
 
-QUALTRICS_VERSION = "2024-04-24"    # <-- CHANGE VERSION HERE
-QUALTRICS_TYPE = "manual_fix"       # <-- Define "raw" or "manual_fix" type of the input csv
+QUALTRICS_VERSION = "2024-09-18"    # <-- CHANGE VERSION HERE
+QUALTRICS_TYPE = "manual_fix"              # <-- Define "raw" or "manual_fix" type of the input csv
 
 # Version of bulk download from iCite
-ICITE_VERSION = "2024-03"           # <-- CHANGE VERSION HERE
+ICITE_VERSION = "2024-08"           # <-- CHANGE VERSION HERE
 
 # Version of dbGaP seearch results download (download date)
 DBGAP_CSV_VERSION = "2024-08-30"   # <-- CHANGE VERSION HERE
@@ -24,7 +24,7 @@ DBGAP_CSV_VERSION = "2024-08-30"   # <-- CHANGE VERSION HERE
 # An override date can be used instead of today's date for pulling and saving data versions
 # This is useful when running downstream modules on grants data gathered before today
 
-OVERRIDE_DATE = None    # <-- Optional. Define override date (e.g. "2023-12-14"). Default None.
+OVERRIDE_DATE = "2024-09-20"                # <-- Optional. Define override date (e.g. "2023-12-14"). Default None.
 
 
 
@@ -98,14 +98,14 @@ QUALTRICS_COLS = {
 }
 
 # Generic value to use when no specific cancer type is specified
-PROGRAM_FILLER_CANCER_TYPE = 'Broad Cancer Types'
+PROGRAM_FILLER_CANCER_TYPE = 'Multiple Cancer Types'
 
 # Dictionary of specific old:new values to replace within data
 PROGRAM_VALUE_REPLACEMENTS = {"This program focuses on cancer broadly - not limited to a primary cancer type": PROGRAM_FILLER_CANCER_TYPE}
 
 # Dictionary of column_name:filler_value to replace blank values within specific columns
 PROGRAM_BLANK_REPLACEMENTS ={
-    'focus_area': 'No Focus Area',
+    'focus_area': 'General',
     'cancer_type': PROGRAM_FILLER_CANCER_TYPE
 }
 
@@ -185,6 +185,8 @@ GRANT_ID_FIELDNAME = 'grant_id'
 # Define name for new program ID field
 PROGRAM_ID_FIELDNAME = 'program.program_id'
 
+# Failed NOFO/Award search export
+FAILED_GRANT_SEARCH_REPORT = REPORTS_GATHERED_DIR +"/"+ "failedNofoAwardSearches.csv"
 
 
 # ---
@@ -277,7 +279,7 @@ COLUMN_CONFIGS = {
             'program_acronym': 'program_acronym',
             'focus_area': 'focus_area',
             'cancer_type': 'cancer_type',
-            'doc': 'doc',
+            'doc': 'program_doc',
             'contact_pi': 'contact_pi',
             'contact_pi_email': 'contact_pi_email',
             'contact_nih': 'contact_nih',
@@ -288,7 +290,7 @@ COLUMN_CONFIGS = {
             'data_link': 'data_link',
         },
         # List of any list-like columns that need semicolon separators
-        'list_like_cols': ['focus_area', 'cancer_type', 'doc'],
+        'list_like_cols': ['focus_area', 'cancer_type', 'program_doc'],
     },
     'grant': {
         'node_id': 'grant_id',
@@ -300,23 +302,24 @@ COLUMN_CONFIGS = {
             'application_id': 'application_id',
             'fiscal_year': 'fiscal_year',
             'project_title': 'grant_title',
-            'abstract_text': 'abstract_text',
+            'abstract_text': 'grant_abstract_text',
             'keywords': 'keywords',
-            'org_name': 'org_name',
-            'org_city': 'org_city',
-            'org_state': 'org_state',
-            'org_country': 'org_country',
             'principal_investigators': 'principal_investigators',
             'program_officers': 'program_officers',
             'award_amount': 'award_amount',
             'nci_funded_amount': 'nci_funded_amount',
             'award_notice_date': 'award_notice_date',
-            'project_start_date': 'project_start_date',
-            'project_end_date': 'project_end_date',
-            'opportunity_number': 'opportunity_number', 
+            'project_start_date': 'grant_start_date',
+            'project_end_date': 'grant_end_date',
+            'opportunity_number': 'grant_opportunity_number', 
+            'org_name': 'grant_org_name',
+            'org_city': 'grant_org_city',
+            'org_state': 'grant_org_state',
+            'org_country': 'grant_org_country',
+
         },
         'list_like_cols': ['keywords', 'principal_investigators'],
-        'datetime_cols': ['award_notice_date', 'project_start_date', 'project_end_date']
+        'datetime_cols': ['award_notice_date', 'grant_start_date', 'grant_end_date']
     },
     'project': {
         'node_id': 'project_id',
@@ -326,16 +329,16 @@ COLUMN_CONFIGS = {
             'project_id': 'project_id',
             'program.program_id': 'program.program_id',
             'project_title': 'project_title',
-            'abstract_text': 'abstract_text',
-            'org_name': 'org_name',
-            'org_city': 'org_city',
-            'org_state': 'org_state',
-            'org_country': 'org_country',
+            'abstract_text': 'project_abstract_text',
             'project_start_date': 'project_start_date',
             'project_end_date': 'project_end_date',
-            'opportunity_number': 'opportunity_number',
+            'opportunity_number': 'project_opportunity_number',
+            'org_name': 'project_org_name',
+            'org_city': 'project_org_city',
+            'org_state': 'project_org_state',
+            'org_country': 'project_org_country',
         },
-        'list_like_cols': ['opportunity_number'],
+        'list_like_cols': ['project_opportunity_number'],
         'datetime_cols': ['project_start_date', 'project_end_date']
     },
     'publication': {
@@ -345,14 +348,14 @@ COLUMN_CONFIGS = {
             'type': 'type',
             'pmid': 'pmid',
             'coreproject': 'project.project_id',
-            'title': 'title',
+            'title': 'publication_title',
             'authors': 'authors',
             'publication_date': 'publication_date',
             'citation_count': 'cited_by',
             'relative_citation_ratio': 'relative_citation_ratio'
         },
         'list_like_cols': ['authors'],
-        'html_tag_cols': ['title']
+        'html_tag_cols': ['publication_title']
     }
 }
 

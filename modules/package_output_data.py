@@ -303,6 +303,11 @@ def validate_and_clean_unique_nodes(df, column_configs, datatype):
             in the link_id column.
         - True duplicates (identical values in all columns) are kept in the 
             first row for production.
+        - For mismatched duplicates, the first row is kept for production.
+        - All duplicates (including kept first occurrences) are recorded in the 
+            invalid_duplicates_df.
+        - Rows with the same node_id but different link_ids are not considered 
+            duplicates and are all kept.
     """
 
     # Get node_id and link_id from column configurations
@@ -313,8 +318,12 @@ def validate_and_clean_unique_nodes(df, column_configs, datatype):
     if node_id not in df.columns:
         raise ValueError(f"Node ID column '{node_id}' not found in DataFrame.")
 
-    # Get only rows with duplicated node_ids 
-    dup_nodes = df[df.duplicated(subset=node_id, keep=False)]
+    # Define duplicate check columns
+    dup_check_cols = [node_id, link_id] if link_id else [node_id]
+
+    # Get only rows with duplicated node_ids and link_ids (if applicable)
+    dup_mask = df.duplicated(subset=dup_check_cols, keep=False)
+    dup_nodes = df[dup_mask]
     
     # Get true duplicates where values in all columns are identical
     true_duplicates = dup_nodes[dup_nodes.duplicated(keep=False)].assign(
@@ -325,18 +334,19 @@ def validate_and_clean_unique_nodes(df, column_configs, datatype):
     mismatch_df = pd.DataFrame()
 
     # Get list of value columns to check for mismatch
-    value_cols = list(set(df.columns) - set([node_id, link_id]))
+    value_cols = list(set(df.columns) - set(dup_check_cols))
 
-    # Group rows by node_id for shared value checking
-    for node, node_df in dup_nodes.groupby(node_id):
+    # Group rows by node_id (and link_id if applicable) for shared value checking
+    for node, node_df in dup_nodes.groupby(dup_check_cols):
         
-        # Check for mismatched values in other columns within the same node
+        # Check for mismatched values in other columns within the same group
         value_mismatches = node_df[~node_df.duplicated(
             subset=value_cols, keep=False)
             ].assign(error_reason=f"Mismatched values in columns with same "
-                                  f"node_id. Both dropped for production.")
+                                  f"node_id (and link_id if applicable). "
+                                  f"Kept first row for production.")
 
-        # Add to running list of rows with mismatched values
+        # Add all mismatched rows to the mismatch_df
         mismatch_df = pd.concat([mismatch_df, value_mismatches])
 
     # Combine list of annotated invalid duplicates for export to csv
@@ -347,20 +357,12 @@ def validate_and_clean_unique_nodes(df, column_configs, datatype):
         invalid_duplicates_path = f"{config.REMOVED_DUPLICATES}{datatype}.csv"
         os.makedirs(os.path.dirname(invalid_duplicates_path), exist_ok=True)
         invalid_duplicates_df.to_csv(invalid_duplicates_path, index=False)
-        print(f"Invalid duplicate rows cleaned from output and recorded in "
+        print(f"Invalid duplicate rows (including kept first rows) recorded in "
               f"{invalid_duplicates_path}.")
 
-    # Return a cleaned df with only unique node_ids or valid duplicates
-    # Remove all mismatched node_ids and any true duplicates after the first
-    if not mismatch_df.empty:
-        valid_df = df[~df[node_id].isin(mismatch_df[node_id])
-                    & ~df.duplicated(keep='first')
-                    ].reset_index(drop=True)
-        
-    # If no mismatches found, then just remove true duplicates
-    else:
-        valid_df = df[~df.duplicated(keep='first')
-                       ].reset_index(drop=True)
+    # Final df with only unique combos of node_id and link_id (if applicable)
+    valid_df = df.drop_duplicates(subset=dup_check_cols, keep='first'
+                                  ).reset_index(drop=True)
 
     return valid_df
 
