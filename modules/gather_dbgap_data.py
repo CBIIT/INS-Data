@@ -562,6 +562,7 @@ def clean_dbgap_study_metadata(record:str,
 
     study_metadata = {
         'full_phs': record['full_phs'],
+        'description': record['description'],
         'principal_investigator': get_principal_investigators(record, 
                                                               pi_title_set),
         'cited_publications': get_cited_publications(record),
@@ -855,7 +856,6 @@ def gather_dbgap_data(input_csv:str):
     csv_cols_to_keep = [
         'accession',
         'name',
-        'description',
         'Study Disease/Focus',
         'Release Date',
         'Ancestry (computed)',
