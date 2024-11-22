@@ -692,9 +692,15 @@ def merge_and_clean_project_pmid_info(df_pmids, df_pub_info):
     df_merged = df_merged[df_merged['publication_date'] 
                         >= datetime(config.PUBLICATION_YEAR_CUTOFF, 1, 1)].copy()
 
+    # Remove publications starting with 'Erratum'
+    df_removed_erratum = df_merged[df_merged['title'].str.startswith('Erratum')].copy()
+    df_removed_erratum['reason'] = 'Title starts with "Erratum"'
+    df_merged = df_merged[~df_merged['title'].str.startswith('Erratum')].copy()
+
     # Combine removed publications and clean up empty rows
     df_removed_publications = pd.concat([df_removed_no_pub_info, 
-                                         df_removed_early_pubdate], ignore_index=True)
+                                         df_removed_early_pubdate,
+                                         df_removed_erratum], ignore_index=True)
     df_removed_publications = df_removed_publications.dropna(
                                          subset=['reason'], how='all').copy()
 

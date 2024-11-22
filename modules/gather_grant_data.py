@@ -52,6 +52,8 @@ def get_nih_reporter_grants(search_values:str,
 
     Returns:
         grants_data (str): JSON API response containing grants data
+        failed_search_info (dict): Log of nofo or award values with no results.
+            Stored with keys: 'search_type', 'search_value', 'failure_type'. 
     """
 
     # Set the search field based on the search_type
@@ -64,6 +66,7 @@ def get_nih_reporter_grants(search_values:str,
 
     base_url = "https://api.reporter.nih.gov/v2/projects/search"
     grants_data = []
+    failed_search_info = dict()
 
     for search_value in search_values:
         # Check for blank search values
@@ -132,6 +135,13 @@ def get_nih_reporter_grants(search_values:str,
                     offset = offset + LIMIT
                     page = page + 1
 
+                    # Log search values with no results
+                    if total_records == 0:
+                        failed_search_info[search_value] = {
+                            "search_type": search_type,
+                            "failure_type": "No results found"
+                        }
+
                     # Print paginated partial optional metadata
                     # Consider replacing this with proper logging
                     if print_meta == True:
@@ -151,10 +161,23 @@ def get_nih_reporter_grants(search_values:str,
                           f"Retrying after {RETRY_TIME} seconds. "
                           f"Attempt {attempts}/{MAX_ATTEMPTS}")
                     sleep(RETRY_TIME)
+
+                    # Add to failure log if all 500 retries fail
+                    if attempts == MAX_ATTEMPTS-1:
+                        failed_search_info[search_value] = {
+                            "search_type": search_type,
+                            "failure_type": "500 Error: Likely too many results"
+                        }
+
                 else:
                     tqdm.write(f"Error occurred while fetching grants for "
                           f"{search_type} '{search_value}': "
                           f"{response.status_code}")
+                    # Add failure to log if unknown error occurs
+                    failed_search_info[search_value] = {
+                            "search_type": search_type,
+                            "failure_type": f"{response.status_code} API Error"
+                        }
                     break
 
             except requests.exceptions.RequestException as e:
@@ -162,7 +185,7 @@ def get_nih_reporter_grants(search_values:str,
                       f"{search_type} '{search_value}': {e}")
                 break
 
-    return grants_data
+    return grants_data, failed_search_info
 
 
 
@@ -365,6 +388,9 @@ def gather_grant_data(programs_df, print_meta=False):
 
     # Create empty DataFrame to fill with grants
     grants_df = pd.DataFrame()
+    failed_search_df = pd.DataFrame(columns=['program_id',
+                                             'search_type',
+                                             'failure_type'])
 
     # Initialize a counter for total records
     total_records_count = 0
@@ -398,12 +424,12 @@ def gather_grant_data(programs_df, print_meta=False):
             continue
 
         # Gather grants data from NIH RePORTER
-        award_grants_data = get_nih_reporter_grants(award_list, 'award', 
+        award_grants_data, failed_awards = get_nih_reporter_grants(award_list, 'award', 
                                                     print_meta=print_meta)
-        nofo_grants_data = get_nih_reporter_grants(nofo_list, 'nofo', 
+        nofo_grants_data, failed_nofos = get_nih_reporter_grants(nofo_list, 'nofo', 
                                                    print_meta=print_meta)
 
-        # Combine and report
+        # Combine and report successful grants records
         grants_data = award_grants_data + nofo_grants_data
         total_records_count = total_records_count + len(grants_data)
         if print_meta == True:
@@ -413,6 +439,22 @@ def gather_grant_data(programs_df, print_meta=False):
                        f"include duplicate grants gathered by both NOFO and "
                        f"Award searches.")
             continue
+
+        # Combine and report failure dicts
+        failed_searches = failed_awards.copy()
+        failed_searches.update(failed_nofos)
+
+        # Convert to dataframe and add program ID column
+        fails_df = pd.DataFrame.from_dict(failed_searches, orient='index')
+        fails_df.index.name = 'search_value'
+        fails_df.reset_index(inplace=True)
+        fails_df['program_id'] = program_id
+
+        if print_meta == True and len(fails_df)>0:
+            tqdm.write(f"{len(fails_df)} search terms yielded no results.")
+        
+        # Combine failed searches with total report
+        failed_search_df = pd.concat([failed_search_df, fails_df])
 
         # Skip remaining steps if no grants data gathered
         if len(grants_data) == 0:
@@ -427,25 +469,32 @@ def gather_grant_data(programs_df, print_meta=False):
         cleaned_grants_data[config.PROGRAM_ID_FIELDNAME] = program_id
 
         # Combine and save cleaned grants data
-        grants_df = pd.concat([grants_df,
-                                        cleaned_grants_data]) 
+        grants_df = pd.concat([grants_df, cleaned_grants_data]) 
 
     # Define versioned output directory using config.py
     grant_filepath = config.GRANTS_INTERMED_PATH
     os.makedirs(os.path.dirname(grant_filepath), exist_ok=True)
+    failed_search_filepath = config.FAILED_GRANT_SEARCH_REPORT
+    os.makedirs(os.path.dirname(failed_search_filepath), exist_ok=True)
 
     # Sort by program and grant for consistency
     grants_df.sort_values(by=[config.PROGRAM_ID_FIELDNAME,
                                     config.GRANT_ID_FIELDNAME], 
                                     inplace=True, ignore_index=True)
+    failed_search_df.sort_values(by=['program_id',
+                                'search_type',
+                                'search_value'], 
+                                inplace=True, ignore_index=True)
 
     # Export to csv
     grants_df.to_csv(grant_filepath, index=False)
+    failed_search_df.to_csv(failed_search_filepath, index=False)
     
     print(f"---\nSuccess! NIH RePORTER API data gathered, cleaned, and saved.\n"
         f"{total_records_count} grants gathered across all Awards and NOFOs.\n"
         f"{len(grants_df)} NCI-funded grants retained for INS. \n"
-        f"Results can be found in {grant_filepath}.\n---") 
+        f"{len(failed_search_df)} Awards/NOFO searches yielded 0 results.\n"
+        f"Combined results can be found in {grant_filepath}.\n---") 
 
     return grants_df
 

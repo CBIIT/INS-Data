@@ -326,6 +326,205 @@ def get_detail_page_url(node_id, node_type, tier):
 
 
 
+def get_downstream_node_ids_from_list(df_downstream: pd.DataFrame, 
+                                        link_id: str, 
+                                        id_list: list, 
+                                        target_id_col: str) -> int:
+    """Input a list of upstream node ids and get the combined output ids. If 
+    downstream outputs are duplicated, only report unique values. 
+
+    Args:
+        df_downstream (pd.DataFrame): Dataframe containing a link_id that can
+            associate records with the upstream Dataframes
+        link_id (str): String name of column containing linking ids
+        id_list (list): List of ids to gather downstream data from 
+        target_id_col (str): The name of the column containing the target IDs 
+        whose unique values we want to find
+
+    Returns:
+        unique_id_list (list): List of all associated downstream node ids
+
+    Example:
+        To get counts for all projects associated with a list of programs, use:
+            df_downstream = df_projects 
+            link_id = 'program.program_id'      # Column within df_projects
+            id_list = ['ccdi', 'pivot']         # list of program ids
+            target_id_col (str): 'project_id'   # ID column within df_projects    
+    """
+
+    # Build empty dataframe to fill with results
+    combined_records = pd.DataFrame()
+
+    # Iterate through each id within the input list
+    for node_id in id_list:
+        
+        # Get downstream records for individual node id
+        linked_records = get_downstream_node_records(df_downstream, 
+                                                        link_id, 
+                                                        node_id)
+        # Combine with running list of combined outputs
+        combined_records = pd.concat([combined_records, linked_records], 
+                                     ignore_index=True)
+    
+    # Skip filtering step if no results found to avoid errors
+    if len(combined_records) == 0:
+        unique_id_list = []
+    else:
+        # Keep only unique output ids
+        unique_id_list = combined_records[target_id_col].unique().tolist()
+
+    return unique_id_list
+
+
+
+def build_multi_program_output_counts(program_list: list,
+                                      df_projects: pd.DataFrame,
+                                      df_grants: pd.DataFrame,
+                                      df_publications: pd.DataFrame):
+    
+    """Generates a dataframe summarizing counts of programs and outputs 
+    (projects, grants, and publications) for a list of programs.
+    """
+
+    # Get unique ids for all associated projects (from programs)
+    project_id_list = get_downstream_node_ids_from_list(df_projects,
+                                        'program.program_id',
+                                        program_list,
+                                        'project_id')
+
+    # Get unique ids for all associated grants (from projects)
+    grant_id_list = get_downstream_node_ids_from_list(df_grants,
+                                        'project.project_id',
+                                        project_id_list,
+                                        'grant_id')
+
+    # Get unique ids for all associated publications (from projects)
+    publication_id_list = get_downstream_node_ids_from_list(df_publications,
+                                        'project.project_id',
+                                        project_id_list,
+                                        'pmid')
+
+    # Create a dictionary with results
+    result_row = {
+        'programs': len(program_list),
+        'projects': len(project_id_list),
+        'grants': len(grant_id_list),
+        'publications': len(publication_id_list),
+    }
+
+    return result_row
+
+
+
+def get_single_filter_value_results(filter_field: str, 
+                                    filter_value: str,
+                                    node_df: pd.DataFrame,
+                                    node_id_col: str):
+    
+    """Retrieve a list of all node ids matching a single filter field value.
+    Note: This will need to be reworked for non-string filter values.
+
+    Args:
+        filter_field (str): Filter field to search for value within
+        filter_value (str): Filter value to match within filter_field
+        node_df (pd.DataFrame): Node dataframe
+        node_id (str): Column of node id
+
+    Returns:
+        id_list (list): List of all node ids matching the filter value
+
+    Example:
+        To get all program ids associated with Pancreas Cancer cancer_type, 
+            use parameters:
+            filter_field = 'cancer_type',
+            filter_value = 'Pancreas Cancer',
+            node_df = df_programs,
+            node_id_col = 'program_id'
+    """
+
+    # Find matching filter strings
+    df_filtered = node_df[node_df[filter_field].str.contains(filter_value)]
+
+    # Get list of unique associated program ids
+    id_list = df_filtered[node_id_col].unique().tolist()
+
+    return id_list
+
+
+
+def build_program_filter_output_counts(filter_field_list: list, 
+                                       df_programs: pd.DataFrame, 
+                                       df_projects: pd.DataFrame,
+                                       df_grants: pd.DataFrame,
+                                       df_publications: pd.DataFrame,
+                                       max_values: int=None):
+    
+    """Build a dataframe of program and output counts associated with each 
+    single facet filter selection.
+
+    Args:
+        df_programs (pd.DataFrame): Dataframe of programs
+        filter_field_list (list): List of all columns to include as filters
+        max_values (int, optional): Maximum number of values to include for 
+            fields with many values. Default None to include all.
+    
+    Returns:
+        filter_result_df (pd.DataFrame): Dataframe with columns for filter 
+            labels and expected program, project, grant, and publication counts. 
+    """
+
+    # Build empty dataframe to fill with results
+    filter_result_df = pd.DataFrame()
+
+    # Iterate through list of columns to consider filters
+    for filter_field in filter_field_list:
+        
+        # Separate list-like strings and get unique values
+        filter_value_list = (df_programs[filter_field].str.split(';')
+                                                .explode().unique().tolist())
+        
+        # Sort field alphabetically for consistency. Ignore case
+        filter_value_list = sorted(filter_value_list, key=str.casefold)
+
+        # Limit list size, if specified. Will select first alphabetically.
+        if max_values is not None:
+            filter_value_list = filter_value_list[0:max_values]
+        
+        # Iterate through each filter value option
+        for filter_value in filter_value_list:
+            
+            # Get all programs associated with single filter
+            program_list = get_single_filter_value_results(filter_field, 
+                                                           filter_value, 
+                                                           df_programs,
+                                                           'program_id')
+
+            # Get dictionary of output counts for program list
+            result_row = build_multi_program_output_counts(program_list, 
+                                                           df_projects, 
+                                                           df_grants, 
+                                                           df_publications)
+
+            # Add labels for filter field and value to the output
+            result_row['filter_field'] = filter_field
+            result_row['filter_value'] = filter_value
+
+            # Convert to df
+            result_row_df = pd.DataFrame(result_row, index=[0])
+
+            # Append as a new row in result DataFrame
+            filter_result_df = pd.concat([filter_result_df, result_row_df], 
+                                         ignore_index=True)
+            
+    # Rearrange columns in output dataframe for testing clarity
+    filter_result_df = filter_result_df[['filter_field','filter_value',
+                                         'programs','projects',
+                                         'grants','publications']]
+
+    return filter_result_df
+
+
+
 def save_dataframes_to_excel(df_dict: dict, output_file: str):
     """
     Saves a dictionary of DataFrames as tabs within an Excel file. 
@@ -382,6 +581,13 @@ def build_validation_file():
                                                     df_projects, 
                                                     df_grants, 
                                                     df_publications)
+    
+    # Get expected counts when single facet filters are applied to programs
+    df_program_single_filter_results = build_program_filter_output_counts(
+                                    ['cancer_type','focus_area'],
+                                    df_programs, df_projects,
+                                    df_grants, df_publications,
+                                    max_values=None)
 
     # Define version and descriptive info to include on first tab of Excel
     # There's definitely a better way to format this, but it works...
@@ -401,6 +607,7 @@ def build_validation_file():
         'total_counts': id_count_summary_df,
         'single_program_counts': df_single_program_results,
         'single_project_counts': df_single_project_results,
+        'program_single_filter_counts': df_program_single_filter_results,
         }
 
     # Export file
