@@ -159,11 +159,11 @@ def is_valid_award(award: str) -> bool:
 
     Valid Award Formats:
         - Grants
-            1. X##XX######-##A#S#   Supplement (e.g. 01A1S1)
-            2. X##XX######-##X#     Supplement (e.g. 01S1 or 01A1)
-            3. X##XX######-##       Yearly (e.g. 01)
-            4. X##XX######
-            5. XX######
+            1.   X##XX######-##A#S#   Supplement (e.g. 01A1S1)
+            2.   X##XX######-##X#     Supplement (e.g. 01S1 or 01A1)
+            3.   X##XX######-##       Yearly (e.g. 01)
+            4.   X##XX######
+            5.   XX######
         - Contracts
             - Contract formats vary greatly, so a loose pattern is used
             - Must start with 6 consecutive numbers
@@ -171,7 +171,8 @@ def is_valid_award(award: str) -> bool:
             - Must contain only numbers, letters, and hyphens
           
     Where X is any letter, # is any number, and any other character must be an 
-    explicit match ("-", "A", "S")
+    explicit match ("-", "A", "S"). All grant types can be optionally preceeded
+    by a single number digit and still be valid. 
 
     Args:
         award (str): Award string to be validated.
@@ -181,19 +182,29 @@ def is_valid_award(award: str) -> bool:
     """
 
     # Define the valid award regex patterns
-    pattern_grant_type1 = re.compile(r'^[A-Z]\d{2}[A-Z]{2}\d{6}-\d{2}[A-Z]\d[S]$')
-    pattern_grant_type2 = re.compile(r'^[A-Z]\d{2}[A-Z]{2}\d{6}-\d{2}[A-Z]$')
+    pattern_grant_type1 = re.compile(r'^[A-Z]\d{2}[A-Z]{2}\d{6}-\d{2}[A]\d[S]\d$')
+    pattern_grant_type1a = re.compile(r'^\d{1}[A-Z]\d{2}[A-Z]{2}\d{6}-\d{2}[A]\d[S]\d$')
+    pattern_grant_type2 = re.compile(r'^[A-Z]\d{2}[A-Z]{2}\d{6}-\d{2}[A-Z]\d$')
+    pattern_grant_type2a = re.compile(r'^\d{1}[A-Z]\d{2}[A-Z]{2}\d{6}-\d{2}[A-Z]\d$')
     pattern_grant_type3 = re.compile(r'^[A-Z]\d{2}[A-Z]{2}\d{6}-\d{2}$')
+    pattern_grant_type3a = re.compile(r'^\d{1}[A-Z]\d{2}[A-Z]{2}\d{6}-\d{2}$')
     pattern_grant_type4 = re.compile(r'^[A-Z]\d{2}[A-Z]{2}\d{6}$')
-    pattern_grant_type5 = re.compile(r'^\d{2}[A-Z]{2}\d{6}$')
+    pattern_grant_type4a = re.compile(r'^\d{1}[A-Z]\d{2}[A-Z]{2}\d{6}$')
+    pattern_grant_type5 = re.compile(r'^[A-Z]{2}\d{6}$')
+    pattern_grant_type5a = re.compile(r'^\d{1}[A-Z]{2}\d{6}$')
     pattern_contract_type = re.compile(r'^\d{6,}[A-Za-z0-9-]{10,}$')
 
     # Check if the provided award matches any of the valid patterns
     return any((pattern_grant_type1.match(award),
+                pattern_grant_type1a.match(award),
                 pattern_grant_type2.match(award),
+                pattern_grant_type2a.match(award),
                 pattern_grant_type3.match(award),
+                pattern_grant_type3a.match(award),
                 pattern_grant_type4.match(award),
+                pattern_grant_type4a.match(award),
                 pattern_grant_type5.match(award),
+                pattern_grant_type5a.match(award),
                 pattern_contract_type.match(award)))
 
 
