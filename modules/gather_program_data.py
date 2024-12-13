@@ -476,6 +476,7 @@ def replace_blank_values(df: pd.DataFrame, blank_filler_dict: dict):
     for column, filler in blank_filler_dict.items():
         # Fill blank and NaN values
         df[column] = df[column].fillna(filler)
+        df[column] = df[column].replace('',filler)
 
     return df
 
