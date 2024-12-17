@@ -9,6 +9,7 @@ import os
 import sys
 import pandas as pd
 import pytest
+from unittest.mock import patch
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -33,13 +34,15 @@ from modules.gather_program_data import (
     check_for_duplicate_names,
     generate_program_id_column,
     apply_value_fix,
-    prompt_to_continue
+    prompt_to_continue,
+    load_and_clean_programs,
+    gather_program_data
 )
 
 
 @pytest.fixture
 def test_qualtrics_csv():
-    """Fixture to provide path to test Qualtrics CSV."""
+    """Fixture to provide path to test Qualtrics CSV with real data."""
     test_file_path = os.path.join(os.path.dirname(__file__), 
                                   "test_files", "test_qualtrics_output.csv")
     return test_file_path
@@ -53,7 +56,7 @@ def sample_dataframe():
         'nofo': ['PAR-22-123', 'RFA-CA-22-456'],
         'award': ['1R01CA123456', '2P01CA789012'],
         'obsolete_column1': ['value1', 'value2'],
-        'obsolete_column2': ['old1', 'old2']
+        'obsolete_column2': ['old1', 'old2'],
     })
 
 
@@ -492,3 +495,129 @@ def test_prompt_to_continue_user_abort(sample_invalid_df_for_prompt, monkeypatch
     
     result = prompt_to_continue(sample_invalid_df_for_prompt)
     assert result is False
+
+
+@pytest.fixture
+def valid_program_csv():
+    """Fixture for a simplified valid programs input csv."""
+    return os.path.join(os.path.dirname(__file__), 
+                                  "test_files", "programs_valid_sample.csv")
+
+
+@pytest.fixture
+def sample_column_dict():
+    """Fixture for a standard column mapping."""
+    return {
+        'Program Name': 'program_name', 
+        'Program Acronym': 'program_acronym',
+        'NOFO': 'nofo', 
+        'Award': 'award',
+        'Focus Area': 'focus_area',
+        'Cancer Type': 'cancer_type',
+        'login_id': 'login_id'
+    }
+
+
+def test_load_and_clean_programs(valid_program_csv, sample_column_dict):
+    """Test successful happy path of integrated program loading and cleaning."""
+    continue_bool, result_df = load_and_clean_programs(valid_program_csv, 
+                                                       sample_column_dict)
+    
+    assert continue_bool is True
+    assert isinstance(result_df, pd.DataFrame)
+    assert not result_df.empty
+
+
+def test_load_and_clean_programs_not_continued(valid_program_csv, sample_column_dict):
+    """Test integrated program cleaning when user does not continue after prompt."""
+    # Mock user input to not continue when issues detected
+    with (
+        patch('modules.gather_program_data.check_for_duplicate_names', return_value=False),
+        patch('modules.gather_program_data.prompt_to_continue', return_value=False),
+        ):
+
+        continue_bool, result_df = load_and_clean_programs(valid_program_csv, 
+                                                            sample_column_dict)
+        
+        assert continue_bool is False
+        assert isinstance(result_df, pd.DataFrame)
+
+
+@pytest.fixture
+def programs_nofo_corrections():
+    """Fixture for a sample reviewed invalid nofo report with corrections."""
+    return os.path.join(os.path.dirname(__file__), 
+                                  "test_files", "programs_nofo_corrections.csv")
+
+
+@pytest.fixture
+def programs_award_corrections():
+    """Fixture for a sample reviewed invalid award report with corrections."""
+    return os.path.join(os.path.dirname(__file__), 
+                                  "test_files", "programs_award_corrections.csv")
+
+@pytest.fixture
+def programs_invalid_nofo_award():
+    """Fixture for a sample programs csv with invalid nofos and awards"""
+    return os.path.join(os.path.dirname(__file__), 
+                                  "test_files", "programs_invalid_nofo_award.csv")
+
+
+def test_load_and_clean_programs_correct_nofos(programs_invalid_nofo_award, 
+                                               sample_column_dict,
+                                               programs_nofo_corrections,
+                                               programs_award_corrections,
+                                               tmp_path):
+    """Test integrated program cleaning with invalid nofo/award replacement"""
+    
+    temp_nofo_report = tmp_path / 'test_invalid_nofo_report.csv'
+    temp_award_report = tmp_path / 'test_invalid_award_report.csv'
+    
+    # Mock config file locations with test files
+    with (
+        patch('config.REVIEWED_NOFO_INPUT', programs_nofo_corrections),
+        patch('config.REVIEWED_AWARD_INPUT', programs_award_corrections),
+        patch('config.INVALID_NOFOS_REPORT', temp_nofo_report),
+        patch('config.INVALID_AWARD_REPORT', temp_award_report)
+        ):
+
+        continue_bool, result_df = load_and_clean_programs(programs_invalid_nofo_award, 
+                                                            sample_column_dict)
+        
+        assert continue_bool == True
+        assert isinstance(result_df, pd.DataFrame)
+        
+
+def test_gather_program_data(tmp_path, valid_program_csv, sample_column_dict):
+    """Test top-level program gathering function with csv input"""
+    
+    tmp_output = tmp_path/ 'programs_intermediate.csv'
+    
+    # Mock config file locations with test files
+    with (
+        patch('config.QUALTRICS_COLS', sample_column_dict),
+        patch('config.PROGRAMS_INTERMED_PATH', tmp_output),
+        patch('os.makedirs', wraps=os.makedirs),
+        patch('sys.exit') as mock_exit
+    ):
+            
+            result_df = gather_program_data(valid_program_csv)
+            saved_df = pd.read_csv(tmp_output)
+
+            assert not result_df.empty
+            assert os.path.exists(tmp_output)
+            pd.testing.assert_frame_equal(saved_df, result_df)
+            mock_exit.assert_not_called()
+
+
+def test_gather_program_data_exit(valid_program_csv, sample_column_dict):
+    """Test top-level program gathering function when user exits."""
+    with (
+        patch('config.QUALTRICS_COLS', sample_column_dict),
+        patch('sys.exit') as mock_exit
+    ):
+        with patch('modules.gather_program_data.load_and_clean_programs', 
+                   return_value=(False, pd.DataFrame())):
+
+            gather_program_data(valid_program_csv)
+            mock_exit.assert_called_once()
