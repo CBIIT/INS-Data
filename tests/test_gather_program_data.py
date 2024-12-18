@@ -588,8 +588,8 @@ def test_load_and_clean_programs_correct_nofos(programs_invalid_nofo_award,
         assert isinstance(result_df, pd.DataFrame)
         
 
-def test_gather_program_data(tmp_path, valid_program_csv, sample_column_dict):
-    """Test top-level program gathering function with csv input"""
+def test_gather_program_data_mock(tmp_path, valid_program_csv, sample_column_dict):
+    """Test top-level program gathering function with mock csv input"""
     
     tmp_output = tmp_path/ 'programs_intermediate.csv'
     
@@ -621,3 +621,56 @@ def test_gather_program_data_exit(valid_program_csv, sample_column_dict):
 
             gather_program_data(valid_program_csv)
             mock_exit.assert_called_once()
+
+
+@pytest.fixture
+def programs_expected_output_csv():
+    """Fixture for expected program.csv output of test run"""
+    return os.path.join(os.path.dirname(__file__), 
+                                  "test_files", "expected", 
+                                  "test_program_gathering_output.csv")
+
+
+@pytest.fixture
+def full_column_dict():
+    """Fixture for a standard column mapping using real values."""
+    return {
+    "Name of Key Program": "program_name",
+    "Acronym for key program": "program_acronym",
+    "Focus Area (select all that apply)": "focus_area",
+    "DOC": "doc",
+    "Primary Contact (PI)": "contact_pi",
+    "Primary Contact (PI) email": "contact_pi_email",
+    "NIH Contact (Program Officer/Program Director)": "contact_nih",
+    "NIH Contact (Program Officer/Program Director) email": "contact_nih_email",
+    "NOFO number (eg. format as \"RFA-CA-00-000\") (If more than one, separate with ; semicolon)": "nofo",
+    "Grant/Award number {parent award FORMAT LL#CA######, eg. UG3CA260607} (If more than one, separate with ; semicolon)": "award",
+    "Link to program website": "program_link",
+    "Link to data or DCC if available": "data_link",
+    "What type of cancer is the primary focus of the program? (Check all that\napply)": "cancer_type",
+    "Login ID": "login_id"
+}
+
+
+def test_gather_program_data_sample(test_qualtrics_csv,full_column_dict, 
+                                    programs_expected_output_csv, tmp_path):
+    """Test top-level program gathering function with sample of real data."""
+    
+    tmp_output = tmp_path / 'test_actual_program_output.csv'
+    temp_award_report = tmp_path / 'test_invalid_award_report.csv'
+    
+    
+    # Mock config file locations with test files
+    with (
+        patch('config.QUALTRICS_COLS', full_column_dict),
+        patch('config.PROGRAMS_INTERMED_PATH', tmp_output),
+        patch('config.INVALID_AWARD_REPORT', temp_award_report),
+        patch('modules.gather_program_data.prompt_to_continue', return_value=True),
+    ):
+            
+            result_df = gather_program_data(test_qualtrics_csv)
+            expected_df = pd.read_csv(programs_expected_output_csv)
+
+            assert not result_df.empty
+            pd.testing.assert_frame_equal(result_df, expected_df)
+            assert os.path.exists(tmp_output)
