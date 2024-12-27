@@ -9,7 +9,8 @@ import os
 import sys
 import pandas as pd
 import pytest
-from unittest.mock import patch
+import requests
+from unittest.mock import patch, MagicMock
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -21,36 +22,46 @@ from modules.gather_grant_data import (
     clean_abstract,
     format_organization_columns,
     clean_grants_data,
-    gather_grant_data
+    gather_grant_data,
 )
 
 
 
 @pytest.fixture
-def mock_grants_json():
-    """Create a simple list of mock grant JSON data for testing."""
-    return [
-        {
-            "project_num": "R01CA123456",
-            "principal_investigators": [
-                {"full_name": "John Doe"},
-                {"full_name": "Jane Smith"}
-            ],
-            "program_officers": [
-                {"full_name": "Alice Johnson"}
-            ],
-            "agency_funding": [
-                {"code": "CA", "total_cost": 500000},
-                {"code": "Other", "total_cost": 100000}
-            ],
-            "organization": {
-                "org_name": "Test University",
-                "city": "Test City",
-                "state": "TS"
-            },
-            "abstract_text": "This is a sample\xad abstract  with\xa0multiple spaces."
-        }
-    ]
+def mock_grant_response():
+    """Create a simple mock NIH RePORTER grant result."""
+    return {
+        "meta":{
+            "search_id": "R01CA123456",
+            "total": 1,
+            "offset": 0,
+            "limit": 500,
+            "sort_field": "appl_id",
+            "sort_order": "desc",
+        },
+        "results":[
+            {
+                "project_num": "R01CA123456",
+                "principal_investigators": [
+                    {"full_name": "John Doe"},
+                    {"full_name": "Jane Smith"}
+                ],
+                "program_officers": [
+                    {"full_name": "Alice Johnson"}
+                ],
+                "agency_funding": [
+                    {"code": "CA", "total_cost": 500000},
+                    {"code": "Other", "total_cost": 100000}
+                ],
+                "organization": {
+                    "org_name": "Test University",
+                    "city": "Test City",
+                    "state": "TS"
+                },
+                "abstract_text": "This is a sample\xad abstract  with\xa0multiple spaces."
+            }
+        ]
+    }
 
 
 def test_concatenate_full_names():
@@ -145,3 +156,97 @@ def test_format_organization_columns():
     assert result_df['org_name'].iloc[0] == 'Test University'
     assert result_df['city'].iloc[0] == 'Test City'
     assert result_df['state'].iloc[0] == 'TS'
+    
+
+@pytest.fixture
+def mock_api_response():
+    """Create series of minimal mock API responses."""
+
+    def _create_response(status_code, results=None, total=0):
+        response = MagicMock()
+        response.status_code = status_code
+        response.json.return_value = {
+            'results': results or [],
+            'meta': {'total': total}
+        }
+
+        return response
+    return _create_response
+
+
+@pytest.mark.parametrize("search_type,search_value", [
+                        ('award', 'R01CA123456'),
+                        ('nofo', 'RFA-CA-01-123')])
+def test_successful_single_page_response(mock_api_response, search_type, search_value):
+    """Test successful API call with single page of results."""
+
+    with patch('requests.post') as mock_post:
+        mock_post.return_value = mock_api_response(
+            status_code=200,
+            results=[{'project_num': search_value}],
+            total=1
+        )
+        
+        grants, failures = get_nih_reporter_grants([search_value], search_type)
+        
+        assert len(grants) == 1
+        assert len(failures) == 0
+        assert grants[0]['api_source_search'] == f'{search_type}_{search_value}'
+
+
+@pytest.mark.parametrize("search_type,search_value", [
+                        ('award', 'R01CA123456'),
+                        ('nofo', 'RFA-CA-01-123')])
+def test_pagination(mock_api_response, search_type, search_value):
+    """Test handling multiple pages of results."""
+
+    with patch('requests.post') as mock_post:
+        mock_post.side_effect = [
+            mock_api_response(200, [{'id': '1'}] * 500, 750),
+            mock_api_response(200, [{'id': '2'}] * 250, 750)
+        ]
+        
+        grants, failures = get_nih_reporter_grants([search_value], search_type)
+        
+        assert len(grants) == 750
+        assert mock_post.call_count == 2
+
+
+@pytest.mark.parametrize("search_type,search_value", [
+                        ('award', 'R01CA123456'),
+                        ('nofo', 'RFA-CA-01-123')])
+def test_non_500_error_handling(mock_api_response, search_type, search_value, capsys):
+    """Test common error scenarios other than 500 errors."""
+
+    with patch('requests.post') as mock_post:
+        # Test unspecified error handling
+        mock_post.return_value = mock_api_response(123)
+        grants, failures = get_nih_reporter_grants([search_value], search_type)
+
+        assert failures[search_value]['failure_type'] == '123 API Error'
+
+    with patch('requests.post') as mock_post:
+        # Test exception handling (RequestException)
+        mock_post.return_value = mock_api_response(200)
+        mock_post.side_effect = requests.exceptions.RequestException()
+        grants, failures = get_nih_reporter_grants([search_value], search_type)
+
+        assert "An error occurred" in capsys.readouterr().out
+        assert len(grants) == 0
+
+            
+@pytest.mark.parametrize("search_type,search_value", [
+                        ('award', ''),
+                        ('nofo', '')])
+def test_empty_search_values(mock_api_response, search_type, search_value, capsys):
+    """Test handling of empty search values."""
+
+    with patch('requests.post') as mock_post:
+        mock_post.return_value = mock_api_response(200)
+        grants, failures = get_nih_reporter_grants([search_value], search_type, 
+                                                   print_meta=True)
+
+        assert "Blank" in capsys.readouterr().out
+        assert mock_post.call_count == 0
+        
+
