@@ -12,6 +12,7 @@ import pytest
 import requests
 from unittest.mock import patch, MagicMock
 
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from modules.gather_grant_data import (
@@ -177,10 +178,11 @@ def mock_api_response():
 @pytest.mark.parametrize("search_type,search_value", [
                         ('award', 'R01CA123456'),
                         ('nofo', 'RFA-CA-01-123')])
-def test_successful_single_page_response(mock_api_response, search_type, search_value):
+def test_grants_api_successful_single_page_response(mock_api_response, 
+                                                    search_type, search_value):
     """Test successful API call with single page of results."""
 
-    with patch('requests.post') as mock_post:
+    with patch('modules.gather_grant_data.requests.post') as mock_post:
         mock_post.return_value = mock_api_response(
             status_code=200,
             results=[{'project_num': search_value}],
@@ -197,10 +199,10 @@ def test_successful_single_page_response(mock_api_response, search_type, search_
 @pytest.mark.parametrize("search_type,search_value", [
                         ('award', 'R01CA123456'),
                         ('nofo', 'RFA-CA-01-123')])
-def test_pagination(mock_api_response, search_type, search_value):
+def test_grants_api_pagination(mock_api_response, search_type, search_value):
     """Test handling multiple pages of results."""
 
-    with patch('requests.post') as mock_post:
+    with patch('modules.gather_grant_data.requests.post') as mock_post:
         mock_post.side_effect = [
             mock_api_response(200, [{'id': '1'}] * 500, 750),
             mock_api_response(200, [{'id': '2'}] * 250, 750)
@@ -215,17 +217,18 @@ def test_pagination(mock_api_response, search_type, search_value):
 @pytest.mark.parametrize("search_type,search_value", [
                         ('award', 'R01CA123456'),
                         ('nofo', 'RFA-CA-01-123')])
-def test_non_500_error_handling(mock_api_response, search_type, search_value, capsys):
+def test_grants_api_non_500_error_handling(mock_api_response, search_type, 
+                                           search_value, capsys):
     """Test common error scenarios other than 500 errors."""
 
-    with patch('requests.post') as mock_post:
+    with patch('modules.gather_grant_data.requests.post') as mock_post:
         # Test unspecified error handling
         mock_post.return_value = mock_api_response(123)
         grants, failures = get_nih_reporter_grants([search_value], search_type)
 
         assert failures[search_value]['failure_type'] == '123 API Error'
 
-    with patch('requests.post') as mock_post:
+    with patch('modules.gather_grant_data.requests.post') as mock_post:
         # Test exception handling (RequestException)
         mock_post.return_value = mock_api_response(200)
         mock_post.side_effect = requests.exceptions.RequestException()
@@ -234,19 +237,104 @@ def test_non_500_error_handling(mock_api_response, search_type, search_value, ca
         assert "An error occurred" in capsys.readouterr().out
         assert len(grants) == 0
 
-            
-@pytest.mark.parametrize("search_type,search_value", [
-                        ('award', ''),
-                        ('nofo', '')])
-def test_empty_search_values(mock_api_response, search_type, search_value, capsys):
-    """Test handling of empty search values."""
 
-    with patch('requests.post') as mock_post:
+@pytest.mark.parametrize("search_type,search_value", [
+                        ('award', 'R01CA123456'),
+                        ('nofo', 'RFA-CA-01-123')])
+def test_grants_api_500_error_retry_success(mock_api_response, search_type, 
+                                             search_value, capsys):
+    """Test 500 error handling with multiple attempts."""
+    
+    with (patch('modules.gather_grant_data.requests.post') as mock_post, 
+          patch('modules.gather_grant_data.sleep') as mock_sleep):
+
+        mock_sleep.side_effect = lambda x: None
+        mock_post.side_effect = [
+            mock_api_response(500),
+            mock_api_response(200, [{'id': 1}], 1)
+        ]
+        
+        grants, failures = get_nih_reporter_grants([search_value], search_type)
+        
+        assert len(grants) == 1
+        assert len(failures) == 0
+        assert mock_post.call_count == 2
+        assert mock_sleep.call_count == 1
+        assert "Attempt 1/5" in capsys.readouterr().out
+        assert "Attempt 2/5" not in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("search_type,search_value", [
+                        ('award', 'R01CA123456'),
+                        ('nofo', 'RFA-CA-01-123')])
+def test_grants_api_500_error_retry_failure(mock_api_response, search_type, 
+                                             search_value, capsys):
+    """Test 500 error handling when max attempts reached."""
+    
+    with (patch('modules.gather_grant_data.requests.post') as mock_post, 
+          patch('modules.gather_grant_data.sleep') as mock_sleep):
+
+        mock_sleep.side_effect = lambda x: None
+        mock_post.side_effect = [
+            mock_api_response(500),
+            mock_api_response(500),
+            mock_api_response(500),
+            mock_api_response(500),
+            mock_api_response(500),
+            mock_api_response(200, [{'id': 1}], 1) # Should not actually run
+        ]
+        
+        grants, failures = get_nih_reporter_grants([search_value], search_type)
+        
+        assert len(grants) == 0
+        assert len(failures) == 1
+        assert "500 Error: Likely too many results" in (
+                                         failures[search_value]['failure_type'])
+        assert mock_post.call_count == 5
+        assert mock_sleep.call_count == 5
+        assert "Attempt 5/5" in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("search_type,search_value", [
+                        ('award', ['', 'R01CA123456']),
+                        ('nofo', ['','RFA-CA-01-123'])])
+def test_grants_api_empty_search_values(mock_api_response, search_type, 
+                                        search_value, capsys):
+    """Test handling and skipping of empty search values."""
+
+    with patch('modules.gather_grant_data.requests.post') as mock_post:
         mock_post.return_value = mock_api_response(200)
-        grants, failures = get_nih_reporter_grants([search_value], search_type, 
+        grants, failures = get_nih_reporter_grants(search_value, search_type, 
                                                    print_meta=True)
 
-        assert "Blank" in capsys.readouterr().out
-        assert mock_post.call_count == 0
+        assert f"Blank {search_type} value" in capsys.readouterr().out
+        assert mock_post.call_count == 1
         
+
+def test_grants_api_invalid_search_type(mock_api_response):
+    """Test handling of search types other than 'award' or 'nofo'."""
+
+    with patch('modules.gather_grant_data.requests.post') as mock_post:
+        mock_post.return_value = mock_api_response(200)
+
+        with pytest.raises(ValueError, match="Invalid search type"):
+            grants, failures = get_nih_reporter_grants(search_values=['R01CA123456'],
+                                                        search_type='wrong_type')
+        assert mock_post.call_count == 0
+
+
+@pytest.mark.parametrize("search_type,search_value", [
+                        ('award', 'R01CA123456'),
+                        ('nofo', 'RFA-CA-01-123')])
+def test_grants_api_blank_search_results(mock_api_response,search_type, 
+                                        search_value):
+    """Test handling of empty search results from valid search types."""  
+
+    with patch('modules.gather_grant_data.requests.post') as mock_post:
+        mock_post.return_value = mock_api_response(200, results=[], total=0)
+        grants, failures = get_nih_reporter_grants([search_value], search_type)
+
+        assert len(grants) == 0
+        assert len(failures) == 1
+        assert failures[search_value]['failure_type'] == "No results found"
 
