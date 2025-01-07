@@ -30,7 +30,7 @@ from modules.gather_grant_data import (
 
 @pytest.fixture
 def mock_grant_response():
-    """Create a simple mock NIH RePORTER grant result."""
+    """Create a mock NIH RePORTER grant result with all relevant fields."""
     return {
         "meta":{
             "search_id": "R01CA123456",
@@ -42,24 +42,36 @@ def mock_grant_response():
         },
         "results":[
             {
-                "project_num": "R01CA123456",
+                "appl_id": 1234567,
+                "fiscal_year": 2010,
+                "project_num": "R01CA123456-01",
+                "organization": {
+                    "org_name": "Test University",
+                    "org_city": "Test City",
+                    "org_state": "TS",
+                    "org_country": "USA"
+                    },
+                "award_amount": 600000,
                 "principal_investigators": [
                     {"full_name": "John Doe"},
                     {"full_name": "Jane Smith"}
-                ],
+                    ],
                 "program_officers": [
                     {"full_name": "Alice Johnson"}
                 ],
-                "agency_funding": [
+                "agency_ic_fundings": [
                     {"code": "CA", "total_cost": 500000},
                     {"code": "Other", "total_cost": 100000}
                 ],
-                "organization": {
-                    "org_name": "Test University",
-                    "city": "Test City",
-                    "state": "TS"
-                },
-                "abstract_text": "This is a sample\xad abstract  with\xa0multiple spaces."
+                "project_start_date": "2011-01-01T12:01:00Z",
+                "project_end_date": "2012-01-01T12:01:00Z",
+                "opportunity_number": "RFA-CA-01-123",
+                "award_notice_date": "2010-01-01T12:01:00Z",
+                "core_project_num": "R01CA123456",
+                "pref_terms": "keyword1;keyword2",
+                "abstract_text": "Sample\xad abstract  with\xa0spaces.",
+                "project_title": "Sample Project Title",
+                "api_source_search": "award_R01CA123456" # added during gathering
             }
         ]
     }
@@ -338,3 +350,40 @@ def test_grants_api_blank_search_results(mock_api_response,search_type,
         assert len(failures) == 1
         assert failures[search_value]['failure_type'] == "No results found"
 
+
+@pytest.fixture
+def mock_cleaned_grant():
+    """Fixture to create the expected cleaned output of a mock grant."""
+
+    return pd.DataFrame({ 
+        "grant_id": ["R01CA123456-01"],
+        "queried_project_id": ["R01CA123456"],
+        "application_id": [1234567],
+        "fiscal_year": [2010],
+        "project_title": ["Sample Project Title"],
+        "abstract_text": ["Sample abstract with spaces."],
+        "keywords": ["keyword1;keyword2"],
+        "principal_investigators": ["John Doe; Jane Smith"],
+        "program_officers": ["Alice Johnson"],
+        "award_amount": [600000],
+        "nci_funded_amount": [500000],
+        "award_notice_date": ["2010-01-01T12:01:00Z"],
+        "project_start_date": ["2011-01-01T12:01:00Z"],
+        "project_end_date": ["2012-01-01T12:01:00Z"],
+        "opportunity_number": ["RFA-CA-01-123"],
+        "api_source_search": ["award_R01CA123456"],
+        "org_name": ["Test University"],
+        "org_city": ["Test City"],
+        "org_state": ["TS"],
+        "org_country": ["USA"],
+    })
+
+
+def test_clean_grants_data(mock_grant_response, mock_cleaned_grant):
+    """Test cleaning of mock API response against expected cleaned result."""
+
+    cleaned_grant = clean_grants_data(mock_grant_response['results'])
+    
+    assert isinstance(cleaned_grant, pd.DataFrame)
+    assert len(cleaned_grant) == 1
+    pd.testing.assert_frame_equal(cleaned_grant, mock_cleaned_grant)
