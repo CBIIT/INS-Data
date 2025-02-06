@@ -4,7 +4,10 @@
 # Clutter
 __pycache__/
 *.pyc
-notebooks/
+notebooks/*
+
+# Temporarily allow to share exploration
+!notebooks/19_geo_datasets.ipynb
 
 # Private
 .env
