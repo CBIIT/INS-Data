@@ -10,12 +10,12 @@ a structured CSV file for further analysis.
 The workflow follows these steps:
 1. Read input CSV with 'coreproject' and 'pmid' columns
 2. Map PMIDs to GEO IDs using NCBI's E-utilities
-3. Gather raw metadata for each GEO ID
-4. Process and clean the metadata
-5. Output results as a CSV file
+3. Gather Esummary metadata for each GEO ID
+4. Gather FTP metadata for each GEO ID
+5. Process and combine the metadata
+6. Output results as a TSV file
 
-Results are stored both as consolidated raw JSON files and as a final 
-cleaned CSV for loading into INS.
+Intermediate files are saved at each step and reused if they already exist.
 """
 
 import io
@@ -49,7 +49,6 @@ def fetch_geo_ids(pmid: str) -> Tuple[str, List[str]]:
     
     Args:
         pmid: PubMed ID to query
-        api_key: Whether an API key is being used
     
     Returns:
         Tuple of (pmid, list_of_geo_ids)
@@ -90,17 +89,16 @@ def get_geo_ids_for_pubmed_ids(pubmed_ids: List[str]) -> Dict[str, List[str]]:
     
     Args:
         pubmed_ids: List of PubMed IDs to query
-        api_key: Whether an API key is being used
     
     Returns:
         Dictionary mapping PubMed IDs to their associated GEO IDs
     """
 
     # Configure Entrez
-    # Get user email from hidden local env file. Use default if not defined
+    # Email and api key from hidden local env file. Use default if not defined
     Entrez.email = os.environ.get('NCBI_EMAIL', 'your-email@example.com')
     Entrez.api_key = os.environ.get('NCBI_API_KEY', '')
-    if Entrez.api_key == None: 
+    if not Entrez.api_key: 
         print(f"WARNING: No NCBI API key in use. Check readme and local .env file."
               f"\nNCBI E-Utilities rate will be limited and may cause errors.")
     
@@ -165,6 +163,14 @@ def get_all_geo_summary_records(geo_id_list: List[str]) -> List[Dict]:
         List of metadata records
     """
 
+    # Configure Entrez
+    # Email and api key from hidden local env file. Use default if not defined
+    Entrez.email = os.environ.get('NCBI_EMAIL', 'your-email@example.com')
+    Entrez.api_key = os.environ.get('NCBI_API_KEY', '')
+    if not Entrez.api_key: 
+        print(f"WARNING: No NCBI API key in use. Check readme and local .env file."
+              f"\nNCBI E-Utilities rate will be limited and may cause errors.")
+
     # Build empty list to hold gathered records
     all_records = []
     
@@ -182,7 +188,7 @@ def get_all_geo_summary_records(geo_id_list: List[str]) -> List[Dict]:
 
 def extract_ftp_metadata(ftp_link: str) -> Dict[str, Any]:
     """
-    Get single-GEO metadata from series matrix files given an FTP link.
+    Get full GEO metadata from series matrix files given an FTP link.
     
     Args:
         ftp_link: Full FTP link (can start with ftp:// or be a direct path)
@@ -219,8 +225,7 @@ def extract_ftp_metadata(ftp_link: str) -> Dict[str, Any]:
         if not matrix_files:
             raise FileNotFoundError(f"No series matrix files found in {ftp_dir}")
         
-        metadata = {
-            'contributors': []}
+        metadata_dict = {}
         
         # Process each matrix file
         for matrix_file in matrix_files:
@@ -230,20 +235,32 @@ def extract_ftp_metadata(ftp_link: str) -> Dict[str, Any]:
             bio.seek(0)
             
             with gzip.GzipFile(fileobj=bio, mode='rb') as gz:
-                content = gz.read().decode('utf-8')
+                content = gz.read().decode('utf-8', errors='replace')
                 
-                # Extract fields using regex
-                contributors = re.findall(r'!Series_contributor\t(.+)(?:\r\n|\r|\n)', content)
-                contributors = [contributor.strip('"') for contributor in contributors]
-                metadata['contributors'].extend(contributors)
+                # Extract all metadata fields
+                field_pattern = r'!(Series|Sample)_(\w+)\t(.+)(?:\r\n|\r|\n)'
+                metadata_fields = re.findall(field_pattern, content)
+                
+                # Organize fields into categories
+                for prefix, field, value in metadata_fields:
+                    key = f"{prefix}_{field}"
+                    # Clean up the value (remove quotes)
+                    value = value.strip('"')
+                    
+                    # Accumulate values for repeating fields
+                    if key in metadata_dict:
+                        if isinstance(metadata_dict[key], list):
+                            metadata_dict[key].append(value)
+                        else:
+                            metadata_dict[key] = [metadata_dict[key], value]
+                    else:
+                        metadata_dict[key] = value
         
-        # Remove duplicate contributors while preserving order
-        metadata['contributors'] = list(dict.fromkeys(metadata['contributors']))
-        return metadata
+        return metadata_dict
         
     except Exception as e:
         print(f"Error extracting FTP metadata from {ftp_link}: {e}")
-        return {'contributors': []}
+        return {}
     
     finally:
         ftp.quit()
@@ -279,51 +296,92 @@ def create_geo_dataframe(pmid_geo_links: Dict[str, List[str]],
 
 
 
-# def get_all_geo_ftp_metadata(geo_records: List[Dict]) -> Dict[str, Dict]:
-#     """
-#     Extract FTP metadata for multiple GEO records.
+def get_all_geo_ftp_metadata(geo_records: List[Dict]) -> Dict[str, Dict]:
+    """
+    Extract FTP metadata for multiple GEO records.
     
-#     Args:
-#         geo_records: List of GEO metadata records
+    Args:
+        geo_records: List of GEO metadata records
     
-#     Returns:
-#         Dictionary mapping GEO IDs to their FTP metadata
-#     """
-#     ftp_metadata = {}
+    Returns:
+        Dictionary mapping GEO IDs to their FTP metadata
+    """
+    ftp_metadata = {}
     
-#     for record in tqdm(geo_records, desc="Extracting FTP metadata", ncols=80):
-#         try:
-#             # Extract GEO ID and FTP link from record
-#             # This is a placeholder - adjust based on actual record structure
-#             geo_id = record.get('Id', 'unknown')
-#             ftp_link = record.get('FTPLink', '')
+    for record in tqdm(geo_records, desc="Extracting FTP metadata", ncols=80):
+        try:
+            # Extract GEO ID and FTP link from record
+            record = record[0]
+            geo_id = record.get('Id', 'unknown')
+            ftp_link = record.get('FTPLink', '')
             
-#             if ftp_link:
-#                 metadata = extract_ftp_metadata(ftp_link)
-#                 ftp_metadata[geo_id] = metadata
-#             else:
-#                 print(f"No FTP link found for GEO ID {geo_id}")
-#         except Exception as e:
-#             print(f"Error processing FTP metadata for record: {e}")
+            if ftp_link:
+                metadata = extract_ftp_metadata(ftp_link)
+                ftp_metadata[geo_id] = metadata
+            else:
+                tqdm.write(f"No FTP link found for GEO ID {geo_id}")
+        except Exception as e:
+            tqdm.write(f"Error processing FTP metadata for record: {e}")
     
-#     return ftp_metadata
+    return ftp_metadata
 
 
 
-def gather_geo_data(input_csv: str, output_csv: str, raw_metadata_path: str, raw_ftp_path: str) -> pd.DataFrame:
+def file_exists_with_content(filepath: str) -> bool:
+    """
+    Check if a file exists and has content.
+    
+    Args:
+        filepath: Path to file
+        
+    Returns:
+        True if file exists and has content, False otherwise
+    """
+    if not os.path.exists(filepath):
+        return False
+    
+    try:
+        if filepath.endswith('.csv') or filepath.endswith('.tsv'):
+            # Check if dataframe has content
+            df = pd.read_csv(filepath, sep='\t' if filepath.endswith('.tsv') else ',')
+            return not df.empty
+        elif filepath.endswith('.json'):
+            # Check if json has content
+            with open(filepath, 'r') as f:
+                content = json.load(f)
+            return bool(content)
+        else:
+            # For other file types, check if size is > 0
+            return os.path.getsize(filepath) > 0
+    except Exception as e:
+        print(f"Error checking file {filepath}: {e}")
+        return False
+
+
+def gather_geo_data(input_csv: str, 
+                    output_csv: str, 
+                    raw_metadata_path: str, 
+                    raw_ftp_path: str,
+                    geo_mapping_path: str) -> pd.DataFrame:
     """
     Main function to orchestrate the entire GEO data gathering workflow.
+    Implements checkpoint loading to skip completed steps.
     
     Args:
         input_csv: Path to input CSV with 'coreproject' and 'pmid' columns
         output_csv: Path for output CSV with GEO metadata
         raw_metadata_path: Path to save consolidated raw metadata JSON
         raw_ftp_path: Path to save consolidated FTP metadata JSON
+        geo_mapping_path: Path to save GEO-PMID-Project mapping CSV
         
     Returns:
         DataFrame with processed GEO metadata
     """
     print(f"Starting GEO data gathering workflow...")
+    
+    # Create directories if they don't exist
+    for path in [raw_metadata_path, raw_ftp_path, geo_mapping_path, output_csv]:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
     
     # Read input publication data
     print(f"Reading publication data from {input_csv}")
@@ -337,18 +395,27 @@ def gather_geo_data(input_csv: str, output_csv: str, raw_metadata_path: str, raw
     
     # Convert PMIDs to strings for consistency
     pub_df['pmid'] = pub_df['pmid'].astype(str)
-    
     print(f"Read {len(pub_df)} publications")
     
-    # Extract unique PMIDs
-    unique_pmids = pub_df['pmid'].unique().tolist()
-    print(f"Found {len(unique_pmids)} unique PMIDs")
-    
-    # Get GEO IDs for each PMID
-    pmid_geo_mapping = get_geo_ids_for_pubmed_ids(unique_pmids)
-    
-    # Create mapping DataFrame
-    geo_mapping_df = create_geo_dataframe(pmid_geo_mapping, pub_df)
+    # Step 1: Create or load GEO-PMID-Project mapping
+    if file_exists_with_content(geo_mapping_path):
+        print(f"Loading existing GEO mapping from {geo_mapping_path}")
+        geo_mapping_df = pd.read_csv(geo_mapping_path)
+    else:
+        print(f"Generating GEO mapping...")
+        # Extract unique PMIDs
+        unique_pmids = pub_df['pmid'].unique().tolist()
+        print(f"Found {len(unique_pmids)} unique PMIDs")
+        
+        # Get GEO IDs for each PMID
+        pmid_geo_mapping = get_geo_ids_for_pubmed_ids(unique_pmids)
+        
+        # Create mapping DataFrame
+        geo_mapping_df = create_geo_dataframe(pmid_geo_mapping, pub_df)
+        
+        # Save ID mapping as checkpoint file
+        print(f"Saving GEO - PMID - Project mapping to {geo_mapping_path}")
+        geo_mapping_df.to_csv(geo_mapping_path, index=False)
     
     # Filter to rows with valid GEO IDs
     valid_geo_df = geo_mapping_df.dropna(subset=['geo_id'])
@@ -357,59 +424,81 @@ def gather_geo_data(input_csv: str, output_csv: str, raw_metadata_path: str, raw
     # Get unique GEO IDs for metadata gathering
     unique_geo_ids = valid_geo_df['geo_id'].unique().tolist()
     
-    # Gather raw metadata
-    print(f"Retrieving metadata for {len(unique_geo_ids)} unique GEO datasets")
-    raw_records = get_all_geo_summary_records(unique_geo_ids)
-    
-    # Save summary metadata checkpoint
-    print(f"Saving NCBI ESummary GEO metadata to {raw_metadata_path}")
-    os.makedirs(os.path.dirname(raw_metadata_path), exist_ok=True)
-    with open(raw_metadata_path, 'w') as f:
-        json.dump(raw_records, f, indent=2)
-    
-    # # Extract and gather FTP metadata
-    # print("Extracting FTP metadata from GEO records")
-    # ftp_metadata = get_all_geo_ftp_metadata(raw_records)
-    
-    # # Save consolidated FTP metadata
-    # print(f"Saving consolidated FTP metadata to {raw_ftp_path}")
-    # os.makedirs(os.path.dirname(raw_ftp_path), exist_ok=True)
-    # with open(raw_ftp_path, 'w') as f:
-    #     json.dump(ftp_metadata, f, indent=2)
-    
-    # Process records into a final dataframe
-    # This is placeholder code - you'll need to implement the actual processing
+    # Step 2: Create or load raw GEO metadata
+    if file_exists_with_content(raw_metadata_path):
+        print(f"Loading existing GEO metadata from {raw_metadata_path}")
+        with open(raw_metadata_path, 'r') as f:
+            raw_records = json.load(f)
+    else:
+        print(f"Retrieving metadata for {len(unique_geo_ids)} unique GEO datasets")
+        raw_records = get_all_geo_summary_records(unique_geo_ids)
+        
+        # Save summary metadata checkpoint
+        print(f"Saving NCBI ESummary GEO metadata to {raw_metadata_path}")
+        with open(raw_metadata_path, 'w') as f:
+            json.dump(raw_records, f, indent=2)
+
+    # Step 3: Create or load FTP metadata
+    if file_exists_with_content(raw_ftp_path):
+        print(f"Loading existing FTP metadata from {raw_ftp_path}")
+        with open(raw_ftp_path, 'r') as f:
+            ftp_metadata = json.load(f)
+    else:
+        print("Extracting FTP metadata from GEO records")
+        ftp_metadata = get_all_geo_ftp_metadata(raw_records)
+        
+        # Save consolidated FTP metadata
+        print(f"Saving consolidated FTP metadata to {raw_ftp_path}")
+        with open(raw_ftp_path, 'w') as f:
+            json.dump(ftp_metadata, f, indent=2)
+
+    # Step 4: Process records into a final dataframe
     print("Processing metadata into final dataset")
     processed_data = []
     
     for record in tqdm(raw_records, desc="Processing records", ncols=80):
-        # Extract GEO ID
-        record = record[0]
-        geo_id = record.get('Id', '')
-        if geo_id == None:
-            print(f"WARNING: No geo_id found in {record}. Stopping loop.")
-            break
-        
-        # Find matching rows in geo_mapping_df
-        matching_rows = valid_geo_df[valid_geo_df['geo_id'] == geo_id]
-        
-        # # Get FTP metadata if available
-        # ftp_data = ftp_metadata.get(geo_id, {})
-        
-        for _, row in matching_rows.iterrows():
-            processed_data.append({
-                'geo_id': geo_id,
-                'pmid': row['pmid'],
-                'coreproject': row['coreproject'],
-                'title': record.get('title', ''),
-            })
+        try:
+            # Extract GEO ID from the first item in the record list
+            record_data = record[0]  # This is correct - each record is a list with one dict
+            geo_id = record_data.get('Id', '')
+            
+            if not geo_id:
+                print(f"WARNING: No geo_id found in record. Skipping.")
+                continue
+                
+            # Debug print to check for matches
+            matching_rows = valid_geo_df[valid_geo_df['geo_id'] == geo_id]
+            if matching_rows.empty:
+                print(f"No matches found for GEO ID: {geo_id}")
+                # Try a string comparison in case of type mismatch
+                matching_rows = valid_geo_df[valid_geo_df['geo_id'].astype(str) == str(geo_id)]
+                if not matching_rows.empty:
+                    print(f"  Found match after string conversion")
+            
+            for _, row in matching_rows.iterrows():
+                entry = {
+                    'geo_id': geo_id,
+                    'pmid': row['pmid'],
+                    'coreproject': row['coreproject'],
+                    'title': record_data.get('title', ''),
+                    'summary': record_data.get('summary', ''),
+                    'geo_accession': record_data.get('Accession', ''),
+                    'n_samples': record_data.get('n_samples', ''),
+                    'related_terms': record_data.get('taxon', ''),
+                    'release_date': record_data.get('PDAT', ''),
+                    'assay_method': record_data.get('gdsType', ''),
+                    'study_links': record_data.get('FTPLink', ''),
+                }
+                
+                processed_data.append(entry)
+        except Exception as e:
+            print(f"Error processing record: {e}")
     
     # Create final dataframe
     result_df = pd.DataFrame(processed_data)
     
     # Save results
     print(f"Saving processed results to {output_csv}")
-    os.makedirs(os.path.dirname(output_csv), exist_ok=True)
     result_df.to_csv(output_csv, index=False, sep='\t')
     
     print(f"GEO data gathering complete. Found {len(result_df)} records.")
@@ -428,12 +517,7 @@ if __name__ == "__main__":
     output_path = os.path.join(script_dir, "..", "data", "02_output", "geo_test", "geo_datasets.tsv")
     raw_metadata_path = os.path.join(script_dir, "..", "data", "01_intermediate", "geo_test", "geo_metadata.json")
     raw_ftp_path = os.path.join(script_dir, "..", "data", "01_intermediate", "geo_test", "geo_ftp_metadata.json")
-
-    # # Define paths
-    # input_path = "data/01_intermediate/geo_test/publication.csv"
-    # output_path = "data/02_output/geo_test/geo_datasets.tsv"
-    # raw_metadata_path = "data/01_intermediate/geo_test/geo_metadata.json"
-    # raw_ftp_path = "data/01_intermediate/geo_test/geo_ftp_metadata.json"
+    geo_mapping_path = os.path.join(script_dir, "..", "data", "01_intermediate", "geo_test", "geo_pmid_project_map.csv")
     
     # Execute the main workflow
-    result = gather_geo_data(input_path, output_path, raw_metadata_path, raw_ftp_path)
+    result = gather_geo_data(input_path, output_path, raw_metadata_path, raw_ftp_path, geo_mapping_path)
