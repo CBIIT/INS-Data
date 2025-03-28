@@ -471,6 +471,27 @@ def package_publications(df_publications, column_configs):
 
 
 
+def package_dbgap_datasets(df_dbgap_datasets, column_configs):
+    """Package dbGaP datasets data for INS loading."""
+
+    print(f"---\nFinalizing TSV for dbGaP datasets data...") 
+
+    # Standardize and validate data
+    df_dbgap_datasets_output = standardize_data(df_dbgap_datasets, column_configs, 
+                                        datatype='dbgap_dataset')
+
+    # Export as TSV
+    output_filepath = config.DBGAP_OUTPUT_PATH
+    os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
+    df_dbgap_datasets_output.to_csv(output_filepath, sep='\t', index=False, 
+                                    encoding='utf-8')
+
+    print(f"Done! Final dbGaP Datasets data saved as {output_filepath}.")
+
+    return df_dbgap_datasets_output
+
+
+
 def remove_publications_before_projects(df_publications: pd.DataFrame, 
                                         df_projects: pd.DataFrame, 
                                         day_diff_allowed:int=0) -> pd.DataFrame:
@@ -691,6 +712,16 @@ def package_output_data():
         publications_exist = False
         print(f"No Publications file found.")
 
+    # Load dbGaP datasets data
+    if os.path.exists(config.DBGAP_PROCESSED_PATH):
+        dbgap_datasets_exist = True
+        df_dbgap_datasets = pd.read_csv(config.DBGAP_PROCESSED_PATH)
+        print(f"Loaded dbGaP Datasets file from {config.DBGAP_PROCESSED_PATH}")
+    else: 
+        dbgap_datasets_exist = False
+        print(f"No dbGaP Datasets file found.")
+    
+
     # Special handling
     print(f"---\nApplying special handling steps...")
     if publications_exist and projects_exist:
@@ -708,6 +739,8 @@ def package_output_data():
         df_projects_out = package_projects(df_projects, column_configs)
     if publications_exist:
         df_publications_out = package_publications(df_publications, column_configs)
+    if dbgap_datasets_exist:
+        df_dbgap_datasets_out = package_dbgap_datasets(df_dbgap_datasets, column_configs)
 
     # Special post-processing handling
     print(f"---\nGenerating enumerated values for data model...")

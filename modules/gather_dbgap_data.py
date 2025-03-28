@@ -36,8 +36,10 @@ The output `dbgap_df` and exported dbgap.csv contain columns:
 
 import os
 import sys
+import html
 import json
 import re
+import uuid
 
 import pandas as pd
 import requests
@@ -136,7 +138,7 @@ def build_bulk_raw_dbgap_api_data(phs_list:list,
 
     # Check to see if output file already exists
     if os.path.exists(export_filename):
-        print(f"Reusing dbGaP API bulk results for {api_type}"
+        print(f"Reusing dbGaP API bulk results for {api_type} "
               f"found in {export_filename}.")
 
     # Only proceed if file does not already exist
@@ -740,50 +742,6 @@ def get_gpa_and_doc(dbgap_df:pd.DataFrame):
 
 
 
-def select_and_rename_columns(df:pd.DataFrame):
-    """Standardize columns for the datasets output file. 
-    NOTE: Consider integrating this into `config.py` and the 
-    `package_output_data.py` in the future for consistency.
-
-    Args:
-        df (pd.DataFrame): pandas dataframe of merged dataset metadata
-    """
-
-    # Define columns to keep, reorder, and rename
-    # Column names should match data model properties
-    dataset_cols = {
-        'name': 'dataset_title',
-        'description': 'description',
-        'accession': 'dbGaP_phs',
-        'dbGaP_URL': 'dbGaP_URL',
-        'principal_investigator': 'PI_name',
-        'gpa': 'GPA',
-        'doc': 'dataset_doc',
-        'cited_publications': 'dataset_pmid',
-        'funding_source': 'funding_source',
-        'Release Date': 'release_date',
-        'limitations_for_reuse': 'limitations_for_reuse',
-        'assay_method': 'assay_method',
-        'study_type': 'study_type',
-        'Study Disease/Focus': 'primary_disease',
-        'participant_count': 'participant_count',    
-        'sample_count': 'sample_count',
-        'external_study_url': 'study_links',
-        'gene_keywords': 'related_genes',
-        'disease_keywords': 'related_diseases',
-        'Related Terms': 'related_terms',
-    }
-
-    # Rename and reorder columns
-    df = df.rename(columns=dataset_cols)
-
-    # Keep only defined columns and drop others
-    df = df[list(dataset_cols.values())]
-
-    return df
-
-
-
 def build_dbgap_df_from_json(api_type: str,
                              input_filepath: str):
     """Process a JSON file of bulk raw dbGaP API results into a dataframe
@@ -810,7 +768,7 @@ def build_dbgap_df_from_json(api_type: str,
         funding_title_set = detect_attribute_fieldnames(raw_records, 'funding')
 
     # Iterate through records for processing and add to running list
-    for record in raw_records:
+    for record in tqdm(raw_records, ncols=80, desc='Loading and cleaning JSON records'):
 
         # Use the correct functions to clean and process data
         if api_type == 'sstr_summary':
@@ -830,6 +788,70 @@ def build_dbgap_df_from_json(api_type: str,
 
     # Convert to dataframe
     df = pd.DataFrame(processed_record_list)
+
+    return df
+
+
+
+def clean_newlines(df:pd.DataFrame, exclude_cols:list=None):
+    """Remove newline-type characters from values within dataframe. Columns can
+    be excluded with argument. 
+
+    Args:
+        df (pd.DataFrame): Pandas DataFrame to process
+        exclude_cols (list, optional): List of column names to exclude.
+            Default None
+
+    Returns:
+        pd.DataFrame: df with newlines removed
+    """
+
+    if exclude_cols is None:
+        exclude_cols = []
+
+    newline_chars = [
+        '\r', 
+        '\n', 
+        '\r\n'
+        '\u2028',   # Line Separator
+        '\u2029',   # Paragraph Separator
+        ]
+
+    # Regex pattern for replacement
+    newline_pattern = '[' + ''.join(newline_chars) + ']+'
+
+    for col in df.columns:
+        # Check for string columns
+        if col not in exclude_cols and df[col].dtype == 'object':
+            # Replace newlines with blank space
+            df[col] = df[col].astype(str).apply(
+                lambda x: re.sub(newline_pattern, '', x).strip())
+
+    return df
+
+
+
+def clean_html_entities(df, exclude_cols=None):
+    """
+    Replaces HTML character entities (e.g. &#8217) with unicode characters.
+
+    Args:
+        df (pd.DataFrame): pandas DataFrame to process
+        exclude_cols (list, optional): List of column names to exclude.
+            Default None
+
+    Returns:
+        pd.DataFrame: df with HTML entities replaced
+    """
+
+    if exclude_cols is None:
+        exclude_cols = []
+
+    for col in df.columns:
+        # Check for string columns
+        if col not in exclude_cols and df[col].dtype == 'object':
+            # Replace htmls with unicode characters
+            df[col] = df[col].astype(str).apply(html.unescape)
 
     return df
 
@@ -912,8 +934,17 @@ def gather_dbgap_data(input_csv:str):
     # Add GPA and DOC columns
     dbgap_df = get_gpa_and_doc(merged_df)
 
-    # Reorder, rename, and select output columns
-    dbgap_df = select_and_rename_columns(dbgap_df)
+    # Add uuid column
+    dbgap_df['dataset_uuid'] = df.apply(lambda row: uuid.uuid4(), axis=1)
+
+    # Add source repo column
+    dbgap_df['dataset_source_repo'] = 'dbGaP'
+
+    # Remove newline characters
+    dbgap_df = clean_newlines(dbgap_df, exclude_cols=['description'])
+
+    # Clean HTML characters
+    dbgap_df = clean_html_entities(dbgap_df, exclude_cols=['description'])
 
     # Export final merged df as CSV 
     dbgap_df.to_csv(config.DBGAP_PROCESSED_PATH, index=False)
