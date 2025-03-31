@@ -402,10 +402,10 @@ DBGAP_INPUT_CSV = INPUT_DIR + "dbgap/" + "study_" + DBGAP_CSV_VERSION + ".csv"
 
 # dbGaP intermediate storage directory
 DBGAP_INTERMED_DIR = INTERMED_DIR + "dbgap/" + DBGAP_CSV_VERSION + "/"
-
 DBGAP_META_INTERMED_PATH = DBGAP_INTERMED_DIR + "dbgap_study_metadata.json"
 DBGAP_SSTR_INTERMED_PATH = DBGAP_INTERMED_DIR + "dbgap_sstr.json"
-DBGAP_PROCESSED_PATH = DBGAP_INTERMED_DIR + "dbgap_datasets.csv"
+DBGAP_INTERMED_PATH = DBGAP_INTERMED_DIR + "dbgap_datasets.csv"
+DBGAP_CURATED_INTERMED_PATH = DBGAP_INTERMED_DIR + "dbgap_datasets_curated.tsv"
 
 # dbGaP reports and error logs
 DBGAP_REPORTS_DIR = "reports/dbgap/" + DBGAP_CSV_VERSION + "/"
@@ -418,3 +418,4 @@ DBGAP_GPA_DOC_LUT = INPUT_DIR + "dbgap/gpa_tables/" + "gpa_doc_lookup_table.csv"
 
 # dbGaP cleaned output file
 DBGAP_OUTPUT_PATH = OUTPUT_DIR + "dbgap/" + DBGAP_CSV_VERSION +"/"+ "dbgap_datasets.tsv"
+DBGAP_OUTPUT_CURATED_CLEANED = OUTPUT_DIR + "dbgap/" + DBGAP_CSV_VERSION +"/"+ "dbgap_datasets_curated_clean.tsv"

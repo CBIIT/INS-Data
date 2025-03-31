@@ -10,6 +10,8 @@ to prepare them for INS ingestion. These outputs are saved as TSVs.
 import os
 import sys
 import unicodedata
+import uuid
+import html
 import hashlib
 
 import pandas as pd
@@ -26,7 +28,10 @@ def add_type_column(df, datatype):
     """Add a column for datatype and fill with specified datatype."""
 
     df_with_type = df.copy()
-    df_with_type['type'] = datatype
+    if datatype == 'dbgap_dataset':
+        df_with_type['type'] = 'dataset'
+    else:
+        df_with_type['type'] = datatype
 
     return df_with_type
 
@@ -226,6 +231,25 @@ def remove_html_tags_from_df(df, column_configs, datatype):
 
 
 
+def clean_html_entities(df, datatype):
+    """Replaces HTML character entities (&#8217) with unicode characters."""
+    
+    exclude_cols = []
+
+    # Retain hmtl encoding and characters for dataset display
+    if datatype == 'dbgap_dataset':
+        exclude_cols = ['description']
+
+    for col in df.columns:
+        # Check for string columns
+        if col not in exclude_cols and df[col].dtype == 'object':
+            # Replace htmls with unicode characters
+            df[col] = df[col].astype(str).apply(html.unescape)
+
+    return df
+
+
+
 def format_datetime_columns(df, column_configs, datatype):
     """Converts datetime columns to "yyyy-mm-dd" strings."""
 
@@ -376,6 +400,7 @@ def standardize_data(df, column_configs, datatype):
     df = reorder_columns(df, column_configs, datatype)
     df = process_special_characters(df)
     df = remove_html_tags_from_df(df, column_configs, datatype)
+    df = clean_html_entities(df,datatype)
     df = validate_listlike_columns(df, column_configs, datatype)
     df = format_datetime_columns(df, column_configs, datatype)
     df = validate_and_clean_unique_nodes(df, column_configs, datatype)
@@ -471,7 +496,7 @@ def package_publications(df_publications, column_configs):
 
 
 
-def package_dbgap_datasets(df_dbgap_datasets, column_configs):
+def package_dbgap_datasets(df_dbgap_datasets, column_configs, dbgap_curated=False):
     """Package dbGaP datasets data for INS loading."""
 
     print(f"---\nFinalizing TSV for dbGaP datasets data...") 
@@ -482,6 +507,8 @@ def package_dbgap_datasets(df_dbgap_datasets, column_configs):
 
     # Export as TSV
     output_filepath = config.DBGAP_OUTPUT_PATH
+    if dbgap_curated: 
+        output_filepath = config.DBGAP_OUTPUT_CURATED_CLEANED
     os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
     df_dbgap_datasets_output.to_csv(output_filepath, sep='\t', index=False, 
                                     encoding='utf-8')
@@ -712,11 +739,17 @@ def package_output_data():
         publications_exist = False
         print(f"No Publications file found.")
 
-    # Load dbGaP datasets data
-    if os.path.exists(config.DBGAP_PROCESSED_PATH):
+    # Load dbGaP datasets data. Prefer curated file if it exists.
+    if os.path.exists(config.DBGAP_CURATED_INTERMED_PATH):
         dbgap_datasets_exist = True
-        df_dbgap_datasets = pd.read_csv(config.DBGAP_PROCESSED_PATH)
-        print(f"Loaded dbGaP Datasets file from {config.DBGAP_PROCESSED_PATH}")
+        dbgap_curated = True
+        df_dbgap_datasets = pd.read_csv(config.DBGAP_CURATED_INTERMED_PATH, sep='\t')
+        print(f"Loaded dbGaP Datasets (Curated) file from {config.DBGAP_CURATED_INTERMED_PATH}")
+    elif os.path.exists(config.DBGAP_INTERMED_PATH):
+        dbgap_datasets_exist = True
+        dbgap_curated = False
+        df_dbgap_datasets = pd.read_csv(config.DBGAP_INTERMED_PATH)
+        print(f"Loaded dbGaP Datasets file from {config.DBGAP_INTERMED_PATH}")
     else: 
         dbgap_datasets_exist = False
         print(f"No dbGaP Datasets file found.")
@@ -724,11 +757,24 @@ def package_output_data():
 
     # Special handling
     print(f"---\nApplying special handling steps...")
+
+    # Remove publications published before associated projects
     if publications_exist and projects_exist:
         df_publications = remove_publications_before_projects(
                                 df_publications,
                                 df_projects,
                                 day_diff_allowed=config.PUB_PROJECT_DAY_DIFF)
+        
+    # Add dbgap dataset uuids for any that do not exist
+    if dbgap_curated:
+        df_dbgap_datasets['dataset_uuid'] = df_dbgap_datasets.apply(
+            lambda row: uuid.uuid4()
+            if pd.isna(row['dataset_uuid'])
+            or str(row['dataset_uuid']).lower() == 'na'
+            or str(row['dataset_uuid']) == ''
+            else row['dataset_uuid'],
+            axis=1,
+        )
 
     # Final packaging
     if programs_exist:
@@ -740,7 +786,8 @@ def package_output_data():
     if publications_exist:
         df_publications_out = package_publications(df_publications, column_configs)
     if dbgap_datasets_exist:
-        df_dbgap_datasets_out = package_dbgap_datasets(df_dbgap_datasets, column_configs)
+        df_dbgap_datasets_out = package_dbgap_datasets(df_dbgap_datasets, column_configs,
+                                                       dbgap_curated)
 
     # Special post-processing handling
     print(f"---\nGenerating enumerated values for data model...")

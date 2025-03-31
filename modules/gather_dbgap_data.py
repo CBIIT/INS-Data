@@ -872,7 +872,7 @@ def gather_dbgap_data(input_csv:str):
         f"Gathering, formatting, and saving dbGaP dataset metadata...\n---\n")
 
     # Read the dbGaP CSV download
-    df = pd.read_csv(input_csv)
+    df = pd.read_csv(input_csv, keep_default_na=False)
 
     # Define list of fields from the CSV download to keep in results
     csv_cols_to_keep = [
@@ -928,6 +928,9 @@ def gather_dbgap_data(input_csv:str):
 
     print(f"\nFormatting dbGaP dataset output...")
 
+    # Drop full dbgap accession and keep only core phs
+    merged_df['accession'] = merged_df['accession'].str.split('.').str[0]
+
     # Add dbGaP URL column
     merged_df['dbGaP_URL'] = merged_df['accession'].apply(get_dbgap_url)
 
@@ -935,21 +938,21 @@ def gather_dbgap_data(input_csv:str):
     dbgap_df = get_gpa_and_doc(merged_df)
 
     # Add uuid column
-    dbgap_df['dataset_uuid'] = df.apply(lambda row: uuid.uuid4(), axis=1)
+    dbgap_df['dataset_uuid'] = dbgap_df.apply(lambda row: uuid.uuid4(), axis=1)
 
     # Add source repo column
     dbgap_df['dataset_source_repo'] = 'dbGaP'
 
     # Remove newline characters
-    dbgap_df = clean_newlines(dbgap_df, exclude_cols=['description'])
+    dbgap_df = clean_newlines(dbgap_df, exclude_cols=None)
 
     # Clean HTML characters
     dbgap_df = clean_html_entities(dbgap_df, exclude_cols=['description'])
 
     # Export final merged df as CSV 
-    dbgap_df.to_csv(config.DBGAP_PROCESSED_PATH, index=False)
+    dbgap_df.to_csv(config.DBGAP_INTERMED_PATH, index=False, na_rep='')
 
-    print(f"\nSuccess! dbGaP data saved to {config.DBGAP_PROCESSED_PATH}.\n")
+    print(f"\nSuccess! dbGaP data saved to {config.DBGAP_INTERMED_PATH}.\n")
 
 
 
