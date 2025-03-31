@@ -19,7 +19,7 @@ QUALTRICS_TYPE = "manual_fix"              # <-- Define "raw" or "manual_fix" ty
 ICITE_VERSION = "2024-08"           # <-- CHANGE VERSION HERE
 
 # Version of dbGaP seearch results download (download date)
-DBGAP_CSV_VERSION = "2025-03-27"   # <-- CHANGE VERSION HERE
+DBGAP_CSV_VERSION = "2024-08-30_rework"   # <-- CHANGE VERSION HERE
 
 # An override date can be used instead of today's date for pulling and saving data versions
 # This is useful when running downstream modules on grants data gathered before today
