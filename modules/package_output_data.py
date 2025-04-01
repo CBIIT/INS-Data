@@ -51,9 +51,15 @@ def reorder_columns(df, column_configs, datatype):
     # Extract relevant information from the configuration
     keep_and_rename = config.get('keep_and_rename', {})
 
-    # Check if all desired columns are present before renaming
-    if not set(keep_and_rename.keys()).issubset(set(df.columns)):
-        missing_columns = set(keep_and_rename.keys()) - set(df.columns)
+    # Define column names from old:new dict
+    old_cols = set(keep_and_rename.keys())
+    new_cols = set(keep_and_rename.values())
+
+    # Get missing columns from current df
+    missing_columns = old_cols - set(df.columns)
+
+    # Check if old columns all exist or are already renamed
+    if missing_columns and not new_cols.issubset(set(df.columns)):
         raise ValueError(f"Fields missing from intermediate {datatype} data: "
                          f"{', '.join(missing_columns)}")
 
@@ -752,6 +758,7 @@ def package_output_data():
         print(f"Loaded dbGaP Datasets file from {config.DBGAP_INTERMED_PATH}")
     else: 
         dbgap_datasets_exist = False
+        dbgap_curated = False
         print(f"No dbGaP Datasets file found.")
     
 
