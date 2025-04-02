@@ -19,12 +19,12 @@ QUALTRICS_TYPE = "manual_fix"              # <-- Define "raw" or "manual_fix" ty
 ICITE_VERSION = "2024-08"           # <-- CHANGE VERSION HERE
 
 # Version of dbGaP seearch results download (download date)
-DBGAP_CSV_VERSION = "2024-08-30"   # <-- CHANGE VERSION HERE
+DBGAP_CSV_VERSION = "2025-03-27"   # <-- CHANGE VERSION HERE
 
 # An override date can be used instead of today's date for pulling and saving data versions
 # This is useful when running downstream modules on grants data gathered before today
 
-OVERRIDE_DATE = "2024-09-20"                # <-- Optional. Define override date (e.g. "2023-12-14"). Default None.
+OVERRIDE_DATE = None                # <-- Optional. Define override date (e.g. "2023-12-14"). Default None.
 
 
 
@@ -356,7 +356,40 @@ COLUMN_CONFIGS = {
         },
         'list_like_cols': ['authors'],
         'html_tag_cols': ['publication_title']
-    }
+    },
+    'dbgap_dataset': {
+        'node_id': 'dataset_uuid',
+        'link_id': None,
+        'keep_and_rename': {
+            'type': 'type',
+            'dataset_uuid': 'dataset_uuid',
+            'dataset_source_repo': 'dataset_source_repo',
+            'name': 'dataset_title',
+            'description': 'description',
+            'accession': 'dataset_source_id',
+            'dbGaP_URL': 'dataset_source_url',
+            'principal_investigator': 'PI_name',
+            'gpa': 'GPA',
+            'doc': 'dataset_doc',
+            'cited_publications': 'dataset_pmid',
+            'funding_source': 'funding_source',
+            'Release Date': 'release_date',
+            'limitations_for_reuse': 'limitations_for_reuse',
+            'assay_method': 'assay_method',
+            'study_type': 'study_type',
+            'Study Disease/Focus': 'primary_disease',
+            'participant_count': 'participant_count',    
+            'sample_count': 'sample_count',
+            'external_study_url': 'study_links',
+            'gene_keywords': 'related_genes',
+            'disease_keywords': 'related_diseases',
+            'Related Terms': 'related_terms',
+        },
+        'list_like_cols': ['PI_name', 'dataset_pmid', 'funding_source',
+                           'limitations_for_reuse','study_links','related_genes',
+                           'related_diseases','related_terms'],
+        'html_tag_cols': None # Keep HTML tags in dbgap descriptions
+    },
 }
 
 
@@ -369,11 +402,10 @@ DBGAP_INPUT_CSV = INPUT_DIR + "dbgap/" + "study_" + DBGAP_CSV_VERSION + ".csv"
 
 # dbGaP intermediate storage directory
 DBGAP_INTERMED_DIR = INTERMED_DIR + "dbgap/" + DBGAP_CSV_VERSION + "/"
-
 DBGAP_META_INTERMED_PATH = DBGAP_INTERMED_DIR + "dbgap_study_metadata.json"
 DBGAP_SSTR_INTERMED_PATH = DBGAP_INTERMED_DIR + "dbgap_sstr.json"
-
-DBGAP_PROCESSED_PATH = DBGAP_INTERMED_DIR + "dbgap_datasets.csv"
+DBGAP_INTERMED_PATH = DBGAP_INTERMED_DIR + "dbgap_datasets.csv"
+DBGAP_CURATED_INTERMED_PATH = DBGAP_INTERMED_DIR + "dbgap_datasets_curated.tsv"
 
 # dbGaP reports and error logs
 DBGAP_REPORTS_DIR = "reports/dbgap/" + DBGAP_CSV_VERSION + "/"
@@ -383,3 +415,7 @@ DBGAP_META_ERRORS = DBGAP_REPORTS_DIR + "api_errors_study_metadata.csv"
 # dbGaP GPA/DOC input files
 DBGAP_GPA_LIST = INPUT_DIR + "dbgap/gpa_tables/" + "gpa_study_table.csv"
 DBGAP_GPA_DOC_LUT = INPUT_DIR + "dbgap/gpa_tables/" + "gpa_doc_lookup_table.csv"
+
+# dbGaP cleaned output file
+DBGAP_OUTPUT_PATH = OUTPUT_DIR + "dbgap/" + DBGAP_CSV_VERSION +"/"+ "dbgap_datasets.tsv"
+DBGAP_OUTPUT_CURATED_CLEANED = OUTPUT_DIR + "dbgap/" + DBGAP_CSV_VERSION +"/"+ "dbgap_datasets_curated_clean.tsv"
