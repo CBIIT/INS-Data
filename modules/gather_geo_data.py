@@ -186,6 +186,7 @@ def get_all_geo_summary_records(geo_id_list: List[str]) -> List[Dict]:
     return all_records
 
 
+
 def extract_ftp_metadata(ftp_link: str) -> Dict[str, Any]:
     """
     Get full GEO metadata from series matrix files given an FTP link.
@@ -327,42 +328,43 @@ def get_all_geo_ftp_metadata(geo_records: List[Dict]) -> Dict[str, Dict]:
 
 
 
-def file_exists_with_content(filepath: str) -> bool:
-    """
-    Check if a file exists and has content.
+# def file_exists_with_content(filepath: str) -> bool:
+#     """
+#     Check if a file exists and has content.
     
-    Args:
-        filepath: Path to file
+#     Args:
+#         filepath: Path to file
         
-    Returns:
-        True if file exists and has content, False otherwise
-    """
-    if not os.path.exists(filepath):
-        return False
+#     Returns:
+#         True if file exists and has content, False otherwise
+#     """
+#     if not os.path.exists(filepath):
+#         return False
     
-    try:
-        if filepath.endswith('.csv') or filepath.endswith('.tsv'):
-            # Check if dataframe has content
-            df = pd.read_csv(filepath, sep='\t' if filepath.endswith('.tsv') else ',')
-            return not df.empty
-        elif filepath.endswith('.json'):
-            # Check if json has content
-            with open(filepath, 'r') as f:
-                content = json.load(f)
-            return bool(content)
-        else:
-            # For other file types, check if size is > 0
-            return os.path.getsize(filepath) > 0
-    except Exception as e:
-        print(f"Error checking file {filepath}: {e}")
-        return False
+#     try:
+#         if filepath.endswith('.csv') or filepath.endswith('.tsv'):
+#             # Check if dataframe has content
+#             df = pd.read_csv(filepath, sep='\t' if filepath.endswith('.tsv') else ',')
+#             return not df.empty
+#         elif filepath.endswith('.json'):
+#             # Check if json has content
+#             with open(filepath, 'r') as f:
+#                 content = json.load(f)
+#             return bool(content)
+#         else:
+#             # For other file types, check if size is > 0
+#             return os.path.getsize(filepath) > 0
+#     except Exception as e:
+#         print(f"Error checking file {filepath}: {e}")
+#         return False
 
 
 def gather_geo_data(input_csv: str, 
                     output_csv: str, 
-                    raw_metadata_path: str, 
+                    esummary_intermed_path: str, 
                     raw_ftp_path: str,
-                    geo_mapping_path: str) -> pd.DataFrame:
+                    geo_mapping_path: str,
+                    overwrite_intermeds: bool=False) -> pd.DataFrame:
     """
     Main function to orchestrate the entire GEO data gathering workflow.
     Implements checkpoint loading to skip completed steps.
@@ -373,6 +375,9 @@ def gather_geo_data(input_csv: str,
         raw_metadata_path: Path to save consolidated raw metadata JSON
         raw_ftp_path: Path to save consolidated FTP metadata JSON
         geo_mapping_path: Path to save GEO-PMID-Project mapping CSV
+        overwrite_intermeds: Rerun all steps, even if intermediate files 
+            already exist (default False). True will save time and avoid
+            unnecessary API calls. 
         
     Returns:
         DataFrame with processed GEO metadata
@@ -380,7 +385,7 @@ def gather_geo_data(input_csv: str,
     print(f"Starting GEO data gathering workflow...")
     
     # Create directories if they don't exist
-    for path in [raw_metadata_path, raw_ftp_path, geo_mapping_path, output_csv]:
+    for path in [esummary_intermed_path, raw_ftp_path, geo_mapping_path, output_csv]:
         os.makedirs(os.path.dirname(path), exist_ok=True)
     
     # Read input publication data
@@ -396,11 +401,13 @@ def gather_geo_data(input_csv: str,
     # Convert PMIDs to strings for consistency
     pub_df['pmid'] = pub_df['pmid'].astype(str)
     print(f"Read {len(pub_df)} publications")
-    
-    # Step 1: Create or load GEO-PMID-Project mapping
-    if file_exists_with_content(geo_mapping_path):
-        print(f"Loading existing GEO mapping from {geo_mapping_path}")
-        geo_mapping_df = pd.read_csv(geo_mapping_path)
+
+
+    # Load or create GEO-PMID-Project mapping intermediate
+    if os.path.exists(geo_mapping_path) and not overwrite_intermeds:
+        print(f"Loading existing GEO-PMID-Project mapping from {geo_mapping_path}")
+        geo_mapping_df = pd.read_csv(geo_mapping_path, 
+                                     dtype={'geo_id': str, 'pmid':str})
     else:
         print(f"Generating GEO mapping...")
         # Extract unique PMIDs
@@ -414,32 +421,35 @@ def gather_geo_data(input_csv: str,
         geo_mapping_df = create_geo_dataframe(pmid_geo_mapping, pub_df)
         
         # Save ID mapping as checkpoint file
-        print(f"Saving GEO - PMID - Project mapping to {geo_mapping_path}")
+        print(f"Saving GEO-PMID-Project mapping to {geo_mapping_path}")
         geo_mapping_df.to_csv(geo_mapping_path, index=False)
     
     # Filter to rows with valid GEO IDs
-    valid_geo_df = geo_mapping_df.dropna(subset=['geo_id'])
-    print(f"Found {len(valid_geo_df)} GEO entries linked to {len(valid_geo_df['pmid'].unique())} PMIDs")
+    valid_geo_df = geo_mapping_df.dropna(subset=['geo_id']).copy()
+    print(f"Found {len(valid_geo_df)} GEO entries linked to "
+          f"{len(valid_geo_df['pmid'].unique())} PMIDs")
     
     # Get unique GEO IDs for metadata gathering
     unique_geo_ids = valid_geo_df['geo_id'].unique().tolist()
     
-    # Step 2: Create or load raw GEO metadata
-    if file_exists_with_content(raw_metadata_path):
-        print(f"Loading existing GEO metadata from {raw_metadata_path}")
-        with open(raw_metadata_path, 'r') as f:
+
+    # Load or create GEO Esummary API response intermediate
+    if os.path.exists(esummary_intermed_path) and not overwrite_intermeds:
+        print(f"Loading existing GEO ESummary metadata from {esummary_intermed_path}")
+        with open(esummary_intermed_path, 'r') as f:
             raw_records = json.load(f)
     else:
         print(f"Retrieving metadata for {len(unique_geo_ids)} unique GEO datasets")
         raw_records = get_all_geo_summary_records(unique_geo_ids)
         
         # Save summary metadata checkpoint
-        print(f"Saving NCBI ESummary GEO metadata to {raw_metadata_path}")
-        with open(raw_metadata_path, 'w') as f:
+        print(f"Saving NCBI ESummary GEO metadata to {esummary_intermed_path}")
+        with open(esummary_intermed_path, 'w') as f:
             json.dump(raw_records, f, indent=2)
 
-    # Step 3: Create or load FTP metadata
-    if file_exists_with_content(raw_ftp_path):
+
+    # Load or create GEO FTP metadata intermediate
+    if os.path.exists(raw_ftp_path) and not overwrite_intermeds:
         print(f"Loading existing FTP metadata from {raw_ftp_path}")
         with open(raw_ftp_path, 'r') as f:
             ftp_metadata = json.load(f)
@@ -448,11 +458,12 @@ def gather_geo_data(input_csv: str,
         ftp_metadata = get_all_geo_ftp_metadata(raw_records)
         
         # Save consolidated FTP metadata
-        print(f"Saving consolidated FTP metadata to {raw_ftp_path}")
+        print(f"Saving all FTP metadata to {raw_ftp_path}")
         with open(raw_ftp_path, 'w') as f:
             json.dump(ftp_metadata, f, indent=2)
 
-    # Step 4: Process records into a final dataframe
+
+    # Process records into combined dataframe
     print("Processing metadata into final dataset")
     processed_data = []
     
@@ -461,11 +472,11 @@ def gather_geo_data(input_csv: str,
             # Extract GEO ID from the first item in the record list
             record_data = record[0]  # This is correct - each record is a list with one dict
             geo_id = record_data.get('Id', '')
-            
+
             if not geo_id:
                 print(f"WARNING: No geo_id found in record. Skipping.")
                 continue
-                
+            
             # Debug print to check for matches
             matching_rows = valid_geo_df[valid_geo_df['geo_id'] == geo_id]
             if matching_rows.empty:
