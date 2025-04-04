@@ -43,7 +43,8 @@ def validate_identical_values(df, field_name):
 
     # Convert values to lowercase for comparison
     df_lower = df.copy()
-    df_lower[field_name] = df_lower[field_name].str.lower()
+    df_lower[field_name] = df_lower[field_name].apply(
+                            lambda x: x.lower() if isinstance(x, str) else x)
 
     # Find rows with more than one value within a field for a given project
     inconsistent_rows = df_lower[df_lower.groupby(

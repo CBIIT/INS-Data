@@ -267,6 +267,12 @@ def validate_listlike_columns(df, column_configs, datatype):
                 raise ValueError(f"Expected list-like column {col} not found "
                                  f"within data. Check data or redefine config.")
 
+            # Skip current iteration if col contains non-string (None) values
+            if not pd.api.types.is_string_dtype(df[col]):
+                print(f"Column '{col}' contains non-string values. Skipping "
+                      f"validation of list-like field.")
+                continue
+
             # Replace any semicolons followed by whitespace with just semicolon
             df[col] = df[col].str.replace('; ', ';')
 
@@ -583,6 +589,11 @@ def get_enum_values(df, cols, output="enums.txt"):
     enums_dict = {}
 
     for col in cols:
+        
+        # Skip current iteration if col contains non-string (None) values
+        if not pd.api.types.is_string_dtype(df[col]):
+            continue
+
         # Get unique values from semicolon-separated strings
         unique_vals = df[col].dropna().str.split(";").explode().unique()
         # Sort for conistency
