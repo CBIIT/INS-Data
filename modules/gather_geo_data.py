@@ -328,37 +328,6 @@ def get_all_geo_ftp_metadata(geo_records: List[Dict]) -> Dict[str, Dict]:
 
 
 
-# def file_exists_with_content(filepath: str) -> bool:
-#     """
-#     Check if a file exists and has content.
-    
-#     Args:
-#         filepath: Path to file
-        
-#     Returns:
-#         True if file exists and has content, False otherwise
-#     """
-#     if not os.path.exists(filepath):
-#         return False
-    
-#     try:
-#         if filepath.endswith('.csv') or filepath.endswith('.tsv'):
-#             # Check if dataframe has content
-#             df = pd.read_csv(filepath, sep='\t' if filepath.endswith('.tsv') else ',')
-#             return not df.empty
-#         elif filepath.endswith('.json'):
-#             # Check if json has content
-#             with open(filepath, 'r') as f:
-#                 content = json.load(f)
-#             return bool(content)
-#         else:
-#             # For other file types, check if size is > 0
-#             return os.path.getsize(filepath) > 0
-#     except Exception as e:
-#         print(f"Error checking file {filepath}: {e}")
-#         return False
-
-
 def gather_geo_data(input_csv: str, 
                     output_csv: str, 
                     esummary_intermed_path: str, 
@@ -510,9 +479,10 @@ def gather_geo_data(input_csv: str,
     
     # Save results
     print(f"Saving processed results to {output_csv}")
-    result_df.to_csv(output_csv, index=False, sep='\t')
+    result_df.to_csv(output_csv, index=False)
     
     print(f"GEO data gathering complete. Found {len(result_df)} records.")
+
     return result_df
 
 
@@ -525,10 +495,10 @@ if __name__ == "__main__":
 
     # Construct absolute paths
     input_path = os.path.join(script_dir, "..", "data", "01_intermediate", "geo_test", "publication.csv")
-    output_path = os.path.join(script_dir, "..", "data", "02_output", "geo_test", "geo_datasets.tsv")
+    intermed_path = os.path.join(script_dir, "..", "data", "01_intermediate", "geo_test", "geo_datasets.csv")
     raw_metadata_path = os.path.join(script_dir, "..", "data", "01_intermediate", "geo_test", "geo_metadata.json")
     raw_ftp_path = os.path.join(script_dir, "..", "data", "01_intermediate", "geo_test", "geo_ftp_metadata.json")
     geo_mapping_path = os.path.join(script_dir, "..", "data", "01_intermediate", "geo_test", "geo_pmid_project_map.csv")
     
     # Execute the main workflow
-    result = gather_geo_data(input_path, output_path, raw_metadata_path, raw_ftp_path, geo_mapping_path)
+    result = gather_geo_data(input_path, intermed_path, raw_metadata_path, raw_ftp_path, geo_mapping_path)
