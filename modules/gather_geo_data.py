@@ -25,6 +25,7 @@ import sys
 import json
 import re
 import time
+import uuid
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
 
@@ -328,6 +329,138 @@ def get_all_geo_ftp_metadata(geo_records: List[Dict]) -> Dict[str, Dict]:
 
 
 
+def select_geo_ftp_fields(ftp_metadata):
+    """
+    Extracts specific fields from GEO FTP metadata and deduplicates values
+    
+    Args:
+        ftp_metadata: dict where keys are geo_ids and values are dicts of FTP data
+        
+    Returns:
+        pandas df with columns for geo_id and extracted fields
+    """
+    result = {}
+    
+    for geo_id, record in ftp_metadata.items():
+        result[geo_id] = {}
+        
+        # Fields to extract
+        fields = ['Series_contact_name',
+                  #'Series_contributor', 
+                  #'Series_pubmed_id',
+                  ]
+        
+        for field in fields:
+            # Skip and use blank if field doesn't exist
+            if field not in record:
+                result[geo_id][field] = ''
+                continue
+                
+            field_value = record[field]
+            
+            # Handle different data types
+            if isinstance(field_value, list):
+                # Remove duplicates by converting to set and back to list
+                unique_values = list(set(field_value))
+            elif isinstance(field_value, str):
+                # Single string value
+                unique_values = field_value
+            else:
+                # Skip fields with unexpected types
+                continue
+                
+            result[geo_id][field] = unique_values
+
+    # Build empty list to store data
+    rows = []
+    
+    # Iterate through each geo_id and its data
+    for geo_id, fields in result.items():
+        row_data = {'geo_id': geo_id}
+        
+        # Process each field
+        for field_name, field_value in fields.items():
+            # If field value is a list, join it with semicolons
+            if isinstance(field_value, list):
+                row_data[field_name.lower()] = '; '.join(field_value)
+            else:
+                row_data[field_name.lower()] = field_value
+        
+        rows.append(row_data)
+    
+    # Create DataFrame
+    df = pd.DataFrame(rows)
+    
+    # Ensure geo_id column exists even for empty dictionaries
+    if len(df) == 0:
+        df = pd.DataFrame(columns=['geo_id'])
+    
+    return df
+
+
+
+def group_by_dataset_id(df):
+    """
+    Groups rows with the same geo_id and merge other values.
+    
+    For selected columns, combines values into semicolon-separated strings.
+    For other columns, takes the first value when multiple values exist.
+    
+    Args:
+        df: pandas DataFrame to transform
+        
+    Returns:
+        pandas DataFrame with unique geo_ids and merged values
+    """
+    # Create a copy to avoid modifying the original dataframe
+    result = df.copy()
+    
+    # Define aggregation functions for each column
+    agg_funcs = {
+        'dataset_pmid': lambda x: '; '.join(str(i) for i in set(x) if pd.notna(i)),
+        'funding_source': lambda x: '; '.join(str(i) for i in set(x) if pd.notna(i))
+    }
+    
+    # For all other columns, use the first value
+    for col in df.columns:
+        if col not in agg_funcs and col != 'geo_id':
+            agg_funcs[col] = 'first'
+    
+    # Group by geo_id and apply the aggregation functions
+    result = df.groupby('geo_id', as_index=False).agg(agg_funcs)
+    
+    return result
+
+
+
+def ftp_to_https(url):
+    """Replace ftp with https in url string"""
+
+    if isinstance(url, str):
+        return url.replace('ftp://', 'https://')
+    else:
+        return url
+
+
+
+def get_geo_url(accession:str):
+    """Build a url to the GEO study page using GEO accession."""
+
+    base_url = 'https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc='
+
+    # Check that accession string begins with GSE
+    if not accession.startswith('GSE') and not accession.startswith('GDS'):
+        raise ValueError(f"Check GEO accession: '{accession}'. Must begin "
+                         f"with 'GSE' or 'GDS'.")
+
+    else:
+        # Combine to build url
+        url = base_url + accession
+
+        return url
+
+
+
 def gather_geo_data(input_csv: str, 
                     output_csv: str, 
                     esummary_intermed_path: str, 
@@ -433,7 +566,7 @@ def gather_geo_data(input_csv: str,
 
 
     # Process records into combined dataframe
-    print("Processing metadata into final dataset")
+    print("Processing ESummary metadata...")
     processed_data = []
     
     for record in tqdm(raw_records, desc="Processing records", ncols=80):
@@ -458,32 +591,71 @@ def gather_geo_data(input_csv: str,
             for _, row in matching_rows.iterrows():
                 entry = {
                     'geo_id': geo_id,
-                    'pmid': row['pmid'],
-                    'coreproject': row['coreproject'],
-                    'title': record_data.get('title', ''),
-                    'summary': record_data.get('summary', ''),
-                    'geo_accession': record_data.get('Accession', ''),
-                    'n_samples': record_data.get('n_samples', ''),
+                    'dataset_pmid': row['pmid'],
+                    'funding_source': row['coreproject'],
+                    'dataset_title': record_data.get('title', ''),
+                    'description': record_data.get('summary', ''),
+                    'dataset_source_id': record_data.get('Accession', ''),
+                    'sample_count': record_data.get('n_samples', ''),
                     'related_terms': record_data.get('taxon', ''),
                     'release_date': record_data.get('PDAT', ''),
+                    'study_type': record_data.get('gdsType',''),
                     'assay_method': record_data.get('gdsType', ''),
-                    'study_links': record_data.get('FTPLink', ''),
+                    'FTPLink': record_data.get('FTPLink', ''),
                 }
                 
                 processed_data.append(entry)
         except Exception as e:
             print(f"Error processing record: {e}")
     
-    # Create final dataframe
+    # Build geo dataframe
     result_df = pd.DataFrame(processed_data)
-    
+    print(f"DEBUG: GEO Dataset rows: {len(result_df)}")
+
+    # Group by geo_id to combine pmid and projects
+    grouped_df = group_by_dataset_id(result_df)
+    print(f"DEBUG: Grouped rows: {len(grouped_df)}")
+
+    # Process and add FTP metadata
+    ftp_df = select_geo_ftp_fields(ftp_metadata)
+    merged_df = pd.merge(grouped_df, ftp_df, how='left', on='geo_id')
+
+
+
+    # Formatting
+    print(f"Cleaning and formatting datasets")
+
+    # Add URL to GEO study page
+    merged_df['dataset_source_url'] = merged_df['dataset_source_id'].apply(get_geo_url)
+
+    # Add uuid
+    merged_df['dataset_uuid'] = merged_df.apply(lambda row: uuid.uuid4(), axis=1)
+
+    # Convert FTP url to https
+    merged_df['study_links'] = merged_df['FTPLink'].apply(ftp_to_https)
+
+    # Add hard-coded values
+    merged_df['type'] = 'geo_dataset'
+    merged_df['dataset_source_repo'] = 'GEO'
+    merged_df['primary_disease'] = 'Unspecified'
+    merged_df['dataset_doc'] = 'Unspecified'
+
+    # Add empty dataset columns
+    merged_df['GPA'] = ''
+    merged_df['limitations_for_reuse'] = ''
+    merged_df['participant_count'] = ''
+    merged_df['related_genes'] = ''
+    merged_df['related_diseases'] = ''
+
+
+
     # Save results
     print(f"Saving processed results to {output_csv}")
-    result_df.to_csv(output_csv, index=False)
+    merged_df.to_csv(output_csv, index=False)
     
-    print(f"GEO data gathering complete. Found {len(result_df)} records.")
+    print(f"GEO data gathering complete. Found {len(merged_df)} records.")
 
-    return result_df
+    return merged_df
 
 
 # Run module as a standalone script when called directly
