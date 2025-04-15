@@ -446,18 +446,22 @@ def ftp_to_https(url):
 def get_geo_url(accession:str):
     """Build a url to the GEO study page using GEO accession."""
 
-    base_url = 'https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc='
+    gse_base_url = 'https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc='
+    gds_base_url = 'https://www.ncbi.nlm.nih.gov/sites/GDSbrowser?acc='
 
-    # Check that accession string begins with GSE
-    if not accession.startswith('GSE') and not accession.startswith('GDS'):
-        raise ValueError(f"Check GEO accession: '{accession}'. Must begin "
-                         f"with 'GSE' or 'GDS'.")
-
+    # Check accession prefix
+    if accession.startswith('GSE'):
+        base = gse_base_url
+    elif accession.startswith('GDS'):
+        base = gds_base_url
     else:
-        # Combine to build url
-        url = base_url + accession
+        raise ValueError(f"Check GEO accession: '{accession}'. "
+                         f"Must begin with 'GSE' or 'GDS'.")
 
-        return url
+    # Build url based on prefix
+    url = base + accession
+
+    return url
 
 
 
@@ -599,7 +603,6 @@ def gather_geo_data(overwrite_intermeds: bool=False) -> pd.DataFrame:
                     'sample_count': record_data.get('n_samples', ''),
                     'related_terms': record_data.get('taxon', ''),
                     'release_date': record_data.get('PDAT', ''),
-                    'study_type': record_data.get('gdsType',''),
                     'assay_method': record_data.get('gdsType', ''),
                     'FTPLink': record_data.get('FTPLink', ''),
                 }
@@ -640,10 +643,11 @@ def gather_geo_data(overwrite_intermeds: bool=False) -> pd.DataFrame:
     merged_df['primary_disease'] = 'Unspecified'
     merged_df['dataset_doc'] = 'Unspecified'
 
-    # Add empty dataset columns
+    # Add empty dataset columns to avoid downstream issues
     merged_df['GPA'] = ''
     merged_df['limitations_for_reuse'] = ''
     merged_df['participant_count'] = ''
+    merged_df['study_type'] = ''
     merged_df['related_genes'] = ''
     merged_df['related_diseases'] = ''
 
@@ -659,10 +663,8 @@ def gather_geo_data(overwrite_intermeds: bool=False) -> pd.DataFrame:
 
 # Run module as a standalone script when called directly
 if __name__ == "__main__":
+
     print(f"Running {os.path.basename(__file__)} as standalone module...")
-    
-    # Get the directory of the current script
-    script_dir = os.path.dirname(os.path.abspath(__file__))
 
     # Run main workflow
-    result = gather_geo_data(overwrite_intermeds=False)
+    gather_geo_data(overwrite_intermeds=False)

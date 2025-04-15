@@ -28,7 +28,7 @@ def add_type_column(df, datatype):
     """Add a column for datatype and fill with specified datatype."""
 
     df_with_type = df.copy()
-    if datatype == 'dbgap_dataset':
+    if datatype == 'dbgap_dataset' or datatype == 'geo_dataset':
         df_with_type['type'] = 'dataset'
     else:
         df_with_type['type'] = datatype
@@ -531,6 +531,27 @@ def package_dbgap_datasets(df_dbgap_datasets, column_configs, dbgap_curated=Fals
 
 
 
+def package_geo_datasets(df_geo_datasets, column_configs):
+    """Package GEO Datasets data for INS loading."""
+
+    print(f"---\nFinalizing TSV for GEO Datasets data...") 
+
+    # Standardize and validate data
+    df_geo_datasets_output = standardize_data(df_geo_datasets, column_configs, 
+                                        datatype='geo_dataset')
+
+    # Export as TSV
+    output_filepath = config.GEO_OUTPUT_PATH
+    os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
+    df_geo_datasets_output.to_csv(output_filepath, sep='\t', index=False, 
+                                    encoding='utf-8')
+
+    print(f"Done! Final GEO Datasets data saved as {output_filepath}.")
+
+    return df_geo_datasets_output
+
+
+
 def remove_publications_before_projects(df_publications: pd.DataFrame, 
                                         df_projects: pd.DataFrame, 
                                         day_diff_allowed:int=0) -> pd.DataFrame:
@@ -771,6 +792,16 @@ def package_output_data():
         dbgap_datasets_exist = False
         dbgap_curated = False
         print(f"No dbGaP Datasets file found.")
+
+    # Load GEO datasets data
+    if os.path.exists(config.GEO_INTERMED_PATH):
+        geo_datasets_exist = True
+        df_geo_datasets = pd.read_csv(config.GEO_INTERMED_PATH,
+                                      dtype={'dataset_pmid':str})
+        print(f"Loaded GEO Datasets file from {config.GEO_INTERMED_PATH}")
+    else: 
+        geo_datasets_exist = False
+        print(f"No GEO Datasets file found.")
     
 
     # Special handling
@@ -806,6 +837,8 @@ def package_output_data():
     if dbgap_datasets_exist:
         df_dbgap_datasets_out = package_dbgap_datasets(df_dbgap_datasets, column_configs,
                                                        dbgap_curated)
+    if geo_datasets_exist:
+        df_geo_datasets_out = package_geo_datasets(df_geo_datasets, column_configs)
 
     # Special post-processing handling
     print(f"---\nGenerating enumerated values for data model...")
