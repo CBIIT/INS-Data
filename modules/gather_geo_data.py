@@ -461,38 +461,38 @@ def get_geo_url(accession:str):
 
 
 
-def gather_geo_data(input_csv: str, 
-                    output_csv: str, 
-                    esummary_intermed_path: str, 
-                    raw_ftp_path: str,
-                    geo_mapping_path: str,
-                    overwrite_intermeds: bool=False) -> pd.DataFrame:
+def gather_geo_data(overwrite_intermeds: bool=False) -> pd.DataFrame:
     """
-    Main function to orchestrate the entire GEO data gathering workflow.
-    Implements checkpoint loading to skip completed steps.
+    Main function for the GEO data gathering workflow. Uses NCBI E-Utilities to
+    pull information for all GEO datasets associated with provided publications.
     
+    Input and output filepaths are defined in config.py
+
     Args:
-        input_csv: Path to input CSV with 'coreproject' and 'pmid' columns
-        output_csv: Path for output CSV with GEO metadata
-        raw_metadata_path: Path to save consolidated raw metadata JSON
-        raw_ftp_path: Path to save consolidated FTP metadata JSON
-        geo_mapping_path: Path to save GEO-PMID-Project mapping CSV
         overwrite_intermeds: Rerun all steps, even if intermediate files 
             already exist (default False). True will save time and avoid
-            unnecessary API calls. 
+            unnecessary repeated API calls. 
         
     Returns:
         DataFrame with processed GEO metadata
     """
     print(f"Starting GEO data gathering workflow...")
+
+    # Define paths from config
+    publication_csv = config.PUBLICATIONS_INTERMED_PATH
+    geo_mapping_path = config.GEO_PMID_MAPPING_PATH
+    esummary_intermed_path = config.GEO_ESUMMARY_META_PATH
+    ftp_intermed_path = config.GEO_FTP_META_PATH
+    output_csv = config.GEO_INTERMED_PATH
+
     
     # Create directories if they don't exist
-    for path in [esummary_intermed_path, raw_ftp_path, geo_mapping_path, output_csv]:
+    for path in [esummary_intermed_path, ftp_intermed_path, geo_mapping_path, output_csv]:
         os.makedirs(os.path.dirname(path), exist_ok=True)
     
     # Read input publication data
-    print(f"Reading publication data from {input_csv}")
-    pub_df = pd.read_csv(input_csv)
+    print(f"Reading publication data from {publication_csv}")
+    pub_df = pd.read_csv(publication_csv)
     
     # Validate required columns
     required_cols = ['coreproject', 'pmid']
@@ -551,17 +551,17 @@ def gather_geo_data(input_csv: str,
 
 
     # Load or create GEO FTP metadata intermediate
-    if os.path.exists(raw_ftp_path) and not overwrite_intermeds:
-        print(f"Loading existing FTP metadata from {raw_ftp_path}")
-        with open(raw_ftp_path, 'r') as f:
+    if os.path.exists(ftp_intermed_path) and not overwrite_intermeds:
+        print(f"Loading existing FTP metadata from {ftp_intermed_path}")
+        with open(ftp_intermed_path, 'r') as f:
             ftp_metadata = json.load(f)
     else:
         print("Extracting FTP metadata from GEO records")
         ftp_metadata = get_all_geo_ftp_metadata(raw_records)
         
         # Save consolidated FTP metadata
-        print(f"Saving all FTP metadata to {raw_ftp_path}")
-        with open(raw_ftp_path, 'w') as f:
+        print(f"Saving all FTP metadata to {ftp_intermed_path}")
+        with open(ftp_intermed_path, 'w') as f:
             json.dump(ftp_metadata, f, indent=2)
 
 
@@ -647,8 +647,6 @@ def gather_geo_data(input_csv: str,
     merged_df['related_genes'] = ''
     merged_df['related_diseases'] = ''
 
-
-
     # Save results
     print(f"Saving processed results to {output_csv}")
     merged_df.to_csv(output_csv, index=False)
@@ -658,6 +656,7 @@ def gather_geo_data(input_csv: str,
     return merged_df
 
 
+
 # Run module as a standalone script when called directly
 if __name__ == "__main__":
     print(f"Running {os.path.basename(__file__)} as standalone module...")
@@ -665,12 +664,5 @@ if __name__ == "__main__":
     # Get the directory of the current script
     script_dir = os.path.dirname(os.path.abspath(__file__))
 
-    # Construct absolute paths
-    input_path = os.path.join(script_dir, "..", "data", "01_intermediate", "geo_test", "publication.csv")
-    intermed_path = os.path.join(script_dir, "..", "data", "01_intermediate", "geo_test", "geo_datasets.csv")
-    raw_metadata_path = os.path.join(script_dir, "..", "data", "01_intermediate", "geo_test", "geo_metadata.json")
-    raw_ftp_path = os.path.join(script_dir, "..", "data", "01_intermediate", "geo_test", "geo_ftp_metadata.json")
-    geo_mapping_path = os.path.join(script_dir, "..", "data", "01_intermediate", "geo_test", "geo_pmid_project_map.csv")
-    
-    # Execute the main workflow
-    result = gather_geo_data(input_path, intermed_path, raw_metadata_path, raw_ftp_path, geo_mapping_path)
+    # Run main workflow
+    result = gather_geo_data(overwrite_intermeds=False)

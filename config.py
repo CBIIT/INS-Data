@@ -12,7 +12,7 @@ from datetime import datetime
 # Inputs and outputs will use this versioning
 # Version must match suffix in input filename
 
-QUALTRICS_VERSION = "2024-09-18"    # <-- CHANGE VERSION HERE
+QUALTRICS_VERSION = "geo_test"    # <-- CHANGE VERSION HERE
 QUALTRICS_TYPE = "manual_fix"              # <-- Define "raw" or "manual_fix" type of the input csv
 
 # Version of bulk download from iCite
@@ -24,7 +24,7 @@ DBGAP_CSV_VERSION = "2025-03-27"   # <-- CHANGE VERSION HERE
 # An override date can be used instead of today's date for pulling and saving data versions
 # This is useful when running downstream modules on grants data gathered before today
 
-OVERRIDE_DATE = None                # <-- Optional. Define override date (e.g. "2023-12-14"). Default None.
+OVERRIDE_DATE = "geo_test"                # <-- Optional. Define override date (e.g. "2023-12-14"). Default None.
 
 
 
@@ -397,6 +397,9 @@ COLUMN_CONFIGS = {
 # ---
 # DATASETS CONFIGURATION
 
+# dbGaP
+# dbGaP gathering is not directly linked to main workflow, so it has own directory
+
 # dbGaP input file - CSV download of dbGaP search results
 DBGAP_INPUT_CSV = INPUT_DIR + "dbgap/" + "study_" + DBGAP_CSV_VERSION + ".csv"
 
@@ -419,3 +422,13 @@ DBGAP_GPA_DOC_LUT = INPUT_DIR + "dbgap/gpa_tables/" + "gpa_doc_lookup_table.csv"
 # dbGaP cleaned output file
 DBGAP_OUTPUT_PATH = OUTPUT_DIR + "dbgap/" + DBGAP_CSV_VERSION +"/"+ "dbgap_datasets.tsv"
 DBGAP_OUTPUT_CURATED_CLEANED = OUTPUT_DIR + "dbgap/" + DBGAP_CSV_VERSION +"/"+ "dbgap_datasets_curated_clean.tsv"
+
+
+# GEO
+
+# GEO intermediate directories
+GEO_PMID_MAPPING_PATH = GATHERED_DIR +"/"+ "geo_pmid_project_map.csv"
+GEO_ESUMMARY_META_PATH = GATHERED_DIR +"/"+ "geo_metadata.json"
+GEO_FTP_META_PATH = GATHERED_DIR +"/"+ "geo_ftp_metadata.json"
+GEO_INTERMED_PATH = GATHERED_DIR +"/"+ "geo_datasets.csv"
+GEO_OUTPUT_PATH = OUTPUT_GATHERED_DIR +"/"+ "geo_datasets.tsv"
