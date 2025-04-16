@@ -12,7 +12,7 @@ from datetime import datetime
 # Inputs and outputs will use this versioning
 # Version must match suffix in input filename
 
-QUALTRICS_VERSION = "geo_test"    # <-- CHANGE VERSION HERE
+QUALTRICS_VERSION = "2024-09-18"    # <-- CHANGE VERSION HERE
 QUALTRICS_TYPE = "manual_fix"              # <-- Define "raw" or "manual_fix" type of the input csv
 
 # Version of bulk download from iCite
@@ -24,7 +24,7 @@ DBGAP_CSV_VERSION = "2025-03-27"   # <-- CHANGE VERSION HERE
 # An override date can be used instead of today's date for pulling and saving data versions
 # This is useful when running downstream modules on grants data gathered before today
 
-OVERRIDE_DATE = "geo_test"                # <-- Optional. Define override date (e.g. "2023-12-14"). Default None.
+OVERRIDE_DATE = "2024-09-20"                # <-- Optional. Define override date (e.g. "2023-12-14"). Default None.
 
 
 
@@ -463,3 +463,6 @@ GEO_ESUMMARY_META_PATH = GATHERED_DIR +"/"+ "geo_metadata.json"
 GEO_FTP_META_PATH = GATHERED_DIR +"/"+ "geo_ftp_metadata.json"
 GEO_INTERMED_PATH = GATHERED_DIR +"/"+ "geo_datasets.csv"
 GEO_OUTPUT_PATH = OUTPUT_GATHERED_DIR +"/"+ "geo_datasets.tsv"
+
+# GEO reports
+GEO_DROPPED_ACCESSIONS_PATH = REPORTS_GATHERED_DIR +"/"+ "geo_dropped_accessions.csv"

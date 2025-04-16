@@ -465,6 +465,27 @@ def get_geo_url(accession:str):
 
 
 
+def drop_irrelevant_geo(df:pd.DataFrame, column_name:str='dataset_source_id',
+                        report_csv:str=config.GEO_DROPPED_ACCESSIONS_PATH):
+    """Removes rows where GEO accession does not start with GSE or GDS. Other 
+    prefixes indicate analysis platforms or samples. Saves dropped accessions
+    in a CSV report."""
+
+    # Get all rows with accession prefixes to keep
+    mask = df[column_name].str.startswith(('GSE', 'GDS'))
+
+    keep_df = df[mask].copy()
+    drop_df = df[~mask].copy()
+
+    if len(drop_df) > 0:
+        drop_df.to_csv(report_csv, index=False)
+        print(f"{len(drop_df)} GEO non-standard accessions removed and saved to "
+              f"{report_csv}. \n {len(keep_df)} GSE and GDS accession remain.")
+        
+    return keep_df
+
+
+
 def gather_geo_data(overwrite_intermeds: bool=False) -> pd.DataFrame:
     """
     Main function for the GEO data gathering workflow. Uses NCBI E-Utilities to
@@ -570,7 +591,7 @@ def gather_geo_data(overwrite_intermeds: bool=False) -> pd.DataFrame:
 
 
     # Process records into combined dataframe
-    print("Processing ESummary metadata...")
+    print("Processing metadata...")
     processed_data = []
     
     for record in tqdm(raw_records, desc="Processing records", ncols=80):
@@ -627,6 +648,9 @@ def gather_geo_data(overwrite_intermeds: bool=False) -> pd.DataFrame:
 
     # Formatting
     print(f"Cleaning and formatting datasets")
+
+    # Drop accessions without GSE or GDS prefix
+    merged_df = drop_irrelevant_geo(merged_df)
 
     # Add URL to GEO study page
     merged_df['dataset_source_url'] = merged_df['dataset_source_id'].apply(get_geo_url)
