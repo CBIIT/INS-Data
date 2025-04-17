@@ -530,7 +530,7 @@ def drop_irrelevant_geo(df:pd.DataFrame, column_name:str='dataset_source_id',
 
 
 
-def gather_geo_data(overwrite_intermeds: bool=False) -> pd.DataFrame:
+def gather_geo_data(publications_df: pd.DataFrame, overwrite_intermeds: bool=False) -> pd.DataFrame:
     """
     Main function for the GEO data gathering workflow. Uses NCBI E-Utilities to
     pull information for all GEO datasets associated with provided publications.
@@ -538,6 +538,7 @@ def gather_geo_data(overwrite_intermeds: bool=False) -> pd.DataFrame:
     Input and output filepaths are defined in config.py
 
     Args:
+        publications_df: Dataframe output of publication gathering workflow
         overwrite_intermeds: Rerun all steps, even if intermediate files 
             already exist (default False). True will save time and avoid
             unnecessary repeated API calls. 
@@ -545,51 +546,47 @@ def gather_geo_data(overwrite_intermeds: bool=False) -> pd.DataFrame:
     Returns:
         DataFrame with processed GEO metadata
     """
-    print(f"Starting GEO data gathering workflow...")
+
+    print(f"\n---\nDATASETS - GEO:\n"
+          f"Gathering, formatting, and saving GEO data...\n---\n")
 
     # Define paths from config
-    publication_csv = config.PUBLICATIONS_INTERMED_PATH
     geo_mapping_path = config.GEO_PMID_MAPPING_PATH
     esummary_intermed_path = config.GEO_ESUMMARY_META_PATH
     ftp_intermed_path = config.GEO_FTP_META_PATH
     output_csv = config.GEO_INTERMED_PATH
 
-    
     # Create directories if they don't exist
     for path in [esummary_intermed_path, ftp_intermed_path, geo_mapping_path, output_csv]:
         os.makedirs(os.path.dirname(path), exist_ok=True)
     
-    # Read input publication data
-    print(f"Reading publication data from {publication_csv}")
-    pub_df = pd.read_csv(publication_csv)
-    
     # Validate required columns
     required_cols = ['coreproject', 'pmid']
-    missing_cols = [col for col in required_cols if col not in pub_df.columns]
+    missing_cols = [col for col in required_cols if col not in publications_df.columns]
     if missing_cols:
         raise ValueError(f"Input CSV missing required columns: {', '.join(missing_cols)}")
     
     # Convert PMIDs to strings for consistency
-    pub_df['pmid'] = pub_df['pmid'].astype(str)
-    print(f"Read {len(pub_df)} publications")
+    publications_df['pmid'] = publications_df['pmid'].astype(str)
+    print(f"---\nLoaded {len(publications_df)} publications.")
 
+    # Extract unique PMIDs
+    unique_pmids = publications_df['pmid'].unique().tolist()
+    print(f"Finding GEO IDs associated with {len(unique_pmids)} unique PMIDs...")
 
     # Load or create GEO-PMID-Project mapping intermediate
     if os.path.exists(geo_mapping_path) and not overwrite_intermeds:
-        print(f"Loading existing GEO-PMID-Project mapping from {geo_mapping_path}")
+        print(f"---\nReusing existing GEO-PMID-Project mapping from {geo_mapping_path}")
         geo_mapping_df = pd.read_csv(geo_mapping_path, 
                                      dtype={'geo_id': str, 'pmid':str})
     else:
-        print(f"Generating GEO mapping...")
-        # Extract unique PMIDs
-        unique_pmids = pub_df['pmid'].unique().tolist()
-        print(f"Found {len(unique_pmids)} unique PMIDs")
+        print(f"---\nGenerating GEO mapping...")
         
         # Get GEO IDs for each PMID
         pmid_geo_mapping = get_geo_ids_for_pubmed_ids(unique_pmids)
         
         # Create mapping DataFrame
-        geo_mapping_df = create_geo_dataframe(pmid_geo_mapping, pub_df)
+        geo_mapping_df = create_geo_dataframe(pmid_geo_mapping, publications_df)
         
         # Save ID mapping as checkpoint file
         print(f"Saving GEO-PMID-Project mapping to {geo_mapping_path}")
@@ -597,45 +594,46 @@ def gather_geo_data(overwrite_intermeds: bool=False) -> pd.DataFrame:
     
     # Filter to rows with valid GEO IDs
     valid_geo_df = geo_mapping_df.dropna(subset=['geo_id']).copy()
-    print(f"Found {len(valid_geo_df)} GEO entries linked to "
-          f"{len(valid_geo_df['pmid'].unique())} PMIDs")
+    print(f"Found {len(valid_geo_df)} GEO entries associated with "
+          f"{len(valid_geo_df['pmid'].unique())} unique PMIDs.")
     
     # Get unique GEO IDs for metadata gathering
     unique_geo_ids = valid_geo_df['geo_id'].unique().tolist()
     
+    print(f"---\nGathering metadata from GEO sources...")
 
     # Load or create GEO Esummary API response intermediate
     if os.path.exists(esummary_intermed_path) and not overwrite_intermeds:
-        print(f"Loading existing GEO ESummary metadata from {esummary_intermed_path}")
+        print(f"Existing GEO ESummary metadata loaded from {esummary_intermed_path}")
         with open(esummary_intermed_path, 'r') as f:
             raw_records = json.load(f)
     else:
-        print(f"Retrieving metadata for {len(unique_geo_ids)} unique GEO datasets")
+        print(f"Retrieving metadata for {len(unique_geo_ids)} unique GEO datasets...")
         raw_records = get_all_geo_summary_records(unique_geo_ids)
         
         # Save summary metadata checkpoint
-        print(f"Saving NCBI ESummary GEO metadata to {esummary_intermed_path}")
+        print(f"Done! Saving NCBI ESummary GEO metadata to {esummary_intermed_path}")
         with open(esummary_intermed_path, 'w') as f:
             json.dump(raw_records, f, indent=2)
 
 
     # Load or create GEO FTP metadata intermediate
     if os.path.exists(ftp_intermed_path) and not overwrite_intermeds:
-        print(f"Loading existing FTP metadata from {ftp_intermed_path}")
+        print(f"Existing GEO FTP metadata loaded from {ftp_intermed_path}")
         with open(ftp_intermed_path, 'r') as f:
             ftp_metadata = json.load(f)
     else:
-        print("Extracting FTP metadata from GEO records")
+        print("Extracting FTP metadata from GEO records...")
         ftp_metadata = get_all_geo_ftp_metadata(raw_records)
         
         # Save consolidated FTP metadata
-        print(f"Saving all FTP metadata to {ftp_intermed_path}")
+        print(f"Done! Saving all FTP metadata to {ftp_intermed_path}.")
         with open(ftp_intermed_path, 'w') as f:
             json.dump(ftp_metadata, f, indent=2)
 
 
     # Process records into combined dataframe
-    print("Processing metadata...")
+    print("---\nProcessing GEO metadata...")
     processed_data = []
     
     for record in tqdm(raw_records, desc="Processing records", ncols=80):
@@ -691,7 +689,7 @@ def gather_geo_data(overwrite_intermeds: bool=False) -> pd.DataFrame:
 
 
     # Formatting
-    print(f"Cleaning and formatting datasets")
+    print(f"---\nCleaning and formatting GEO datasets...")
 
     # Drop accessions without GSE or GDS prefix
     merged_df = drop_irrelevant_geo(merged_df)
@@ -720,11 +718,11 @@ def gather_geo_data(overwrite_intermeds: bool=False) -> pd.DataFrame:
     merged_df['related_diseases'] = ''
 
     # Save results
-    print(f"Saving processed results to {output_csv}")
     merged_df.to_csv(output_csv, index=False)
     
-    print(f"GEO data gathering complete. Found {len(merged_df)} records.")
-
+    print(f"\n\nSuccess! GEO datasets saved to {output_csv}.\n"
+          f"Total GEO dataset records:    {len(merged_df)}")
+    
     return merged_df
 
 
@@ -734,5 +732,10 @@ if __name__ == "__main__":
 
     print(f"Running {os.path.basename(__file__)} as standalone module...")
 
+    # Read input publication data
+    publications_csv = config.PUBLICATIONS_INTERMED_PATH
+    publications_df = pd.read_csv(publications_csv)
+    print(f"Publications data loaded from {publications_csv}")
+
     # Run main workflow
-    gather_geo_data(overwrite_intermeds=False)
+    gather_geo_data(publications_df, overwrite_intermeds=False)

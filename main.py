@@ -62,11 +62,11 @@ def main():
 
     # STEP 5: PUBLICATIONS
     # Gather, process, and save publication data
-    gather_publication_data(projects_df, print_meta=False)
+    publications_df = gather_publication_data(projects_df, print_meta=False)
 
     # STEP 6: GEO DATASETS
     # Gather process, and save GEO dataset data
-    gather_geo_data(overwrite_intermeds=False)
+    gather_geo_data(publications_df, overwrite_intermeds=False)
 
     # STEP 7: PACKAGE
     # Final packaging steps to store output files as TSVs
