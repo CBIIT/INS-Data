@@ -36,6 +36,7 @@ from modules.gather_grant_data import gather_grant_data
 from modules.gather_project_data import gather_project_data
 from modules.summary_statistics import get_summary_statistics
 from modules.gather_publication_data import gather_publication_data
+from modules.gather_geo_data import gather_geo_data
 from modules.package_output_data import package_output_data
 from modules.build_validation_file import build_validation_file
 
@@ -63,11 +64,15 @@ def main():
     # Gather, process, and save publication data
     gather_publication_data(projects_df, print_meta=False)
 
-    # STEP 6: PACKAGE
+    # STEP 6: GEO DATASETS
+    # Gather process, and save GEO dataset data
+    gather_geo_data(overwrite_intermeds=False)
+
+    # STEP 7: PACKAGE
     # Final packaging steps to store output files as TSVs
     package_output_data()
 
-    # STEP 7: VALIDATE
+    # STEP 8: VALIDATE
     # Create report for QA testing of data within site UI
     build_validation_file()
 
