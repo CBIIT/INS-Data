@@ -638,7 +638,7 @@ def remove_publications_before_projects(df_publications: pd.DataFrame,
 
         # Export report of removed early publications
         df_early_pubs.to_csv(early_pub_report_path, index=False)
-        print(f"---\nEarly Publications detected:\n"
+        print(f"Early Publications detected:\n"
               f"{len(df_early_pubs)} Publications with publication date more "
               f"than {diff} before the associated project start date were "
               f"removed and saved to {early_pub_report_path}")
@@ -815,15 +815,17 @@ def package_output_data():
     
 
     # Special handling
-    print(f"---\nApplying special handling steps...")
+    print(f"\n\nApplying special handling steps...")
 
+    print(f"---\nChecking for publications published before projects...")
     # Remove publications published before associated projects
     if publications_exist and projects_exist:
         df_publications = remove_publications_before_projects(
                                 df_publications,
                                 df_projects,
                                 day_diff_allowed=config.PUB_PROJECT_DAY_DIFF)
-        
+    
+    print(f"---\nAdding dataset UUIDs to curated dbGaP datasets if not present...")
     # Add dbgap dataset uuids for any that do not exist
     if dbgap_curated:
         df_dbgap_datasets['dataset_uuid'] = df_dbgap_datasets.apply(
@@ -834,6 +836,8 @@ def package_output_data():
             else row['dataset_uuid'],
             axis=1,
         )
+
+    print(f"\n\nFinal packaging steps...")
 
     # Final packaging
     if programs_exist:
@@ -850,6 +854,8 @@ def package_output_data():
     if geo_datasets_exist:
         df_geo_datasets_out = package_geo_datasets(df_geo_datasets, column_configs)
 
+    print(f"\n\n Completing post-packaging steps...")
+
     # Special post-processing handling
     print(f"---\nGenerating enumerated values for data model...")
     if programs_exist:
@@ -860,6 +866,8 @@ def package_output_data():
     # Generate md5.txt
     print(f"---\nGenerating md5 hashes for file validation...")
     generate_md5_hash_file(config.OUTPUT_GATHERED_DIR)
+
+    print(f"\n\n---\nSuccess! INS Data packaging complete.\n---")
 
 # Run module as a standalone script when called directly
 if __name__ == "__main__":
