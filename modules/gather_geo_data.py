@@ -443,6 +443,104 @@ def select_geo_ftp_fields(ftp_metadata):
 
 
 
+def get_dataset_doc_from_project(df_geo):
+    """
+    Merges dataset df with project and program dfs to link DOCs with datasets
+    
+    Args:
+        df_geo (pd.DataFrame): Dataframe with GEO and project IDs
+    
+    Returns:
+        pd.DataFrame: Dataframe with program_id and dataset_doc columns added
+    """
+    
+    print(f"---\nLinking GEO datasets with NCI DOCs via programs and projects...")
+
+    # Create copy with empty fields as backup
+    df_null_result = df_geo.copy()
+    df_null_result['program_id'] = ''
+    df_null_result['dataset_doc'] = ''
+
+    # Check and load projects and program intermediate CSVs
+    project_path = config.PROJECTS_INTERMED_PATH
+    program_path = config.PROGRAMS_INTERMED_PATH
+
+    # Check if project CSV file exists
+    if os.path.exists(project_path):
+        df_project = pd.read_csv(project_path)
+        print(f"Loaded projects from {project_path}")
+    else: 
+        print("Warning: No project file available. DOCs not mapped.")
+        return df_null_result
+    
+    # Check if program CSV file exists
+    if os.path.exists(program_path):
+        df_program = pd.read_csv(program_path)
+        print(f"Loaded projects from {program_path}")
+    else: 
+        print("Warning: No program file available. DOCs not mapped.")
+        return df_null_result
+    
+    # Check if right columns exist in project CSV
+    if not all(
+        col in df_project.columns for col in ['project_id', 'program.program_id']):
+        print(f"Warning: Project CSV missing required columns. DOCs not mapped.")
+        
+        return df_null_result
+    
+    # Check if right columns exist in program CSV
+    if not all(
+        col in df_program.columns for col in ['program_id', 'doc']):
+        print("Warning: Program CSV missing required columns. DOCs not mapped.")
+        return df_null_result
+
+
+    # Get programs for each GEO via projects
+    merge_prj_geo = pd.merge(df_geo, 
+                             df_project[['project_id','program.program_id']], 
+                             left_on='funding_source', right_on='project_id', 
+                             how='left' )
+    
+    # Get DOCs for each GEO via programs
+    merge_prg_geo = pd.merge(merge_prj_geo, 
+                             df_program[['program_id','doc']], 
+                             left_on='program.program_id', right_on='program_id', 
+                             how='left')
+
+    # Rename and drop columns
+    merge_prg_geo.rename(columns={'doc': 'dataset_doc'}, inplace=True)
+    merge_prg_geo.drop(columns=['project_id','program.program_id'], inplace=True)
+
+    print(f"Done! NCI DOCs mapped to GEO datasets.\n"
+          f"Unique DOC combinations:        {merge_prg_geo['dataset_doc'].nunique()}\n"
+          f"Unique program combinations:    {merge_prg_geo['program_id'].nunique()}")
+
+    return merge_prg_geo
+
+
+
+def merge_semicolon_fields(values):
+        """Deduplicate values within semicolon-separated list-like strings."""
+
+        # Create an empty set to collect all unique items
+        unique_items = set()
+        
+        # Process each string value
+        for val in values:
+            # Check if value is not NaN and not empty
+            if pd.notna(val) and val:  
+                # Split the value by semicolon and strip whitespace
+                items = [item.strip() for item in str(val).split(';')]
+                # Add each item to the set
+                for item in items:
+                    if item:
+                        unique_items.add(item)
+        
+        # Join the unique items back with semicolons
+        return '; '.join(sorted(unique_items)) if unique_items else ''
+
+
+
 def group_by_dataset_id(df):
     """
     Groups rows with the same geo_id and merge other values.
@@ -459,12 +557,21 @@ def group_by_dataset_id(df):
     # Create a copy to avoid modifying the original dataframe
     result = df.copy()
     
-    # Define aggregation functions for each column
+    # # Define aggregation functions for each column
+    # agg_funcs = {
+    #     'dataset_pmid': lambda x: '; '.join(str(i) for i in set(x) if pd.notna(i)),
+    #     'funding_source': lambda x: '; '.join(str(i) for i in set(x) if pd.notna(i)),
+    #     'program_id': lambda x: '; '.join(str(i) for i in set(x) if pd.notna(i)),
+    #     'dataset_doc': lambda x: '; '.join(str(i) for i in set(x) if pd.notna(i))
+    # }
+
     agg_funcs = {
-        'dataset_pmid': lambda x: '; '.join(str(i) for i in set(x) if pd.notna(i)),
-        'funding_source': lambda x: '; '.join(str(i) for i in set(x) if pd.notna(i))
+        'dataset_pmid': merge_semicolon_fields,
+        'funding_source': merge_semicolon_fields,
+        'program_id': merge_semicolon_fields,
+        'dataset_doc': merge_semicolon_fields
     }
-    
+
     # For all other columns, use the first value
     for col in df.columns:
         if col not in agg_funcs and col != 'geo_id':
@@ -676,11 +783,12 @@ def gather_geo_data(publications_df: pd.DataFrame, overwrite_intermeds: bool=Fal
     
     # Build geo dataframe
     result_df = pd.DataFrame(processed_data)
-    print(f"DEBUG: GEO Dataset rows: {len(result_df)}")
+
+    # Pull DOC from projects and programs
+    added_docs_df = get_dataset_doc_from_project(result_df)
 
     # Group by geo_id to combine pmid and projects
-    grouped_df = group_by_dataset_id(result_df)
-    print(f"DEBUG: Grouped rows: {len(grouped_df)}")
+    grouped_df = group_by_dataset_id(added_docs_df)
 
     # Process and add FTP metadata
     ftp_df = select_geo_ftp_fields(ftp_metadata)
@@ -707,7 +815,6 @@ def gather_geo_data(publications_df: pd.DataFrame, overwrite_intermeds: bool=Fal
     merged_df['type'] = 'geo_dataset'
     merged_df['dataset_source_repo'] = 'GEO'
     merged_df['primary_disease'] = 'Unspecified'
-    merged_df['dataset_doc'] = 'Unspecified'
 
     # Add empty dataset columns to avoid downstream issues
     merged_df['GPA'] = ''
