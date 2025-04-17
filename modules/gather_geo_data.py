@@ -329,6 +329,48 @@ def get_all_geo_ftp_metadata(geo_records: List[Dict]) -> Dict[str, Dict]:
 
 
 
+def format_geo_names(value):
+    """Formats series_contributor names from GEO FTP as list or string. 
+    'John,,Doe' to 'John Doe' and 'J,A,Smith' to 'J A Smith'. """
+
+    # Check for list input
+    if isinstance(value, list):
+        cleaned_list = []
+        for item in value:
+
+            if isinstance(item, str):
+                # Clean each string in the list
+                item = item.strip()
+                # Remove consecutive commas
+                while ',,' in item:
+                    item = item.replace(',,', ',')
+                # Remove leading/trailing commas
+                item = item.strip(',')
+                # Replace remaining commas with space
+                item = item.replace(',',' ')
+                # Skip empty items
+                if item:
+                    cleaned_list.append(item)
+
+        return cleaned_list
+    
+    # Check for string input
+    elif isinstance(value, str):
+
+        # Clean the string
+        cleaned = value.strip()
+        # Remove consecutive commas
+        while ',,' in cleaned:
+            cleaned = cleaned.replace(',,', ',')
+        # Remove leading/trailing commas
+        cleaned = cleaned.strip(',')
+        # Replace remaining commas with space
+        cleaned = cleaned.replace(',',' ')
+
+        return cleaned
+
+
+
 def select_geo_ftp_fields(ftp_metadata):
     """
     Extracts specific fields from GEO FTP metadata and deduplicates values
@@ -345,8 +387,8 @@ def select_geo_ftp_fields(ftp_metadata):
         result[geo_id] = {}
         
         # Fields to extract
-        fields = ['Series_contact_name',
-                  #'Series_contributor', 
+        fields = [#'Series_contact_name',
+                  'Series_contributor', 
                   #'Series_pubmed_id',
                   ]
         
@@ -360,11 +402,13 @@ def select_geo_ftp_fields(ftp_metadata):
             
             # Handle different data types
             if isinstance(field_value, list):
+                # Clean each value by removing extra commas
+                cleaned_values = format_geo_names(field_value)
                 # Remove duplicates by converting to set and back to list
-                unique_values = list(set(field_value))
+                unique_values = list(set(cleaned_values))
             elif isinstance(field_value, str):
                 # Single string value
-                unique_values = field_value
+                unique_values = format_geo_names(field_value)
             else:
                 # Skip fields with unexpected types
                 continue
@@ -480,7 +524,7 @@ def drop_irrelevant_geo(df:pd.DataFrame, column_name:str='dataset_source_id',
     if len(drop_df) > 0:
         drop_df.to_csv(report_csv, index=False)
         print(f"{len(drop_df)} GEO non-standard accessions removed and saved to "
-              f"{report_csv}. \n {len(keep_df)} GSE and GDS accession remain.")
+              f"{report_csv}. \n{len(keep_df)} GSE and GDS accession remain.")
         
     return keep_df
 

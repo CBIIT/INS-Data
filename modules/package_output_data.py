@@ -404,6 +404,15 @@ def validate_and_clean_unique_nodes(df, column_configs, datatype):
 
 
 
+def remove_nan_strings(df):
+    """Remove 'nan' string values and replace with blank space."""
+
+    df = df.map(lambda x: '' if isinstance(x, str) and x.lower() == 'nan' else x)
+
+    return df
+
+
+
 def standardize_data(df, column_configs, datatype):
     """Group standardization functions common to all data types"""
 
@@ -416,6 +425,7 @@ def standardize_data(df, column_configs, datatype):
     df = validate_listlike_columns(df, column_configs, datatype)
     df = format_datetime_columns(df, column_configs, datatype)
     df = validate_and_clean_unique_nodes(df, column_configs, datatype)
+    df = remove_nan_strings(df)
 
     # Validate that data meets loading standards
     validate_first_columns(df, column_configs, datatype)

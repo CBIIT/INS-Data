@@ -401,7 +401,7 @@ COLUMN_CONFIGS = {
             'description': 'description',
             'dataset_source_id': 'dataset_source_id',
             'dataset_source_url': 'dataset_source_url',
-            'series_contact_name': 'PI_name',
+            'series_contributor': 'PI_name',
             'GPA': 'GPA',
             'dataset_doc': 'dataset_doc',
             'dataset_pmid': 'dataset_pmid',
