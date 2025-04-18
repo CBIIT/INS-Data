@@ -28,7 +28,7 @@ def add_type_column(df, datatype):
     """Add a column for datatype and fill with specified datatype."""
 
     df_with_type = df.copy()
-    if datatype == 'dbgap_dataset':
+    if datatype == 'dbgap_dataset' or datatype == 'geo_dataset':
         df_with_type['type'] = 'dataset'
     else:
         df_with_type['type'] = datatype
@@ -297,6 +297,12 @@ def validate_listlike_columns(df, column_configs, datatype):
                 raise ValueError(f"Expected list-like column {col} not found "
                                  f"within data. Check data or redefine config.")
 
+            # Skip current iteration if col contains non-string (None) values
+            if not pd.api.types.is_string_dtype(df[col]):
+                print(f"Column '{col}' contains non-string values. Skipping "
+                      f"validation of list-like field.")
+                continue
+
             # Replace any semicolons followed by whitespace with just semicolon
             df[col] = df[col].str.replace('; ', ';')
 
@@ -398,6 +404,15 @@ def validate_and_clean_unique_nodes(df, column_configs, datatype):
 
 
 
+def remove_nan_strings(df):
+    """Remove 'nan' string values and replace with blank space."""
+
+    df = df.map(lambda x: '' if isinstance(x, str) and x.lower() == 'nan' else x)
+
+    return df
+
+
+
 def standardize_data(df, column_configs, datatype):
     """Group standardization functions common to all data types"""
 
@@ -410,6 +425,7 @@ def standardize_data(df, column_configs, datatype):
     df = validate_listlike_columns(df, column_configs, datatype)
     df = format_datetime_columns(df, column_configs, datatype)
     df = validate_and_clean_unique_nodes(df, column_configs, datatype)
+    df = remove_nan_strings(df)
 
     # Validate that data meets loading standards
     validate_first_columns(df, column_configs, datatype)
@@ -525,6 +541,27 @@ def package_dbgap_datasets(df_dbgap_datasets, column_configs, dbgap_curated=Fals
 
 
 
+def package_geo_datasets(df_geo_datasets, column_configs):
+    """Package GEO Datasets data for INS loading."""
+
+    print(f"---\nFinalizing TSV for GEO Datasets data...") 
+
+    # Standardize and validate data
+    df_geo_datasets_output = standardize_data(df_geo_datasets, column_configs, 
+                                        datatype='geo_dataset')
+
+    # Export as TSV
+    output_filepath = config.GEO_OUTPUT_PATH
+    os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
+    df_geo_datasets_output.to_csv(output_filepath, sep='\t', index=False, 
+                                    encoding='utf-8')
+
+    print(f"Done! Final GEO Datasets data saved as {output_filepath}.")
+
+    return df_geo_datasets_output
+
+
+
 def remove_publications_before_projects(df_publications: pd.DataFrame, 
                                         df_projects: pd.DataFrame, 
                                         day_diff_allowed:int=0) -> pd.DataFrame:
@@ -601,7 +638,7 @@ def remove_publications_before_projects(df_publications: pd.DataFrame,
 
         # Export report of removed early publications
         df_early_pubs.to_csv(early_pub_report_path, index=False)
-        print(f"---\nEarly Publications detected:\n"
+        print(f"Early Publications detected:\n"
               f"{len(df_early_pubs)} Publications with publication date more "
               f"than {diff} before the associated project start date were "
               f"removed and saved to {early_pub_report_path}")
@@ -637,6 +674,11 @@ def get_enum_values(df, cols, output="enums.txt"):
     enums_dict = {}
 
     for col in cols:
+        
+        # Skip current iteration if col contains non-string (None) values
+        if not pd.api.types.is_string_dtype(df[col]):
+            continue
+
         # Get unique values from semicolon-separated strings
         unique_vals = df[col].dropna().str.split(";").explode().unique()
         # Sort for conistency
@@ -760,18 +802,30 @@ def package_output_data():
         dbgap_datasets_exist = False
         dbgap_curated = False
         print(f"No dbGaP Datasets file found.")
+
+    # Load GEO datasets data
+    if os.path.exists(config.GEO_INTERMED_PATH):
+        geo_datasets_exist = True
+        df_geo_datasets = pd.read_csv(config.GEO_INTERMED_PATH,
+                                      dtype={'dataset_pmid':str})
+        print(f"Loaded GEO Datasets file from {config.GEO_INTERMED_PATH}")
+    else: 
+        geo_datasets_exist = False
+        print(f"No GEO Datasets file found.")
     
 
     # Special handling
-    print(f"---\nApplying special handling steps...")
+    print(f"\n\nApplying special handling steps...")
 
+    print(f"---\nChecking for publications published before projects...")
     # Remove publications published before associated projects
     if publications_exist and projects_exist:
         df_publications = remove_publications_before_projects(
                                 df_publications,
                                 df_projects,
                                 day_diff_allowed=config.PUB_PROJECT_DAY_DIFF)
-        
+    
+    print(f"---\nAdding dataset UUIDs to curated dbGaP datasets if not present...")
     # Add dbgap dataset uuids for any that do not exist
     if dbgap_curated:
         df_dbgap_datasets['dataset_uuid'] = df_dbgap_datasets.apply(
@@ -782,6 +836,8 @@ def package_output_data():
             else row['dataset_uuid'],
             axis=1,
         )
+
+    print(f"\n\nFinal packaging steps...")
 
     # Final packaging
     if programs_exist:
@@ -795,6 +851,10 @@ def package_output_data():
     if dbgap_datasets_exist:
         df_dbgap_datasets_out = package_dbgap_datasets(df_dbgap_datasets, column_configs,
                                                        dbgap_curated)
+    if geo_datasets_exist:
+        df_geo_datasets_out = package_geo_datasets(df_geo_datasets, column_configs)
+
+    print(f"\n\n Completing post-packaging steps...")
 
     # Special post-processing handling
     print(f"---\nGenerating enumerated values for data model...")
@@ -806,6 +866,8 @@ def package_output_data():
     # Generate md5.txt
     print(f"---\nGenerating md5 hashes for file validation...")
     generate_md5_hash_file(config.OUTPUT_GATHERED_DIR)
+
+    print(f"\n\n---\nSuccess! INS Data packaging complete.\n---")
 
 # Run module as a standalone script when called directly
 if __name__ == "__main__":
