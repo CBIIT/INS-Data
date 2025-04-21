@@ -5,6 +5,8 @@
 __pycache__/
 *.pyc
 notebooks/*
+.coverage
+cov.xml
 
 # Private
 .env
