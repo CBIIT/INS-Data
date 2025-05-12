@@ -665,9 +665,6 @@ def load_and_clean_programs(csv_filepath: str, col_dict: dict) -> tuple[bool, pd
     # Drop obsolete columns specified in config.py
     df = drop_obsolete_columns(df, obsolete_str="obsolete")
 
-    # Drop second header row with survey question IDs
-    # df = df.drop(axis=0, index=0).reset_index(drop=True)
-
     # Replace specific string values with others defined in config
     for old_value, new_value in config.PROGRAM_VALUE_REPLACEMENTS.items():
         # Use regex=True to enable regular expression replacement
