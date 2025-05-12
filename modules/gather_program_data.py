@@ -639,7 +639,7 @@ def remove_extra_default_list_values(df: pd.DataFrame, blank_filler_dict: dict):
 
 
 
-def load_and_clean_programs(csv_filepath: str, col_dict: dict) -> (bool, pd.DataFrame):
+def load_and_clean_programs(csv_filepath: str, col_dict: dict) -> tuple[bool, pd.DataFrame]:
     """Load and clean Key Programs data from a Qualtrics CSV.
 
     Args:
@@ -666,7 +666,7 @@ def load_and_clean_programs(csv_filepath: str, col_dict: dict) -> (bool, pd.Data
     df = drop_obsolete_columns(df, obsolete_str="obsolete")
 
     # Drop second header row with survey question IDs
-    df = df.drop(axis=0, index=0).reset_index(drop=True)
+    # df = df.drop(axis=0, index=0).reset_index(drop=True)
 
     # Replace specific string values with others defined in config
     for old_value, new_value in config.PROGRAM_VALUE_REPLACEMENTS.items():
@@ -791,7 +791,7 @@ def gather_program_data(qualtrics_csv: str) -> pd.DataFrame:
         program_filepath = config.PROGRAMS_INTERMED_PATH
         os.makedirs(os.path.dirname(program_filepath), exist_ok=True)
         programs_df.to_csv(program_filepath, index=False)
-        print(f"Success! Saved {program_filepath}.")
+        print(f"Success! {len(programs_df)} Programs saved to {program_filepath}.")
 
     else:
         sys.exit(f"\n---\n"
