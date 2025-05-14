@@ -16,12 +16,40 @@ import os
 import sys
 
 import pandas as pd
+import uuid
 
 
 # Append the project's root directory to the Python path
 # This allows for importing config when running as part of main.py or alone
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import config
+
+
+
+def get_newest_cohort_versions(df:pd.DataFrame):
+    """Filter cohorts to keep only the newest version of each unique title.
+
+    Each new CEDCD entry receives a new dataset_id that counts upward. 
+    In order to update cohort informaton, CEDCD adds a new entry and redirects
+    the old id(s) url to the newest one. In the export for INS, all entries 
+    are present and need to be filtered. 
+
+    Args:
+        df: Dataframe of CEDCD cohort metadata
+    
+    Returns:
+        Deduplicated dataframe with newest version of each cohort
+    
+    """
+
+    # Sort newest versions first
+    df_sorted = df.sort_values(by='dataset_id', ascending=False)
+    
+    # Drop rows with duplicate titles but keep the first (newest)
+    df_filtered = df_sorted.drop_duplicates(subset='dataset_title', keep='first')
+
+    return df_filtered
+
 
 
 def gather_cedcd_data():
@@ -39,8 +67,41 @@ def gather_cedcd_data():
 
     # Load input CSV received from CEDCD team
     df = pd.read_csv(input_csv)
+    print(f"Loaded CEDCD cohort data from {input_csv}")
 
-    # Transform step placeholders
+    # Keep only the newest version of each dataset title
+    df = get_newest_cohort_versions(df)
+
+    # Remove leading commas found in some PI values
+    df['principal_investigators'] = df['principal_investigators'].str.lstrip(', ')
+
+    # Build CEDCD url by combining base with CEDCD ID
+    base_url = 'https://cedcd.nci.nih.gov/cohort?id='
+    df['dataset_source_url'] = base_url + df['dataset_id'].astype(str)
+
+    # Add dataset uuid
+    df['dataset_uuid'] = df.apply(lambda row: uuid.uuid4(), axis=1)
+
+    # Rename provided columns where names need to be reused
+    df.rename(columns={'primary_disease': 'related_diseases'}, inplace = True)
+
+    # Add hard-coded values
+    df['type'] = 'cedcd_dataset'
+    df['dataset_source_repo'] = 'CEDCD'
+    df['primary_disease'] = 'Unspecified'
+
+    # Add empty dataset columns to avoid downstream issues
+    df['GPA'] = ''
+    df['limitations_for_reuse'] = ''
+    df['dataset_pmid'] = ''
+    df['funding_source'] = ''
+    df['assay_method'] = ''
+    df['release_date'] = ''
+    df['sample_count'] = ''
+    df['related_genes'] = ''
+
+    # Drop extra columns to avoid downstream issues
+    df.drop(columns=['cohort_acronym'], inplace=True)
 
     # Make output directories if they don't exist
     os.makedirs(os.path.dirname(output_csv), exist_ok=True)
@@ -50,6 +111,7 @@ def gather_cedcd_data():
 
     print(f"\n\nSuccess! CEDCD cohorts saved to {output_csv}.\n"
           f"Total CEDCD dataset records:    {len(df)}")
+
 
 
 # Run module as a standalone script when called directly
