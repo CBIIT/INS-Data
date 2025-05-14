@@ -13,13 +13,16 @@ from datetime import datetime
 # Version must match suffix in input filename
 
 QUALTRICS_VERSION = "2024-09-18"    # <-- CHANGE VERSION HERE
-QUALTRICS_TYPE = "manual_fix"              # <-- Define "raw" or "manual_fix" type of the input csv
+QUALTRICS_TYPE = "manual_fix"       # <-- Define "raw" or "manual_fix" type of the input csv
 
 # Version of bulk download from iCite
 ICITE_VERSION = "2024-08"           # <-- CHANGE VERSION HERE
 
 # Version of dbGaP seearch results download (download date)
 DBGAP_CSV_VERSION = "2025-03-27"   # <-- CHANGE VERSION HERE
+
+# Version of CEDCD cohort metadata CSV
+CEDCD_VERSION = "2025-04-24"        # <-- CHANGE VERSION HERE
 
 # An override date can be used instead of today's date for pulling and saving data versions
 # This is useful when running downstream modules on grants data gathered before today
@@ -466,3 +469,17 @@ GEO_OUTPUT_PATH = OUTPUT_GATHERED_DIR +"/"+ "geo_datasets.tsv"
 
 # GEO reports
 GEO_DROPPED_ACCESSIONS_PATH = REPORTS_GATHERED_DIR +"/"+ "geo_dropped_accessions.csv"
+
+
+# CEDCD
+
+# CEDCD input file provided by CEDCD team 
+CEDCD_INPUT_CSV = INPUT_DIR + "cedcd/" + "CEDCD_report_" + CEDCD_VERSION + ".csv"
+
+# CEDCD intermediates
+CEDCD_INTERMED_DIR = INTERMED_DIR + "cedcd/" + CEDCD_VERSION + "/"
+CEDCD_INTERMED_CSV = CEDCD_INTERMED_DIR + "cedcd_datasets.csv"
+
+# CEDCD outputs
+CEDCD_OUTPUT_DIR = OUTPUT_DIR + "cedcd/" + CEDCD_VERSION + "/"
+CEDCD_OUTPUT_PATH = CEDCD_OUTPUT_DIR + "cedcd_datasets.tsv"
