@@ -14,9 +14,9 @@ input data even though this module isn't pulling from automated external sources
 
 import os
 import sys
+import uuid
 
 import pandas as pd
-import uuid
 
 
 # Append the project's root directory to the Python path
@@ -52,6 +52,48 @@ def get_newest_cohort_versions(df:pd.DataFrame):
 
 
 
+def clean_newlines(df, exclude_cols=None):
+    """Remove newline-type characters from values within dataframe. Columns can
+    be excluded with argument. 
+
+    Args:
+        df (pd.DataFrame): Pandas DataFrame to process
+        exclude_cols (list, optional): List of column names to exclude.
+            Default None
+
+    Returns:
+        pd.DataFrame: df with newlines removed
+    """
+    
+    if exclude_cols is None:
+        exclude_cols = []
+
+    # Create a working copy of the dataframe to avoid modifying the original
+    df_clean = df.copy()
+    
+    for col in df_clean.columns:
+        # Skip excluded columns
+        if col in exclude_cols:
+            continue
+            
+        # Only process string/object columns
+        if df_clean[col].dtype == 'object':
+            # Convert to string and process each value
+            df_clean[col] = df_clean[col].astype(str).map(
+                lambda x: x.replace('\r\n', ' ')
+                           .replace('\n', ' ')
+                           .replace('\r', ' ')
+                           .replace('\\n', ' ')  # Handle escaped newlines
+                           .replace('\\r', ' ')
+                           .replace('\u2028', ' ')  # Line Separator
+                           .replace('\u2029', ' ')  # Paragraph Separator
+                           .strip()
+            )
+    
+    return df_clean
+
+
+
 def gather_cedcd_data():
     """Process a CSV of CEDCD Cohort metadata into an intermediate CSV for INS.
 
@@ -72,6 +114,9 @@ def gather_cedcd_data():
     # Keep only the newest version of each dataset title
     df = get_newest_cohort_versions(df)
 
+    # Clean newlines and hidden returns from description (and other cols)
+    df = clean_newlines(df, exclude_cols=None)
+
     # Remove leading commas found in some PI values
     df['principal_investigators'] = df['principal_investigators'].str.lstrip(', ')
 
@@ -88,7 +133,8 @@ def gather_cedcd_data():
     # Add hard-coded values
     df['type'] = 'cedcd_dataset'
     df['dataset_source_repo'] = 'CEDCD'
-    df['primary_disease'] = 'Unspecified'
+    # All cohorts in original CSV list many cancers as primary
+    df['primary_disease'] = 'Multiple Cancer Types'
 
     # Add empty dataset columns to avoid downstream issues
     df['GPA'] = ''
