@@ -133,6 +133,7 @@ def gather_cedcd_data():
     # Add hard-coded values
     df['type'] = 'cedcd_dataset'
     df['dataset_source_repo'] = 'CEDCD'
+    df['dataset_doc'] = 'Cancer Epidemiology Descriptive Cohort Database (CEDCD)'
     # All cohorts in original CSV list many cancers as primary
     df['primary_disease'] = 'Multiple Cancer Types'
 
