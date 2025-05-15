@@ -28,11 +28,13 @@ def add_type_column(df, datatype):
     """Add a column for datatype and fill with specified datatype."""
 
     df_with_type = df.copy()
-    if datatype == 'dbgap_dataset' or datatype == 'geo_dataset':
-        df_with_type['type'] = 'dataset'
-    else:
-        df_with_type['type'] = datatype
-
+    
+    # Define dataset types that should be mapped to the general 'dataset' type
+    dataset_types = {'dbgap_dataset', 'geo_dataset', 'cedcd_dataset'}
+    
+    # Map to 'dataset' if in the list, otherwise keep the original value
+    df_with_type['type'] = 'dataset' if datatype in dataset_types else datatype
+    
     return df_with_type
 
 
@@ -562,6 +564,27 @@ def package_geo_datasets(df_geo_datasets, column_configs):
 
 
 
+def package_cedcd_datasets(df_cedcd_datasets, column_configs):
+    """Package CEDCD Cohorts as datasets for INS loading."""
+
+    print(f"---\nFinalizing TSV for CEDCD Datasets data...") 
+
+    # Standardize and validate data
+    df_cedcd_datasets_output = standardize_data(df_cedcd_datasets, column_configs, 
+                                        datatype='cedcd_dataset')
+
+    # Export as TSV
+    output_filepath = config.CEDCD_OUTPUT_PATH
+    os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
+    df_cedcd_datasets_output.to_csv(output_filepath, sep='\t', index=False, 
+                                    encoding='utf-8')
+
+    print(f"Done! Final cedcd Datasets data saved as {output_filepath}.")
+
+    return df_cedcd_datasets_output
+
+
+
 def remove_publications_before_projects(df_publications: pd.DataFrame, 
                                         df_projects: pd.DataFrame, 
                                         day_diff_allowed:int=0) -> pd.DataFrame:
@@ -812,6 +835,15 @@ def package_output_data():
     else: 
         geo_datasets_exist = False
         print(f"No GEO Datasets file found.")
+
+        # Load CEDCD datasets data
+    if os.path.exists(config.CEDCD_INTERMED_CSV):
+        cedcd_datasets_exist = True
+        df_cedcd_datasets = pd.read_csv(config.CEDCD_INTERMED_CSV)
+        print(f"Loaded CEDCD Datasets file from {config.CEDCD_INTERMED_CSV}")
+    else: 
+        cedcd_datasets_exist = False
+        print(f"No CEDCD Datasets file found.")
     
 
     # Special handling
@@ -853,6 +885,8 @@ def package_output_data():
                                                        dbgap_curated)
     if geo_datasets_exist:
         df_geo_datasets_out = package_geo_datasets(df_geo_datasets, column_configs)
+    if cedcd_datasets_exist:
+        df_cedcd_datasets_out = package_cedcd_datasets(df_cedcd_datasets, column_configs)
 
     print(f"\n\n Completing post-packaging steps...")
 

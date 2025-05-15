@@ -424,6 +424,41 @@ COLUMN_CONFIGS = {
         'list_like_cols': ['dataset_pmid', 'funding_source',],
         'html_tag_cols': None
     },
+    'cedcd_dataset': {
+        'node_id': 'dataset_uuid',
+        'link_id': None,
+        'keep_and_rename': {
+            'type': 'type',
+            'dataset_uuid': 'dataset_uuid',
+            'dataset_source_repo': 'dataset_source_repo',
+            'dataset_title': 'dataset_title',
+            'description': 'description',
+            'dataset_id': 'dataset_source_id',
+            'dataset_source_url': 'dataset_source_url',
+            'principal_investigators': 'PI_name',
+            'GPA': 'GPA',
+            'dataset_doc': 'dataset_doc',
+            'dataset_pmid': 'dataset_pmid',
+            'funding_source': 'funding_source',
+            'release_date': 'release_date',
+            'limitations_for_reuse': 'limitations_for_reuse',
+            'assay_method': 'assay_method',
+            'cohort_type': 'study_type',
+            'primary_disease': 'primary_disease',
+            'number_of_participants': 'participant_count',    
+            'sample_count': 'sample_count',
+            'dataset_url': 'study_links',
+            'related_genes': 'related_genes',
+            'related_diseases': 'related_diseases',
+            'types_of_biospecimens': 'related_terms',
+            'year_enrollment_started': 'dataset_year_enrollment_started',
+            'year_enrollment_ended': 'dataset_year_enrollment_ended',
+            'minimum_age_at_baseline': 'dataset_minimum_age_at_baseline',
+            'maximum_age_at_baseline': 'dataset_maximum_age_at_baseline',
+        },
+        'list_like_cols': None,
+        'html_tag_cols': None
+    },
 }
 
 
