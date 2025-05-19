@@ -1,0 +1,547 @@
+INS Data Gathering Log
+2025-05-15
+
+
+---
+PROGRAMS:
+Gathering, cleaning, and saving programs data...
+---
+
+Loading and processing data/00_input/qualtrics/qualtrics_output_2025-05-09_manual_fix.csv...
+Removed extra Multiple Cancer Types in CIBMTR (Data Resource)
+Removed extra Multiple Cancer Types in MCI
+---
+Checking for NOFO validity...
+8 potentially invalid NOFOs found.
+Invalid NOFOs saved for review and correction in reports/2025-05-09/invalidNofoReport_manual_fix.csv.
+---
+Please review 8 potential Nofo issues.
+Consider manual fixes to the Qualtrics CSV or creating a versioned invalidNofoReport_reviewed.csv` in the data/reviewed/ directory
+
+        Continue with known Nofo issues? (Y/N): y
+---
+Checking for Award validity...
+837 potentially invalid awards found.
+Invalid awards saved for review and correction in reports/2025-05-09/invalidAwardReport_manual_fix.csv.
+---
+Please review 837 potential Award issues.
+Consider manual fixes to the Qualtrics CSV or creating a versioned invalidAwardReport_reviewed.csv` in the data/reviewed/ directory
+
+        Continue with known Award issues? (Y/N): y
+Success! 166 Programs saved to data/01_intermediate/2025-05-09/program.csv.
+
+---
+GRANTS:
+Gathering, cleaning, and saving grants data from NIH Reporter API for each Program...
+---
+
+NOTICE: No NOFOs or Awards defined for Connect for Cancer Prevention Study. Skipping program.
+NOTICE: No NOFOs or Awards defined for My Pediatric and Adult Rare Tumor Network. Skipping program.
+NOTICE: No NOFOs or Awards defined for National Childhood Cancer Registry. Skipping program.
+NOTICE: No NOFOs or Awards defined for The Therapeutically Applicable Research to Generate Effective Treatments. Skipping program.
+Error occurred while fetching grants for award '600.300.20.01': 400
+Error occurred while fetching grants for award '600.035.2': 400
+Error occurred while fetching grants for award '600.300.21.01': 400
+NOTICE: No NOFOs or Awards defined for NCI’s National Clinical Trials Network. Skipping program.
+NOTICE: No NOFOs or Awards defined for Lung Cancer Master Protocol. Skipping program.
+NOTICE: No NOFOs or Awards defined for MyeloMATCH. Skipping program.
+NOTICE: No NOFOs or Awards defined for NCI-MATCH: Molecular Analysis for Therapy Choice for adults with advanced cancers. Skipping program.
+NOTICE: No NOFOs or Awards defined for ComboMATCH Precision Medicine Clinical Trials. Skipping program.
+NOTICE: No NOFOs or Awards defined for NCI-COG Pediatric MATCH Precision Medicine Clinical Trial. Skipping program.
+NOTICE: No NOFOs or Awards defined for Physical Sciences – Oncology Network. Skipping program.
+NOTICE: No NOFOs or Awards defined for The Cancer Genome Atlas Program. Skipping program.
+NOTICE: No NOFOs or Awards defined for Applied Proteogenomics OrganizationaL Learning and Outcomes (APOLLO) network. Skipping program.
+NOTICE: No NOFOs or Awards defined for The Childhood Cancer Data Initiative Molecular Characterization Initiative. Skipping program.
+NOTICE: No grants found for Pediatric Proton/Photon Consortium Registry
+NOTICE: No NOFOs or Awards defined for Modeling Outcomes Using Surveillance Data and Scalable Artificial Intelligence for Cancer. Skipping program.
+NOTICE: No NOFOs or Awards defined for Innovative Methodologies and New Data for Predictive Oncology Model Evaluation. Skipping program.
+NOTICE: No NOFOs or Awards defined for Accelerating Therapeutics for Opportunities in Medicine. Skipping program.
+NOTICE: No NOFOs or Awards defined for PREVENT Cancer Preclinical Drug Development Program. Skipping program.
+NOTICE: No NOFOs or Awards defined for The Surveillance, Epidemiology, and End Results (SEER) Program. Skipping program.
+NOTICE: No NOFOs or Awards defined for Gabriella Miller Kids First Pediatric Research Program. Skipping program.
+NOTICE: No NOFOs or Awards defined for Consortium for Cancer Implementation Science. Skipping program.
+NOTICE: No NOFOs or Awards defined for Human Cancer Models Initiative. Skipping program.
+NOTICE: No NOFOs or Awards defined for Moonshot Biobank. Skipping program.
+NOTICE: No NOFOs or Awards defined for National Cancer Institute's Community Oncology Research Program. Skipping program.
+100%|█████████████████████████████████████████| 166/166 [19:10<00:00,  6.93s/it]
+---
+Success! NIH RePORTER API data gathered, cleaned, and saved.
+13672 grants gathered across all Awards and NOFOs.
+13595 NCI-funded grants retained for INS.
+171 Awards/NOFO searches yielded 0 results.
+Combined results can be found in data/01_intermediate/2025-05-09/gathered-2025-05-15/grant.csv.
+---
+
+---
+SUMMARY STATISTICS:
+Generating summary statistics reports for grants...
+---
+
+Done! Results can be found in reports/2025-05-09/gathered-2025-05-15.
+
+---
+PROJECTS:
+Aggregating and formatting project data from grants...
+---
+
+Success! Project data exported to data/01_intermediate/2025-05-09/gathered-2025-05-15/project.csv
+DataFrame with mismatched rows exported to reports/2025-05-09/gathered-2025-05-15/mismatchedProjectValuesReport.csv
+
+---
+PUBLICATIONS:
+Gathering, formatting, and saving Publication data...
+---
+
+---
+Gathering associated PMIDs for each project from NIH RePORTER API...
+80 projects in programs: ['ccdi'] excluded from publication gathering steps.
+2604 total unique project IDs kept for publication gathering.
+100%|███████████████████████████████████████| 2604/2604 [34:04<00:00,  1.27it/s]
+---
+Complete! PMIDs successfully gathered.
+73467 total publication results.
+56718 unique PMIDs found across
+2262 unique Project IDs.
+Gathered PMIDs saved to data/01_intermediate/2025-05-09/gathered-2025-05-15/projectPMIDs.csv.
+---
+Gathering PubMed data for all PMIDs...
+---NOTE: THIS STEP CAN TAKE 8+ HOURS.---
+Saving partial files to data/01_intermediate/2025-05-09/gathered-2025-05-15/temp_pubmed_chunkfiles throughout.
+Error fetching information for PMID 18707199: list index out of range
+Error fetching information for PMID 19494275: HTTP Error 400: Bad Request
+Error fetching information for PMID 23847723: list index out of range
+Error fetching information for PMID 24277953: list index out of range
+Error fetching information for PMID 25513250: list index out of range
+Error fetching information for PMID 25513417: list index out of range
+Error fetching information for PMID 25513470: list index out of range
+Error fetching information for PMID 25513479: list index out of range
+Error fetching information for PMID 26556315: list index out of range
+Error fetching information for PMID 26919324: HTTP Error 400: Bad Request
+Error fetching information for PMID 28410162: list index out of range
+Error fetching information for PMID 29264190: HTTP Error 400: Bad Request
+Error fetching information for PMID 30006586: HTTP Error 400: Bad Request       
+Error fetching information for PMID 30761439: HTTP Error 400: Bad Request       
+Error fetching information for PMID 31693620: list index out of range
+Error fetching information for PMID 31744829: Failed to parse the XML data (not well-formed (invalid token): line 7, column 70). Please make sure that the input data are not corrupted.
+Error fetching information for PMID 31745336: Failed to parse the XML data (not well-formed (invalid token): line 7, column 70). Please make sure that the input data are not corrupted.
+Error fetching information for PMID 31745340: Failed to parse the XML data (not well-formed (invalid token): line 7, column 70). Please make sure that the input data are not corrupted.
+Error fetching information for PMID 31746829: Failed to parse the XML data (not well-formed (invalid token): line 7, column 70). Please make sure that the input data are not corrupted.
+Error fetching information for PMID 31748606: Failed to parse the XML data (not well-formed (invalid token): line 7, column 70). Please make sure that the input data are not corrupted.
+Error fetching information for PMID 31832210: Failed to parse the XML data (not well-formed (invalid token): line 7, column 70). Please make sure that the input data are not corrupted.
+Error fetching information for PMID 31835136: Failed to parse the XML data (not well-formed (invalid token): line 7, column 70). Please make sure that the input data are not corrupted.
+Error fetching information for PMID 31857362: list index out of range
+Error fetching information for PMID 31930333: Failed to parse the XML data (not well-formed (invalid token): line 7, column 70). Please make sure that the input data are not corrupted.
+Error fetching information for PMID 31993221: list index out of range
+Error fetching information for PMID 32017708: Failed to parse the XML data (not well-formed (invalid token): line 7, column 70). Please make sure that the input data are not corrupted.
+Error fetching information for PMID 32123530: list index out of range
+Error fetching information for PMID 32282337: list index out of range
+Error fetching information for PMID 32332490: list index out of range
+Error fetching information for PMID 33234532: list index out of range
+Error fetching information for PMID 33391973: HTTP Error 400: Bad Request       
+Error fetching information for PMID 33574267: list index out of range
+Error fetching information for PMID 33574288: list index out of range
+Error fetching information for PMID 33579916: list index out of range
+Error fetching information for PMID 33579955: list index out of range
+Error fetching information for PMID 33580043: list index out of range
+Error fetching information for PMID 33597657: list index out of range
+Error fetching information for PMID 33685622: list index out of range
+Error fetching information for PMID 33755131: list index out of range
+Error fetching information for PMID 34233275: list index out of range
+Error fetching information for PMID 34233282: list index out of range
+Error fetching information for PMID 34236997: list index out of range
+Error fetching information for PMID 34238761: list index out of range
+Error fetching information for PMID 35262173: HTTP Error 400: Bad Request       
+Error fetching information for PMID 35553104: list index out of range
+Error fetching information for PMID 35556265: list index out of range
+Error fetching information for PMID 35776260: list index out of range
+Error fetching information for PMID 36085394: list index out of range
+Error fetching information for PMID 36434483: list index out of range
+Error fetching information for PMID 36480292: list index out of range
+Error fetching information for PMID 36775354: list index out of range
+Error fetching information for PMID 36775407: list index out of range
+Error fetching information for PMID 36775477: list index out of range
+Error fetching information for PMID 36882504: HTTP Error 400: Bad Request       
+Error fetching information for PMID 37171983: list index out of range
+Error fetching information for PMID 37501622: list index out of range
+Error fetching information for PMID 37613256: list index out of range
+Error fetching information for PMID 37613803: list index out of range
+Error fetching information for PMID 38390375: list index out of range
+Error fetching information for PMID 39528648: list index out of range
+Error fetching information for PMID 39622293: HTTP Error 400: Bad Request       
+100%|██████████████████████████████████| 56718/56718 [13:16:05<00:00,  1.19it/s]
+First pass successful!
+Double-checking for any missing publication info...
+---
+Reusing existing publication details for 56657 PMIDs found in data/01_intermediate/2025-05-09/gathered-2025-05-15/temp_pubmed_chunkfiles.
+---
+Error fetching information for PMID 18707199: list index out of range
+Error fetching information for PMID 23847723: list index out of range
+Error fetching information for PMID 24277953: list index out of range
+Error fetching information for PMID 25513250: list index out of range
+Error fetching information for PMID 25513417: list index out of range
+Error fetching information for PMID 25513470: list index out of range
+Error fetching information for PMID 25513479: list index out of range
+Error fetching information for PMID 26556315: list index out of range
+Error fetching information for PMID 28410162: list index out of range
+Error fetching information for PMID 31693620: list index out of range
+Error fetching information for PMID 31857362: list index out of range
+Error fetching information for PMID 31993221: list index out of range
+Error fetching information for PMID 32123530: list index out of range
+Error fetching information for PMID 32282337: list index out of range
+Error fetching information for PMID 32332490: list index out of range
+Error fetching information for PMID 33234532: list index out of range
+Error fetching information for PMID 33574267: list index out of range
+Error fetching information for PMID 33574288: list index out of range
+Error fetching information for PMID 33579916: list index out of range
+Error fetching information for PMID 33579955: list index out of range
+Error fetching information for PMID 33580043: list index out of range
+Error fetching information for PMID 33597657: list index out of range
+Error fetching information for PMID 33685622: list index out of range
+Error fetching information for PMID 33755131: list index out of range
+Error fetching information for PMID 34233275: list index out of range
+Error fetching information for PMID 34233282: list index out of range
+Error fetching information for PMID 34236997: list index out of range
+Error fetching information for PMID 34238761: list index out of range
+Error fetching information for PMID 35553104: list index out of range
+Error fetching information for PMID 35556265: list index out of range
+Error fetching information for PMID 35776260: list index out of range
+Error fetching information for PMID 36085394: list index out of range
+Error fetching information for PMID 36434483: list index out of range
+Error fetching information for PMID 36480292: list index out of range
+Error fetching information for PMID 36775354: list index out of range
+Error fetching information for PMID 36775407: list index out of range
+Error fetching information for PMID 36775477: list index out of range
+Error fetching information for PMID 37171983: list index out of range
+Error fetching information for PMID 37501622: list index out of range
+Error fetching information for PMID 37613256: list index out of range
+Error fetching information for PMID 37613803: list index out of range
+Error fetching information for PMID 38390375: list index out of range
+Error fetching information for PMID 39528648: list index out of range
+100%|███████████████████████████████████| 56718/56718 [00:45<00:00, 1239.50it/s]
+Success! PubMed publication data gathered for all PMIDs.
+---
+Gathering iCite data for all PMIDs...
+154chunk [10:17,  4.38s/chunk]C:\Users\dormanza\AppData\Local\anaconda3\envs\ins-data-env\Lib\site-packages\tqdm\std.py:1178: DtypeWarning: Columns (20) have mixed types. Specify dtype option on import or set low_memory=False.
+  for obj in iterable:
+155chunk [10:21,  4.24s/chunk]C:\Users\dormanza\AppData\Local\anaconda3\envs\ins-data-env\Lib\site-packages\tqdm\std.py:1178: DtypeWarning: Columns (21,22) have mixed types. Specify dtype option on import or set low_memory=False.
+  for obj in iterable:
+156chunk [10:22,  3.99s/chunk]
+---
+iCite data for PMIDS saved to data/01_intermediate/2025-05-09/gathered-2025-05-15/icitePMIDData.csv.
+---
+Combining and merging all publication data...
+Merged PMID data saved to data/01_intermediate/2025-05-09/gathered-2025-05-15/mergedPMIDData.csv.
+---
+Merging PMID data back to Core Projects...
+Success! Publication data saved to data/01_intermediate/2025-05-09/gathered-2025-05-15/publication.csv.
+Removed publications saved to reports/2025-05-09/gathered-2025-05-15/removedPublicationsReport.csv
+---
+
+Total unique publications saved:     56172
+Total removed publications:            556
+Project-publication associations:    72911
+
+---
+DATASETS - GEO:
+Gathering, formatting, and saving GEO data...
+---
+
+---
+Loaded 72911 publications.
+Finding GEO IDs associated with 56172 unique PMIDs...
+---
+Generating GEO mapping...
+Fetching GEO IDs: 100%|███████████████| 56172/56172 [3:53:32<00:00,  4.01PMID/s]
+Saving GEO-PMID-Project mapping to data/01_intermediate/2025-05-09/gathered-2025-05-15/geo_pmid_project_map.csv
+Found 7068 GEO entries associated with 3879 unique PMIDs.
+---
+Gathering metadata from GEO sources...
+Retrieving metadata for 6759 unique GEO datasets...
+Fetching GEO metadata: 100%|██████████████| 6759/6759 [1:45:52<00:00,  1.06it/s]
+Done! Saving NCBI ESummary GEO metadata to data/01_intermediate/2025-05-09/gathered-2025-05-15/geo_metadata.json
+Extracting FTP metadata from GEO records...
+Extracting FTP metadata:   0%|              | 15/6759 [00:16<1:53:08,  1.01s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDSnnn/GDS531/: 550 geo/datasets/GDSnnn/GDS531/matrix: No such file or directory
+Extracting FTP metadata:   0%|              | 18/6759 [00:18<1:33:47,  1.20it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDSnnn/GDS568/: 550 geo/datasets/GDSnnn/GDS568/matrix: No such file or directory
+Extracting FTP metadata:   0%|              | 21/6759 [00:20<1:11:40,  1.57it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDSnnn/GDS893/: 550 geo/datasets/GDSnnn/GDS893/matrix: No such file or directory
+Extracting FTP metadata:   0%|              | 22/6759 [00:20<1:00:39,  1.85it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDSnnn/GDS892/: 550 geo/datasets/GDSnnn/GDS892/matrix: No such file or directory
+Extracting FTP metadata:   0%|              | 26/6759 [00:24<1:42:37,  1.09it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS2nnn/GDS2786/: 550 geo/datasets/GDS2nnn/GDS2786/matrix: No such file or directory
+Extracting FTP metadata:   0%|              | 28/6759 [00:25<1:22:47,  1.36it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS1nnn/GDS1250/: 550 geo/datasets/GDS1nnn/GDS1250/matrix: No such file or directory
+Extracting FTP metadata:   1%|              | 40/6759 [00:53<3:32:50,  1.90s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS2nnn/GDS2171/: 550 geo/datasets/GDS2nnn/GDS2171/matrix: No such file or directory
+Extracting FTP metadata:   1%|              | 43/6759 [00:56<2:30:44,  1.35s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS2nnn/GDS2298/: 550 geo/datasets/GDS2nnn/GDS2298/matrix: No such file or directory
+Extracting FTP metadata:   1%|              | 44/6759 [00:57<2:01:36,  1.09s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS2nnn/GDS2297/: 550 geo/datasets/GDS2nnn/GDS2297/matrix: No such file or directory
+Extracting FTP metadata:   1%|              | 46/6759 [00:58<1:31:34,  1.22it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS2nnn/GDS2358/: 550 geo/datasets/GDS2nnn/GDS2358/matrix: No such file or directory
+Extracting FTP metadata:   1%|              | 54/6759 [01:04<1:20:20,  1.39it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS2nnn/GDS2903/: 550 geo/datasets/GDS2nnn/GDS2903/matrix: No such file or directory
+Extracting FTP metadata:   1%|▏             | 69/6759 [01:29<1:59:51,  1.07s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS3nnn/GDS3097/: 550 geo/datasets/GDS3nnn/GDS3097/matrix: No such file or directory
+Extracting FTP metadata:   1%|▏             | 70/6759 [01:30<1:34:43,  1.18it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS3nnn/GDS3096/: 550 geo/datasets/GDS3nnn/GDS3096/matrix: No such file or directory
+Extracting FTP metadata:   1%|▏             | 84/6759 [02:07<2:31:41,  1.36s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS3nnn/GDS3334/: 550 geo/datasets/GDS3nnn/GDS3334/matrix: No such file or directory
+Extracting FTP metadata:   1%|▏            | 89/6759 [02:57<10:22:39,  5.60s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS3nnn/GDS3495/: 550 geo/datasets/GDS3nnn/GDS3495/matrix: No such file or directory
+Extracting FTP metadata:   2%|▏            | 116/6759 [04:14<1:26:30,  1.28it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS3nnn/GDS3439/: 550 geo/datasets/GDS3nnn/GDS3439/matrix: No such file or directory
+Extracting FTP metadata:   2%|▎            | 145/6759 [04:57<1:48:57,  1.01it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS3nnn/GDS3561/: 550 geo/datasets/GDS3nnn/GDS3561/matrix: No such file or directory
+Extracting FTP metadata:   2%|▎            | 146/6759 [04:58<1:34:11,  1.17it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS3nnn/GDS3560/: 550 geo/datasets/GDS3nnn/GDS3560/matrix: No such file or directory
+Extracting FTP metadata:   2%|▎            | 147/6759 [04:59<1:34:13,  1.17it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS3nnn/GDS3559/: 550 geo/datasets/GDS3nnn/GDS3559/matrix: No such file or directory
+Extracting FTP metadata:   3%|▎            | 181/6759 [05:51<3:15:34,  1.78s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4296/: 550 geo/datasets/GDS4nnn/GDS4296/matrix: No such file or directory
+Extracting FTP metadata:   3%|▎            | 185/6759 [05:54<1:49:21,  1.00it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS3nnn/GDS3574/: 550 geo/datasets/GDS3nnn/GDS3574/matrix: No such file or directory
+Extracting FTP metadata:   3%|▍            | 199/6759 [06:11<2:26:51,  1.34s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4824/: 550 geo/datasets/GDS4nnn/GDS4824/matrix: No such file or directory
+Extracting FTP metadata:   3%|▍            | 213/6759 [06:25<1:48:47,  1.00it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS5nnn/GDS5248/: 550 geo/datasets/GDS5nnn/GDS5248/matrix: No such file or directory
+Extracting FTP metadata:   3%|▍            | 217/6759 [06:27<1:21:13,  1.34it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4100/: 550 geo/datasets/GDS4nnn/GDS4100/matrix: No such file or directory
+Extracting FTP metadata:   3%|▍            | 232/6759 [06:44<1:54:15,  1.05s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS3nnn/GDS3721/: 550 geo/datasets/GDS3nnn/GDS3721/matrix: No such file or directory
+Extracting FTP metadata:   3%|▍            | 234/6759 [06:46<1:51:23,  1.02s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS1nnn/GDS1816/: 550 geo/datasets/GDS1nnn/GDS1816/matrix: No such file or directory
+Extracting FTP metadata:   3%|▍            | 235/6759 [06:46<1:22:37,  1.32it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS1nnn/GDS1815/: 550 geo/datasets/GDS1nnn/GDS1815/matrix: No such file or directory
+Extracting FTP metadata:   4%|▍           | 246/6759 [07:47<12:08:26,  6.71s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4222/: 550 geo/datasets/GDS4nnn/GDS4222/matrix: No such file or directory
+Extracting FTP metadata:   4%|▍            | 258/6759 [07:59<2:32:35,  1.41s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS2nnn/GDS2250/: 550 geo/datasets/GDS2nnn/GDS2250/matrix: No such file or directory
+Extracting FTP metadata:   4%|▍           | 269/6759 [10:25<70:05:04, 38.88s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE21nnn/GSE21032/: 421 No transfer timeout (60 seconds): closing control connection
+Error processing FTP metadata for record:
+Extracting FTP metadata:   4%|▍           | 275/6759 [13:06<24:24:51, 13.56s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE24nnn/GSE24417/: No series matrix files found in geo/series/GSE24nnn/GSE24417/matrix
+Extracting FTP metadata:   4%|▌            | 288/6759 [13:43<4:26:24,  2.47s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS5nnn/GDS5235/: 550 geo/datasets/GDS5nnn/GDS5235/matrix: No such file or directory
+Extracting FTP metadata:   4%|▌            | 295/6759 [14:04<4:05:39,  2.28s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4084/: 550 geo/datasets/GDS4nnn/GDS4084/matrix: No such file or directory
+Extracting FTP metadata:   4%|▌            | 297/6759 [14:05<2:54:49,  1.62s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4176/: 550 geo/datasets/GDS4nnn/GDS4176/matrix: No such file or directory
+Extracting FTP metadata:   4%|▌            | 300/6759 [14:07<1:47:22,  1.00it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS3nnn/GDS3838/: 550 geo/datasets/GDS3nnn/GDS3838/matrix: No such file or directory
+Extracting FTP metadata:   5%|▋            | 335/6759 [14:38<1:23:36,  1.28it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4361/: 550 geo/datasets/GDS4nnn/GDS4361/matrix: No such file or directory
+Extracting FTP metadata:   5%|▌           | 351/6759 [33:09<74:46:42, 42.01s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE21nnn/GSE21997/: Error -3 while decompressing data: invalid block type
+Extracting FTP metadata:   6%|▋            | 377/6759 [37:16<8:20:04,  4.70s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4164/: 550 geo/datasets/GDS4nnn/GDS4164/matrix: No such file or directory
+Extracting FTP metadata:   6%|▋            | 386/6759 [38:42<9:42:33,  5.48s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4442/: 550 geo/datasets/GDS4nnn/GDS4442/matrix: No such file or directory
+Extracting FTP metadata:   6%|▊            | 390/6759 [38:54<7:17:55,  4.13s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4006/: 550 geo/datasets/GDS4nnn/GDS4006/matrix: No such file or directory
+Extracting FTP metadata:   6%|▊            | 412/6759 [40:33<6:44:00,  3.82s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4528/: 550 geo/datasets/GDS4nnn/GDS4528/matrix: No such file or directory
+Extracting FTP metadata:   6%|▊            | 425/6759 [41:47<8:51:24,  5.03s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/platforms/GPL23nnn/GPL23566/: 550 geo/platforms/GPL23nnn/GPL23566/matrix: No such file or directory
+Extracting FTP metadata:   6%|▊            | 426/6759 [41:48<6:41:45,  3.81s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/platforms/GPL23nnn/GPL23565/: 550 geo/platforms/GPL23nnn/GPL23565/matrix: No such file or directory
+Extracting FTP metadata:   4%|▌            | 297/6759 [14:05<2:54:49,  1.62s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4176/: 550 geo/datasets/GDS4nnn/GDS4176/matrix: No such file or directory
+Extracting FTP metadata:   4%|▌            | 300/6759 [14:07<1:47:22,  1.00it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS3nnn/GDS3838/: 550 geo/datasets/GDS3nnn/GDS3838/matrix: No such file or directory
+Extracting FTP metadata:   5%|▋            | 335/6759 [14:38<1:23:36,  1.28it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4361/: 550 geo/datasets/GDS4nnn/GDS4361/matrix: No such file or directory
+Extracting FTP metadata:   5%|▌           | 351/6759 [33:09<74:46:42, 42.01s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE21nnn/GSE21997/: Error -3 while decompressing data: invalid block type
+Extracting FTP metadata:   6%|▋            | 377/6759 [37:16<8:20:04,  4.70s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4164/: 550 geo/datasets/GDS4nnn/GDS4164/matrix: No such file or directory
+Extracting FTP metadata:   6%|▋            | 386/6759 [38:42<9:42:33,  5.48s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4442/: 550 geo/datasets/GDS4nnn/GDS4442/matrix: No such file or directory
+Extracting FTP metadata:   6%|▊            | 390/6759 [38:54<7:17:55,  4.13s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4006/: 550 geo/datasets/GDS4nnn/GDS4006/matrix: No such file or directory
+Extracting FTP metadata:   6%|▊            | 412/6759 [40:33<6:44:00,  3.82s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4528/: 550 geo/datasets/GDS4nnn/GDS4528/matrix: No such file or directory
+Extracting FTP metadata:   6%|▊            | 425/6759 [41:47<8:51:24,  5.03s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/platforms/GPL23nnn/GPL23566/: 550 geo/platforms/GPL23nnn/GPL23566/matrix: No such file or directory
+Extracting FTP metadata:   6%|▊            | 426/6759 [41:48<6:41:45,  3.81s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/platforms/GPL23nnn/GPL23565/: 550 geo/platforms/GPL23nnn/GPL23565/matrix: No such file or directory
+Extracting FTP metadata:   4%|▌            | 300/6759 [14:07<1:47:22,  1.00it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS3nnn/GDS3838/: 550 geo/datasets/GDS3nnn/GDS3838/matrix: No such file or directory
+Extracting FTP metadata:   5%|▋            | 335/6759 [14:38<1:23:36,  1.28it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4361/: 550 geo/datasets/GDS4nnn/GDS4361/matrix: No such file or directory
+Extracting FTP metadata:   5%|▌           | 351/6759 [33:09<74:46:42, 42.01s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE21nnn/GSE21997/: Error -3 while decompressing data: invalid block type
+Extracting FTP metadata:   6%|▋            | 377/6759 [37:16<8:20:04,  4.70s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4164/: 550 geo/datasets/GDS4nnn/GDS4164/matrix: No such file or directory
+Extracting FTP metadata:   6%|▋            | 386/6759 [38:42<9:42:33,  5.48s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4442/: 550 geo/datasets/GDS4nnn/GDS4442/matrix: No such file or directory
+Extracting FTP metadata:   6%|▊            | 390/6759 [38:54<7:17:55,  4.13s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4006/: 550 geo/datasets/GDS4nnn/GDS4006/matrix: No such file or directory
+Extracting FTP metadata:   6%|▊            | 412/6759 [40:33<6:44:00,  3.82s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4528/: 550 geo/datasets/GDS4nnn/GDS4528/matrix: No such file or directory
+Extracting FTP metadata:   6%|▊            | 425/6759 [41:47<8:51:24,  5.03s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/platforms/GPL23nnn/GPL23566/: 550 geo/platforms/GPL23nnn/GPL23566/matrix: No such file or directory
+Extracting FTP metadata:   6%|▊            | 426/6759 [41:48<6:41:45,  3.81s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/platforms/GPL23nnn/GPL23565/: 550 geo/platforms/GPL23nnn/GPL23565/matrix: No such file or directory
+No such file or directory
+Extracting FTP metadata:   6%|▋            | 386/6759 [38:42<9:42:33,  5.48s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4442/: 550 geo/datasets/GDS4nnn/GDS4442/matrix: No such file or directory
+Extracting FTP metadata:   6%|▊            | 390/6759 [38:54<7:17:55,  4.13s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4006/: 550 geo/datasets/GDS4nnn/GDS4006/matrix: No such file or directory
+Extracting FTP metadata:   6%|▊            | 412/6759 [40:33<6:44:00,  3.82s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4528/: 550 geo/datasets/GDS4nnn/GDS4528/matrix: No such file or directory
+Extracting FTP metadata:   6%|▊            | 425/6759 [41:47<8:51:24,  5.03s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/platforms/GPL23nnn/GPL23566/: 550 geo/platforms/GPL23nnn/GPL23566/matrix: No such file or directory
+Extracting FTP metadata:   6%|▊            | 426/6759 [41:48<6:41:45,  3.81s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/platforms/GPL23nnn/GPL23565/: 550 geo/platforms/GPL23nnn/GPL23565/matrix: No such file or directory
+trix: No such file or directory
+Extracting FTP metadata:   6%|▊            | 426/6759 [41:48<6:41:45,  3.81s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/platforms/GPL23nnn/GPL23565/: 550 geo/platforms/GPL23nnn/GPL23565/matrix: No such file or directory
+Extracting FTP metadata:   6%|▊            | 427/6759 [41:48<5:01:33,  2.86s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/platforms/GPL21nnn/GPL21991/: 550 geo/platforms/GPL21nnn/GPL21991/matrix: No such file or directory
+Extracting FTP metadata:   6%|▊            | 428/6759 [41:49<3:59:24,  2.27s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/platforms/GPL20nnn/GPL20116/: 550 geo/platforms/GPL20nnn/GPL20116/matrix: No such file or directory
+Extracting FTP metadata:   6%|▊            | 429/6759 [41:49<2:53:32,  1.64s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/platforms/GPL16nnn/GPL16262/: 550 geo/platforms/GPL16nnn/GPL16262/matrix: No such file or directory
+Extracting FTP metadata:   6%|▊            | 430/6759 [41:50<2:23:21,  1.36s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/platforms/GPL16nnn/GPL16242/: 550 geo/platforms/GPL16nnn/GPL16242/matrix: No such file or directory
+Extracting FTP metadata:   7%|▊            | 444/6759 [42:28<4:31:28,  2.58s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/platforms/GPL15nnn/GPL15030/: 550 geo/platforms/GPL15nnn/GPL15030/matrix: No such file or directory
+Extracting FTP metadata:   7%|▊           | 459/6759 [44:31<10:53:16,  6.22s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4384/: 550 geo/datasets/GDS4nnn/GDS4384/matrix: Extracting FTP metadata:   6%|▊            | 428/6759 [41:49<3:59:24,  2.27s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/platforms/GPL20nnn/GPL20116/: 550 geo/platforms/GPL20nnn/GPL20116/matrix: No such file or directory
+Extracting FTP metadata:   6%|▊            | 429/6759 [41:49<2:53:32,  1.64s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/platforms/GPL16nnn/GPL16262/: 550 geo/platforms/GPL16nnn/GPL16262/matrix: No such file or directory
+Extracting FTP metadata:   6%|▊            | 430/6759 [41:50<2:23:21,  1.36s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/platforms/GPL16nnn/GPL16242/: 550 geo/platforms/GPL16nnn/GPL16242/matrix: No such file or directory
+Extracting FTP metadata:   7%|▊            | 444/6759 [42:28<4:31:28,  2.58s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/platforms/GPL15nnn/GPL15030/: 550 geo/platforms/GPL15nnn/GPL15030/matrix: No such file or directory
+Extracting FTP metadata:   7%|▊           | 459/6759 [44:31<10:53:16,  6.22s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4384/: 550 geo/datasets/GDS4nnn/GDS4384/matrix: trix: No such file or directory
+Extracting FTP metadata:   6%|▊            | 430/6759 [41:50<2:23:21,  1.36s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/platforms/GPL16nnn/GPL16242/: 550 geo/platforms/GPL16nnn/GPL16242/matrix: No such file or directory
+Extracting FTP metadata:   7%|▊            | 444/6759 [42:28<4:31:28,  2.58s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/platforms/GPL15nnn/GPL15030/: 550 geo/platforms/GPL15nnn/GPL15030/matrix: No such file or directory
+Extracting FTP metadata:   7%|▊           | 459/6759 [44:31<10:53:16,  6.22s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4384/: 550 geo/datasets/GDS4nnn/GDS4384/matrix: trix: No such file or directory
+Extracting FTP metadata:   7%|▊            | 444/6759 [42:28<4:31:28,  2.58s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/platforms/GPL15nnn/GPL15030/: 550 geo/platforms/GPL15nnn/GPL15030/matrix: No such file or directory
+Extracting FTP metadata:   7%|▊           | 459/6759 [44:31<10:53:16,  6.22s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4384/: 550 geo/datasets/GDS4nnn/GDS4384/matrix: trix: No such file or directory
+Extracting FTP metadata:   7%|▊           | 459/6759 [44:31<10:53:16,  6.22s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4384/: 550 geo/datasets/GDS4nnn/GDS4384/matrix: Extracting FTP metadata:   7%|▊           | 459/6759 [44:31<10:53:16,  6.22s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4384/: 550 geo/datasets/GDS4nnn/GDS4384/matrix: No such file or directory
+Extracting FTP metadata:   7%|▉            | 461/6759 [44:33<6:21:27,  3.63s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4802/: 550 geo/datasets/GDS4nnn/GDS4802/matrix: No such file or directory
+Extracting FTP metadata:   7%|▉            | 476/6759 [46:03<9:44:09,  5.58s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4118/: 550 geo/datasets/GDS4nnn/GDS4118/matrix: No such file or directory
+Extracting FTP metadata:   7%|▉            | 478/6759 [46:11<8:35:16,  4.92s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4336/: 550 geo/datasets/GDS4nnn/GDS4336/matrix: No such file or directory
+Extracting FTP metadata:   7%|▉            | 484/6759 [46:29<6:02:57,  3.47s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE34nnn/GSE34793/: Error -3 while decompressing data: invalid literal/length code
+Extracting FTP metadata:   8%|█            | 524/6759 [54:24<9:20:57,  5.40s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE36nnn/GSE36460/: Error -3 while decompressing data: invalid block type
+Extracting FTP metadata:   8%|▋        | 526/6759 [1:01:18<157:20:00, 90.87s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE36nnn/GSE36458/: Error -3 while decompressing data: invalid stored block lengths
+Extracting FTP metadata:   8%|▉          | 543/6759 [1:07:22<9:42:22,  5.62s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS3nnn/GDS3341/: 550 geo/datasets/GDS3nnn/GDS3341/matrix: No such file or directory
+Extracting FTP metadata:   8%|▉          | 565/6759 [1:08:08<5:08:33,  2.99s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4395/: 550 geo/datasets/GDS4nnn/GDS4395/matrix: No such file or directory
+No such file or directory
+Extracting FTP metadata:   7%|▉            | 461/6759 [44:33<6:21:27,  3.63s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4802/: 550 geo/datasets/GDS4nnn/GDS4802/matrix: No such file or directory
+Extracting FTP metadata:   7%|▉            | 476/6759 [46:03<9:44:09,  5.58s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4118/: 550 geo/datasets/GDS4nnn/GDS4118/matrix: No such file or directory
+Extracting FTP metadata:   7%|▉            | 478/6759 [46:11<8:35:16,  4.92s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4336/: 550 geo/datasets/GDS4nnn/GDS4336/matrix: No such file or directory
+Extracting FTP metadata:   7%|▉            | 484/6759 [46:29<6:02:57,  3.47s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE34nnn/GSE34793/: Error -3 while decompressing data: invalid literal/length code
+Extracting FTP metadata:   8%|█            | 524/6759 [54:24<9:20:57,  5.40s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE36nnn/GSE36460/: Error -3 while decompressing data: invalid block type
+Extracting FTP metadata:   8%|▋        | 526/6759 [1:01:18<157:20:00, 90.87s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE36nnn/GSE36458/: Error -3 while decompressing data: invalid stored block lengths
+No such file or directory
+Extracting FTP metadata:   7%|▉            | 461/6759 [44:33<6:21:27,  3.63s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4802/: 550 geo/datasets/GDS4nnn/GDS4802/matrix: No such file or directory
+Extracting FTP metadata:   7%|▉            | 476/6759 [46:03<9:44:09,  5.58s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4118/: 550 geo/datasets/GDS4nnn/GDS4118/matrix: No such file or directory
+Extracting FTP metadata:   7%|▉            | 478/6759 [46:11<8:35:16,  4.92s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4336/: 550 geo/datasets/GDS4nnn/GDS4336/matrix: No such file or directory
+No such file or directory
+Extracting FTP metadata:   7%|▉            | 461/6759 [44:33<6:21:27,  3.63s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4802/: 550 geo/datasets/GDS4nnn/GDS4802/matrix: No such file or directory
+No such file or directory
+No such file or directory
+Extracting FTP metadata:   7%|▉            | 461/6759 [44:33<6:21:27,  3.63s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4802/: 550 geo/datasets/GDS4nnn/GDS4802/matrix: No such file or directory
+Extracting FTP metadata:   7%|▉            | 476/6759 [46:03<9:44:09,  5.58s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4118/: 550 geo/datasets/GDS4nnn/GDS4118/matrix: No such file or directory
+Extracting FTP metadata:   7%|▉            | 478/6759 [46:11<8:35:16,  4.92s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4336/: 550 geo/datasets/GDS4nnn/GDS4336/matrix: No such file or directory
+No such file or directory
+Extracting FTP metadata:   7%|▉            | 461/6759 [44:33<6:21:27,  3.63s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4802/: 550 geo/datasets/GDS4nnn/GDS4802/matrix: No such file or directory
+Extracting FTP metadata:   7%|▉            | 476/6759 [46:03<9:44:09,  5.58s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4118/: 550 geo/datasets/GDS4nnn/GDS4118/matrix: No such file or directory
+Extracting FTP metadata:   7%|▉            | 478/6759 [46:11<8:35:16,  4.92s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4336/: 550 geo/datasets/GDS4nnn/GDS4336/matrix: No such file or directory
+Extracting FTP metadata:   7%|▉            | 484/6759 [46:29<6:02:57,  3.47s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE34nnn/GSE34793/: Error -3 while decompressing data: invalid literal/length code
+Extracting FTP metadata:   8%|█            | 524/6759 [54:24<9:20:57,  5.40s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE36nnn/GSE36460/: Error -3 while decompressing data: invalid block type
+Extracting FTP metadata:   8%|▋        | 526/6759 [1:01:18<157:20:00, 90.87s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE36nnn/GSE36458/: Error -3 while decompressing data: invaliNo such file or directory
+Extracting FTP metadata:   7%|▉            | 461/6759 [44:33<6:21:27,  3.63s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4802/: 550 geo/datasets/GDS4nnn/GDS4802/matrix: No such file or directory
+Extracting FTP metadata:   7%|▉            | 476/6759 [46:03<9:44:09,  5.58s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4118/: 550 geo/datasets/GDS4nnn/GDS4118/matrix: No such file or directory
+Extracting FTP metadata:   7%|▉            | 478/6759 [46:11<8:35:16,  4.92s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4336/: 550 geo/datasets/GDS4nnn/GDS4336/matrix: No such file or directory
+Extracting FTP metadata:   7%|▉            | 476/6759 [46:03<9:44:09,  5.58s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4118/: 550 geo/datasets/GDS4nnn/GDS4118/matrix: No such file or directory
+Extracting FTP metadata:   7%|▉            | 478/6759 [46:11<8:35:16,  4.92s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4336/: 550 geo/datasets/GDS4nnn/GDS4336/matrix: No such file or directory
+Extracting FTP metadata:   7%|▉            | 478/6759 [46:11<8:35:16,  4.92s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4336/: 550 geo/datasets/GDS4nnn/GDS4336/matrix: No such file or directory
+No such file or directory
+Extracting FTP metadata:   7%|▉            | 484/6759 [46:29<6:02:57,  3.47s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE34nnn/GSE34793/: Error -3 while decompressing data: invalid literal/length code
+Extracting FTP metadata:   8%|█            | 524/6759 [54:24<9:20:57,  5.40s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE36nnn/GSE36460/: Error -3 while decompressing data: invalid block type
+Extracting FTP metadata:   8%|▋        | 526/6759 [1:01:18<157:20:00, 90.87s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE36nnn/GSE36458/: Error -3 while decompressing data: invalid stored block lengths
+Extracting FTP metadata:   8%|▉          | 543/6759 [1:07:22<9:42:22,  5.62s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS3nnn/GDS3341/: 550 geo/datasets/GDS3nnn/GDS3341/matrix: No such file or directory
+Extracting FTP metadata:   8%|▉          | 565/6759 [1:08:08<5:08:33,  2.99s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4395/: 550 geo/datasets/GDS4nnn/GDS4395/matrix: No such file or directory
+Extracting FTP metadata:   9%|▉          | 587/6759 [1:11:08<9:28:17,  5.52s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4547/: 550 geo/datasets/GDS4nnn/GDS4547/matrix: No such file or directory
+Extracting FTP metadata:   9%|█          | 623/6759 [1:13:19<4:05:14,  2.40s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4769/: 550 geo/datasets/GDS4nnn/GDS4769/matrix: No such file or directory
+Extracting FTP metadata:   9%|█          | 624/6759 [1:13:20<2:56:05,  1.72s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4768/: 550 geo/datasets/GDS4nnn/GDS4768/matrix: No such file or directory
+Extracting FTP metadata:  10%|█          | 663/6759 [1:15:02<4:57:12,  2.93s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4754/: 550 geo/datasets/GDS4nnn/GDS4754/matrix: No such file or directory
+Extracting FTP metadata:  10%|█          | 678/6759 [1:16:04<8:28:44,  5.02s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS5nnn/GDS5002/: 550 geo/datasets/GDS5nnn/GDS5002/matrix: No such file or directory
+Extracting FTP metadata:  10%|█          | 683/6759 [1:16:10<3:00:34,  1.78s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE43nnn/GSE43694/: [WinError 10060] A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond
+Error processing FTP metadata for record: [WinError 10054] An existing connection was forcibly closed by the remote host
+Extracting FTP metadata:  10%|█         | 691/6759 [1:17:56<18:36:20, 11.04s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4833/: 550 geo/datasets/GDS4nnn/GDS4833/matrix: No such file or directory
+Extracting FTP metadata:  10%|█         | 698/6759 [1:18:50<12:12:02,  7.25s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS5nnn/GDS5189/: 550 geo/datasets/GDS5nnn/GDS5189/matrix: No such file or directory
+Extracting FTP metadata:  10%|█▏         | 701/6759 [1:18:57<7:15:13,  4.31s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS5nnn/GDS5040/: 550 geo/datasets/GDS5nnn/GDS5040/matrix: No such file or directory
+Extracting FTP metadata:  11%|█▏         | 746/6759 [1:20:00<2:29:25,  1.49s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4962/: 550 geo/datasets/GDS4nnn/GDS4962/matrix: No such file or directory
+Extracting FTP metadata:  11%|█▏         | 751/6759 [1:20:05<2:02:47,  1.23s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4764/: 550 geo/datasets/GDS4nnn/GDS4764/matrix: No such file or directory
+Extracting FTP metadata:  11%|█▏        | 770/6759 [1:24:54<60:15:31, 36.22s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4822/: 550 geo/datasets/GDS4nnn/GDS4822/matrix: No such file or directory
+Extracting FTP metadata:  12%|█▎         | 786/6759 [1:27:11<4:24:53,  2.66s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4840/: 550 geo/datasets/GDS4nnn/GDS4840/matrix: No such file or directory
+Extracting FTP metadata:  12%|█▎         | 803/6759 [1:27:47<2:56:26,  1.78s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS5nnn/GDS5010/: 550 geo/datasets/GDS5nnn/GDS5010/matrix: No such file or directory
+Extracting FTP metadata:  13%|█▎        | 853/6759 [1:36:09<56:20:46, 34.35s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4893/: 550 geo/datasets/GDS4nnn/GDS4893/matrix: No such file or directory
+Extracting FTP metadata:  13%|█▎        | 857/6759 [1:36:23<18:35:41, 11.34s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS5nnn/GDS5306/: 550 geo/datasets/GDS5nnn/GDS5306/matrix: No such file or directory
+Extracting FTP metadata:  13%|█▍         | 878/6759 [1:37:10<3:25:08,  2.09s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS5nnn/GDS5222/: 550 geo/datasets/GDS5nnn/GDS5222/matrix: No such file or directory
+Extracting FTP metadata:  13%|█▍         | 879/6759 [1:37:10<2:36:51,  1.60s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS5nnn/GDS5221/: 550 geo/datasets/GDS5nnn/GDS5221/matrix: No such file or directory
+Extracting FTP metadata:  13%|█▍         | 912/6759 [1:38:16<2:50:27,  1.75s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS5nnn/GDS5822/: 550 geo/datasets/GDS5nnn/GDS5822/matrix: No such file or directory
+Extracting FTP metadata:  14%|█▍         | 913/6759 [1:38:17<2:16:49,  1.40s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS5nnn/GDS5821/: 550 geo/datasets/GDS5nnn/GDS5821/matrix: No such file or directory
+Extracting FTP metadata:  14%|█▍         | 914/6759 [1:38:19<2:22:32,  1.46s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS5nnn/GDS5820/: 550 geo/datasets/GDS5nnn/GDS5820/matrix: No such file or directory
+Extracting FTP metadata:  14%|█▌         | 948/6759 [1:39:12<2:37:14,  1.62s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS5nnn/GDS5301/: 550 geo/datasets/GDS5nnn/GDS5301/matrix: No such file or directory
+Extracting FTP metadata:  14%|█▍        | 960/6759 [1:41:20<20:35:02, 12.78s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS5nnn/GDS5677/: 550 geo/datasets/GDS5nnn/GDS5677/matrix: No such file or directory
+Extracting FTP metadata:  14%|█▍        | 961/6759 [1:41:21<14:43:59,  9.15s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS5nnn/GDS5676/: 550 geo/datasets/GDS5nnn/GDS5676/matrix: No such file or directory
+Extracting FTP metadata:  15%|█▌        | 1024/6759 [1:45:15<4:18:50,  2.71s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS5nnn/GDS5648/: 550 geo/datasets/GDS5nnn/GDS5648/matrix: No such file or directory
+Extracting FTP metadata:  20%|██▍         | 1365/6759 [2:01:17<46:36,  1.93it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE80nnn/GSE80723/: [WinError 10060] A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond
+Error processing FTP metadata for record: [WinError 10054] An existing connection was forcibly closed by the remote host
+Extracting FTP metadata:  21%|██        | 1386/6759 [2:01:51<1:00:01,  1.49it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE59nnn/GSE59316/: [WinError 10060] A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond
+Error processing FTP metadata for record: [WinError 10054] An existing connection was forcibly closed by the remote host
+Extracting FTP metadata:  21%|██        | 1405/6759 [2:02:35<1:55:16,  1.29s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE86nnn/GSE86031/: [WinError 10060] A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond
+Error processing FTP metadata for record: [WinError 10054] An existing connection was forcibly closed by the remote host
+Extracting FTP metadata:  25%|██▍       | 1689/6759 [2:11:35<6:58:16,  4.95s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE94nnn/GSE94705/: Error -3 while decompressing data: invalid block type
+Extracting FTP metadata:  26%|██▎      | 1768/6759 [2:22:20<25:12:08, 18.18s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE86nnn/GSE86354/: No series matrix files found in geo/series/GSE86nnn/GSE86354/matrix
+Extracting FTP metadata:  27%|██▋       | 1792/6759 [2:24:00<4:08:43,  3.00s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE104nnn/GSE104417/: [WinError 10060] A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond
+Error processing FTP metadata for record: [WinError 10054] An existing connection was forcibly closed by the remote host
+Error processing FTP metadata for record: 421 Idle timeout (60 seconds): closing control connection
+Extracting FTP metadata:  29%|██▉       | 1965/6759 [2:33:01<5:06:34,  3.84s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE110nnn/GSE110555/: Error -3 while decompressing data: invalid code lengths set  
+Extracting FTP metadata:  29%|██▌      | 1966/6759 [2:34:29<38:46:24, 29.12s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE110nnn/GSE110554/: Error -3 while decompressing data: invalid code lengths set  
+Extracting FTP metadata:  29%|██▉       | 1989/6759 [2:36:31<2:10:10,  1.64s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE81nnn/GSE81334/: CRC check failed 0x2a65297f != 0xb65882f1Extracting FTP metadata:  31%|███▏      | 2125/6759 [2:43:41<1:37:01,  1.26s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE94nnn/GSE94013/: [WinError 10060] A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond
+Error processing FTP metadata for record: [WinError 10054] An existing connection was forcibly closed by the remote host
+Extracting FTP metadata:  34%|███▎      | 2265/6759 [2:51:40<1:00:41,  1.23it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE113nnn/GSE113995/: [WinError 10060] A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond
+Error processing FTP metadata for record: [WinError 10054] An existing connection was forcibly closed by the remote host
+Extracting FTP metadata:  34%|███▍      | 2288/6759 [2:52:32<1:26:15,  1.16s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE96nnn/GSE96615/: [WinError 10060] A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond
+Error processing FTP metadata for record: [WinError 10054] An existing connection was forcibly closed by the remote host
+Extracting FTP metadata:  34%|███▍      | 2291/6759 [2:52:52<4:26:30,  3.58s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE96nnn/GSE96612/: [WinError 10060] A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond
+Error processing FTP metadata for record: [WinError 10054] An existing connection was forcibly closed by the remote host
+Extracting FTP metadata:  34%|███▍      | 2295/6759 [2:53:13<3:52:22,  3.12s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE119nnn/GSE119605/: [WinError 10060] A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond
+Error processing FTP metadata for record: [WinError 10054] An existing connection was forcibly closed by the remote host
+Extracting FTP metadata:  42%|████▏     | 2865/6759 [3:04:20<1:00:34,  1.07it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE126nnn/GSE126141/: [WinError 10060] A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond
+Error processing FTP metadata for record: [WinError 10054] An existing connection was forcibly closed by the remote host
+Extracting FTP metadata:  44%|█████▏      | 2945/6759 [3:07:09<47:29,  1.34it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE123nnn/GSE123917/: No series matrix files found in geo/series/GSE123nnn/GSE123917/matrix
+Extracting FTP metadata:  45%|█████▎      | 3020/6759 [3:08:22<49:50,  1.25it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/platforms/GPL27nnn/GPL27054/: 550 geo/platforms/GPL27nnn/GPL27054/matrix: No such file or directory
+Extracting FTP metadata:  46%|████▏    | 3130/6759 [3:12:48<21:47:06, 21.61s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE108nnn/GSE108123/: CRC check failed 0x894c6301 != 0xb18bd455
+Extracting FTP metadata:  47%|████▋     | 3145/6759 [3:15:00<2:32:35,  2.53s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE157nnn/GSE157011/: Error -3 while decompressing data: invalid block type        
+Extracting FTP metadata:  47%|████▋     | 3170/6759 [3:18:00<2:48:12,  2.81s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE155nnn/GSE155761/: Error -3 while decompressing data: invalid block type        
+Extracting FTP metadata:  47%|████▏    | 3171/6759 [3:21:28<63:54:54, 64.13s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE155nnn/GSE155760/: CRC check failed 0xbba4652a != 0x918e5540
+Extracting FTP metadata:  47%|████▎    | 3201/6759 [3:27:46<11:43:30, 11.86s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE149nnn/GSE149007/: [WinError 10060] A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond
+Error processing FTP metadata for record: [WinError 10054] An existing connection was forcibly closed by the remote host
+Extracting FTP metadata:  54%|█████▍    | 3646/6759 [3:40:34<1:25:07,  1.64s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE164nnn/GSE164978/: [WinError 10060] A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond
+Error processing FTP metadata for record: [WinError 10054] An existing connection was forcibly closed by the remote host
+Extracting FTP metadata:  54%|█████▍    | 3650/6759 [3:40:55<2:27:27,  2.85s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE161nnn/GSE161466/: [WinError 10060] A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond
+Error processing FTP metadata for record: [WinError 10054] An existing connection was forcibly closed by the remote host
+Extracting FTP metadata:  56%|██████▋     | 3756/6759 [3:45:24<23:09,  2.16it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE162nnn/GSE162664/: No series matrix files found in geo/series/GSE162nnn/GSE162664/matrix
+Extracting FTP metadata:  70%|████████▍   | 4749/6759 [3:56:18<15:15,  2.20it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE191nnn/GSE191272/: No series matrix files found in geo/series/GSE191nnn/GSE191272/matrix
+Extracting FTP metadata:  70%|████████▍   | 4757/6759 [3:56:22<17:15,  1.93it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE185nnn/GSE185128/: No series matrix files found in geo/series/GSE185nnn/GSE185128/matrix
+Extracting FTP metadata: 100%|████████████| 6759/6759 [4:21:34<00:00,  2.32s/it]
+Done! Saving all FTP metadata to data/01_intermediate/2025-05-09/gathered-2025-05-15/geo_ftp_metadata.json.
+---
+Processing GEO metadata...
+Processing records: 100%|██████████████████| 6759/6759 [00:08<00:00, 799.71it/s]
+---
+Linking GEO datasets with NCI DOCs via programs and projects...
+Loaded projects from data/01_intermediate/2025-05-09/gathered-2025-05-15/project.csv
+Loaded projects from data/01_intermediate/2025-05-09/program.csv
+Done! NCI DOCs mapped to GEO datasets.
+Unique DOC combinations:        19
+Unique program combinations:    108
+---
+Cleaning and formatting GEO datasets...
+8 GEO non-standard accessions removed and saved to reports/2025-05-09/gathered-2025-05-15/geo_dropped_accessions.csv. 
+6751 GSE and GDS accession remain.
+
+
+Success! GEO datasets saved to data/01_intermediate/2025-05-09/gathered-2025-05-15/geo_datasets.csv.
+Total GEO dataset records:    6751
+
+---
+DATA PACKAGING:
+Performing final data packaging steps...
+---
+
+Loaded Programs file from data/01_intermediate/2025-05-09/program.csv
+Loaded Grants file from data/01_intermediate/2025-05-09/gathered-2025-05-15/grant.csv
+Loaded Projects file from data/01_intermediate/2025-05-09/gathered-2025-05-15/project.csv
+Loaded Publications file from data/01_intermediate/2025-05-09/gathered-2025-05-15/publication.csv
+Loaded dbGaP Datasets (Curated) file from data/01_intermediate/dbgap/2025-03-27/dbgap_datasets_curated.tsv
+Loaded GEO Datasets file from data/01_intermediate/2025-05-09/gathered-2025-05-15/geo_datasets.csv
+
+
+Applying special handling steps...
+---
+Checking for publications published before projects...
+Early Publications detected:
+245 Publications with publication date more than 365 days before the associated project start date were removed and saved to reports/2025-05-09/gathered-2025-05-15/packagingReports/removedEarlyPublications.csv
+---
+Adding dataset UUIDs to curated dbGaP datasets if not present...
+
+
+Final packaging steps...
+---
+Finalizing TSV for program data...
+Done! Final program data saved as data/02_output/2025-05-09/gathered-2025-05-15/program.tsv.
+---
+Finalizing TSV for grant data...
+Columns dropped from grant output: program.program_id, api_source_search
+Invalid duplicate rows (including kept first rows) recorded in reports/2025-05-09/gathered-2025-05-15/packagingReports/duplicate_grant.csv.
+Done! Final grant data saved as data/02_output/2025-05-09/gathered-2025-05-15/grant.tsv.
+---
+Finalizing TSV for project data...
+Columns dropped from project output: api_source_search
+Done! Final projects data saved as data/02_output/2025-05-09/gathered-2025-05-15/project.tsv.
+---
+Finalizing TSV for publication data...
+Done! Final publication data saved as data/02_output/2025-05-09/gathered-2025-05-15/publication.tsv.
+---
+Finalizing TSV for dbGaP datasets data...
+Done! Final dbGaP Datasets data saved as data/02_output/dbgap/2025-03-27/dbgap_datasets_curated_clean.tsv.
+---
+Finalizing TSV for GEO Datasets data...
+Columns dropped from geo_dataset output: FTPLink, geo_id, program_id
+Done! Final GEO Datasets data saved as data/02_output/2025-05-09/gathered-2025-05-15/geo_datasets.tsv.
+
+
+ Completing post-packaging steps...
+---
+Generating enumerated values for data model...
+Done! Enumerated values for programs: ['focus_area', 'cancer_type'] saved to reports/2025-05-09/gathered-2025-05-15/packagingReports/program_enums.txt
+---
+Generating md5 hashes for file validation...
+Done! MD5 hashes saved to data/02_output/2025-05-09/gathered-2025-05-15\_md5.txt.
+
+
+---
+Success! INS Data packaging complete.
+---
+
+---
+DATA VALIDATION:
+Generating file for data validation...
+---
+
+Done! Data validation file saved to reports/2025-05-09/gathered-2025-05-15/INS_DataValidation_Generated_2025-05-15.xlsx.
