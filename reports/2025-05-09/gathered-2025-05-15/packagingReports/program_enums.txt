@@ -18,7 +18,6 @@ PropDefinitions:
     Type:
       value_type: list
       Enum:
-        - 1
         - Adrenal Gland Cancer
         - Bile Duct Cancer
         - Bladder Cancer
