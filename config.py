@@ -21,6 +21,9 @@ ICITE_VERSION = "2025-04"           # <-- CHANGE VERSION HERE
 # Version of dbGaP seearch results download (download date)
 DBGAP_CSV_VERSION = "2025-05-19"   # <-- CHANGE VERSION HERE
 
+# Version of CEDCD cohort metadata CSV
+CEDCD_VERSION = "2025-04-24"        # <-- CHANGE VERSION HERE
+
 # An override date can be used instead of today's date for pulling and saving data versions
 # This is useful when running downstream modules on grants data gathered before today
 
@@ -421,6 +424,41 @@ COLUMN_CONFIGS = {
         'list_like_cols': ['dataset_pmid', 'funding_source',],
         'html_tag_cols': None
     },
+    'cedcd_dataset': {
+        'node_id': 'dataset_uuid',
+        'link_id': None,
+        'keep_and_rename': {
+            'type': 'type',
+            'dataset_uuid': 'dataset_uuid',
+            'dataset_source_repo': 'dataset_source_repo',
+            'dataset_title': 'dataset_title',
+            'description': 'description',
+            'dataset_id': 'dataset_source_id',
+            'dataset_source_url': 'dataset_source_url',
+            'principal_investigators': 'PI_name',
+            'GPA': 'GPA',
+            'dataset_doc': 'dataset_doc',
+            'dataset_pmid': 'dataset_pmid',
+            'funding_source': 'funding_source',
+            'release_date': 'release_date',
+            'limitations_for_reuse': 'limitations_for_reuse',
+            'assay_method': 'assay_method',
+            'cohort_type': 'study_type',
+            'primary_disease': 'primary_disease',
+            'number_of_participants': 'participant_count',    
+            'sample_count': 'sample_count',
+            'dataset_url': 'study_links',
+            'related_genes': 'related_genes',
+            'related_diseases': 'related_diseases',
+            'types_of_biospecimens': 'related_terms',
+            'year_enrollment_started': 'dataset_year_enrollment_started',
+            'year_enrollment_ended': 'dataset_year_enrollment_ended',
+            'minimum_age_at_baseline': 'dataset_minimum_age_at_baseline',
+            'maximum_age_at_baseline': 'dataset_maximum_age_at_baseline',
+        },
+        'list_like_cols': None,
+        'html_tag_cols': None
+    },
 }
 
 
@@ -466,3 +504,17 @@ GEO_OUTPUT_PATH = OUTPUT_GATHERED_DIR +"/"+ "geo_datasets.tsv"
 
 # GEO reports
 GEO_DROPPED_ACCESSIONS_PATH = REPORTS_GATHERED_DIR +"/"+ "geo_dropped_accessions.csv"
+
+
+# CEDCD
+
+# CEDCD input file provided by CEDCD team 
+CEDCD_INPUT_CSV = INPUT_DIR + "cedcd/" + "CEDCD_report_" + CEDCD_VERSION + ".csv"
+
+# CEDCD intermediates
+CEDCD_INTERMED_DIR = INTERMED_DIR + "cedcd/" + CEDCD_VERSION + "/"
+CEDCD_INTERMED_CSV = CEDCD_INTERMED_DIR + "cedcd_datasets.csv"
+
+# CEDCD outputs
+CEDCD_OUTPUT_DIR = OUTPUT_DIR + "cedcd/" + CEDCD_VERSION + "/"
+CEDCD_OUTPUT_PATH = CEDCD_OUTPUT_DIR + "cedcd_datasets.tsv"
