@@ -12,11 +12,11 @@ from datetime import datetime
 # Inputs and outputs will use this versioning
 # Version must match suffix in input filename
 
-QUALTRICS_VERSION = "2024-09-18"    # <-- CHANGE VERSION HERE
+QUALTRICS_VERSION = "2025-05-09"    # <-- CHANGE VERSION HERE
 QUALTRICS_TYPE = "manual_fix"              # <-- Define "raw" or "manual_fix" type of the input csv
 
 # Version of bulk download from iCite
-ICITE_VERSION = "2024-08"           # <-- CHANGE VERSION HERE
+ICITE_VERSION = "2025-04"           # <-- CHANGE VERSION HERE
 
 # Version of dbGaP seearch results download (download date)
 DBGAP_CSV_VERSION = "2025-05-19"   # <-- CHANGE VERSION HERE
@@ -24,7 +24,7 @@ DBGAP_CSV_VERSION = "2025-05-19"   # <-- CHANGE VERSION HERE
 # An override date can be used instead of today's date for pulling and saving data versions
 # This is useful when running downstream modules on grants data gathered before today
 
-OVERRIDE_DATE = None               # <-- Optional. Define override date (e.g. "2023-12-14"). Default None.
+OVERRIDE_DATE = "2025-05-15"               # <-- Optional. Define override date (e.g. "2023-12-14"). Default None.
 
 
 
