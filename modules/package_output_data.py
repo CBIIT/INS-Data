@@ -406,6 +406,28 @@ def validate_and_clean_unique_nodes(df, column_configs, datatype):
 
 
 
+def enforce_int_values(df, column_configs, datatype):
+    """Enforce integer values in expected columns."""
+    
+    # Get predefined columns from configuration
+    int_cols = column_configs[datatype].get('int_cols', None)
+    
+    # Iterate through expected columns
+    if int_cols is not None:
+        for col in int_cols:
+            
+            # Check that expected column exists
+            if col not in df.columns:
+                raise ValueError(f"Expected integer column {col} not found "
+                               f"within data. Check data or redefine config.")
+                
+            # Convert column to Int64. Keeps NaN and blank vals
+            df[col] = df[col].astype('Int64')
+
+    return df
+
+
+
 def remove_nan_strings(df):
     """Remove 'nan' string values and replace with blank space."""
 
@@ -427,6 +449,7 @@ def standardize_data(df, column_configs, datatype):
     df = validate_listlike_columns(df, column_configs, datatype)
     df = format_datetime_columns(df, column_configs, datatype)
     df = validate_and_clean_unique_nodes(df, column_configs, datatype)
+    df = enforce_int_values(df, column_configs, datatype)
     df = remove_nan_strings(df)
 
     # Validate that data meets loading standards

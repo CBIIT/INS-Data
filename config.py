@@ -391,7 +391,8 @@ COLUMN_CONFIGS = {
         'list_like_cols': ['PI_name', 'dataset_pmid', 'funding_source',
                            'limitations_for_reuse','study_links','related_genes',
                            'related_diseases','related_terms'],
-        'html_tag_cols': None # Keep HTML tags in dbgap descriptions
+        'html_tag_cols': None, # Keep HTML tags in dbgap descriptions
+        'int_cols': ['participant_count', 'sample_count'],
     },
     'geo_dataset': {
         'node_id': 'dataset_uuid',
