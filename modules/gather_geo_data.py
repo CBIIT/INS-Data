@@ -476,7 +476,7 @@ def get_dataset_doc_from_project(df_geo):
     # Check if program CSV file exists
     if os.path.exists(program_path):
         df_program = pd.read_csv(program_path)
-        print(f"Loaded projects from {program_path}")
+        print(f"Loaded programs from {program_path}")
     else: 
         print("Warning: No program file available. DOCs not mapped.")
         return df_null_result
@@ -814,13 +814,13 @@ def gather_geo_data(publications_df: pd.DataFrame, overwrite_intermeds: bool=Fal
     # Add hard-coded values
     merged_df['type'] = 'geo_dataset'
     merged_df['dataset_source_repo'] = 'GEO'
-    merged_df['primary_disease'] = 'Unspecified'
+    merged_df['primary_disease'] = 'Not Reported'
+    merged_df['study_type'] = 'Genomic Sequencing'
 
     # Add empty dataset columns to avoid downstream issues
     merged_df['GPA'] = ''
     merged_df['limitations_for_reuse'] = ''
     merged_df['participant_count'] = ''
-    merged_df['study_type'] = ''
     merged_df['related_genes'] = ''
     merged_df['related_diseases'] = ''
 
