@@ -25,14 +25,14 @@ The INS Data Gathering workflow consists of the following steps designed to run 
 2. [Gather Grants](#gather-grants)
 3. [Gather Projects](#gather-projects)
 4. [Gather Publications](#gather-publications)
-5. [Gather GEO Datasets](#gather-datasets)
-6. [Process CEDCD Cohorts](#gather-datasets)
+5. [Gather GEO Datasets](#gather-geo-datasets)
+6. [Process CEDCD Cohorts](#gather-cedcd-datasets)
 7. [Package Data](#package-data)
 8. [Validate Data](#validate-data)
 
 The workflow is supported by additional, independent steps run as needed:
 
-- [Gather dbGaP Datasets](#gather-datasets)
+- [Gather dbGaP Datasets](#gather-dbgap-datasets)
 
 ![INS-Data workflow. This diagram shows a detailed visualization of the steps listed below.](images/ins-data-repo-diagram.png)
 
@@ -224,6 +224,110 @@ python modules/gather_publication_data.py
     - Stores a report of removed publications in a versioned `removedPublicationsReport.csv` within the `reports/` directory
     - Stores the intermediate publication output `publication.csv` in the versioned `data/01_intermediate/` directory
 
+## Gather GEO Datasets
+
+**This step gathers Gene Expression Omnibus (GEO) Dataset data from [NCBI GEO](https://www.ncbi.nlm.nih.gov/geo/) using NCBI E-utilities. All GEO datasets are associated with at least one publication and at least one project.**
+
+### GEO Dataset Workflow
+
+All GEO dataset processing is handled within the `gather_geo_data.py` module and can be run as an independent process with the command:
+
+```bash
+python modules/gather_geo_data.py
+```
+
+1. **Map PMIDs to GEO IDs**
+    - Reads the publication data (with PMIDs and project info) and uses NCBI E-utilities to find all GEO dataset IDs (GSE/GDS) linked to each PMID.
+    - Saves a mapping of PMIDs to GEO IDs as a checkpoint file for reuse.
+
+2. **Gather GEO Metadata**
+    - For each unique GEO ID, retrieves metadata from NCBI using the ESummary API, including accession, title, description, sample count, assay method, and FTP links.
+    - Saves the raw metadata as a JSON checkpoint file.
+
+3. **Extract FTP Metadata**
+    - For each GEO dataset, connects to the NCBI GEO FTP server and parses the series matrix files to extract additional metadata fields, such as contributors.
+    - Saves the extracted FTP metadata as a JSON checkpoint file.
+
+4. **Combine and Format Data**
+    - Merges GEO metadata, FTP metadata, and project/program information into a single DataFrame.
+    - Adds standardized columns (e.g., URLs, UUIDs, type, repository, and empty fields for downstream compatibility).
+    - Removes non-dataset accessions and ensures only GSE/GDS datasets are included.
+
+5. **Save Final Output**
+    - Saves the processed `geo_datasets.csv` file in the intermediate data directory for downstream use and validation.
+
+## Gather CEDCD Datasets
+
+**This step processes cohort metadata from the [NCI Cancer Epidemiology Descriptive Cohort Database (CEDCD)](https://cedcd.nci.nih.gov/). These cohorts are included as datasets in INS and are not enriched by APIs or other external resources.**
+
+### CEDCD Dataset Workflow
+
+All CEDCD cohort processing is handled within the `gather_cedcd_data.py` module and can be run as an independent process with the command:
+
+```bash
+python modules/gather_cedcd_data.py
+```
+
+1. **Load CEDCD cohort metadata**
+    - Reads the input CSV file of cohort metadata received from the CEDCD team.
+    - Loads all cohort entries, including multiple versions of the same cohort if present.
+
+2. **Filter to newest cohort versions**
+    - Keeps only the newest version of each unique cohort title, ensuring that only the most up-to-date information is included.
+
+3. **Clean and standardize data**
+    - Removes newline and hidden return characters from all string fields.
+    - Cleans up PI values and standardizes column names and values for INS compatibility.
+
+4. **Add INS-specific fields**
+    - Adds required columns such as URLs, UUIDs, type, repository, and empty fields for downstream compatibility.
+    - Sets hard-coded values for fields like `primary_disease` and `dataset_doc` as needed.
+
+5. **Save intermediate output**
+    - Saves the processed cohort data as `cedcd_datasets.csv` in the intermediate data directory for downstream use and final packaging.
+
+## Gather dbGaP Datasets
+
+**This independent step gathers NCI-supported datasets from the [NCBI dbGaP](https://www.ncbi.nlm.nih.gov/gap/). These are not necessarily associated with any of the Programs, Grants, Projects, or Publications gathered in the main workflow.**  
+
+**Datasets** within INS represent open-access or controlled data released as an output of an NCI-supported effort. Currently, INS datasets are sourced only from dbGaP study metadata, but future releases will expand to additional resources.
+
+### dbGaP Dataset Examples
+
+- [phs002790](https://www.ncbi.nlm.nih.gov/projects/gap/cgi-bin/study.cgi?study_id=phs002790) | Childhood Cancer Data Initiative (CCDI): Molecular Characterization Initiative
+- [phs002153](https://www.ncbi.nlm.nih.gov/projects/gap/cgi-bin/study.cgi?study_id=phs002153) | Genomic Characterization CS-MATCH-0007 Arm S1
+
+### Dataset Workflow
+
+All Dataset gathering steps are handled within the `gather_dbgap_data.py` module.  
+**This module is not included in the `main.py` workflow and must be run independently:**
+
+```bash
+python modules/gather_dbgap_data.py
+```
+
+NOTE: This module is intended to automate the effort to gather a large number of datasets, but the results must undergo manual review and curation. Because of this, the datasets module is not intended to be run as regularly as the main workflow.
+
+1. **Load input CSV of NCI-supported dbGaP studies**
+    - CSV is retrieved from the dbGaP Advanced Search by filtering for IC: NCI and downloading resulting list
+    - This list has phs study accessions of interest along with some descriptive metadata
+
+2. **Enrich dataset data with dbGaP API resources**
+    - Use the [dbGaP Study Metadata API](https://submit.ncbi.nlm.nih.gov/dbgap/api/v1/docs/) to gather additional study metadata for each phs
+    - Use the [dbGaP SSTR API](https://www.ncbi.nlm.nih.gov/gap/sstr/swagger/) to gather additional study metadata for each phs
+
+3. **Enrich dataset data with NCI administrative information**
+    - Use a file received from the NCI Office of Data Sharing (ODS) that monitors dbGaP data submissions as input
+    - Associate Grant Program Administrators (GPAs) and NCI Divisions, Offices, and Centers (DOCs) with each phs
+    - Lookup tables associating GPAs and DOCs were built using public information from the following resources:
+        - [CBIIT GDS Policy Contact Information](https://datascience.cancer.gov/data-sharing/genomic-data-sharing/genomic-data-sharing-policy-contact)
+        - [NIH Scientific Data Sharing](https://sharing.nih.gov/genomic-data-sharing-policy/resources/contacts-and-help)
+
+4. **Manually review and curate final datasets file**
+    - Combine and clean all dataset inputs and export as a CSV for curation
+    - Missing, erroneous, or unstructured source data is refined by expert curation
+    - The curated file is validated and ready for INS data loading
+
 ## Package Data
 
 **This step standardizes, validates, and exports all data gathered from other steps of the process.**
@@ -288,48 +392,6 @@ python modules/build_validation_file.py
 
 5. **Format and save all tables to Excel as separate tabs**
     - Excel file is saved in the versioned `reports/` directory with a timestamp noting when it was generated
-
-## Gather Datasets
-
-**This independenet step gathers NCI-supported datasets from the [NCBI dbGaP](https://www.ncbi.nlm.nih.gov/gap/). These are not necessarily associated with any of the Programs, Grants, Projects, or Publications gathered in the main workflow.**  
-
-**Datasets** within INS represent open-access or controlled data released as an output of an NCI-supported effort. Currently, INS datasets are sourced only from dbGaP study metadata, but future releases will expand to additional resources.
-
-### dbGaP Dataset Examples
-
-- [phs002790](https://www.ncbi.nlm.nih.gov/projects/gap/cgi-bin/study.cgi?study_id=phs002790) | Childhood Cancer Data Initiative (CCDI): Molecular Characterization Initiative
-- [phs002153](https://www.ncbi.nlm.nih.gov/projects/gap/cgi-bin/study.cgi?study_id=phs002153) | Genomic Characterization CS-MATCH-0007 Arm S1
-
-### Dataset Workflow
-
-All Dataset gathering steps are handled within the `gather_dbgap_data.py` module.  
-**This module is not included in the `main.py` workflow and must be run independently:**
-
-```bash
-python modules/gather_dbgap_data.py
-```
-
-NOTE: This module is intended to automate the effort to gather a large number of datasets, but the results must undergo manual review and curation. Because of this, the datasets module is not intended to be run as regularly as the main workflow.
-
-1. **Load input CSV of NCI-supported dbGaP studies**
-    - CSV is retrieved from the dbGaP Advanced Search by filtering for IC: NCI and downloading resulting list
-    - This list has phs study accessions of interest along with some descriptive metadata
-
-2. **Enrich dataset data with dbGaP API resources**
-    - Use the [dbGaP Study Metadata API](https://submit.ncbi.nlm.nih.gov/dbgap/api/v1/docs/) to gather additional study metadata for each phs
-    - Use the [dbGaP SSTR API](https://www.ncbi.nlm.nih.gov/gap/sstr/swagger/) to gather additional study metadata for each phs
-
-3. **Enrich dataset data with NCI administrative information**
-    - Use a file received from the NCI Office of Data Sharing (ODS) that monitors dbGaP data submissions as input
-    - Associate Grant Program Administrators (GPAs) and NCI Divisions, Offices, and Centers (DOCs) with each phs
-    - Lookup tables associating GPAs and DOCs were built using public information from the following resources:
-        - [CBIIT GDS Policy Contact Information](https://datascience.cancer.gov/data-sharing/genomic-data-sharing/genomic-data-sharing-policy-contact)
-        - [NIH Scientific Data Sharing](https://sharing.nih.gov/genomic-data-sharing-policy/resources/contacts-and-help)
-
-4. **Manually review and curate final datasets file**
-    - Combine and clean all dataset inputs and export as a CSV for curation
-    - Missing, erroneous, or unstructured source data is refined by expert curation
-    - The curated file is validated and ready for INS data loading
 
 ## How to Use this Repository
 
@@ -404,7 +466,12 @@ NOTE: This module is intended to automate the effort to gather a large number of
     - **Never commit API keys to GitHub. Keep them on your local.**
     - Failure to add a valid API key here will triple the time required for the PubMed API data gathering process.
 
-6. **Run the pipeline**
+6. **Add or update the input CSV from CEDCD**
+    - Reach out to the Cancer Epidemiology Descriptive Cohort Database ([CEDCD](https://cedcd.nci.nih.gov/)) team to ask if an updated CSV is available
+    - If so, add the csv to a versioned input `00_input/cedcd/` folder
+    - Update the `CEDCD_VERSION` in `config.py`
+
+7. **Run the pipeline**
     - In the command terminal, run the main workflow from the INS-Data root directory with:
 
     ```bash
@@ -420,25 +487,29 @@ NOTE: This module is intended to automate the effort to gather a large number of
         python modules/summary_statistics.py
         python modules/gather_project_data.py
         python modules/gather_publication_data.py
+        python modules/gather_geo_data.py
+        python modules/gather_cedcd_data.py
         python modules/package_output_data.py
         python modules/build_validation_file.py
         ```
 
     - NOTE: If running modules independently, ensure that necessary output files from preceding modules already exist for the same start date (version)
 
-7. **Gather/Curate Datasets (optional)**
+8. **Gather/Curate dbGaP Datasets (optional)**
     - On the [NCBI dbGaP Advanced Search](https://www.ncbi.nlm.nih.gov/gap/advanced_search/), filter for "NIH Institute: NCI" and download the CSV with the "Save Results" button. Store this in `data/00_input/dbgap/study_{DBGAP_CSV_VERSION}.csv` where `DBGAP_CSV_VERSION` is the date of download
     - Update the `DBGAP_CSV_VERSION` in `config.py`
     - Obtain an updated GPA study list from a point of contact at the NCI Office of Data Sharing and store as `data/00_input/dbgap/gpa_tables/gpa_study_table.csv`
     - If needed, manually update the `gpa_doc_lookup_table.csv` in the same folder
-    - Run the datasets gathering module with the following command:
+    - Run the dbGaP gathering module and then the data packaging module with the following commands:
 
     ```bash
     python modules/gather_dbgap_data.py
+    python modules/package_output_data.py
     ```
 
-    - Manually review and curate results before storing as `dataset.tsv` for INS data loading
+    - Manually review and curate results as needed and save as `dbgap_datasets_curated.tsv` in the `01_intermediate` dbGaP folder.
         - It is recommended to continue additive manual curation of this file for each release rather than re-running the datasets module and repeating full curation unless necessary
+    - Rerun the data packaging module, which will auto-detect and use the curated version if available
 
 ## Repository Structure
 
