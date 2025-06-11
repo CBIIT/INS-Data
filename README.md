@@ -448,14 +448,14 @@ python modules/build_validation_file.py
 
 4. **Download the most recent** [**iCite Database Snapshot**](https://nih.figshare.com/collections/iCite_Database_Snapshots_NIH_Open_Citation_Collection_/4586573)
     - The file is a ~10GB zipped CSV and can take 2-4 hours to manually download
-    - Place the file in a versioned raw data directory (i.e. `data/raw/icite/{version}/icite_metadata.zip`)
+    - Place the file in a versioned raw data directory (i.e. `data/00_input/icite/{version}/icite_metadata.zip`)
     - Update the value of `ICITE_VERSION` in `config.py` to match the version directory name (e.g. `2023-11`)
 
 5. **Get an NCBI API Key**
     - Follow [NCBI instructions](https://ncbiinsights.ncbi.nlm.nih.gov/2017/11/02/new-api-keys-for-the-e-utilities/) to register for an NCBI account and get an API key
     - Create a new file in the INS-Data root directory named `.env` and fill with the following:
 
-    ```bash
+    ```text
     NCBI_EMAIL = <your.name@nih.gov>
     NCBI_API_KEY = <API Key from NCBI>
     ```
