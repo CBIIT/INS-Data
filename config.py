@@ -12,19 +12,22 @@ from datetime import datetime
 # Inputs and outputs will use this versioning
 # Version must match suffix in input filename
 
-QUALTRICS_VERSION = "2024-09-18"    # <-- CHANGE VERSION HERE
+QUALTRICS_VERSION = "2025-05-09"    # <-- CHANGE VERSION HERE
 QUALTRICS_TYPE = "manual_fix"              # <-- Define "raw" or "manual_fix" type of the input csv
 
 # Version of bulk download from iCite
-ICITE_VERSION = "2024-08"           # <-- CHANGE VERSION HERE
+ICITE_VERSION = "2025-04"           # <-- CHANGE VERSION HERE
 
 # Version of dbGaP seearch results download (download date)
-DBGAP_CSV_VERSION = "2024-08-30"   # <-- CHANGE VERSION HERE
+DBGAP_CSV_VERSION = "2025-05-19"   # <-- CHANGE VERSION HERE
+
+# Version of CEDCD cohort metadata CSV
+CEDCD_VERSION = "2025-04-24"        # <-- CHANGE VERSION HERE
 
 # An override date can be used instead of today's date for pulling and saving data versions
 # This is useful when running downstream modules on grants data gathered before today
 
-OVERRIDE_DATE = "2024-09-20"                # <-- Optional. Define override date (e.g. "2023-12-14"). Default None.
+OVERRIDE_DATE = "2025-05-15"               # <-- Optional. Define override date (e.g. "2023-12-14"). Default None.
 
 
 
@@ -356,7 +359,107 @@ COLUMN_CONFIGS = {
         },
         'list_like_cols': ['authors'],
         'html_tag_cols': ['publication_title']
-    }
+    },
+    'dbgap_dataset': {
+        'node_id': 'dataset_uuid',
+        'link_id': None,
+        'keep_and_rename': {
+            'type': 'type',
+            'dataset_uuid': 'dataset_uuid',
+            'dataset_source_repo': 'dataset_source_repo',
+            'name': 'dataset_title',
+            'description': 'description',
+            'accession': 'dataset_source_id',
+            'dbGaP_URL': 'dataset_source_url',
+            'principal_investigator': 'PI_name',
+            'gpa': 'GPA',
+            'doc': 'dataset_doc',
+            'cited_publications': 'dataset_pmid',
+            'funding_source': 'funding_source',
+            'Release Date': 'release_date',
+            'limitations_for_reuse': 'limitations_for_reuse',
+            'assay_method': 'assay_method',
+            'study_type': 'study_type',
+            'Study Disease/Focus': 'primary_disease',
+            'participant_count': 'participant_count',    
+            'sample_count': 'sample_count',
+            'external_study_url': 'study_links',
+            'gene_keywords': 'related_genes',
+            'disease_keywords': 'related_diseases',
+            'Related Terms': 'related_terms',
+        },
+        'list_like_cols': ['PI_name', 'dataset_pmid', 'funding_source',
+                           'limitations_for_reuse','study_links','related_genes',
+                           'related_diseases','related_terms'],
+        'html_tag_cols': None, # Keep HTML tags in dbgap descriptions
+        'int_cols': ['participant_count', 'sample_count'],
+    },
+    'geo_dataset': {
+        'node_id': 'dataset_uuid',
+        'link_id': None,
+        'keep_and_rename': {
+            'type': 'type',
+            'dataset_uuid': 'dataset_uuid',
+            'dataset_source_repo': 'dataset_source_repo',
+            'dataset_title': 'dataset_title',
+            'description': 'description',
+            'dataset_source_id': 'dataset_source_id',
+            'dataset_source_url': 'dataset_source_url',
+            'series_contributor': 'PI_name',
+            'GPA': 'GPA',
+            'dataset_doc': 'dataset_doc',
+            'dataset_pmid': 'dataset_pmid',
+            'funding_source': 'funding_source',
+            'release_date': 'release_date',
+            'limitations_for_reuse': 'limitations_for_reuse',
+            'assay_method': 'assay_method',
+            'study_type': 'study_type',
+            'primary_disease': 'primary_disease',
+            'participant_count': 'participant_count',    
+            'sample_count': 'sample_count',
+            'study_links': 'study_links',
+            'related_genes': 'related_genes',
+            'related_diseases': 'related_diseases',
+            'related_terms': 'related_terms',
+        },
+        'list_like_cols': ['dataset_pmid', 'funding_source',],
+        'html_tag_cols': None
+    },
+    'cedcd_dataset': {
+        'node_id': 'dataset_uuid',
+        'link_id': None,
+        'keep_and_rename': {
+            'type': 'type',
+            'dataset_uuid': 'dataset_uuid',
+            'dataset_source_repo': 'dataset_source_repo',
+            'dataset_title': 'dataset_title',
+            'description': 'description',
+            'dataset_id': 'dataset_source_id',
+            'dataset_source_url': 'dataset_source_url',
+            'principal_investigators': 'PI_name',
+            'GPA': 'GPA',
+            'dataset_doc': 'dataset_doc',
+            'dataset_pmid': 'dataset_pmid',
+            'funding_source': 'funding_source',
+            'release_date': 'release_date',
+            'limitations_for_reuse': 'limitations_for_reuse',
+            'assay_method': 'assay_method',
+            'cohort_type': 'study_type',
+            'primary_disease': 'primary_disease',
+            'number_of_participants': 'participant_count',    
+            'sample_count': 'sample_count',
+            'dataset_url': 'study_links',
+            'related_genes': 'related_genes',
+            'related_diseases': 'related_diseases',
+            'types_of_biospecimens': 'related_terms',
+            'year_enrollment_started': 'dataset_year_enrollment_started',
+            'year_enrollment_ended': 'dataset_year_enrollment_ended',
+            'minimum_age_at_baseline': 'dataset_minimum_age_at_baseline',
+            'maximum_age_at_baseline': 'dataset_maximum_age_at_baseline',
+        },
+        'list_like_cols': None,
+        'html_tag_cols': None
+    },
 }
 
 
@@ -364,16 +467,18 @@ COLUMN_CONFIGS = {
 # ---
 # DATASETS CONFIGURATION
 
+# dbGaP
+# dbGaP gathering is not directly linked to main workflow, so it has own directory
+
 # dbGaP input file - CSV download of dbGaP search results
 DBGAP_INPUT_CSV = INPUT_DIR + "dbgap/" + "study_" + DBGAP_CSV_VERSION + ".csv"
 
 # dbGaP intermediate storage directory
 DBGAP_INTERMED_DIR = INTERMED_DIR + "dbgap/" + DBGAP_CSV_VERSION + "/"
-
 DBGAP_META_INTERMED_PATH = DBGAP_INTERMED_DIR + "dbgap_study_metadata.json"
 DBGAP_SSTR_INTERMED_PATH = DBGAP_INTERMED_DIR + "dbgap_sstr.json"
-
-DBGAP_PROCESSED_PATH = DBGAP_INTERMED_DIR + "dbgap_datasets.csv"
+DBGAP_INTERMED_PATH = DBGAP_INTERMED_DIR + "dbgap_datasets.csv"
+DBGAP_CURATED_INTERMED_PATH = DBGAP_INTERMED_DIR + "dbgap_datasets_curated.tsv"
 
 # dbGaP reports and error logs
 DBGAP_REPORTS_DIR = "reports/dbgap/" + DBGAP_CSV_VERSION + "/"
@@ -383,3 +488,34 @@ DBGAP_META_ERRORS = DBGAP_REPORTS_DIR + "api_errors_study_metadata.csv"
 # dbGaP GPA/DOC input files
 DBGAP_GPA_LIST = INPUT_DIR + "dbgap/gpa_tables/" + "gpa_study_table.csv"
 DBGAP_GPA_DOC_LUT = INPUT_DIR + "dbgap/gpa_tables/" + "gpa_doc_lookup_table.csv"
+
+# dbGaP cleaned output file
+DBGAP_OUTPUT_PATH = OUTPUT_DIR + "dbgap/" + DBGAP_CSV_VERSION +"/"+ "dbgap_datasets.tsv"
+DBGAP_OUTPUT_CURATED_CLEANED = OUTPUT_DIR + "dbgap/" + DBGAP_CSV_VERSION +"/"+ "dbgap_datasets_curated_clean.tsv"
+
+
+# GEO
+
+# GEO intermediate directories
+GEO_PMID_MAPPING_PATH = GATHERED_DIR +"/"+ "geo_pmid_project_map.csv"
+GEO_ESUMMARY_META_PATH = GATHERED_DIR +"/"+ "geo_metadata.json"
+GEO_FTP_META_PATH = GATHERED_DIR +"/"+ "geo_ftp_metadata.json"
+GEO_INTERMED_PATH = GATHERED_DIR +"/"+ "geo_datasets.csv"
+GEO_OUTPUT_PATH = OUTPUT_GATHERED_DIR +"/"+ "geo_datasets.tsv"
+
+# GEO reports
+GEO_DROPPED_ACCESSIONS_PATH = REPORTS_GATHERED_DIR +"/"+ "geo_dropped_accessions.csv"
+
+
+# CEDCD
+
+# CEDCD input file provided by CEDCD team 
+CEDCD_INPUT_CSV = INPUT_DIR + "cedcd/" + "CEDCD_report_" + CEDCD_VERSION + ".csv"
+
+# CEDCD intermediates
+CEDCD_INTERMED_DIR = INTERMED_DIR + "cedcd/" + CEDCD_VERSION + "/"
+CEDCD_INTERMED_CSV = CEDCD_INTERMED_DIR + "cedcd_datasets.csv"
+
+# CEDCD outputs
+CEDCD_OUTPUT_DIR = OUTPUT_DIR + "cedcd/" + CEDCD_VERSION + "/"
+CEDCD_OUTPUT_PATH = CEDCD_OUTPUT_DIR + "cedcd_datasets.tsv"

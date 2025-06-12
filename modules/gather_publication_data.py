@@ -821,7 +821,7 @@ def gather_publication_data(projects_df, print_meta=False):
     print(f"Total removed publications:       {len(df_removed_publications):>8}")
     print(f"Project-publication associations: {len(df_publications):>8}")
 
-
+    return df_publications
 
 # Run module as a standalone script when called directly
 if __name__ == "__main__":
