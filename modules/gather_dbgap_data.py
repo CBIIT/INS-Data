@@ -729,16 +729,46 @@ def get_gpa_and_doc(dbgap_df:pd.DataFrame):
                              how='left', 
                              left_on='Primary GPA', right_on='gpa')
     
+    # Get short accessions without versioning
+    merged_lut_df['short_accession'] = merged_lut_df['Accession'].str[:9]
+
     # Add the GPA and DOC columns to the main df
     df_out = pd.merge(left=dbgap_df, 
-                      right=merged_lut_df[['Accession','gpa','doc']],
+                      right=merged_lut_df[['short_accession','gpa','doc']],
                       how='left', 
-                      left_on='accession', right_on='Accession')
+                      left_on='accession', right_on='short_accession')
     
     # Drop the extra column
-    df_out.drop(columns='Accession',inplace=True)
+    df_out.drop(columns='short_accession', inplace=True)
 
     return df_out
+
+
+
+def update_non_nih_funded_docs(dbgap_df:pd.DataFrame):
+    """Overwrites DOC values with 'Non-NIH-Funded' using list of known studies
+    that were not funded by NIH/NCI but were processed by NCI GPAs for dbGaP 
+    submission.
+
+    Args:
+        dbgap_df (pd.DataFrame): pandas dataframe containing dbGaP information.
+            Must contain 'accession' column with dbGaP phs accessions.
+    """
+
+    # Load provided CSV of known Non-NIH-Funded dbGaP accessions
+    non_nih_df = pd.read_csv(config.DBGAP_NON_NIH_LIST)
+
+    # Get short accessions without versioning
+    non_nih_df['short_accession'] = non_nih_df['Accession'].str[:9]
+
+    # Clean list of non-nih-funded study accessions
+    non_nih_list = non_nih_df['short_accession'].dropna().drop_duplicates()
+
+    # Overwrite 'doc' column with 'Non-NIH-Funded' for matching accessions
+    dbgap_df.loc[
+        dbgap_df['accession'].isin(non_nih_list), 'doc'] = 'Non-NIH-Funded'
+
+    return dbgap_df
 
 
 
@@ -936,6 +966,9 @@ def gather_dbgap_data(input_csv:str):
 
     # Add GPA and DOC columns
     dbgap_df = get_gpa_and_doc(merged_df)
+
+    # Correct DOC names for non-NIH-funded studies
+    dbgap_df = update_non_nih_funded_docs(dbgap_df)
 
     # Add uuid column
     dbgap_df['dataset_uuid'] = dbgap_df.apply(lambda row: uuid.uuid4(), axis=1)
