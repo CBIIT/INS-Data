@@ -742,6 +742,33 @@ def get_gpa_and_doc(dbgap_df:pd.DataFrame):
 
 
 
+def update_non_nih_funded_docs(dbgap_df:pd.DataFrame):
+    """Overwrites DOC values with 'Non-NIH-Funded' using list of known studies
+    that were not funded by NIH/NCI but were processed by NCI GPAs for dbGaP 
+    submission.
+
+    Args:
+        dbgap_df (pd.DataFrame): pandas dataframe containing dbGaP information.
+            Must contain 'accession' column with dbGaP phs accessions.
+    """
+
+    # Load provided CSV of known Non-NIH-Funded dbGaP accessions
+    non_nih_df = pd.read_csv(config.DBGAP_NON_NIH_LIST)
+
+    # Get short accessions without versioning
+    non_nih_df['short_accession'] = non_nih_df['Accession'].str[:9]
+
+    # Clean list of non-nih-funded study accessions
+    non_nih_list = non_nih_df['short_accession'].dropna().drop_duplicates()
+
+    # Overwrite 'doc' column with 'Non-NIH-Funded' for matching accessions
+    dbgap_df.loc[
+        dbgap_df['accession'].isin(non_nih_list), 'doc'] = 'Non-NIH-Funded'
+
+    return dbgap_df
+
+
+
 def build_dbgap_df_from_json(api_type: str,
                              input_filepath: str):
     """Process a JSON file of bulk raw dbGaP API results into a dataframe
@@ -936,6 +963,9 @@ def gather_dbgap_data(input_csv:str):
 
     # Add GPA and DOC columns
     dbgap_df = get_gpa_and_doc(merged_df)
+
+    # Correct DOC names for non-NIH-funded studies
+    dbgap_df = update_non_nih_funded_docs(dbgap_df)
 
     # Add uuid column
     dbgap_df['dataset_uuid'] = dbgap_df.apply(lambda row: uuid.uuid4(), axis=1)

@@ -488,6 +488,7 @@ DBGAP_META_ERRORS = DBGAP_REPORTS_DIR + "api_errors_study_metadata.csv"
 # dbGaP GPA/DOC input files
 DBGAP_GPA_LIST = INPUT_DIR + "dbgap/gpa_tables/" + "gpa_study_table.csv"
 DBGAP_GPA_DOC_LUT = INPUT_DIR + "dbgap/gpa_tables/" + "gpa_doc_lookup_table.csv"
+DBGAP_NON_NIH_LIST = INPUT_DIR + "dbgap/gpa_tables/" + "dbgap_non_nih_funded_studies.csv"
 
 # dbGaP cleaned output file
 DBGAP_OUTPUT_PATH = OUTPUT_DIR + "dbgap/" + DBGAP_CSV_VERSION +"/"+ "dbgap_datasets.tsv"
