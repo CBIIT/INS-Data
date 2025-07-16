@@ -729,14 +729,17 @@ def get_gpa_and_doc(dbgap_df:pd.DataFrame):
                              how='left', 
                              left_on='Primary GPA', right_on='gpa')
     
+    # Get short accessions without versioning
+    merged_lut_df['short_accession'] = merged_lut_df['Accession'].str[:9]
+
     # Add the GPA and DOC columns to the main df
     df_out = pd.merge(left=dbgap_df, 
-                      right=merged_lut_df[['Accession','gpa','doc']],
+                      right=merged_lut_df[['short_accession','gpa','doc']],
                       how='left', 
-                      left_on='accession', right_on='Accession')
+                      left_on='accession', right_on='short_accession')
     
     # Drop the extra column
-    df_out.drop(columns='Accession',inplace=True)
+    df_out.drop(columns='short_accession', inplace=True)
 
     return df_out
 
