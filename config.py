@@ -24,6 +24,9 @@ DBGAP_CSV_VERSION = "2025-05-19"   # <-- CHANGE VERSION HERE
 # Version of CEDCD cohort metadata CSV
 CEDCD_VERSION = "2025-04-24"        # <-- CHANGE VERSION HERE
 
+# Version of CTD^2 datasets. Not expected to change
+CTD2_VERSION = "2025-11-26"
+
 # An override date can be used instead of today's date for pulling and saving data versions
 # This is useful when running downstream modules on grants data gathered before today
 
@@ -520,3 +523,17 @@ CEDCD_INTERMED_CSV = CEDCD_INTERMED_DIR + "cedcd_datasets.csv"
 # CEDCD outputs
 CEDCD_OUTPUT_DIR = OUTPUT_DIR + "cedcd/" + CEDCD_VERSION + "/"
 CEDCD_OUTPUT_PATH = CEDCD_OUTPUT_DIR + "cedcd_datasets.tsv"
+
+
+# CTD^2
+
+# CTD2 input file
+CTD2_INPUT_CSV = INPUT_DIR + "ctd2/" + CTD2_VERSION +"/"+ "ctd2_datasets.tsv"
+
+# CTD2 intermediates
+CTD2_INTERMED_DIR = INTERMED_DIR + "ctd2/" + CTD2_VERSION + "/"
+CTD2_INTERMED_CSV = CTD2_INTERMED_DIR + "ctd2.csv"
+
+# CTD2 outputs
+CTD2_OUTPUT_DIR = OUTPUT_DIR + "ctd2/" + CTD2_VERSION + "/"
+CTD2_OUTPUT_PATH = CTD2_OUTPUT_DIR + "ctd2.tsv"
