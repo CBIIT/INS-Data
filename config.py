@@ -500,7 +500,8 @@ COLUMN_CONFIGS = {
             'POC_email': 'POC_email',
         },
         'list_like_cols': None,
-        'html_tag_cols': None
+        'html_tag_cols': None,
+        'exclude_special_char_processing': ['dataset_source_repo']
     },
 }
 

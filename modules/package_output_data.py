@@ -205,15 +205,39 @@ def normalize_encoding(text):
     except TypeError:
         return text
 
+    
 
+def process_special_characters(df, column_configs, datatype):
+    """
+    Cleans a DataFrame by normalizing special characters and encoding.
+    Excludes fields listed in config as 'exclude_special_char_processing'.
 
-def process_special_characters(df):
-    """Cleans a DataFrame by normalizing special characters and encoding."""
+    Args:
+        df (pd.DataFrame): Input DataFrame.
+        column_configs (dict, optional): Configuration dictionary.
+        datatype (str, optional): Data type key for column_configs.
 
-    # Replace specific non-standard characters
-    df = df.map(replace_defined_characters)
-    # General normalization to utf-8 encoding
-    df_cleaned = df.map(normalize_encoding)
+    Returns:
+        pd.DataFrame: Cleaned DataFrame.
+    """
+
+    # Get any predefined excluded fields from config
+    exclude_cols = (column_configs[datatype]
+                    .get('exclude_special_char_processing', []))
+
+    # Use a copy for cleaner changes
+    df_cleaned = df.copy()
+
+    # Iterate through non-excluded fields
+    cols_to_process = [col for col in df_cleaned.columns 
+                       if col not in exclude_cols]
+    
+    for col in cols_to_process:
+        df_cleaned[col] = (df_cleaned[col]
+                            # Replace specific non-standard characters
+                           .map(replace_defined_characters)
+                           # General normalization to utf-8 encoding
+                           .map(normalize_encoding))
 
     return df_cleaned
 
@@ -456,7 +480,7 @@ def standardize_data(df, column_configs, datatype):
     # Edit data to standardize
     df = add_type_column(df, datatype)
     df = reorder_columns(df, column_configs, datatype)
-    df = process_special_characters(df)
+    df = process_special_characters(df, column_configs, datatype)
     df = remove_html_tags_from_df(df, column_configs, datatype)
     df = clean_html_entities(df,datatype)
     df = validate_listlike_columns(df, column_configs, datatype)
