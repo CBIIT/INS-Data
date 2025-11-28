@@ -655,7 +655,7 @@ def package_ctd2_datasets(df_ctd2_datasets, column_configs):
                                         datatype='ctd2_dataset')
 
     # Export as TSV
-    output_filepath = config.CTD2_OUTPUT_PATH
+    output_filepath = config.CTD2_DATASET_OUTPUT_PATH
     os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
     df_ctd2_datasets_output.to_csv(output_filepath, sep='\t', index=False, 
                                     encoding='utf-8')
@@ -927,10 +927,10 @@ def package_output_data():
         print(f"No CEDCD Datasets file found.")
 
     # Load CTD2 datasets data
-    if os.path.exists(config.CTD2_INTERMED_CSV):
+    if os.path.exists(config.CTD2_DATASET_INTERMED_CSV):
         ctd2_datasets_exist = True
-        df_ctd2_datasets = pd.read_csv(config.CTD2_INTERMED_CSV)
-        print(f"Loaded CTD2 Datasets file from {config.CTD2_INTERMED_CSV}")
+        df_ctd2_datasets = pd.read_csv(config.CTD2_DATASET_INTERMED_CSV)
+        print(f"Loaded CTD2 Datasets file from {config.CTD2_DATASET_INTERMED_CSV}")
     else:
         ctd2_datasets_exist = False
         print(f"No CTD2 Datasets file found.")

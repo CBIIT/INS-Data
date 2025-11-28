@@ -567,13 +567,16 @@ CEDCD_OUTPUT_PATH = CEDCD_OUTPUT_DIR + "cedcd_datasets.tsv"
 
 # CTD^2
 
-# CTD^2 input file
-CTD2_INPUT_CSV = INPUT_DIR + "ctd2/" +  "ctd2_datasets_" + CTD2_VERSION + ".csv"
+# CTD^2 inputs
+CTD2_DATASET_INPUT_CSV = INPUT_DIR + "ctd2/" + "ctd2_datasets_" + CTD2_VERSION + ".csv"
+CTD2_FILE_INPUT_CSV = INPUT_DIR + "ctd2/" + "ctd2_filedata_" + CTD2_VERSION + ".csv"
 
 # CTD^2 intermediates
 CTD2_INTERMED_DIR = INTERMED_DIR + "ctd2/" + CTD2_VERSION + "/"
-CTD2_INTERMED_CSV = CTD2_INTERMED_DIR + "ctd2_datasets.csv"
+CTD2_DATASET_INTERMED_CSV = CTD2_INTERMED_DIR + "ctd2_datasets.csv"
+CTD2_FILE_INTERMED_CSV = CTD2_INTERMED_DIR + "ctd2_filedata.csv"
 
 # CTD^2 outputs
 CTD2_OUTPUT_DIR = OUTPUT_DIR + "ctd2/" + CTD2_VERSION + "/"
-CTD2_OUTPUT_PATH = CTD2_OUTPUT_DIR + "ctd2_datasets.tsv"
+CTD2_DATASET_OUTPUT_PATH = CTD2_OUTPUT_DIR + "ctd2_datasets.tsv"
+CTD2_FILE_OUTPUT_PATH = CTD2_OUTPUT_DIR + "ctd2_filedata.tsv"
