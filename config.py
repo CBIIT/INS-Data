@@ -463,6 +463,45 @@ COLUMN_CONFIGS = {
         'list_like_cols': None,
         'html_tag_cols': None
     },
+    'ctd2_dataset': {
+        'node_id': 'dataset_uuid',
+        'link_id': None,
+        'keep_and_rename': {
+            'type': 'type',
+            'dataset_uuid': 'dataset_uuid',
+            'dataset_source_repo': 'dataset_source_repo',
+            'dataset_title': 'dataset_title',
+            'description': 'description',
+            'dataset_source_id': 'dataset_source_id',
+            # 'dataset_source_url': 'dataset_source_url',
+            'PI_name': 'PI_name',
+            # 'GPA': 'GPA',
+            # 'dataset_doc': 'dataset_doc',
+            'dataset_pmid': 'dataset_pmid',
+            # 'funding_source': 'funding_source',
+            # 'release_date': 'release_date',
+            # 'limitations_for_reuse': 'limitations_for_reuse',
+            'assay_method': 'assay_method',
+            'study_type': 'study_type',
+            'primary_disease': 'primary_disease',
+            'participant_count': 'participant_count',
+            # 'sample_count': 'sample_count',
+            'study_links': 'study_links',
+            'related_genes': 'related_genes',
+            # 'related_diseases': 'related_diseases',
+            # 'related_terms': 'related_terms',
+            # 'dataset_year_enrollment_started': 'dataset_year_enrollment_started',
+            # 'dataset_year_enrollment_ended': 'dataset_year_enrollment_ended',
+            # 'dataset_minimum_age_at_baseline': 'dataset_minimum_age_at_baseline',
+            # 'dataset_maximum_age_at_baseline': 'dataset_maximum_age_at_baseline',
+            'experimental_approaches': 'experimental_approaches',
+            'institute': 'institute',
+            'POC_name': 'POC_name',
+            'POC_email': 'POC_email',
+        },
+        'list_like_cols': None,
+        'html_tag_cols': None
+    },
 }
 
 
@@ -527,13 +566,13 @@ CEDCD_OUTPUT_PATH = CEDCD_OUTPUT_DIR + "cedcd_datasets.tsv"
 
 # CTD^2
 
-# CTD2 input file
-CTD2_INPUT_CSV = INPUT_DIR + "ctd2/" + CTD2_VERSION +"/"+ "ctd2_datasets.tsv"
+# CTD^2 input file
+CTD2_INPUT_CSV = INPUT_DIR + "ctd2/" +  "ctd2_datasets_" + CTD2_VERSION + ".csv"
 
-# CTD2 intermediates
+# CTD^2 intermediates
 CTD2_INTERMED_DIR = INTERMED_DIR + "ctd2/" + CTD2_VERSION + "/"
-CTD2_INTERMED_CSV = CTD2_INTERMED_DIR + "ctd2.csv"
+CTD2_INTERMED_CSV = CTD2_INTERMED_DIR + "ctd2_datasets.csv"
 
-# CTD2 outputs
+# CTD^2 outputs
 CTD2_OUTPUT_DIR = OUTPUT_DIR + "ctd2/" + CTD2_VERSION + "/"
-CTD2_OUTPUT_PATH = CTD2_OUTPUT_DIR + "ctd2.tsv"
+CTD2_OUTPUT_PATH = CTD2_OUTPUT_DIR + "ctd2_datasets.tsv"

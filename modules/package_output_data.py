@@ -30,7 +30,10 @@ def add_type_column(df, datatype):
     df_with_type = df.copy()
     
     # Define dataset types that should be mapped to the general 'dataset' type
-    dataset_types = {'dbgap_dataset', 'geo_dataset', 'cedcd_dataset'}
+    dataset_types = {'dbgap_dataset', 
+                     'geo_dataset', 
+                     'cedcd_dataset', 
+                     'ctd2_dataset'}
     
     # Map to 'dataset' if in the list, otherwise keep the original value
     df_with_type['type'] = 'dataset' if datatype in dataset_types else datatype
@@ -608,6 +611,27 @@ def package_cedcd_datasets(df_cedcd_datasets, column_configs):
 
 
 
+def package_ctd2_datasets(df_ctd2_datasets, column_configs):
+    """Package CTD^2 Datasets data for INS loading."""
+
+    print(f"---\nFinalizing TSV for CTD^2 Datasets data...") 
+
+    # Standardize and validate data
+    df_ctd2_datasets_output = standardize_data(df_ctd2_datasets, column_configs, 
+                                        datatype='ctd2_dataset')
+
+    # Export as TSV
+    output_filepath = config.CTD2_OUTPUT_PATH
+    os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
+    df_ctd2_datasets_output.to_csv(output_filepath, sep='\t', index=False, 
+                                    encoding='utf-8')
+
+    print(f"Done! Final CTD^2 Datasets data saved as {output_filepath}.")
+
+    return df_ctd2_datasets_output
+
+
+
 def remove_publications_before_projects(df_publications: pd.DataFrame, 
                                         df_projects: pd.DataFrame, 
                                         day_diff_allowed:int=0) -> pd.DataFrame:
@@ -859,7 +883,7 @@ def package_output_data():
         geo_datasets_exist = False
         print(f"No GEO Datasets file found.")
 
-        # Load CEDCD datasets data
+    # Load CEDCD datasets data
     if os.path.exists(config.CEDCD_INTERMED_CSV):
         cedcd_datasets_exist = True
         df_cedcd_datasets = pd.read_csv(config.CEDCD_INTERMED_CSV)
@@ -867,6 +891,15 @@ def package_output_data():
     else: 
         cedcd_datasets_exist = False
         print(f"No CEDCD Datasets file found.")
+
+    # Load CTD2 datasets data
+    if os.path.exists(config.CTD2_INTERMED_CSV):
+        ctd2_datasets_exist = True
+        df_ctd2_datasets = pd.read_csv(config.CTD2_INTERMED_CSV)
+        print(f"Loaded CTD2 Datasets file from {config.CTD2_INTERMED_CSV}")
+    else:
+        ctd2_datasets_exist = False
+        print(f"No CTD2 Datasets file found.")
     
 
     # Special handling
@@ -910,6 +943,8 @@ def package_output_data():
         df_geo_datasets_out = package_geo_datasets(df_geo_datasets, column_configs)
     if cedcd_datasets_exist:
         df_cedcd_datasets_out = package_cedcd_datasets(df_cedcd_datasets, column_configs)
+    if ctd2_datasets_exist:
+        df_ctd2_datasets_out = package_ctd2_datasets(df_ctd2_datasets, column_configs)
 
     print(f"\n\n Completing post-packaging steps...")
 
