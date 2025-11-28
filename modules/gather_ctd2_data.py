@@ -63,28 +63,30 @@ def get_composite_uuid5(df: pd.DataFrame,
     return df
 
 
+
 def gather_ctd2_data():
-    """Process a CSV of CTD2 dataset metadata into an intermediate CSV for INS.
+    """Process a CSV of CTD^2 dataset metadata into an intermediate CSV for INS.
 
     Input and output filepaths are handled in config.py
     """
 
-    print(f"\n---\nDATASETS - CTD2:\n"
-          f"Processing CTD2 dataset data...\n---\n")
+    print(f"\n---\nDATASETS - CTD^2:\n"
+          f"Processing CTD^2 dataset data...\n---\n")
 
     # Define paths from config
     input_csv = config.CTD2_INPUT_CSV
     output_csv = config.CTD2_INTERMED_CSV
 
-    # Load curated CTD2 CSV
-    df = pd.read_csv(input_csv, sep='\t')
-    print(f"Loaded CTD2 dataset data from {input_csv}")
+    # Load curated CTD^2 CSV
+    df = pd.read_csv(input_csv)
+    print(f"Loaded CTD^2 dataset data from {input_csv}")
+
+    # Add blank required fields
+    df['dataset_source_url'] = ''
 
     # Add reproducible uuid5
     uuid_fields = ['dataset_source_repo', 'dataset_title', 'description']
     df = get_composite_uuid5(df, uuid_fields, uuid_col='dataset_uuid')
-
-    # TODO: CHECK COLS
 
     # Make output directories if they don't exist
     os.makedirs(os.path.dirname(output_csv), exist_ok=True)
@@ -92,8 +94,8 @@ def gather_ctd2_data():
     # Save output
     df.to_csv(output_csv, index=False)
 
-    print(f"\n\nSuccess! CTD2 datasets saved to {output_csv}.\n"
-          f"Total CTD2 dataset records:    {len(df)}")
+    print(f"\n\nSuccess! CTD^2 datasets saved to {output_csv}.\n"
+          f"Total CTD^2 dataset records:    {len(df)}")
 
 
 # Run module as a standalone script when called directly
