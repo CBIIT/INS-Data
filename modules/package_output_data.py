@@ -665,6 +665,26 @@ def package_ctd2_datasets(df_ctd2_datasets, column_configs):
     return df_ctd2_datasets_output
 
 
+def package_ctd2_filedata(df_ctd2_filedata, column_configs):
+    """Package CTD^2 file metadata for INS loading."""
+
+    print(f"---\nFinalizing TSV for CTD^2 file metadata...")
+
+    # Standardize and validate data
+    df_ctd2_filedata_output = standardize_data(df_ctd2_filedata, column_configs, 
+                                        datatype='file')
+
+    # Export as TSV
+    output_filepath = config.CTD2_FILE_OUTPUT_PATH
+    os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
+    df_ctd2_filedata_output.to_csv(output_filepath, sep='\t', index=False, 
+                            encoding='utf-8')
+
+    print(f"Done! Final CTD^2 file metadata saved as {output_filepath}.")
+
+    return df_ctd2_filedata_output
+
+
 
 def remove_publications_before_projects(df_publications: pd.DataFrame, 
                                         df_projects: pd.DataFrame, 
@@ -934,7 +954,15 @@ def package_output_data():
     else:
         ctd2_datasets_exist = False
         print(f"No CTD2 Datasets file found.")
-    
+
+    # Load CTD2 file metadata
+    if os.path.exists(config.CTD2_FILE_INTERMED_CSV):
+        ctd2_filedata_exist = True
+        df_ctd2_filedata = pd.read_csv(config.CTD2_FILE_INTERMED_CSV)
+        print(f"Loaded CTD2 file metadata from {config.CTD2_FILE_INTERMED_CSV}")
+    else:
+        ctd2_filedata_exist = False
+        print(f"No CTD2 file metadata found.")
 
     # Special handling
     print(f"\n\nApplying special handling steps...")
@@ -979,6 +1007,8 @@ def package_output_data():
         df_cedcd_datasets_out = package_cedcd_datasets(df_cedcd_datasets, column_configs)
     if ctd2_datasets_exist:
         df_ctd2_datasets_out = package_ctd2_datasets(df_ctd2_datasets, column_configs)
+    if ctd2_filedata_exist:
+        df_ctd2_filedata_out = package_ctd2_filedata(df_ctd2_filedata, column_configs)
 
     print(f"\n\n Completing post-packaging steps...")
 

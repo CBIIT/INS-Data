@@ -503,6 +503,19 @@ COLUMN_CONFIGS = {
         'html_tag_cols': None,
         'exclude_special_char_processing': ['dataset_source_repo']
     },
+    'file': {
+        'node_id': 'file_id',
+        'link_id': 'dataset.dataset_uuid',
+        'keep_and_rename': {
+            'type': 'type',
+            'file_id': 'file_id',
+            'dataset.dataset_uuid': 'dataset.dataset_uuid',
+            'file_name': 'file_name',
+            'file_type': 'file_type',
+            'file_url': 'file_url',
+            'access_level': 'access_level'
+        }
+    }
 }
 
 
