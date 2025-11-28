@@ -151,6 +151,16 @@ def replace_defined_characters(text):
         '\u03bc': 'u',      # Greek mu - replace with u
         '\u03BB': 'l',      # Greek lambda - replace with l
         '\u0394': 'D',      # Greek upper delta
+        '\u2070': '^0',     # Superscript 0
+        '\u00B9': '^1',     # Superscript 1
+        '\u00B2': '^2',     # Superscript 2
+        '\u00B3': '^3',     # Superscript 3
+        '\u2074': '^4',     # Superscript 4
+        '\u2075': '^5',     # Superscript 5
+        '\u2076': '^6',     # Superscript 6
+        '\u2077': '^7',     # Superscript 7
+        '\u2078': '^8',     # Superscript 8
+        '\u2079': '^9',     # Superscript 9
         '\u2081': '1',      # Subscript 1
         '\u2082': '2',      # Subscript 2
         '\u2083': '3',      # Subscript 3
