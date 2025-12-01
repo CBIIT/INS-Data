@@ -128,19 +128,31 @@ def gather_ctd2_filedata():
 
 def gather_ctd2_data():
     """
-    Main function for the CTD^2 data preparation process. 
-    Process the dataset and filedata metadata inputs to generate aligned
-    intermediate CSVs for the CTD^2 datasets and files.
+    Main function for the CTD^2 data preparation process.
 
-    Add args here
+    Processes the dataset and file metadata inputs to generate aligned
+    intermediate CSVs for the CTD^2 datasets and files. Maps files to their
+    corresponding datasets using curated download file links, validates the
+    mapping, and saves the processed file metadata.
+
+    Steps performed:
+        1. Process the CTD^2 datasets and file input CSVs into intermediates
+        2. Map the files to datasets using curated download_file_link fields
+        3. Validate the mappings
+
+    Returns:
+        pd.DataFrame: DataFrame containing the processed CTD^2 file metadata,
+        including mapped dataset UUIDs.
+
+    Raises:
+        ValueError: If duplicate UUIDs are generated in the process.
+
     """
-
     # Process datasets input file, save csv, and return df
     datasets_df = gather_ctd2_datasets()
 
     # Process filedata input file and return df
     filedata_df = gather_ctd2_filedata()
-
 
     # FILE-DATASET MAPPING:
     # Map each file to a dataset uuid using the curated download_file_links
