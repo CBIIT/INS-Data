@@ -135,7 +135,7 @@ def gather_ctd2_data():
     Add args here
     """
 
-    # Process dataets input file, save csv, and return df
+    # Process datasets input file, save csv, and return df
     datasets_df = gather_ctd2_datasets()
 
     # Process filedata input file and return df
