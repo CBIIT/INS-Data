@@ -38,6 +38,7 @@ from modules.summary_statistics import get_summary_statistics
 from modules.gather_publication_data import gather_publication_data
 from modules.gather_geo_data import gather_geo_data
 from modules.gather_cedcd_data import gather_cedcd_data
+from modules.gather_ctd2_data import gather_ctd2_data
 from modules.package_output_data import package_output_data
 from modules.build_validation_file import build_validation_file
 
@@ -73,14 +74,18 @@ def main():
     # Process and save CEDCD cohort data
     gather_cedcd_data()
 
+    # STEP 8: CTD^2 DATASETS AND FILES
+    # Process, map, and save CTD^2 datasets and files. Unlikely to change often.
+    gather_ctd2_data()
+
     # OPTIONAL STEP: DBGAP DATASETS
     # If needed, update/run/curate `modules/gather_dbgap_data.py` independently
 
-    # STEP 8: PACKAGE
+    # STEP 9: PACKAGE
     # Final packaging steps to store output files as TSVs
     package_output_data()
 
-    # STEP 9: VALIDATE
+    # STEP 10: VALIDATE
     # Create report for QA testing of data within site UI
     build_validation_file()
 
