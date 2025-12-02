@@ -25,7 +25,7 @@ DBGAP_CSV_VERSION = "2025-05-19"   # <-- CHANGE VERSION HERE
 CEDCD_VERSION = "2025-04-24"        # <-- CHANGE VERSION HERE
 
 # Version of CTD^2 datasets. Not expected to change
-CTD2_VERSION = "2025-11-26"
+CTD2_VERSION = "2025-12-01"
 
 # An override date can be used instead of today's date for pulling and saving data versions
 # This is useful when running downstream modules on grants data gathered before today
