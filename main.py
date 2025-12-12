@@ -74,18 +74,18 @@ def main():
     # Process and save CEDCD cohort data
     gather_cedcd_data()
 
-    # STEP 8: CTD^2 DATASETS AND FILES
+    # OPTIONAL STEP: CTD^2 DATASETS AND FILES
     # Process, map, and save CTD^2 datasets and files. Unlikely to change often.
-    gather_ctd2_data()
+    # Run only when needed to reassign UUIDs and/or remap files to datasets
 
     # OPTIONAL STEP: DBGAP DATASETS
     # If needed, update/run/curate `modules/gather_dbgap_data.py` independently
 
-    # STEP 9: PACKAGE
+    # STEP 8: PACKAGE
     # Final packaging steps to store output files as TSVs
     package_output_data()
 
-    # STEP 10: VALIDATE
+    # STEP 9: VALIDATE
     # Create report for QA testing of data within site UI
     build_validation_file()
 
