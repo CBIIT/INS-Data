@@ -30,7 +30,10 @@ def add_type_column(df, datatype):
     df_with_type = df.copy()
     
     # Define dataset types that should be mapped to the general 'dataset' type
-    dataset_types = {'dbgap_dataset', 'geo_dataset', 'cedcd_dataset'}
+    dataset_types = {'dbgap_dataset', 
+                     'geo_dataset', 
+                     'cedcd_dataset', 
+                     'ctd2_dataset'}
     
     # Map to 'dataset' if in the list, otherwise keep the original value
     df_with_type['type'] = 'dataset' if datatype in dataset_types else datatype
@@ -148,6 +151,16 @@ def replace_defined_characters(text):
         '\u03bc': 'u',      # Greek mu - replace with u
         '\u03BB': 'l',      # Greek lambda - replace with l
         '\u0394': 'D',      # Greek upper delta
+        '\u2070': '^0',     # Superscript 0
+        '\u00B9': '^1',     # Superscript 1
+        '\u00B2': '^2',     # Superscript 2
+        '\u00B3': '^3',     # Superscript 3
+        '\u2074': '^4',     # Superscript 4
+        '\u2075': '^5',     # Superscript 5
+        '\u2076': '^6',     # Superscript 6
+        '\u2077': '^7',     # Superscript 7
+        '\u2078': '^8',     # Superscript 8
+        '\u2079': '^9',     # Superscript 9
         '\u2081': '1',      # Subscript 1
         '\u2082': '2',      # Subscript 2
         '\u2083': '3',      # Subscript 3
@@ -192,15 +205,39 @@ def normalize_encoding(text):
     except TypeError:
         return text
 
+    
 
+def process_special_characters(df, column_configs, datatype):
+    """
+    Cleans a DataFrame by normalizing special characters and encoding.
+    Excludes fields listed in config as 'exclude_special_char_processing'.
 
-def process_special_characters(df):
-    """Cleans a DataFrame by normalizing special characters and encoding."""
+    Args:
+        df (pd.DataFrame): Input DataFrame.
+        column_configs (dict, optional): Configuration dictionary.
+        datatype (str, optional): Data type key for column_configs.
 
-    # Replace specific non-standard characters
-    df = df.map(replace_defined_characters)
-    # General normalization to utf-8 encoding
-    df_cleaned = df.map(normalize_encoding)
+    Returns:
+        pd.DataFrame: Cleaned DataFrame.
+    """
+
+    # Get any predefined excluded fields from config
+    exclude_cols = (column_configs[datatype]
+                    .get('exclude_special_char_processing', []))
+
+    # Use a copy for cleaner changes
+    df_cleaned = df.copy()
+
+    # Iterate through non-excluded fields
+    cols_to_process = [col for col in df_cleaned.columns 
+                       if col not in exclude_cols]
+    
+    for col in cols_to_process:
+        df_cleaned[col] = (df_cleaned[col]
+                            # Replace specific non-standard characters
+                           .map(replace_defined_characters)
+                           # General normalization to utf-8 encoding
+                           .map(normalize_encoding))
 
     return df_cleaned
 
@@ -443,7 +480,7 @@ def standardize_data(df, column_configs, datatype):
     # Edit data to standardize
     df = add_type_column(df, datatype)
     df = reorder_columns(df, column_configs, datatype)
-    df = process_special_characters(df)
+    df = process_special_characters(df, column_configs, datatype)
     df = remove_html_tags_from_df(df, column_configs, datatype)
     df = clean_html_entities(df,datatype)
     df = validate_listlike_columns(df, column_configs, datatype)
@@ -605,6 +642,47 @@ def package_cedcd_datasets(df_cedcd_datasets, column_configs):
     print(f"Done! Final cedcd Datasets data saved as {output_filepath}.")
 
     return df_cedcd_datasets_output
+
+
+
+def package_ctd2_datasets(df_ctd2_datasets, column_configs):
+    """Package CTD^2 Datasets data for INS loading."""
+
+    print(f"---\nFinalizing TSV for CTD^2 Datasets data...") 
+
+    # Standardize and validate data
+    df_ctd2_datasets_output = standardize_data(df_ctd2_datasets, column_configs, 
+                                        datatype='ctd2_dataset')
+
+    # Export as TSV
+    output_filepath = config.CTD2_DATASET_OUTPUT_PATH
+    os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
+    df_ctd2_datasets_output.to_csv(output_filepath, sep='\t', index=False, 
+                                    encoding='utf-8')
+
+    print(f"Done! Final CTD^2 Datasets data saved as {output_filepath}.")
+
+    return df_ctd2_datasets_output
+
+
+def package_ctd2_filedata(df_ctd2_filedata, column_configs):
+    """Package CTD^2 file metadata for INS loading."""
+
+    print(f"---\nFinalizing TSV for CTD^2 file metadata...")
+
+    # Standardize and validate data
+    df_ctd2_filedata_output = standardize_data(df_ctd2_filedata, column_configs, 
+                                        datatype='file')
+
+    # Export as TSV
+    output_filepath = config.CTD2_FILE_OUTPUT_PATH
+    os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
+    df_ctd2_filedata_output.to_csv(output_filepath, sep='\t', index=False, 
+                            encoding='utf-8')
+
+    print(f"Done! Final CTD^2 file metadata saved as {output_filepath}.")
+
+    return df_ctd2_filedata_output
 
 
 
@@ -859,7 +937,7 @@ def package_output_data():
         geo_datasets_exist = False
         print(f"No GEO Datasets file found.")
 
-        # Load CEDCD datasets data
+    # Load CEDCD datasets data
     if os.path.exists(config.CEDCD_INTERMED_CSV):
         cedcd_datasets_exist = True
         df_cedcd_datasets = pd.read_csv(config.CEDCD_INTERMED_CSV)
@@ -867,7 +945,24 @@ def package_output_data():
     else: 
         cedcd_datasets_exist = False
         print(f"No CEDCD Datasets file found.")
-    
+
+    # Load CTD2 datasets data
+    if os.path.exists(config.CTD2_DATASET_INTERMED_CSV):
+        ctd2_datasets_exist = True
+        df_ctd2_datasets = pd.read_csv(config.CTD2_DATASET_INTERMED_CSV)
+        print(f"Loaded CTD2 Datasets file from {config.CTD2_DATASET_INTERMED_CSV}")
+    else:
+        ctd2_datasets_exist = False
+        print(f"No CTD2 Datasets file found.")
+
+    # Load CTD2 file metadata
+    if os.path.exists(config.CTD2_FILE_INTERMED_CSV):
+        ctd2_filedata_exist = True
+        df_ctd2_filedata = pd.read_csv(config.CTD2_FILE_INTERMED_CSV)
+        print(f"Loaded CTD2 file metadata from {config.CTD2_FILE_INTERMED_CSV}")
+    else:
+        ctd2_filedata_exist = False
+        print(f"No CTD2 file metadata found.")
 
     # Special handling
     print(f"\n\nApplying special handling steps...")
@@ -910,6 +1005,10 @@ def package_output_data():
         df_geo_datasets_out = package_geo_datasets(df_geo_datasets, column_configs)
     if cedcd_datasets_exist:
         df_cedcd_datasets_out = package_cedcd_datasets(df_cedcd_datasets, column_configs)
+    if ctd2_datasets_exist:
+        df_ctd2_datasets_out = package_ctd2_datasets(df_ctd2_datasets, column_configs)
+    if ctd2_filedata_exist:
+        df_ctd2_filedata_out = package_ctd2_filedata(df_ctd2_filedata, column_configs)
 
     print(f"\n\n Completing post-packaging steps...")
 
