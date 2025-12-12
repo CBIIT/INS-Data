@@ -502,7 +502,8 @@ COLUMN_CONFIGS = {
         'list_like_cols': None,
         'html_tag_cols': None,
         'int_cols': ['participant_count'],
-        'exclude_special_char_processing': ['dataset_source_repo']
+        # title, description and experimental approaches already curated for CTD^2
+        'exclude_special_char_processing': ['dataset_source_repo', 'dataset_title', 'description', 'experimental_approaches']
     },
     'file': {
         'node_id': 'file_id',
