@@ -38,6 +38,7 @@ from modules.summary_statistics import get_summary_statistics
 from modules.gather_publication_data import gather_publication_data
 from modules.gather_geo_data import gather_geo_data
 from modules.gather_cedcd_data import gather_cedcd_data
+from modules.gather_ctd2_data import gather_ctd2_data
 from modules.package_output_data import package_output_data
 from modules.build_validation_file import build_validation_file
 
@@ -72,6 +73,10 @@ def main():
     # STEP 7: CEDCD DATASETS
     # Process and save CEDCD cohort data
     gather_cedcd_data()
+
+    # OPTIONAL STEP: CTD^2 DATASETS AND FILES
+    # Process, map, and save CTD^2 datasets and files. Unlikely to change often.
+    # Run only when needed to reassign UUIDs and/or remap files to datasets
 
     # OPTIONAL STEP: DBGAP DATASETS
     # If needed, update/run/curate `modules/gather_dbgap_data.py` independently

@@ -10,6 +10,7 @@ cov.xml
 
 # Private
 .env
+.vscode
 
 # Large data
 data/00_input/icite/20*

@@ -24,6 +24,9 @@ DBGAP_CSV_VERSION = "2025-05-19"   # <-- CHANGE VERSION HERE
 # Version of CEDCD cohort metadata CSV
 CEDCD_VERSION = "2025-04-24"        # <-- CHANGE VERSION HERE
 
+# Version of CTD^2 datasets. Not expected to change
+CTD2_VERSION = "2025-12-01"
+
 # An override date can be used instead of today's date for pulling and saving data versions
 # This is useful when running downstream modules on grants data gathered before today
 
@@ -460,6 +463,61 @@ COLUMN_CONFIGS = {
         'list_like_cols': None,
         'html_tag_cols': None
     },
+    'ctd2_dataset': {
+        'node_id': 'dataset_uuid',
+        'link_id': None,
+        'keep_and_rename': {
+            'type': 'type',
+            'dataset_uuid': 'dataset_uuid',
+            'dataset_source_repo': 'dataset_source_repo',
+            'dataset_title': 'dataset_title',
+            'description': 'description',
+            'dataset_source_id': 'dataset_source_id',
+            # 'dataset_source_url': 'dataset_source_url',
+            'PI_name': 'PI_name',
+            # 'GPA': 'GPA',
+            # 'dataset_doc': 'dataset_doc',
+            'dataset_pmid': 'dataset_pmid',
+            # 'funding_source': 'funding_source',
+            # 'release_date': 'release_date',
+            # 'limitations_for_reuse': 'limitations_for_reuse',
+            'assay_method': 'assay_method',
+            'study_type': 'study_type',
+            'primary_disease': 'primary_disease',
+            'participant_count': 'participant_count',
+            # 'sample_count': 'sample_count',
+            'study_links': 'study_links',
+            'related_genes': 'related_genes',
+            # 'related_diseases': 'related_diseases',
+            # 'related_terms': 'related_terms',
+            # 'dataset_year_enrollment_started': 'dataset_year_enrollment_started',
+            # 'dataset_year_enrollment_ended': 'dataset_year_enrollment_ended',
+            # 'dataset_minimum_age_at_baseline': 'dataset_minimum_age_at_baseline',
+            # 'dataset_maximum_age_at_baseline': 'dataset_maximum_age_at_baseline',
+            'experimental_approaches': 'experimental_approaches',
+            'institute': 'institute',
+            'POC_name': 'POC_name',
+            'POC_email': 'POC_email',
+        },
+        'list_like_cols': None,
+        'html_tag_cols': None,
+        'int_cols': ['participant_count'],
+        # title, description and experimental approaches already curated for CTD^2
+        'exclude_special_char_processing': ['dataset_source_repo', 'dataset_title', 'description', 'experimental_approaches']
+    },
+    'file': {
+        'node_id': 'file_id',
+        'link_id': 'dataset.dataset_uuid',
+        'keep_and_rename': {
+            'type': 'type',
+            'file_id': 'file_id',
+            'dataset.dataset_uuid': 'dataset.dataset_uuid',
+            'file_name': 'file_name',
+            'file_type': 'file_type',
+            'file_url': 'file_url',
+            'access_level': 'access_level'
+        }
+    }
 }
 
 
@@ -520,3 +578,20 @@ CEDCD_INTERMED_CSV = CEDCD_INTERMED_DIR + "cedcd_datasets.csv"
 # CEDCD outputs
 CEDCD_OUTPUT_DIR = OUTPUT_DIR + "cedcd/" + CEDCD_VERSION + "/"
 CEDCD_OUTPUT_PATH = CEDCD_OUTPUT_DIR + "cedcd_datasets.tsv"
+
+
+# CTD^2
+
+# CTD^2 inputs
+CTD2_DATASET_INPUT_CSV = INPUT_DIR + "ctd2/" + "ctd2_datasets_" + CTD2_VERSION + ".csv"
+CTD2_FILE_INPUT_CSV = INPUT_DIR + "ctd2/" + "ctd2_filedata_" + CTD2_VERSION + ".csv"
+
+# CTD^2 intermediates
+CTD2_INTERMED_DIR = INTERMED_DIR + "ctd2/" + CTD2_VERSION + "/"
+CTD2_DATASET_INTERMED_CSV = CTD2_INTERMED_DIR + "ctd2_datasets.csv"
+CTD2_FILE_INTERMED_CSV = CTD2_INTERMED_DIR + "ctd2_filedata.csv"
+
+# CTD^2 outputs
+CTD2_OUTPUT_DIR = OUTPUT_DIR + "ctd2/" + CTD2_VERSION + "/"
+CTD2_DATASET_OUTPUT_PATH = CTD2_OUTPUT_DIR + "ctd2_datasets.tsv"
+CTD2_FILE_OUTPUT_PATH = CTD2_OUTPUT_DIR + "ctd2_filedata.tsv"
