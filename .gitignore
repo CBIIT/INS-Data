@@ -20,3 +20,6 @@ data/01_intermediate/*/gathered-*/geo_metadata.json
 
 # Archived old data
 archive
+
+# Exceptions
+!notebooks/21_sra_datasets.ipynb
