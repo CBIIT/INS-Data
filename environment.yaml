@@ -5,7 +5,7 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - anyascii=0.3.2=pyhd8ed1ab_0
+  - anyascii=0.3.3=pyhe01879c_0
   - asttokens=2.4.0=pyhd8ed1ab_0
   - attrs=23.1.0=pyh71513ae_1
   - backcall=0.2.0=pyh9f0ad1d_0
@@ -14,13 +14,13 @@ dependencies:
   - biopython=1.78=py311h2bbff1b_0
   - brotli-python=1.1.0=py311h12c1d0e_0
   - bzip2=1.0.8=h8ffe710_4
-  - ca-certificates=2024.8.30=h56e8100_0
-  - certifi=2024.8.30=pyhd8ed1ab_0
+  - ca-certificates=2026.1.4=h4c7d964_0
+  - certifi=2026.1.4=pyhd8ed1ab_0
   - charset-normalizer=3.2.0=pyhd8ed1ab_0
   - colorama=0.4.6=pyhd8ed1ab_0
   - comm=0.1.4=pyhd8ed1ab_0
   - console_shortcut=0.1.1=4
-  - coverage=7.6.9=py311h5082efb_0
+  - coverage=7.13.1=pyh7db6752_0
   - debugpy=1.8.0=py311h12c1d0e_1
   - decorator=5.1.1=pyhd8ed1ab_0
   - exceptiongroup=1.1.3=pyhd8ed1ab_0
@@ -54,7 +54,7 @@ dependencies:
   - nbformat=5.9.2=pyhd8ed1ab_0
   - nest-asyncio=1.5.6=pyhd8ed1ab_0
   - numpy=1.26.0=py311h0b4df5a_0
-  - openssl=3.4.0=h2466b09_0
+  - openssl=3.5.0=ha4e3fda_1
   - packaging=23.1=pyhd8ed1ab_0
   - pandas=2.1.1=py311hf63dbb6_0
   - parso=0.8.3=pyhd8ed1ab_0
@@ -71,10 +71,11 @@ dependencies:
   - pure_eval=0.2.2=pyhd8ed1ab_0
   - pygments=2.16.1=pyhd8ed1ab_0
   - pysocks=1.7.1=pyh0701188_6
-  - pytest=7.4.4=py311haa95532_0
-  - pytest-cov=6.0.0=pyhd8ed1ab_1
+  - pytest=8.4.2=py311haa95532_0
+  - pytest-cov=7.0.0=pyhcf101f3_1
   - python=3.11.5=h2628c8c_0_cpython
   - python-dateutil=2.8.2=pyhd8ed1ab_0
+  - python-dotenv=1.2.1=pyhcf101f3_0
   - python-fastjsonschema=2.18.0=pyhd8ed1ab_0
   - python-tzdata=2023.3=pyhd8ed1ab_0
   - python_abi=3.11=4_cp311

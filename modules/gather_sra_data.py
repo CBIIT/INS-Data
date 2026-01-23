@@ -39,6 +39,21 @@ from Bio import Entrez  # for e-Utils API
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import config
 
+# Load .env into the process environment so os.environ.get(...) works
+# Use an explicit path to the repository root .env for reliability
+try:
+    from dotenv import load_dotenv
+    dotenv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env')
+    if os.path.exists(dotenv_path):
+        load_dotenv(dotenv_path)
+    else:
+        # Fall back to default behavior (load from CWD) if explicit file not found
+        load_dotenv()
+except Exception:
+    # If python-dotenv is not available, assume environment variables are
+    # already present in the running process (e.g., set by the shell or IDE).
+    pass
+
 
 
 def fetch_sra_ids(pmid: str) -> Tuple[str, List[str]]:
