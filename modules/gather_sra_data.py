@@ -67,7 +67,7 @@ except Exception:
 
 def fetch_sra_ids(pmid: str) -> Tuple[str, List[str]]:
     """
-    Fetch SRA IDs for a single PubMed ID
+    Fetch SRA IDs for a single PubMed ID with retry logic for rate limiting
     
     Args:
         pmid: PubMed ID to query
@@ -75,33 +75,59 @@ def fetch_sra_ids(pmid: str) -> Tuple[str, List[str]]:
     Returns:
         Tuple of (pmid, list_of_sra_ids)
     """
-
-    try:
-        # Small delay to control API rate
-        time.sleep(0.1)
-        
-        link_handle = Entrez.elink(
-            dbfrom="pubmed",
-            db="sra",
-            id=pmid,
-            linkname="pubmed_sra"
-        )
-        
-        link_record = Entrez.read(link_handle)
-        link_handle.close()
-        
-        sra_ids = [
-            link['Id']
-            for link_set in link_record
-            for link in link_set.get('LinkSetDb', [])
-            for link in link.get('Link', [])
-        ]
-        
-        return (pmid, sra_ids)
     
-    except Exception as e:
-        print(f"Error processing PMID {pmid}: {e}")
-        return (pmid, [])
+    # Configure Entrez for this thread
+    Entrez.email = os.environ.get('NCBI_EMAIL', 'your-email@example.com')
+    Entrez.api_key = os.environ.get('NCBI_API_KEY', '')
+    Entrez.max_tries = 3
+    Entrez.sleep_between_tries = 2
+    
+    # Retry logic for rate limiting
+    max_retries = 5
+    retry_delay = 1.0
+    
+    for attempt in range(max_retries):
+        try:
+            # Small delay to control API rate
+            time.sleep(0.2)
+            
+            link_handle = Entrez.elink(
+                dbfrom="pubmed",
+                db="sra",
+                id=pmid,
+                linkname="pubmed_sra"
+            )
+            
+            link_record = Entrez.read(link_handle)
+            link_handle.close()
+            
+            sra_ids = [
+                link['Id']
+                for link_set in link_record
+                for link in link_set.get('LinkSetDb', [])
+                for link in link.get('Link', [])
+            ]
+            
+            return (pmid, sra_ids)
+        
+        except Exception as e:
+            error_msg = str(e)
+            # Check if it's a rate limiting error (429)
+            if "429" in error_msg or "Too Many Requests" in error_msg:
+                if attempt < max_retries - 1:
+                    # Exponential backoff: 1s, 2s, 4s, 8s, 16s
+                    wait_time = retry_delay * (2 ** attempt)
+                    time.sleep(wait_time)
+                    continue
+                else:
+                    print(f"Error processing PMID {pmid}: {e}")
+                    return (pmid, [])
+            else:
+                # For non-rate-limiting errors, fail immediately
+                print(f"Error processing PMID {pmid}: {e}")
+                return (pmid, [])
+    
+    return (pmid, [])
 
 
 
@@ -695,11 +721,7 @@ def gather_sra_data(
             print(f"    [2/3] Fetching SRP/ERP IDs for {len(unique_sra_ids)} unique SRA IDs...")
             
             if unique_sra_ids:
-                sra_to_srp_ids = get_srp_ids_for_sra_ids(
-                    unique_sra_ids,
-                    max_workers=10,
-                    sleep_between_calls=0.05
-                )
+                sra_to_srp_ids = get_srp_ids_for_sra_ids(unique_sra_ids)
             else:
                 sra_to_srp_ids = {}
             
