@@ -1,6 +1,6 @@
 """
 gather_sra_data.py
-2026-01-23 ZD
+2026-01-28 ZD
 
 This script defines functions to gather metadata for Sequence Read Archive (SRA)
 studies supported by the NCI. The main function accepts a DataFrame containing 
@@ -13,8 +13,8 @@ The workflow follows these steps:
 2. Map PMIDs to SRA IDs using NCBI's E-utilities (batched with resumption)
 3. Map SRA IDs to SRP/ERP IDs (study-level identifiers)
 4. Aggregate batches to create SRP-centric view
-5. Gather metadata for each unique SRP/ERP ID (PLACEHOLDER - not yet implemented)
-6. Enrich SRP data with metadata
+5. Gather metadata for each unique SRP/ERP ID using NCBI E-utilities
+6. Enrich SRP data with metadata and link to NCI DOCs via projects/programs
 7. Output two files:
    - PMID → SRA → SRP/ERP mapping file (for reference)
    - SRP/ERP-centric enriched dataset (main output)
@@ -25,6 +25,13 @@ Batch Processing Features:
 - Minimal console output for large batch runs
 - Intermediate files saved at each step and reused if available
 
+Metadata Gathering:
+- Fetches XML metadata from NCBI E-utilities (efetch with db=sra)
+- Efficient: Only one API call per SRP (samples first SRA in each study)
+- Parses STUDY section for title, abstract, BioProject, PMIDs, etc.
+- Rate-limited to 3 requests/second with exponential backoff retry logic
+- Returns blank strings for missing fields (never NaN/None/null)
+
 Intermediate files are saved at each step and reused if they already exist.
 """
 
@@ -33,6 +40,7 @@ import sys
 import json
 import re
 import time
+import uuid
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
 from collections import defaultdict
@@ -62,6 +70,47 @@ except Exception:
     # If python-dotenv is not available, assume environment variables are
     # already present in the running process (e.g., set by the shell or IDE).
     pass
+
+
+
+def get_composite_uuid5(
+    df: pd.DataFrame, 
+    fields: list, 
+    uuid_col: str = 'dataset_uuid'
+) -> pd.DataFrame:
+    """
+    Generate a UUID5 for each row in the DataFrame based on a composite of 
+    specified fields. The UUID5 is deterministic and reproducible for the 
+    same field values. Raises an error if duplicate UUIDs are generated.
+
+    Args:
+        df: Input DataFrame
+        fields: List of column names to combine for the UUID5 'name'
+        uuid_col: Name of the output column for the UUIDs
+
+    Returns:
+        DataFrame with a new column containing the UUID5 values
+    """
+    # Use a fixed namespace UUID for reproducibility (can be any valid UUID)
+    NAMESPACE = uuid.UUID('12345678-1234-5678-1234-567812345678')
+
+    def row_to_uuid(row):
+        name = '||'.join(str(row[field]) for field in fields)
+        return uuid.uuid5(NAMESPACE, name)
+
+    df[uuid_col] = df.apply(row_to_uuid, axis=1)
+
+    # Check for duplicate UUIDs and raise error if found
+    duplicate_uuids = df[uuid_col][df[uuid_col].duplicated()]
+    if not duplicate_uuids.empty:
+        raise ValueError(
+            f"Duplicate UUID5 values found in {uuid_col} column! "
+            f"Duplicates:\n{duplicate_uuids.to_list()}\n"
+            f"Check your input data for non-unique combinations "
+            f"of {fields}."
+        )
+
+    return df
 
 
 
@@ -506,46 +555,374 @@ def load_all_batch_files(batch_dir: str, file_suffix: str) -> pd.DataFrame:
 
 
 
-def gather_srp_metadata(srp_ids: List[str]) -> pd.DataFrame:
+def fetch_sra_metadata_for_srp(
+    srp_id: str, 
+    sra_id_sample: str
+) -> Dict[str, Any]:
+    """
+    Fetch metadata for a single SRP/ERP study using one sample SRA ID.
+    
+    Fetches XML metadata from NCBI E-utilities and parses the STUDY section.
+    The STUDY section is identical across all SRAs within the same SRP, so
+    sampling one SRA per SRP is sufficient.
+    
+    Args:
+        srp_id: SRP/ERP study ID (e.g., 'SRP472047')
+        sra_id_sample: One SRA ID from this study (used to fetch metadata)
+    
+    Returns:
+        Dictionary with metadata fields (blank strings for missing values)
+    """
+    # Configure Entrez for this thread
+    Entrez.email = os.environ.get('NCBI_EMAIL', 'your-email@example.com')
+    Entrez.api_key = os.environ.get('NCBI_API_KEY', '')
+    Entrez.max_tries = 3
+    Entrez.sleep_between_tries = 2
+    
+    # Rate limiting: max 3 requests/second
+    time.sleep(0.34)
+    
+    # Retry logic for rate limiting
+    max_retries = 5
+    retry_delay = 1.0
+    
+    for attempt in range(max_retries):
+        try:
+            # Fetch XML metadata for the sample SRA ID
+            handle = Entrez.efetch(
+                db="sra", 
+                id=str(sra_id_sample), 
+                rettype="xml", 
+                retmode="text"
+            )
+            xml_data = handle.read()
+            handle.close()
+            
+            if not xml_data.strip():
+                return _create_blank_metadata_dict(srp_id)
+            
+            # Parse XML
+            root = ET.fromstring(xml_data)
+            
+            # Initialize metadata dictionary with blank defaults
+            metadata = {
+                'type': 'dataset',
+                'dataset_uuid': '',
+                'dataset_source_repo': 'SRA',
+                'dataset_title': '',
+                'description': '',
+                'dataset_source_id': srp_id,
+                'dataset_source_url': (
+                    f'https://trace.ncbi.nlm.nih.gov/Traces/?study={srp_id}'
+                ),
+                'PI_name': '',
+                'GPA': '',
+                'dataset_doc': '',
+                'dataset_pmid': '',
+                'funding_source': '',
+                'release_date': '',
+                'limitations_for_reuse': '',
+                'assay_method': '',
+                'study_type': 'Genomic sequencing',
+                'primary_disease': 'Not Reported',
+                'participant_count': '',
+                'sample_count': '',
+                'study_links': '',
+                'related_genes': '',
+                'related_diseases': '',
+                'related_terms': ''
+            }
+            
+            # Extract STUDY section fields
+            study_elem = root.find('.//STUDY')
+            if study_elem is not None:
+                # Study title
+                title_elem = study_elem.find('.//STUDY_TITLE')
+                if title_elem is not None and title_elem.text:
+                    metadata['dataset_title'] = title_elem.text.strip()
+                
+                # Study abstract
+                abstract_elem = study_elem.find('.//STUDY_ABSTRACT')
+                if abstract_elem is not None and abstract_elem.text:
+                    metadata['description'] = abstract_elem.text.strip()
+                
+                # Center name (sometimes contains PI information)
+                center_name = study_elem.get('center_name', '')
+                if center_name:
+                    # Filter out "GEO Curators" and "GEO"
+                    if center_name not in ['GEO Curators', 'GEO']:
+                        metadata['PI_name'] = center_name.strip()
+                
+                # Study type
+                study_type_elem = study_elem.find(
+                    './/STUDY_TYPE'
+                )
+                if study_type_elem is not None:
+                    existing_type = study_type_elem.get(
+                        'existing_study_type', 
+                        ''
+                    )
+                    if existing_type:
+                        metadata['assay_method'] = existing_type.strip()
+                
+                # BioProject ID
+                bioproject_elem = study_elem.find(
+                    ".//EXTERNAL_ID[@namespace='BioProject']"
+                )
+                bioproject_id = ''
+                if bioproject_elem is not None and bioproject_elem.text:
+                    bioproject_id = bioproject_elem.text.strip()
+                
+                # GEO ID
+                geo_elem = study_elem.find(
+                    ".//EXTERNAL_ID[@namespace='GEO']"
+                )
+                geo_id = ''
+                if geo_elem is not None and geo_elem.text:
+                    geo_id = geo_elem.text.strip()
+                
+                # Build study_links
+                links = []
+                if geo_id:
+                    geo_url = (
+                        f'https://www.ncbi.nlm.nih.gov/geo/query/'
+                        f'acc.cgi?acc={geo_id}'
+                    )
+                    links.append(geo_url)
+                if bioproject_id:
+                    bioproject_url = (
+                        f'https://www.ncbi.nlm.nih.gov/bioproject/'
+                        f'{bioproject_id}'
+                    )
+                    links.append(bioproject_url)
+                metadata['study_links'] = '; '.join(links)
+                
+                # PubMed IDs from STUDY_LINKS
+                pmids = []
+                for study_link in study_elem.findall('.//STUDY_LINK'):
+                    xref_link = study_link.find('.//XREF_LINK')
+                    if xref_link is not None:
+                        db_elem = xref_link.find('.//DB')
+                        id_elem = xref_link.find('.//ID')
+                        if (db_elem is not None and 
+                            db_elem.text and 
+                            db_elem.text.strip().lower() == 'pubmed' and
+                            id_elem is not None and 
+                            id_elem.text):
+                            pmids.append(id_elem.text.strip())
+                if pmids:
+                    metadata['dataset_pmid'] = '; '.join(pmids)
+            
+            # Try to get PI name from Organization/Contact
+            # Collect all collaborators (semicolon-separated list)
+            collaborators = []
+            for contact in root.findall('.//Organization/Contact'):
+                name_elem = contact.find('.//Name')
+                if name_elem is not None:
+                    first = name_elem.find('.//First')
+                    last = name_elem.find('.//Last')
+                    if first is not None and last is not None:
+                        first_text = first.text.strip() if first.text else ''
+                        last_text = last.text.strip() if last.text else ''
+                        if first_text and last_text:
+                            full_name = f'{first_text} {last_text}'
+                            # Filter out "GEO Curators" and "GEO"
+                            if full_name not in ['GEO Curators', 'GEO']:
+                                collaborators.append(full_name)
+            
+            # If we found collaborators, use them (semicolon-separated)
+            # Otherwise keep the center_name if it was set
+            if collaborators:
+                metadata['PI_name'] = '; '.join(collaborators)
+            
+            # Release date from first RUN published date
+            run_elem = root.find('.//RUN')
+            if run_elem is not None:
+                published = run_elem.get('published', '')
+                if published:
+                    # Format as yyyy-mm-dd (remove time if present)
+                    date_part = published.strip().split()[0]
+                    metadata['release_date'] = date_part
+            
+            # Library strategy (e.g., RNA-Seq)
+            library_strategy_elem = root.find('.//LIBRARY_STRATEGY')
+            if library_strategy_elem is not None and library_strategy_elem.text:
+                # Only override if assay_method not already set from study type
+                if not metadata['assay_method']:
+                    metadata['assay_method'] = (
+                        library_strategy_elem.text.strip()
+                    )
+            
+            # NOTE: Sample count is unreliable when fetching from a single 
+            # SRA per SRP. Leaving blank for now.
+            
+            return metadata
+            
+        except Exception as e:
+            error_msg = str(e)
+            # Check if it's a rate limiting error (429)
+            if "429" in error_msg or "Too Many Requests" in error_msg:
+                if attempt < max_retries - 1:
+                    # Exponential backoff
+                    wait_time = retry_delay * (2 ** attempt)
+                    time.sleep(wait_time)
+                    continue
+                else:
+                    print(
+                        f"Error fetching metadata for SRP {srp_id}: {e}"
+                    )
+                    return _create_blank_metadata_dict(srp_id)
+            else:
+                # For non-rate-limiting errors, fail immediately
+                print(f"Error fetching metadata for SRP {srp_id}: {e}")
+                return _create_blank_metadata_dict(srp_id)
+    
+    return _create_blank_metadata_dict(srp_id)
+
+
+def _create_blank_metadata_dict(srp_id: str) -> Dict[str, Any]:
+    """
+    Create a blank metadata dictionary with all required fields.
+    
+    Args:
+        srp_id: SRP/ERP study ID
+    
+    Returns:
+        Dictionary with all fields set to appropriate blank values
+    """
+    return {
+        'type': 'dataset',
+        'dataset_uuid': '',
+        'dataset_source_repo': 'SRA',
+        'dataset_title': '',
+        'description': '',
+        'dataset_source_id': srp_id,
+        'dataset_source_url': (
+            f'https://trace.ncbi.nlm.nih.gov/Traces/?study={srp_id}'
+        ),
+        'PI_name': '',
+        'GPA': '',
+        'dataset_doc': '',
+        'dataset_pmid': '',
+        'funding_source': '',
+        'release_date': '',
+        'limitations_for_reuse': '',
+        'assay_method': '',
+        'study_type': 'Genomic sequencing',
+        'primary_disease': 'Not Reported',
+        'participant_count': '',
+        'sample_count': '',
+        'study_links': '',
+        'related_genes': '',
+        'related_diseases': '',
+        'related_terms': ''
+    }
+
+
+def create_srp_to_sra_mapping(
+    pmid_to_sra_ids: Dict[str, List[str]],
+    sra_to_srp_ids: Dict[str, List[str]]
+) -> Dict[str, str]:
+    """
+    Create mapping of SRP/ERP IDs to one sample SRA ID per study.
+    
+    For each SRP, selects the first SRA ID found in the mapping. This is
+    used to efficiently fetch metadata (one API call per SRP instead of
+    one per SRA).
+    
+    Args:
+        pmid_to_sra_ids: Dictionary mapping PMIDs to SRA IDs
+        sra_to_srp_ids: Dictionary mapping SRA IDs to SRP/ERP IDs
+    
+    Returns:
+        Dictionary mapping SRP/ERP IDs to one sample SRA ID
+    """
+    srp_to_sample_sra = {}
+    
+    for pmid, sra_ids in pmid_to_sra_ids.items():
+        for sra_id in sra_ids:
+            srp_list = sra_to_srp_ids.get(str(sra_id), [])
+            for srp_id in srp_list:
+                if srp_id and srp_id not in srp_to_sample_sra:
+                    srp_to_sample_sra[srp_id] = str(sra_id)
+    
+    return srp_to_sample_sra
+
+
+def gather_srp_metadata(
+    srp_ids: List[str],
+    srp_to_sra_mapping: Dict[str, str],
+    max_workers: int = 3
+) -> pd.DataFrame:
     """
     Gather metadata for SRP/ERP IDs from NCBI SRA database.
     
-    PLACEHOLDER FUNCTION - To be implemented.
-    
-    This function will use NCBI E-utilities to fetch metadata for each 
-    SRP/ERP ID including:
-    - Study title
-    - Study description  
-    - Organism
-    - Study type
-    - Platform
-    - Number of runs
-    - Total size
-    - Publication date
+    Uses NCBI E-utilities to fetch XML metadata for each SRP/ERP study.
+    For efficiency, fetches metadata from only one SRA ID per SRP (the
+    STUDY section is identical across all SRAs in the same SRP).
     
     Args:
         srp_ids: List of SRP/ERP study IDs
+        srp_to_sra_mapping: Dictionary mapping SRP IDs to sample SRA IDs
+        max_workers: Number of concurrent threads (default 3 for rate limit)
     
     Returns:
         DataFrame with SRP_ERP_ID and metadata columns
     """
-    # PLACEHOLDER: Return empty DataFrame with expected columns
-    placeholder_df = pd.DataFrame({
-        'SRP_ERP_ID': srp_ids,
-        'study_title': pd.NA,
-        'study_description': pd.NA,
-        'organism': pd.NA,
-        'study_type': pd.NA,
-        'platform': pd.NA,
-        'run_count': pd.NA,
-        'total_size': pd.NA,
-        'study_publication_date': pd.NA
-    })
+    # Configure Entrez
+    Entrez.email = os.environ.get('NCBI_EMAIL', 'your-email@example.com')
+    Entrez.api_key = os.environ.get('NCBI_API_KEY', '')
+    if not Entrez.api_key:
+        print(
+            "WARNING: No NCBI API key in use. "
+            "Check readme and local .env file."
+        )
     
-    print("\n  [PLACEHOLDER] SRP metadata gathering not yet implemented")
-    print(f"  Returning placeholder DataFrame for {len(srp_ids)} SRP/ERP IDs")
+    # Build list of (srp_id, sra_id_sample) tuples
+    srp_sra_pairs = []
+    for srp_id in srp_ids:
+        sra_sample = srp_to_sra_mapping.get(srp_id, '')
+        if sra_sample:
+            srp_sra_pairs.append((srp_id, sra_sample))
+        else:
+            # No SRA sample found - add blank metadata
+            srp_sra_pairs.append((srp_id, ''))
     
-    return placeholder_df
+    # Fetch metadata for each SRP using thread pool
+    metadata_records = []
+    
+    def worker(srp_sra_pair):
+        srp_id, sra_sample = srp_sra_pair
+        if sra_sample:
+            return fetch_sra_metadata_for_srp(srp_id, sra_sample)
+        else:
+            return _create_blank_metadata_dict(srp_id)
+    
+    with cf.ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = {
+            executor.submit(worker, pair): pair 
+            for pair in srp_sra_pairs
+        }
+        
+        for future in tqdm(
+            cf.as_completed(futures),
+            total=len(futures),
+            unit="SRP",
+            ncols=80,
+            desc="Fetching SRP metadata"
+        ):
+            metadata = future.result()
+            metadata_records.append(metadata)
+    
+    # Convert to DataFrame
+    metadata_df = pd.DataFrame(metadata_records)
+    
+    # Ensure dataset_source_id is set correctly
+    # (it's used as the join key with SRP_ERP_ID)
+    if 'dataset_source_id' in metadata_df.columns:
+        metadata_df['SRP_ERP_ID'] = metadata_df['dataset_source_id']
+    
+    return metadata_df
 
 
 
@@ -563,14 +940,190 @@ def enrich_srp_data_with_metadata(
     Returns:
         Enriched DataFrame combining both sources
     """
+    # Merge on SRP_ERP_ID
     enriched_df = pd.merge(
-        srp_df, 
-        metadata_df, 
+        metadata_df,
+        srp_df[['SRP_ERP_ID', 'PMIDs', 'PMID_Count']], 
         on='SRP_ERP_ID', 
         how='left'
     )
     
+    # Merge PMIDs from the mapping with PMIDs from metadata
+    # (metadata may have PMIDs from the SRA record itself)
+    def merge_pmids(row):
+        """Combine PMIDs from mapping and metadata, deduplicate."""
+        mapping_pmids = str(row.get('PMIDs', '')) if pd.notna(row.get('PMIDs')) else ''
+        metadata_pmids = str(row.get('dataset_pmid', '')) if pd.notna(row.get('dataset_pmid')) else ''
+        
+        all_pmids = set()
+        if mapping_pmids:
+            all_pmids.update(p.strip() for p in mapping_pmids.split(';') if p.strip())
+        if metadata_pmids:
+            all_pmids.update(p.strip() for p in metadata_pmids.split(';') if p.strip())
+        
+        return '; '.join(sorted(all_pmids)) if all_pmids else ''
+    
+    # Update dataset_pmid with merged PMIDs
+    enriched_df['dataset_pmid'] = enriched_df.apply(merge_pmids, axis=1)
+    
+    # Drop the PMIDs column from the original mapping (we have dataset_pmid now)
+    if 'PMIDs' in enriched_df.columns:
+        enriched_df = enriched_df.drop(columns=['PMIDs'])
+    
+    # Rename dataset_source_id to match expected output format if needed
+    # (It should already be set to SRP_ERP_ID in the metadata)
+    
     return enriched_df
+
+
+def get_dataset_doc_from_project(df_sra: pd.DataFrame) -> pd.DataFrame:
+    """
+    Merge dataset df with project and program dfs to link DOCs with datasets.
+    
+    Links SRA datasets to NCI DOCs via the publications -> projects -> 
+    programs chain. Uses dataset_pmid field to find matching publications
+    and their associated projects.
+    
+    Args:
+        df_sra: DataFrame with SRA dataset metadata
+    
+    Returns:
+        DataFrame with program_id and dataset_doc columns added
+    """
+    print(f"---\nLinking SRA datasets with NCI DOCs via programs and projects...")
+
+    # Create copy with empty fields as backup
+    df_null_result = df_sra.copy()
+    df_null_result['program_id'] = ''
+    df_null_result['dataset_doc'] = ''
+    df_null_result['funding_source'] = ''
+
+    # Check and load projects and program intermediate CSVs
+    project_path = config.PROJECTS_INTERMED_PATH
+    program_path = config.PROGRAMS_INTERMED_PATH
+    publication_path = config.PUBLICATIONS_INTERMED_PATH
+
+    # Check if publication CSV file exists
+    if os.path.exists(publication_path):
+        df_publication = pd.read_csv(publication_path, dtype={'pmid': str})
+        print(f"Loaded publications from {publication_path}")
+    else:
+        print("Warning: No publication file available. DOCs not mapped.")
+        return df_null_result
+
+    # Check if project CSV file exists
+    if os.path.exists(project_path):
+        df_project = pd.read_csv(project_path)
+        print(f"Loaded projects from {project_path}")
+    else: 
+        print("Warning: No project file available. DOCs not mapped.")
+        return df_null_result
+    
+    # Check if program CSV file exists
+    if os.path.exists(program_path):
+        df_program = pd.read_csv(program_path)
+        print(f"Loaded programs from {program_path}")
+    else: 
+        print("Warning: No program file available. DOCs not mapped.")
+        return df_null_result
+    
+    # Check if right columns exist in publication CSV
+    if not all(
+        col in df_publication.columns for col in ['pmid', 'coreproject']):
+        print(f"Warning: Publication CSV missing required columns. DOCs not mapped.")
+        return df_null_result
+    
+    # Check if right columns exist in project CSV
+    if not all(
+        col in df_project.columns for col in ['project_id', 'program.program_id']):
+        print(f"Warning: Project CSV missing required columns. DOCs not mapped.")
+        return df_null_result
+    
+    # Check if right columns exist in program CSV
+    if not all(
+        col in df_program.columns for col in ['program_id', 'doc']):
+        print("Warning: Program CSV missing required columns. DOCs not mapped.")
+        return df_null_result
+
+    # Prepare publication data: create PMID to project mapping
+    df_publication['pmid'] = df_publication['pmid'].astype(str)
+    pmid_to_project = dict(zip(
+        df_publication['pmid'], 
+        df_publication['coreproject']
+    ))
+
+    # For each SRA dataset, extract PMIDs and find associated projects
+    def get_projects_for_dataset(row):
+        """Extract all unique projects from semicolon-separated PMIDs."""
+        pmid_str = str(row.get('dataset_pmid', ''))
+        if not pmid_str or pmid_str == 'nan':
+            return ''
+        
+        pmids = [p.strip() for p in pmid_str.split(';') if p.strip()]
+        projects = set()
+        for pmid in pmids:
+            project = pmid_to_project.get(pmid, '')
+            if project:
+                projects.add(project)
+        
+        return '; '.join(sorted(projects)) if projects else ''
+    
+    df_sra['funding_source'] = df_sra.apply(get_projects_for_dataset, axis=1)
+
+    # Get programs for each SRA via projects
+    # First, create a lookup for project to program
+    project_to_program = dict(zip(
+        df_project['project_id'],
+        df_project['program.program_id']
+    ))
+    
+    def get_programs_for_dataset(row):
+        """Extract all unique programs from semicolon-separated projects."""
+        project_str = str(row.get('funding_source', ''))
+        if not project_str or project_str == 'nan':
+            return ''
+        
+        projects = [p.strip() for p in project_str.split(';') if p.strip()]
+        programs = set()
+        for project in projects:
+            program = project_to_program.get(project, '')
+            if program:
+                programs.add(program)
+        
+        return '; '.join(sorted(programs)) if programs else ''
+    
+    df_sra['program_id'] = df_sra.apply(get_programs_for_dataset, axis=1)
+
+    # Get DOCs for each SRA via programs
+    program_to_doc = dict(zip(
+        df_program['program_id'],
+        df_program['doc']
+    ))
+    
+    def get_docs_for_dataset(row):
+        """Extract all unique DOCs from semicolon-separated programs."""
+        program_str = str(row.get('program_id', ''))
+        if not program_str or program_str == 'nan':
+            return ''
+        
+        programs = [p.strip() for p in program_str.split(';') if p.strip()]
+        docs = set()
+        for program in programs:
+            doc = program_to_doc.get(program, '')
+            if doc and doc != 'nan':
+                docs.add(str(doc))
+        
+        return '; '.join(sorted(docs)) if docs else ''
+    
+    df_sra['dataset_doc'] = df_sra.apply(get_docs_for_dataset, axis=1)
+
+    print(f"Done! NCI DOCs mapped to SRA datasets.\n"
+          f"Unique DOC combinations:        {df_sra['dataset_doc'].nunique()}\n"
+          f"Unique program combinations:    {df_sra['program_id'].nunique()}\n"
+          f"Unique project combinations:    {df_sra['funding_source'].nunique()}")
+
+    return df_sra
+
 
 
 
@@ -780,14 +1333,79 @@ def gather_sra_data(
     unique_srp_ids = final_srp_df['SRP_ERP_ID'].tolist()
     print(f"  Gathering metadata for {len(unique_srp_ids)} unique SRP/ERP IDs...")
     
-    # PLACEHOLDER: This will be implemented later
-    metadata_df = gather_srp_metadata(unique_srp_ids)
+    # Create SRP to sample SRA mapping for efficient metadata fetching
+    # (Need to reload the full mapping data for this step)
+    if skip_to_metadata:
+        # If we skipped batch processing, we need to rebuild the mappings
+        print(f"  Reconstructing SRA mappings from batch files...")
+        all_mapping_dfs = []
+        batch_num = 1
+        while True:
+            mapping_path_batch = os.path.join(
+                batch_dir, 
+                f'batch_{batch_num:04d}_mapping.csv'
+            )
+            if os.path.exists(mapping_path_batch):
+                all_mapping_dfs.append(pd.read_csv(mapping_path_batch))
+                batch_num += 1
+            else:
+                break
+        
+        if all_mapping_dfs:
+            full_mapping_df = pd.concat(all_mapping_dfs, ignore_index=True)
+        else:
+            # Fallback: load from aggregated file and parse
+            full_mapping_df = pd.read_csv(sra_mapping_path)
+        
+        # Reconstruct the dictionaries from the mapping DataFrame
+        pmid_to_sra_ids = {}
+        sra_to_srp_ids = {}
+        
+        for _, row in full_mapping_df.iterrows():
+            pmid = str(row['PMID'])
+            sra_str = str(row['SRA_IDs']) if pd.notna(row['SRA_IDs']) else ''
+            srp_str = str(row['SRP_ERP_IDs']) if pd.notna(row['SRP_ERP_IDs']) else ''
+            
+            # Parse semicolon-separated SRA IDs
+            if sra_str:
+                sra_list = [s.strip() for s in sra_str.split(';') if s.strip()]
+                pmid_to_sra_ids[pmid] = sra_list
+                
+                # Parse semicolon-separated SRP IDs
+                if srp_str:
+                    srp_list = [s.strip() for s in srp_str.split(';') if s.strip()]
+                    for sra_id in sra_list:
+                        sra_to_srp_ids[sra_id] = srp_list
+    
+    # Create SRP to sample SRA mapping
+    srp_to_sra_mapping = create_srp_to_sra_mapping(
+        pmid_to_sra_ids, 
+        sra_to_srp_ids
+    )
+    
+    # Gather metadata using the mapping
+    metadata_df = gather_srp_metadata(unique_srp_ids, srp_to_sra_mapping)
     
     # STEP 6: Enrich SRP data with metadata
 
     print(f"\nStep 6: Enriching SRP data with metadata")
     
     sra_datasets_df = enrich_srp_data_with_metadata(final_srp_df, metadata_df)
+    
+    # Link datasets with DOCs via publications, projects, and programs
+    sra_datasets_df = get_dataset_doc_from_project(sra_datasets_df)
+    
+    # Generate UUID5 based on dataset_source_id
+    print(f"\nGenerating UUID5 for each dataset...")
+    uuid_fields = ['dataset_source_id']
+    sra_datasets_df = get_composite_uuid5(
+        sra_datasets_df, 
+        uuid_fields, 
+        uuid_col='dataset_uuid'
+    )
+    
+    # Replace NaN with empty strings for consistency
+    sra_datasets_df = sra_datasets_df.fillna('')
     
     # Save final enriched dataset
     sra_datasets_df.to_csv(sra_datasets_path, index=False)
@@ -834,7 +1452,12 @@ if __name__ == "__main__":
     # print(f"\n---\nTEST MODE")
 
     # # Small test params
-    # publications_df = pd.DataFrame({'pmid': ['38738472','38227896','10637239']})
+    # publications_df = pd.DataFrame({'pmid': ['38738472', # Standard
+    #                                          '10637239', # No SRA match
+    #                                          '26829319', # ERP match
+    #                                          '38260414', # Many-to-one (1/2)
+    #                                          '38802751', # Many-to-one (2/2)
+    #                                          ]}) 
     # batch_size = 2
     # overwrite_intermeds=False
 
@@ -843,9 +1466,8 @@ if __name__ == "__main__":
 
     # # Run the test workflow
     # sra_datasets_df = gather_sra_data(publications_df, 
-    #                                   overwrite_intermeds=False, 
+    #                                   overwrite_intermeds=overwrite_intermeds, 
     #                                   batch_size=batch_size)
     
     # print(f"\n---\nTEST MODE COMPLETE: ")
     # print(f"SRA intermediate CSV shape: {sra_datasets_df.shape}")
-    # print(f"Top 5 rows: \n{sra_datasets_df.head()}")
