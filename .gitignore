@@ -17,6 +17,7 @@ data/00_input/icite/20*
 data/01_intermediate/*/gathered-*/temp_pubmed_chunkfiles/
 data/01_intermediate/*/gathered-*/geo_ftp_metadata.json
 data/01_intermediate/*/gathered-*/geo_metadata.json
+data/01_intermediate/*/gathered-*/sra_batches/
 
 # Archived old data
 archive
