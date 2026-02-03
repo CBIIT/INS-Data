@@ -650,7 +650,7 @@ def fetch_sra_metadata_for_srp(
                 center_name = study_elem.get('center_name', '')
                 if center_name:
                     # Filter out "GEO Curators" and "GEO"
-                    if center_name not in ['GEO Curators', 'GEO']:
+                    if center_name not in ['Geo Curators', 'GEO']:
                         metadata['PI_name'] = center_name.strip()
                 
                 # Study type
@@ -727,7 +727,7 @@ def fetch_sra_metadata_for_srp(
                         if first_text and last_text:
                             full_name = f'{first_text} {last_text}'
                             # Filter out "GEO Curators" and "GEO"
-                            if full_name not in ['GEO Curators', 'GEO']:
+                            if full_name not in ['Geo Curators', 'GEO']:
                                 collaborators.append(full_name)
             
             # If we found collaborators, use them (semicolon-separated)
@@ -1053,11 +1053,13 @@ def get_dataset_doc_from_project(df_sra: pd.DataFrame) -> pd.DataFrame:
     ))
 
     # For each SRA dataset, extract PMIDs and find associated projects
-    def get_projects_for_dataset(row):
-        """Extract all unique projects from semicolon-separated PMIDs."""
+    # Optimized: avoid apply(), use vectorized string operations where possible
+    projects_list = []
+    for _, row in df_sra.iterrows():
         pmid_str = str(row.get('dataset_pmid', ''))
         if not pmid_str or pmid_str == 'nan':
-            return ''
+            projects_list.append('')
+            continue
         
         pmids = [p.strip() for p in pmid_str.split(';') if p.strip()]
         projects = set()
@@ -1066,9 +1068,9 @@ def get_dataset_doc_from_project(df_sra: pd.DataFrame) -> pd.DataFrame:
             if project:
                 projects.add(project)
         
-        return '; '.join(sorted(projects)) if projects else ''
+        projects_list.append('; '.join(sorted(projects)) if projects else '')
     
-    df_sra['funding_source'] = df_sra.apply(get_projects_for_dataset, axis=1)
+    df_sra['funding_source'] = projects_list
 
     # Get programs for each SRA via projects
     # First, create a lookup for project to program
@@ -1077,11 +1079,13 @@ def get_dataset_doc_from_project(df_sra: pd.DataFrame) -> pd.DataFrame:
         df_project['program.program_id']
     ))
     
-    def get_programs_for_dataset(row):
-        """Extract all unique programs from semicolon-separated projects."""
-        project_str = str(row.get('funding_source', ''))
+    # Optimized: avoid apply()
+    programs_list = []
+    for funding_source in df_sra['funding_source']:
+        project_str = str(funding_source)
         if not project_str or project_str == 'nan':
-            return ''
+            programs_list.append('')
+            continue
         
         projects = [p.strip() for p in project_str.split(';') if p.strip()]
         programs = set()
@@ -1090,9 +1094,9 @@ def get_dataset_doc_from_project(df_sra: pd.DataFrame) -> pd.DataFrame:
             if program:
                 programs.add(program)
         
-        return '; '.join(sorted(programs)) if programs else ''
+        programs_list.append('; '.join(sorted(programs)) if programs else '')
     
-    df_sra['program_id'] = df_sra.apply(get_programs_for_dataset, axis=1)
+    df_sra['program_id'] = programs_list
 
     # Get DOCs for each SRA via programs
     program_to_doc = dict(zip(
@@ -1100,11 +1104,13 @@ def get_dataset_doc_from_project(df_sra: pd.DataFrame) -> pd.DataFrame:
         df_program['doc']
     ))
     
-    def get_docs_for_dataset(row):
-        """Extract all unique DOCs from semicolon-separated programs."""
-        program_str = str(row.get('program_id', ''))
+    # Optimized: avoid apply()
+    docs_list = []
+    for program_id in df_sra['program_id']:
+        program_str = str(program_id)
         if not program_str or program_str == 'nan':
-            return ''
+            docs_list.append('')
+            continue
         
         programs = [p.strip() for p in program_str.split(';') if p.strip()]
         docs = set()
@@ -1113,9 +1119,9 @@ def get_dataset_doc_from_project(df_sra: pd.DataFrame) -> pd.DataFrame:
             if doc and doc != 'nan':
                 docs.add(str(doc))
         
-        return '; '.join(sorted(docs)) if docs else ''
+        docs_list.append('; '.join(sorted(docs)) if docs else '')
     
-    df_sra['dataset_doc'] = df_sra.apply(get_docs_for_dataset, axis=1)
+    df_sra['dataset_doc'] = docs_list
 
     print(f"Done! NCI DOCs mapped to SRA datasets.\n"
           f"Unique DOC combinations:        {df_sra['dataset_doc'].nunique()}\n"
@@ -1225,8 +1231,11 @@ def gather_sra_data(
         max_existing_batch = get_max_batch_number(batch_dir)
         
         if max_existing_batch > 0 and not overwrite_intermeds:
-            print(f"  Found {max_existing_batch} existing batch file(s)")
-            print(f"  Resuming from batch {max_existing_batch + 1}")
+            if max_existing_batch == num_batches:
+                print(f"  Found all {max_existing_batch} expected batch files")
+            else:
+                print(f"  Found {max_existing_batch} existing batch file(s)")
+                print(f"  Resuming from batch {max_existing_batch + 1}")
         elif overwrite_intermeds:
             print(f"  Overwriting existing intermediate files")
         
@@ -1252,8 +1261,9 @@ def gather_sra_data(
                 os.path.exists(srp_path_batch) and 
                 not overwrite_intermeds):
                 # Skip with minimal output for cleaner logs
+                # Show progress every 10 batches or on the last batch
                 if batch_number % 10 == 0 or batch_number == num_batches:
-                    print(f"  Batch {batch_number}/{num_batches}: Loaded from cache (PMIDs {start_idx}-{end_idx-1})")
+                    print(f"  Batch {batch_number}/{num_batches}: Using cached results")
                 continue
             
             # Process new batch
@@ -1300,6 +1310,7 @@ def gather_sra_data(
         # Load all mapping batches
         all_mapping_dfs = []
         all_srp_dfs = []
+        missing_batches = []
         
         for batch_num in range(num_batches):
             batch_number = batch_num + 1
@@ -1309,6 +1320,13 @@ def gather_sra_data(
             if os.path.exists(mapping_path_batch) and os.path.exists(srp_path_batch):
                 all_mapping_dfs.append(pd.read_csv(mapping_path_batch))
                 all_srp_dfs.append(pd.read_csv(srp_path_batch))
+            else:
+                missing_batches.append(batch_number)
+        
+        if missing_batches:
+            print(f"\n  WARNING: Missing {len(missing_batches)} batch file(s): {missing_batches}")
+            print(f"           This will result in incomplete data!")
+            print(f"           Consider re-running with overwrite_intermeds=True")
         
         # Aggregate
         final_mapping_df = aggregate_batch_mappings(all_mapping_dfs)
@@ -1334,48 +1352,46 @@ def gather_sra_data(
     print(f"  Gathering metadata for {len(unique_srp_ids)} unique SRP/ERP IDs...")
     
     # Create SRP to sample SRA mapping for efficient metadata fetching
-    # (Need to reload the full mapping data for this step)
-    if skip_to_metadata:
-        # If we skipped batch processing, we need to rebuild the mappings
-        print(f"  Reconstructing SRA mappings from batch files...")
-        all_mapping_dfs = []
-        batch_num = 1
-        while True:
-            mapping_path_batch = os.path.join(
-                batch_dir, 
-                f'batch_{batch_num:04d}_mapping.csv'
-            )
-            if os.path.exists(mapping_path_batch):
-                all_mapping_dfs.append(pd.read_csv(mapping_path_batch))
-                batch_num += 1
-            else:
-                break
-        
-        if all_mapping_dfs:
-            full_mapping_df = pd.concat(all_mapping_dfs, ignore_index=True)
+    # Need to reconstruct the mappings from batch files or aggregated file
+    print(f"  Reconstructing SRA mappings from batch files...")
+    all_mapping_dfs = []
+    batch_num = 1
+    while True:
+        mapping_path_batch = os.path.join(
+            batch_dir, 
+            f'batch_{batch_num:04d}_mapping.csv'
+        )
+        if os.path.exists(mapping_path_batch):
+            all_mapping_dfs.append(pd.read_csv(mapping_path_batch))
+            batch_num += 1
         else:
-            # Fallback: load from aggregated file and parse
-            full_mapping_df = pd.read_csv(sra_mapping_path)
+            break
+    
+    if all_mapping_dfs:
+        full_mapping_df = pd.concat(all_mapping_dfs, ignore_index=True)
+    else:
+        # Fallback: load from aggregated file and parse
+        full_mapping_df = pd.read_csv(sra_mapping_path)
+    
+    # Reconstruct the dictionaries from the mapping DataFrame
+    pmid_to_sra_ids = {}
+    sra_to_srp_ids = {}
+    
+    for _, row in full_mapping_df.iterrows():
+        pmid = str(row['PMID'])
+        sra_str = str(row['SRA_IDs']) if pd.notna(row['SRA_IDs']) else ''
+        srp_str = str(row['SRP_ERP_IDs']) if pd.notna(row['SRP_ERP_IDs']) else ''
         
-        # Reconstruct the dictionaries from the mapping DataFrame
-        pmid_to_sra_ids = {}
-        sra_to_srp_ids = {}
-        
-        for _, row in full_mapping_df.iterrows():
-            pmid = str(row['PMID'])
-            sra_str = str(row['SRA_IDs']) if pd.notna(row['SRA_IDs']) else ''
-            srp_str = str(row['SRP_ERP_IDs']) if pd.notna(row['SRP_ERP_IDs']) else ''
+        # Parse semicolon-separated SRA IDs
+        if sra_str:
+            sra_list = [s.strip() for s in sra_str.split(';') if s.strip()]
+            pmid_to_sra_ids[pmid] = sra_list
             
-            # Parse semicolon-separated SRA IDs
-            if sra_str:
-                sra_list = [s.strip() for s in sra_str.split(';') if s.strip()]
-                pmid_to_sra_ids[pmid] = sra_list
-                
-                # Parse semicolon-separated SRP IDs
-                if srp_str:
-                    srp_list = [s.strip() for s in srp_str.split(';') if s.strip()]
-                    for sra_id in sra_list:
-                        sra_to_srp_ids[sra_id] = srp_list
+            # Parse semicolon-separated SRP IDs
+            if srp_str:
+                srp_list = [s.strip() for s in srp_str.split(';') if s.strip()]
+                for sra_id in sra_list:
+                    sra_to_srp_ids[sra_id] = srp_list
     
     # Create SRP to sample SRA mapping
     srp_to_sra_mapping = create_srp_to_sra_mapping(
@@ -1417,12 +1433,28 @@ def gather_sra_data(
     print(f"\n---\nSRA Gathering Summary")
     
     total_pmids = len(final_mapping_df)
-    pmids_with_sra = len(final_mapping_df[final_mapping_df['SRA_IDs'] != ''])
-    pmids_with_srp = len(final_mapping_df[final_mapping_df['SRP_ERP_IDs'] != ''])
+    # Count PMIDs that have non-empty SRP_ERP_IDs (using notna() and non-empty check)
+    pmids_with_srp = len(
+        final_mapping_df[
+            (final_mapping_df['SRP_ERP_IDs'].notna()) & 
+            (final_mapping_df['SRP_ERP_IDs'] != '')
+        ]
+    )
+    
+    # Count unique SRA IDs across all PMIDs
+    unique_sra_ids = set()
+    for _, row in final_mapping_df.iterrows():
+        sra_str = str(row['SRA_IDs']) if pd.notna(row['SRA_IDs']) else ''
+        if sra_str and sra_str != '':
+            sra_list = [s.strip() for s in sra_str.split(';') if s.strip()]
+            unique_sra_ids.update(sra_list)
     
     print(f"  Total PMIDs processed:        {total_pmids:>8}")
-    print(f"  PMIDs with SRA IDs:           {pmids_with_sra:>8} ({pmids_with_sra/total_pmids*100:>5.1f}%)")
-    print(f"  PMIDs with SRP/ERP IDs:       {pmids_with_srp:>8} ({pmids_with_srp/total_pmids*100:>5.1f}%)")
+    if total_pmids > 0:
+        print(f"  PMIDs with SRP/ERP IDs:       {pmids_with_srp:>8} ({pmids_with_srp/total_pmids*100:>5.1f}%)")
+    else:
+        print(f"  PMIDs with SRP/ERP IDs:       {pmids_with_srp:>8} (N/A)")
+    print(f"  Total unique SRA IDs:         {len(unique_sra_ids):>8}")
     print(f"  Total unique SRP/ERP studies: {len(sra_datasets_df):>8}")
     print(f"---")
     
