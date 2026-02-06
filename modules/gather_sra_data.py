@@ -114,7 +114,7 @@ def get_composite_uuid5(
 
 
 
-def fetch_sra_ids(pmid: str) -> Tuple[str, List[str]]:
+def fetch_sra_ids(pmid: str) -> Tuple[str, List[str], bool, str]:
     """
     Fetch SRA IDs for a single PubMed ID with retry logic for rate limiting
     
@@ -122,7 +122,9 @@ def fetch_sra_ids(pmid: str) -> Tuple[str, List[str]]:
         pmid: PubMed ID to query
     
     Returns:
-        Tuple of (pmid, list_of_sra_ids)
+        Tuple of (pmid, list_of_sra_ids, error_flag, error_message)
+        error_flag is True if request failed after all retries
+        error_message contains details about the failure (empty string if no error)
     """
     
     # Configure Entrez for this thread
@@ -157,7 +159,8 @@ def fetch_sra_ids(pmid: str) -> Tuple[str, List[str]]:
                 for link in link.get('Link', [])
             ]
             
-            return (pmid, sra_ids)
+            # Success - return results with no error flag
+            return (pmid, sra_ids, False, '')
         
         except Exception as e:
             error_msg = str(e)
@@ -169,18 +172,21 @@ def fetch_sra_ids(pmid: str) -> Tuple[str, List[str]]:
                     time.sleep(wait_time)
                     continue
                 else:
-                    print(f"Error processing PMID {pmid}: {e}")
-                    return (pmid, [])
+                    print(f"Error processing PMID {pmid} after {max_retries} retries: {e}")
+                    return (pmid, [], True, f"Rate limit error after {max_retries} retries: {error_msg}")
             else:
                 # For non-rate-limiting errors, fail immediately
                 print(f"Error processing PMID {pmid}: {e}")
-                return (pmid, [])
+                # Capture error type
+                error_type = type(e).__name__
+                return (pmid, [], True, f"{error_type}: {error_msg}")
     
-    return (pmid, [])
+    # Should not reach here, but just in case
+    return (pmid, [], True, "Unknown error: Max retries exceeded")
 
 
 
-def get_sra_ids_for_pubmed_ids(pubmed_ids: List[str]) -> Dict[str, List[str]]:
+def get_sra_ids_for_pubmed_ids(pubmed_ids: List[str]) -> Tuple[Dict[str, List[str]], Dict[str, str]]:
     """
     Retrieve SRA dataset IDs associated with each PubMed ID in a list of PMIDs. 
     
@@ -188,7 +194,9 @@ def get_sra_ids_for_pubmed_ids(pubmed_ids: List[str]) -> Dict[str, List[str]]:
         pubmed_ids: List of PubMed IDs to query
     
     Returns:
-        Dictionary mapping PubMed IDs to their associated SRA IDs
+        Tuple of (pmid_to_sra_dict, failed_pmids_dict)
+        - pmid_to_sra_dict: Dictionary mapping PubMed IDs to their associated SRA IDs
+        - failed_pmids_dict: Dictionary mapping failed PMIDs to their error messages
     """
 
     # Configure Entrez
@@ -210,6 +218,8 @@ def get_sra_ids_for_pubmed_ids(pubmed_ids: List[str]) -> Dict[str, List[str]]:
     # Use ThreadPoolExecutor with rate-limited concurrency
     # This will run multiple API-calling threads while waiting for responses
     pmid_sra_links = {}
+    failed_pmids_dict = {}
+    
     with cf.ThreadPoolExecutor(max_workers=max_workers) as executor:
         # Submit tasks (PMIDs) to the executor and store futures in dict
         futures = {executor.submit(fetch_sra_ids, pmid): pmid for pmid in pubmed_ids}
@@ -218,10 +228,12 @@ def get_sra_ids_for_pubmed_ids(pubmed_ids: List[str]) -> Dict[str, List[str]]:
         for future in tqdm(cf.as_completed(futures),
                           unit="PMID", total=pmid_count, ncols=80,
                           desc="Fetching SRA IDs"):
-            pmid, sra_ids = future.result()
+            pmid, sra_ids, error_flag, error_msg = future.result()
             pmid_sra_links[pmid] = sra_ids
+            if error_flag:
+                failed_pmids_dict[pmid] = error_msg
     
-    return pmid_sra_links
+    return pmid_sra_links, failed_pmids_dict
 
 
 
@@ -532,6 +544,90 @@ def get_max_batch_number(batch_dir: str) -> int:
     
     return max(batch_numbers) if batch_numbers else 0
 
+
+def load_processed_pmids_from_batches(batch_dir: str) -> set:
+    """
+    Load all existing batch files and return set of PMIDs already processed.
+    
+    Args:
+        batch_dir: Directory containing batch files
+        
+    Returns:
+        Set of PMID strings that have already been processed
+    """
+    processed_pmids = set()
+    
+    if not os.path.exists(batch_dir):
+        return processed_pmids
+    
+    # Find all batch mapping files
+    batch_files = [
+        file for file in os.listdir(batch_dir)
+        if file.startswith('batch_') and file.endswith('_mapping.csv')
+    ]
+    
+    if not batch_files:
+        return processed_pmids
+    
+    # Load each batch file and collect PMIDs
+    for batch_file in batch_files:
+        batch_path = os.path.join(batch_dir, batch_file)
+        try:
+            batch_df = pd.read_csv(batch_path)
+            if 'PMID' in batch_df.columns:
+                # Convert to string and add to set
+                pmids = batch_df['PMID'].astype(str).tolist()
+                processed_pmids.update(pmids)
+        except Exception as e:
+            print(f"Warning: Could not load {batch_file}: {e}")
+    
+    return processed_pmids
+
+
+def save_failed_pmids_report(failed_pmids_dict: Dict[str, str]) -> None:
+    """
+    Save failed PMIDs and their error messages to a CSV report.
+    
+    Args:
+        failed_pmids_dict: Dictionary mapping PMID to error message
+    """
+    if not failed_pmids_dict:
+        return
+    
+    failed_pmids_csv_path = os.path.join(config.REPORTS_GATHERED_DIR, 'failed_pmid_sra_searches.csv')
+    
+    # Create DataFrame with pmid and failure_type columns
+    failed_df = pd.DataFrame([
+        {'pmid': pmid, 'failure_type': error_msg}
+        for pmid, error_msg in failed_pmids_dict.items()
+    ])
+    
+    # Ensure REPORTS_GATHERED_DIR exists
+    Path(config.REPORTS_GATHERED_DIR).mkdir(parents=True, exist_ok=True)
+    
+    # Save to CSV
+    failed_df.to_csv(failed_pmids_csv_path, index=False)
+
+
+def load_failed_pmids_report() -> Dict[str, str]:
+    """
+    Load existing failed PMIDs report if it exists.
+    
+    Returns:
+        Dictionary mapping PMID to error message
+    """
+    failed_pmids_csv_path = os.path.join(config.REPORTS_GATHERED_DIR, 'failed_pmid_sra_searches.csv')
+    
+    if not os.path.exists(failed_pmids_csv_path):
+        return {}
+    
+    try:
+        failed_df = pd.read_csv(failed_pmids_csv_path)
+        # Convert to dictionary
+        return dict(zip(failed_df['pmid'].astype(str), failed_df['failure_type']))
+    except Exception as e:
+        print(f"Warning: Could not load failed PMIDs report: {e}")
+        return {}
 
 
 def load_all_batch_files(batch_dir: str, file_suffix: str) -> pd.DataFrame:
@@ -1189,160 +1285,251 @@ def gather_sra_data(
     
     print(f"\nLoaded {len(publications_df)} publications with {len(unique_pmids)} unique PMIDs")
 
-    # Check if SRP-centric aggregation already exists and we're not overwriting
-    # This is the key file that indicates all batch processing is complete
-    if os.path.exists(srp_centric_path) and not overwrite_intermeds:
-        print(f"\nSRP-centric aggregation file already exists:")
-        print(f"  {srp_centric_path}")
-        print(f"Skipping batch processing and loading aggregated data...")
-        
-        # Load the aggregated files
-        final_mapping_df = pd.read_csv(sra_mapping_path)
-        final_srp_df = pd.read_csv(srp_centric_path)
-        
-        print(f"  Loaded {len(final_srp_df)} unique SRP/ERP IDs")
-        
-        # Jump to metadata gathering (Step 5)
-        # Continue with the rest of the workflow from metadata gathering onwards
-        skip_to_metadata = True
-    else:
-        skip_to_metadata = False
-        
-        # If overwriting, clean up existing aggregated files
-        if overwrite_intermeds:
-            if os.path.exists(sra_mapping_path):
-                os.remove(sra_mapping_path)
-            if os.path.exists(srp_centric_path):
-                os.remove(srp_centric_path)
-
     # STEP 1-3: Process PMIDs in batches to build PMID to SRA to SRP mapping
     
-    if not skip_to_metadata:
-        print(f"\nStep 1-3: Mapping PMIDs to SRA datasets")
+    print(f"\nStep 1-3: Mapping PMIDs to SRA datasets")
+    
+    # Load already-processed PMIDs from existing batch files
+    processed_pmids = load_processed_pmids_from_batches(batch_dir)
+    
+    if processed_pmids and not overwrite_intermeds:
+        print(f"  Found {len(processed_pmids)} already-processed PMIDs in existing batch files")
+        # Determine which PMIDs still need processing
+        remaining_pmids = [pmid for pmid in unique_pmids if pmid not in processed_pmids]
+    else:
+        remaining_pmids = unique_pmids
+        if overwrite_intermeds:
+            print(f"  Overwrite mode: reprocessing all {len(unique_pmids)} PMIDs")
+            # Clean up existing batch files
+            if os.path.exists(batch_dir):
+                for file in os.listdir(batch_dir):
+                    if file.startswith('batch_'):
+                        os.remove(os.path.join(batch_dir, file))
+            # Clean up existing failed PMIDs report
+            failed_pmids_csv_path = os.path.join(config.REPORTS_GATHERED_DIR, 'failed_pmid_sra_searches.csv')
+            if os.path.exists(failed_pmids_csv_path):
+                os.remove(failed_pmids_csv_path)
+                print(f"  Removed existing failed PMIDs report")
+            processed_pmids = set()
+        else:
+            print(f"  No existing batch files found")
+    
+    total_pmids = len(unique_pmids)
+    remaining_count = len(remaining_pmids)
+    
+    print(f"  Total unique PMIDs: {total_pmids}")
+    print(f"  Already processed: {len(processed_pmids)}")
+    print(f"  Remaining to process: {remaining_count}")
+    
+    # Track PMIDs that fail after retries (will be retried in second pass)
+    # Dictionary mapping PMID to error message
+    # Load any existing failed PMIDs from previous runs (unless overwriting)
+    if overwrite_intermeds:
+        failed_pmids_dict = {}
+    else:
+        failed_pmids_dict = load_failed_pmids_report()
+        if failed_pmids_dict:
+            print(f"  Loaded {len(failed_pmids_dict)} failed PMIDs from previous run")
+    
+    # FIRST PASS: Process remaining PMIDs
+    if remaining_count > 0:
+        # Get the next batch number to start from
+        chunk_number = get_max_batch_number(batch_dir)
         
-        total_pmids = len(unique_pmids)
-        num_batches = (total_pmids + batch_size - 1) // batch_size
-
-        print(f"  Total PMIDs: {total_pmids}")
         print(f"  Batch size: {batch_size}")
-        print(f"  Total batches: {num_batches}")
+        print(f"  Starting from batch {chunk_number + 1}")
         
-        # Check for existing batches to enable resumption
-        max_existing_batch = get_max_batch_number(batch_dir)
-        
-        if max_existing_batch > 0 and not overwrite_intermeds:
-            if max_existing_batch == num_batches:
-                print(f"  Found all {max_existing_batch} expected batch files")
-            else:
-                print(f"  Found {max_existing_batch} existing batch file(s)")
-                print(f"  Resuming from batch {max_existing_batch + 1}")
-        elif overwrite_intermeds:
-            print(f"  Overwriting existing intermediate files")
-        
-        # Process batches
-        for batch_num in range(num_batches):
-            batch_number = batch_num + 1
-            start_idx = batch_num * batch_size
-            end_idx = min((batch_num + 1) * batch_size, total_pmids)
-            batch_pmids = unique_pmids[start_idx:end_idx]
+        # Process remaining PMIDs in batches
+        for i in tqdm(range(0, remaining_count, batch_size), 
+                     desc="Processing batches (1st pass)", 
+                     unit="batch", 
+                     ncols=80):
             
-            # Define output paths for this batch
-            mapping_path_batch = os.path.join(
-                batch_dir, 
-                f'batch_{batch_number:04d}_mapping.csv'
-            )
-            srp_path_batch = os.path.join(
-                batch_dir,
-                f'batch_{batch_number:04d}_srp.csv'
-            )
-            
-            # Check if batch already processed
-            if (os.path.exists(mapping_path_batch) and 
-                os.path.exists(srp_path_batch) and 
-                not overwrite_intermeds):
-                # Skip with minimal output for cleaner logs
-                # Show progress every 10 batches or on the last batch
-                if batch_number % 10 == 0 or batch_number == num_batches:
-                    print(f"  Batch {batch_number}/{num_batches}: Using cached results")
-                continue
-            
-            # Process new batch
-            print(f"\n  Processing batch {batch_number}/{num_batches}")
-            print(f"    PMIDs {start_idx} to {end_idx - 1} ({len(batch_pmids)} PMIDs)")
+            batch_pmids = remaining_pmids[i:i + batch_size]
             
             # Step 1: PMID → SRA IDs
-            print(f"    [1/3] Fetching SRA IDs...")
-            pmid_to_sra_ids = get_sra_ids_for_pubmed_ids(batch_pmids)
+            pmid_to_sra_ids, batch_failed_pmids = get_sra_ids_for_pubmed_ids(batch_pmids)
             
-            pmids_with_sra = len([p for p, sra_list in pmid_to_sra_ids.items() if sra_list])
-            print(f"          Found SRA IDs for {pmids_with_sra}/{len(batch_pmids)} PMIDs")
+            # Track failed PMIDs and their error messages from this batch
+            if batch_failed_pmids:
+                failed_pmids_dict.update(batch_failed_pmids)
             
             # Step 2: SRA IDs → SRP/ERP IDs
             all_sra_ids = [item for sublist in pmid_to_sra_ids.values() for item in sublist]
             unique_sra_ids = list(set(all_sra_ids))
-            
-            print(f"    [2/3] Fetching SRP/ERP IDs for {len(unique_sra_ids)} unique SRA IDs...")
             
             if unique_sra_ids:
                 sra_to_srp_ids = get_srp_ids_for_sra_ids(unique_sra_ids)
             else:
                 sra_to_srp_ids = {}
             
-            sra_with_srp = len([sra for sra, srp_list in sra_to_srp_ids.items() if srp_list])
-            print(f"          Found SRP/ERP IDs for {sra_with_srp}/{len(unique_sra_ids)} SRA IDs")
-            
             # Step 3: Build DataFrames
-            print(f"    [3/3] Building DataFrames...")
             batch_mapping_df = create_sra_mapping_dataframe(pmid_to_sra_ids, sra_to_srp_ids)
             batch_srp_df = create_srp_centric_dataframe(pmid_to_sra_ids, sra_to_srp_ids)
             
             # Save batch files
+            chunk_number += 1
+            mapping_path_batch = os.path.join(
+                batch_dir, 
+                f'batch_{chunk_number:04d}_mapping.csv'
+            )
+            srp_path_batch = os.path.join(
+                batch_dir,
+                f'batch_{chunk_number:04d}_srp.csv'
+            )
+            
             batch_mapping_df.to_csv(mapping_path_batch, index=False)
             batch_srp_df.to_csv(srp_path_batch, index=False)
-            print(f"          Batch saved")
-
-        print(f"\nAggregating batch results...")
-
-        # STEP 4: Aggregate all batch files
-
-        print(f"  Loading and combining {num_batches} batch files...")
+            
+            # Update processed PMIDs set
+            processed_pmids.update(batch_pmids)
+            
+            # Save failed PMIDs report after each batch (incremental save)
+            if failed_pmids_dict:
+                save_failed_pmids_report(failed_pmids_dict)
         
-        # Load all mapping batches
-        all_mapping_dfs = []
-        all_srp_dfs = []
-        missing_batches = []
+        print(f"\n  First pass complete!")
+        print(f"  Total batches created: {chunk_number}")
+    
+    else:
+        print(f"\n  All PMIDs already processed in first pass!")
+        chunk_number = get_max_batch_number(batch_dir)
+    
+    # SECOND PASS: Retry failed PMIDs
+    if failed_pmids_dict:
+        failed_pmids_list = list(failed_pmids_dict.keys())
+        print(f"\n  First pass: {len(failed_pmids_list)} PMIDs failed")
+        print(f"  Running second pass to retry failed PMIDs...")
         
-        for batch_num in range(num_batches):
-            batch_number = batch_num + 1
-            mapping_path_batch = os.path.join(batch_dir, f'batch_{batch_number:04d}_mapping.csv')
+        retry_failed_pmids_dict = {}
+        
+        # Process failed PMIDs in batches
+        for i in tqdm(range(0, len(failed_pmids_list), batch_size), 
+                     desc="Retrying failed PMIDs (2nd pass)", 
+                     unit="batch", 
+                     ncols=80):
+            
+            batch_pmids = failed_pmids_list[i:i + batch_size]
+            
+            # Step 1: PMID → SRA IDs
+            pmid_to_sra_ids, batch_failed_pmids = get_sra_ids_for_pubmed_ids(batch_pmids)
+            
+            # Track PMIDs that still failed on second attempt
+            if batch_failed_pmids:
+                retry_failed_pmids_dict.update(batch_failed_pmids)
+            
+            # Step 2: SRA IDs → SRP/ERP IDs
+            all_sra_ids = [item for sublist in pmid_to_sra_ids.values() for item in sublist]
+            unique_sra_ids = list(set(all_sra_ids))
+            
+            if unique_sra_ids:
+                sra_to_srp_ids = get_srp_ids_for_sra_ids(unique_sra_ids)
+            else:
+                sra_to_srp_ids = {}
+            
+            # Step 3: Build DataFrames
+            batch_mapping_df = create_sra_mapping_dataframe(pmid_to_sra_ids, sra_to_srp_ids)
+            batch_srp_df = create_srp_centric_dataframe(pmid_to_sra_ids, sra_to_srp_ids)
+            
+            # Save batch files
+            chunk_number += 1
+            mapping_path_batch = os.path.join(
+                batch_dir, 
+                f'batch_{chunk_number:04d}_mapping.csv'
+            )
+            srp_path_batch = os.path.join(
+                batch_dir,
+                f'batch_{chunk_number:04d}_srp.csv'
+            )
+            
+            batch_mapping_df.to_csv(mapping_path_batch, index=False)
+            batch_srp_df.to_csv(srp_path_batch, index=False)
+            
+            # Update processed PMIDs set
+            processed_pmids.update(batch_pmids)
+            
+            # Remove successfully retried PMIDs from failed dict
+            for pmid in batch_pmids:
+                if pmid not in batch_failed_pmids and pmid in failed_pmids_dict:
+                    # This PMID succeeded on retry, remove from failed list
+                    del failed_pmids_dict[pmid]
+            
+            # Save updated failed PMIDs report after each batch (incremental save)
+            # This will now contain only PMIDs that are still failing
+            save_failed_pmids_report(retry_failed_pmids_dict)
+        
+        print(f"\n  Second pass complete!")
+        
+        # Report final failed PMIDs
+        if retry_failed_pmids_dict:
+            print(f"  WARNING: {len(retry_failed_pmids_dict)} PMIDs still failed after second pass")
+            print(f"  Failed PMIDs report: {os.path.join(config.REPORTS_GATHERED_DIR, 'failed_pmid_sra_searches.csv')}")
+        else:
+            print(f"  Success! All previously failed PMIDs succeeded on second pass")
+            # Remove failed CSV if it exists (all resolved)
+            failed_pmids_csv_path = os.path.join(config.REPORTS_GATHERED_DIR, 'failed_pmid_sra_searches.csv')
+            if os.path.exists(failed_pmids_csv_path):
+                os.remove(failed_pmids_csv_path)
+    
+    # STEP 4: Aggregate all batch files
+    
+    print(f"\nAggregating batch results...")
+    
+    # Find all batch files
+    batch_files = [
+        file for file in os.listdir(batch_dir)
+        if file.startswith('batch_') and file.endswith('_mapping.csv')
+    ]
+    total_batches = len(batch_files)
+    
+    print(f"  Loading and combining {total_batches} batch files...")
+    
+    # Load all mapping and SRP batches
+    all_mapping_dfs = []
+    all_srp_dfs = []
+    
+    for batch_file in sorted(batch_files):
+        # Extract batch number from filename
+        match = re.search(r'batch_(\d+)_mapping\.csv', batch_file)
+        if match:
+            batch_number = int(match.group(1))
+            mapping_path_batch = os.path.join(batch_dir, batch_file)
             srp_path_batch = os.path.join(batch_dir, f'batch_{batch_number:04d}_srp.csv')
             
             if os.path.exists(mapping_path_batch) and os.path.exists(srp_path_batch):
                 all_mapping_dfs.append(pd.read_csv(mapping_path_batch))
                 all_srp_dfs.append(pd.read_csv(srp_path_batch))
             else:
-                missing_batches.append(batch_number)
-        
-        if missing_batches:
-            print(f"\n  WARNING: Missing {len(missing_batches)} batch file(s): {missing_batches}")
-            print(f"           This will result in incomplete data!")
-            print(f"           Consider re-running with overwrite_intermeds=True")
-        
-        # Aggregate
-        final_mapping_df = aggregate_batch_mappings(all_mapping_dfs)
-        final_srp_df = aggregate_batch_srp_data(all_srp_dfs)
-        
-        # Save aggregated mapping (for reference)
-        final_mapping_df.to_csv(sra_mapping_path, index=False)
-        print(f"\n  PMID-SRA-SRP mapping saved to:")
-        print(f"    {sra_mapping_path}")
-        print(f"    Total PMIDs: {len(final_mapping_df)}")
-        
-        # Save aggregated SRP-centric data
-        final_srp_df.to_csv(srp_centric_path, index=False)
-        print(f"\n  SRP-centric data saved to:")
-        print(f"    {srp_centric_path}")
-        print(f"    Total unique SRP/ERP IDs: {len(final_srp_df)}")
+                print(f"  WARNING: Missing SRP file for batch {batch_number}")
+    
+    # Aggregate
+    final_mapping_df = aggregate_batch_mappings(all_mapping_dfs)
+    final_srp_df = aggregate_batch_srp_data(all_srp_dfs)
+    
+    # Save aggregated mapping (for reference)
+    final_mapping_df.to_csv(sra_mapping_path, index=False)
+    print(f"\n  PMID-SRA-SRP mapping saved to:")
+    print(f"    {sra_mapping_path}")
+    print(f"    Total unique PMIDs in mapping: {len(final_mapping_df)}")
+    
+    # Verify all input PMIDs are accounted for
+    mapped_pmids = set(final_mapping_df['PMID'].astype(str).tolist())
+    missing_from_mapping = set(unique_pmids) - mapped_pmids
+    if missing_from_mapping:
+        print(f"\n  WARNING: {len(missing_from_mapping)} unique PMIDs not found in mapping!")
+        print(f"           These PMIDs may have failed during processing")
+        # Save missing PMIDs for investigation
+        missing_pmids_path = os.path.join(batch_dir, 'missing_pmids.txt')
+        with open(missing_pmids_path, 'w') as f:
+            for pmid in sorted(missing_from_mapping):
+                f.write(f"{pmid}\n")
+        print(f"           Missing PMIDs saved to: {missing_pmids_path}")
+    
+    # Save aggregated SRP-centric data
+    final_srp_df.to_csv(srp_centric_path, index=False)
+    print(f"\n  SRP-centric data saved to:")
+    print(f"    {srp_centric_path}")
+    print(f"    Total unique SRP/ERP IDs: {len(final_srp_df)}")
     
     # STEP 5: Gather metadata for each unique SRP/ERP ID
 
@@ -1432,7 +1619,7 @@ def gather_sra_data(
     # Final summary
     print(f"\n---\nSRA Gathering Summary")
     
-    total_pmids = len(final_mapping_df)
+    total_unique_pmids = len(final_mapping_df)
     # Count PMIDs that have non-empty SRP_ERP_IDs (using notna() and non-empty check)
     pmids_with_srp = len(
         final_mapping_df[
@@ -1449,13 +1636,13 @@ def gather_sra_data(
             sra_list = [s.strip() for s in sra_str.split(';') if s.strip()]
             unique_sra_ids.update(sra_list)
     
-    print(f"  Total PMIDs processed:        {total_pmids:>8}")
-    if total_pmids > 0:
-        print(f"  PMIDs with SRP/ERP IDs:       {pmids_with_srp:>8} ({pmids_with_srp/total_pmids*100:>5.1f}%)")
+    print(f"  Total unique PMIDs processed:        {total_unique_pmids:>8}")
+    if total_unique_pmids > 0:
+        print(f"  Unique PMIDs with SRP/ERP IDs:       {pmids_with_srp:>8} ({pmids_with_srp/total_unique_pmids*100:>5.1f}%)")
     else:
-        print(f"  PMIDs with SRP/ERP IDs:       {pmids_with_srp:>8} (N/A)")
-    print(f"  Total unique SRA IDs:         {len(unique_sra_ids):>8}")
-    print(f"  Total unique SRP/ERP studies: {len(sra_datasets_df):>8}")
+        print(f"  Unique PMIDs with SRP/ERP IDs:       {pmids_with_srp:>8} (N/A)")
+    print(f"  Total unique SRA IDs:                {len(unique_sra_ids):>8}")
+    print(f"  Total unique SRP/ERP studies:        {len(sra_datasets_df):>8}")
     print(f"---")
     
     return sra_datasets_df
@@ -1485,10 +1672,12 @@ if __name__ == "__main__":
 
     # # Small test params
     # publications_df = pd.DataFrame({'pmid': ['38738472', # Standard
+    #                                          '38738472', # Duplicate
     #                                          '10637239', # No SRA match
     #                                          '26829319', # ERP match
     #                                          '38260414', # Many-to-one (1/2)
     #                                          '38802751', # Many-to-one (2/2)
+    #                                          'bad_input' # Bad PMID
     #                                          ]}) 
     # batch_size = 2
     # overwrite_intermeds=False
