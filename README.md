@@ -25,9 +25,10 @@ The INS Data Gathering workflow consists of the following steps designed to run 
 3. [Gather Projects](#gather-projects)
 4. [Gather Publications](#gather-publications)
 5. [Gather GEO Datasets](#gather-geo-datasets)
-6. [Process CEDCD Cohorts](#gather-cedcd-datasets)
-7. [Package Data](#package-data)
-8. [Validate Data](#validate-data)
+6. [Gather SRA Datasets](#gather-sra-datasets)
+7. [Process CEDCD Cohorts](#gather-cedcd-datasets)
+8. [Package Data](#package-data)
+9. [Validate Data](#validate-data)
 
 The workflow is supported by additional, independent steps run as needed:
 
@@ -254,6 +255,47 @@ python modules/gather_geo_data.py
 
 5. **Save Final Output**
     - Saves the processed `geo_datasets.csv` file in the intermediate data directory for downstream use and validation.
+
+## Gather SRA Datasets
+
+**This step gathers Sequence Read Archive (SRA) dataset data from [NCBI SRA](https://www.ncbi.nlm.nih.gov/sra) using NCBI E-utilities. All SRA datasets are associated with at least one publication and at least one project.**
+
+### SRA Dataset Workflow
+
+All SRA dataset processing is handled within the `gather_sra_data.py` module and can be run as an independent process with the command:
+
+```bash
+python modules/gather_sra_data.py
+```
+
+1. **Map PMIDs to SRA IDs**
+    - Reads the publication data (with PMIDs and project info) and uses NCBI E-utilities to find all SRA experiment IDs (accessions) linked to each PMID.
+    - Processes PMIDs in configurable batches (default 2000) to enable resumption and handle large datasets efficiently.
+    - Saves batch mapping files and tracks failed PMIDs for retry in a second pass.
+
+2. **Map SRA IDs to Study IDs**
+    - For each unique SRA experiment ID, retrieves the parent study ID (SRP/ERP) using NCBI E-utilities.
+    - Handles both NCBI SRA (SRP) and European Nucleotide Archive (ERP) study accessions.
+    - Creates a study-centric view by aggregating all PMIDs associated with each unique study.
+
+3. **Gather SRA Study Metadata**
+    - For each unique study ID, retrieves comprehensive metadata from NCBI using the EFetch API, including study title, abstract, design description, assay methods, platform information, and release dates.
+    - Parses XML responses to extract structured metadata fields like library strategy, sample counts, and investigator information.
+    - Saves metadata as a checkpoint file for reuse and debugging.
+
+4. **Link to NCI Programs**
+    - Merges SRA datasets with publication, project, and program data to establish linkages to NCI funding sources.
+    - Derives associated NCI Division/Office/Center (DOC) and program(s) for each dataset.
+    - Combines PMID information from both the SRA metadata and the publication-based mapping.
+
+5. **Generate UUIDs and Format Output**
+    - Generates deterministic internal UUID5 identifiers for each dataset based on the study accession (SRP/ERP ID).
+    - Adds standardized columns (e.g., URLs, type, repository) for downstream compatibility.
+    - Applies filtering to remove invalid or incomplete records.
+
+6. **Save Final Output**
+    - Saves the processed `sra_datasets.csv` file in the intermediate data directory for downstream use and validation.
+    - Generates comprehensive reports of failed PMID lookups with error details for troubleshooting.
 
 ## Gather CEDCD Datasets
 
@@ -487,6 +529,7 @@ python modules/build_validation_file.py
         python modules/gather_project_data.py
         python modules/gather_publication_data.py
         python modules/gather_geo_data.py
+        python modules/gather_sra_data.py
         python modules/gather_cedcd_data.py
         python modules/package_output_data.py
         python modules/build_validation_file.py
