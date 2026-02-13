@@ -31,7 +31,8 @@ def add_type_column(df, datatype):
     
     # Define dataset types that should be mapped to the general 'dataset' type
     dataset_types = {'dbgap_dataset', 
-                     'geo_dataset', 
+                     'geo_dataset',
+                     'sra_dataset',
                      'cedcd_dataset', 
                      'ctd2_dataset'}
     
@@ -623,6 +624,26 @@ def package_geo_datasets(df_geo_datasets, column_configs):
     return df_geo_datasets_output
 
 
+def package_sra_datasets(df_sra_datasets, column_configs):
+    """Package SRA Datasets data for INS loading."""
+
+    print(f"---\nFinalizing TSV for SRA Datasets data...") 
+
+    # Standardize and validate data
+    df_sra_datasets_output = standardize_data(df_sra_datasets, column_configs, 
+                                        datatype='sra_dataset')
+
+    # Export as TSV
+    output_filepath = config.SRA_OUTPUT_PATH
+    os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
+    df_sra_datasets_output.to_csv(output_filepath, sep='\t', index=False, 
+                                    encoding='utf-8')
+
+    print(f"Done! Final SRA Datasets data saved as {output_filepath}.")
+
+    return df_sra_datasets_output
+
+
 
 def package_cedcd_datasets(df_cedcd_datasets, column_configs):
     """Package CEDCD Cohorts as datasets for INS loading."""
@@ -937,6 +958,16 @@ def package_output_data():
         geo_datasets_exist = False
         print(f"No GEO Datasets file found.")
 
+    # Load SRA datasets data
+    if os.path.exists(config.SRA_INTERMED_PATH):
+        sra_datasets_exist = True
+        df_sra_datasets = pd.read_csv(config.SRA_INTERMED_PATH,
+                                      dtype={'dataset_pmid':str})
+        print(f"Loaded SRA Datasets file from {config.SRA_INTERMED_PATH}")
+    else: 
+        sra_datasets_exist = False
+        print(f"No SRA Datasets file found.")
+
     # Load CEDCD datasets data
     if os.path.exists(config.CEDCD_INTERMED_CSV):
         cedcd_datasets_exist = True
@@ -1003,6 +1034,8 @@ def package_output_data():
                                                        dbgap_curated)
     if geo_datasets_exist:
         df_geo_datasets_out = package_geo_datasets(df_geo_datasets, column_configs)
+    if sra_datasets_exist:
+        df_sra_datasets_out = package_sra_datasets(df_sra_datasets, column_configs)
     if cedcd_datasets_exist:
         df_cedcd_datasets_out = package_cedcd_datasets(df_cedcd_datasets, column_configs)
     if ctd2_datasets_exist:
