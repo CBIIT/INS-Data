@@ -624,7 +624,7 @@ def package_geo_datasets(df_geo_datasets, column_configs):
     return df_geo_datasets_output
 
 
-def package_sra_datasets(df_sra_datasets, column_configs):
+def package_sra_datasets(df_sra_datasets, column_configs, sra_curated=False):
     """Package SRA Datasets data for INS loading."""
 
     print(f"---\nFinalizing TSV for SRA Datasets data...") 
@@ -635,6 +635,8 @@ def package_sra_datasets(df_sra_datasets, column_configs):
 
     # Export as TSV
     output_filepath = config.SRA_OUTPUT_PATH
+    if sra_curated: 
+        output_filepath = config.SRA_OUTPUT_CURATED_CLEANED
     os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
     df_sra_datasets_output.to_csv(output_filepath, sep='\t', index=False, 
                                     encoding='utf-8')
@@ -958,14 +960,22 @@ def package_output_data():
         geo_datasets_exist = False
         print(f"No GEO Datasets file found.")
 
-    # Load SRA datasets data
-    if os.path.exists(config.SRA_INTERMED_PATH):
+    # Load SRA datasets data. Prefer curated file if it exists.
+    if os.path.exists(config.SRA_CURATED_INTERMED_PATH):
         sra_datasets_exist = True
+        sra_curated = True
+        df_sra_datasets = pd.read_csv(config.SRA_CURATED_INTERMED_PATH, sep='\t',
+                                      dtype={'dataset_pmid':str})
+        print(f"Loaded SRA Datasets (Curated) file from {config.SRA_CURATED_INTERMED_PATH}")
+    elif os.path.exists(config.SRA_INTERMED_PATH):
+        sra_datasets_exist = True
+        sra_curated = False
         df_sra_datasets = pd.read_csv(config.SRA_INTERMED_PATH,
                                       dtype={'dataset_pmid':str})
         print(f"Loaded SRA Datasets file from {config.SRA_INTERMED_PATH}")
     else: 
         sra_datasets_exist = False
+        sra_curated = False
         print(f"No SRA Datasets file found.")
 
     # Load CEDCD datasets data
@@ -1035,7 +1045,8 @@ def package_output_data():
     if geo_datasets_exist:
         df_geo_datasets_out = package_geo_datasets(df_geo_datasets, column_configs)
     if sra_datasets_exist:
-        df_sra_datasets_out = package_sra_datasets(df_sra_datasets, column_configs)
+        df_sra_datasets_out = package_sra_datasets(df_sra_datasets, column_configs,
+                                                    sra_curated)
     if cedcd_datasets_exist:
         df_cedcd_datasets_out = package_cedcd_datasets(df_cedcd_datasets, column_configs)
     if ctd2_datasets_exist:

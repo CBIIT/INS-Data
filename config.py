@@ -604,7 +604,9 @@ SRA_PMID_MAPPING_PATH = GATHERED_DIR +"/"+ "sra_pmid_mapping.csv"
 SRA_SRP_CENTRIC_PATH = GATHERED_DIR +"/"+ "sra_srp_centric.csv"
 SRA_BATCH_DIR = GATHERED_DIR +"/"+ "sra_batches"
 SRA_INTERMED_PATH = GATHERED_DIR +"/"+ "sra_datasets.csv"
+SRA_CURATED_INTERMED_PATH = GATHERED_DIR +"/"+ "sra_datasets_curated.tsv"
 SRA_OUTPUT_PATH = OUTPUT_GATHERED_DIR +"/"+ "sra_datasets.tsv"
+SRA_OUTPUT_CURATED_CLEANED = OUTPUT_GATHERED_DIR +"/"+ "sra_datasets_curated_clean.tsv"
 
 
 # CEDCD
