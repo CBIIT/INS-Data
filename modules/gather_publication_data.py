@@ -116,22 +116,32 @@ def get_pmids_from_nih_reporter_api(project_id,
                 if offset >= total_records:
                     break
 
-            # Handle 500 errors by retrying after 2 second delay
+            # Handle 500 errors by retrying after tiered delay
             elif response.status_code == 500:
                 attempts = attempts + 1
                 print(f"Received a 500 error for "
                         f"{project_id}'. "
-                        f"Retrying after {RETRY_TIME} seconds. "
+                        f"Retrying after {RETRY_TIME*attempts} seconds. "
                         f"Attempt {attempts}/{MAX_ATTEMPTS}")
-                sleep(RETRY_TIME)
+                sleep(RETRY_TIME*attempts)
+
+            # Handle 429 errors by retrying after tiered delay
+            elif response.status_code == 429:
+                attempts = attempts + 1
+                print(f"Received a 429 error for "
+                        f"{project_id}'. "
+                        f"Retrying after {RETRY_TIME*attempts} seconds. "
+                        f"Attempt {attempts}/{MAX_ATTEMPTS}")
+                sleep(RETRY_TIME*attempts)
+
             else:
-                print(f"Error occurred while fetching pmids for "
+                print(f"Other error occurred while fetching pmids for "
                         f"{project_id}': "
                         f"{response.status_code}")
                 break
 
         except requests.exceptions.RequestException as e:
-            print(f"An error occurred while making the API call for "
+            print(f"An exception error occurred while making the API call for "
                     f"{project_id}': {e}")
             break
 
