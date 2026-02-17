@@ -47,7 +47,9 @@ def get_pmids_from_nih_reporter_api(project_id,
                 process results to the console.
                             
         Returns:
-            list: JSON API response with 'coreproject', 'pmid' and 'applId'
+            tuple: (pmid_data, error_occurred)
+                - pmid_data: list of JSON API response with 'coreproject', 'pmid' and 'applId'
+                - error_occurred: bool indicating if an error occurred during API call
 
         Raises:
             requests.exceptions.RequestException: If an error occurs during 
@@ -56,6 +58,7 @@ def get_pmids_from_nih_reporter_api(project_id,
 
     base_url = "https://api.reporter.nih.gov/v2/publications/search"
     pmid_data = []
+    error_occurred = False
 
     # Set default values for params not likley to change
     LIMIT = 500
@@ -115,6 +118,9 @@ def get_pmids_from_nih_reporter_api(project_id,
                 # Stop looping if offset has reached total record count
                 if offset >= total_records:
                     break
+                
+                # Reset attempts counter on successful call for pagination
+                attempts = 0
 
             # Handle 500 errors by retrying after tiered delay
             elif response.status_code == 500:
@@ -124,6 +130,10 @@ def get_pmids_from_nih_reporter_api(project_id,
                         f"Retrying after {RETRY_TIME*attempts} seconds. "
                         f"Attempt {attempts}/{MAX_ATTEMPTS}")
                 sleep(RETRY_TIME*attempts)
+                # If max attempts reached, mark as error and break
+                if attempts >= MAX_ATTEMPTS:
+                    error_occurred = True
+                    break
 
             # Handle 429 errors by retrying after tiered delay
             elif response.status_code == 429:
@@ -133,19 +143,25 @@ def get_pmids_from_nih_reporter_api(project_id,
                         f"Retrying after {RETRY_TIME*attempts} seconds. "
                         f"Attempt {attempts}/{MAX_ATTEMPTS}")
                 sleep(RETRY_TIME*attempts)
+                # If max attempts reached, mark as error and break
+                if attempts >= MAX_ATTEMPTS:
+                    error_occurred = True
+                    break
 
             else:
                 print(f"Other error occurred while fetching pmids for "
                         f"{project_id}': "
                         f"{response.status_code}")
+                error_occurred = True
                 break
 
         except requests.exceptions.RequestException as e:
             print(f"An exception error occurred while making the API call for "
                     f"{project_id}': {e}")
+            error_occurred = True
             break
 
-    return pmid_data
+    return pmid_data, error_occurred
 
 
 def get_pmids_from_projects(projects_df, print_meta=False):
@@ -175,13 +191,45 @@ def get_pmids_from_projects(projects_df, print_meta=False):
     print(f"{len(project_id_list)} total unique project IDs kept for "
           f"publication gathering.")              
 
-    # Create empty df
+    # Create empty lists
     all_pmids = []
+    failed_projects = []
 
-    # Iterate through projects and add to running list of results
+    # First pass: Iterate through projects and add to running list of results
+    print(f"First pass: Gathering PMIDs for {len(project_id_list)} projects...")
     for id in tqdm(project_id_list, ncols=80):
-        results = get_pmids_from_nih_reporter_api(id, print_meta=print_meta)
+        results, error_occurred = get_pmids_from_nih_reporter_api(id, print_meta=print_meta)
         all_pmids.extend(results)
+        
+        # Track only projects that had actual errors (not empty results)
+        if error_occurred:
+            failed_projects.append(id)
+
+    # Second pass: Retry failed projects
+    if failed_projects:
+        print(f"\n---\nFirst pass complete. Retrying {len(failed_projects)} "
+              f"projects with errors...\n---")
+        still_failed_projects = []
+        
+        for id in tqdm(failed_projects, ncols=80):
+            results, error_occurred = get_pmids_from_nih_reporter_api(id, print_meta=print_meta)
+            all_pmids.extend(results)
+            
+            # Track projects that errored on second attempt
+            if error_occurred:
+                still_failed_projects.append(id)
+        
+        # Export report of projects that failed both passes
+        if still_failed_projects:
+            failed_projects_df = pd.DataFrame({
+                'project_id': still_failed_projects,
+                'reason': 'Failed API call after retry attempts',
+                'date_attempted': datetime.now().strftime('%Y-%m-%d')
+            })
+            report_path = config.REPORTS_GATHERED_DIR + f"/FailedAPIProjectPMIDs.csv"
+            failed_projects_df.to_csv(report_path, index=False)
+            print(f"\n---\nWARNING: {len(still_failed_projects)} projects failed "
+                  f"after retry. Report saved to {report_path}\n---")
 
     # Reformat list of results as dataframe
     df_pmids = pd.DataFrame(all_pmids)
