@@ -844,7 +844,7 @@ def gather_publication_data(projects_df, print_meta=False):
         df_icite = get_icite_data_for_pmids(df_pmids,
                                 config.ICITE_FILENAME, 
                                 config.ICITE_COLUMNS_TO_PULL,
-                                chunk_size=250000, chunk_count_est=146)
+                                chunk_size=250000, chunk_count_est=165)
         # Export iCite data as checkpoint
         df_icite.to_csv(config.ICITE_PMID_DATA, index=False)
         print(f"---\niCite data for PMIDS saved to {config.ICITE_PMID_DATA}.")
