@@ -1,0 +1,480 @@
+PARTIAL DATA GATHERING LOG
+2026-02-17
+
+---
+PROGRAMS:
+Gathering, cleaning, and saving programs data...
+---
+
+Loading and processing data/00_input/qualtrics/qualtrics_output_2026-01-30_manual_fix.csv...
+Removed extra Multiple Cancer Types in CIBMTR (Data Resource)
+Removed extra Multiple Cancer Types in MCI
+Removed extra Multiple Cancer Types in NexTGen
+Removed extra Multiple Cancer Types in PLCO
+---
+Checking for NOFO validity...
+8 potentially invalid NOFOs found.
+Invalid NOFOs saved for review and correction in reports/2026-01-30/invalidNofoReport_manual_fix.csv.
+---
+Please review 8 potential Nofo issues. 
+Consider manual fixes to the Qualtrics CSV or creating a versioned invalidNofoReport_reviewed.csv` in the data/reviewed/ directory
+
+        Continue with known Nofo issues? (Y/N): y
+---
+Checking for Award validity...
+77 potentially invalid awards found.
+Invalid awards saved for review and correction in reports/2026-01-30/invalidAwardReport_manual_fix.csv.
+---
+Please review 77 potential Award issues. 
+Consider manual fixes to the Qualtrics CSV or creating a versioned invalidAwardReport_reviewed.csv` in the data/reviewed/ directory
+
+        Continue with known Award issues? (Y/N): y
+Success! 195 Programs saved to data/01_intermediate/2026-01-30/program.csv.
+
+---
+GRANTS:
+Gathering, cleaning, and saving grants data from NIH Reporter API for each Program...
+---
+
+NOTICE: No NOFOs or Awards defined for Connect for Cancer Prevention Study. Skipping program.
+NOTICE: No NOFOs or Awards defined for My Pediatric and Adult Rare Tumor Network. Skipping program.
+NOTICE: No NOFOs or Awards defined for National Childhood Cancer Registry. Skipping program.
+NOTICE: No NOFOs or Awards defined for NCI’s National Clinical Trials Network. Skipping program.
+NOTICE: No NOFOs or Awards defined for Lung Cancer Master Protocol. Skipping program.
+NOTICE: No NOFOs or Awards defined for MyeloMATCH. Skipping program.
+NOTICE: No NOFOs or Awards defined for NCI-MATCH: Molecular Analysis for Therapy Choice for adults with advanced cancers. Skipping program.
+NOTICE: No NOFOs or Awards defined for ComboMATCH Precision Medicine Clinical Trials. Skipping program.
+NOTICE: No NOFOs or Awards defined for NCI-COG Pediatric MATCH Precision Medicine Clinical Trial. Skipping program.
+NOTICE: No NOFOs or Awards defined for Physical Sciences – Oncology Network. Skipping program.
+NOTICE: No NOFOs or Awards defined for The Cancer Genome Atlas Program. Skipping program.
+NOTICE: No NOFOs or Awards defined for Applied Proteogenomics OrganizationaL Learning and Outcomes (APOLLO) network. Skipping program.
+NOTICE: No NOFOs or Awards defined for The Childhood Cancer Data Initiative Molecular Characterization Initiative. Skipping program.
+NOTICE: No grants found for Pediatric Proton/Photon Consortium Registry
+NOTICE: No NOFOs or Awards defined for Modeling Outcomes Using Surveillance Data and Scalable Artificial Intelligence for Cancer. Skipping program.
+NOTICE: No NOFOs or Awards defined for Innovative Methodologies and New Data for Predictive Oncology Model Evaluation. Skipping program.
+NOTICE: No NOFOs or Awards defined for Accelerating Therapeutics for Opportunities in Medicine. Skipping program.
+NOTICE: No NOFOs or Awards defined for PREVENT Cancer Preclinical Drug Development Program. Skipping program.
+NOTICE: No NOFOs or Awards defined for The Surveillance, Epidemiology, and End Results (SEER) Program. Skipping program.
+NOTICE: No NOFOs or Awards defined for Gabriella Miller Kids First Pediatric Research Program. Skipping program.
+NOTICE: No NOFOs or Awards defined for Consortium for Cancer Implementation Science. Skipping program.
+NOTICE: No NOFOs or Awards defined for Human Cancer Models Initiative. Skipping program.
+NOTICE: No NOFOs or Awards defined for Moonshot Biobank. Skipping program.
+NOTICE: No NOFOs or Awards defined for National Cancer Institute's Community Oncology Research Program. Skipping program.
+Error occurred while fetching grants for award 'BC010778': 429
+Error occurred while fetching grants for award 'SC010356': 429
+Error occurred while fetching grants for award 'BC011949': 429
+Error occurred while fetching grants for award 'BC012108': 429
+Error occurred while fetching grants for award 'BC011163': 429
+Error occurred while fetching grants for award 'BC012034': 429
+Error occurred while fetching grants for award 'BC011267': 429
+Error occurred while fetching grants for award 'BC011902': 429
+Error occurred while fetching grants for award 'BC011847': 429
+Error occurred while fetching grants for award 'BC011954': 429
+Error occurred while fetching grants for award 'BC011704': 429
+Error occurred while fetching grants for award 'BC011944': 429
+NOTICE: Both Awards and NOFOs provided. Results may include duplicate grants gathered by both NOFO and Award searches.
+NOTICE: Both Awards and NOFOs provided. Results may include duplicate grants gathered by both NOFO and Award searches.
+NOTICE: Both Awards and NOFOs provided. Results may include duplicate grants gathered by both NOFO and Award searches.
+NOTICE: Both Awards and NOFOs provided. Results may include duplicate grants gathered by both NOFO and Award searches.
+NOTICE: Both Awards and NOFOs provided. Results may include duplicate grants gathered by both NOFO and Award searches.
+NOTICE: Both Awards and NOFOs provided. Results may include duplicate grants gathered by both NOFO and Award searches.
+NOTICE: Both Awards and NOFOs provided. Results may include duplicate grants gathered by both NOFO and Award searches.
+NOTICE: Both Awards and NOFOs provided. Results may include duplicate grants gathered by both NOFO and Award searches.
+NOTICE: Both Awards and NOFOs provided. Results may include duplicate grants gathered by both NOFO and Award searches.
+NOTICE: Both Awards and NOFOs provided. Results may include duplicate grants gathered by both NOFO and Award searches.
+NOTICE: No NOFOs or Awards defined for Cancer Epidemiology Descriptive Cohort Database. Skipping program.
+NOTICE: No NOFOs or Awards defined for Artificial-Intelligence-Driven Multiscale Investigation of the RAS/RAF Activation Lifecycle. Skipping program.
+NOTICE: Both Awards and NOFOs provided. Results may include duplicate grants gathered by both NOFO and Award searches.
+NOTICE: Both Awards and NOFOs provided. Results may include duplicate grants gathered by both NOFO and Award searches.
+NOTICE: Both Awards and NOFOs provided. Results may include duplicate grants gathered by both NOFO and Award searches.
+NOTICE: Both Awards and NOFOs provided. Results may include duplicate grants gathered by both NOFO and Award searches.
+NOTICE: Both Awards and NOFOs provided. Results may include duplicate grants gathered by both NOFO and Award searches.
+NOTICE: Both Awards and NOFOs provided. Results may include duplicate grants gathered by both NOFO and Award searches.
+NOTICE: Both Awards and NOFOs provided. Results may include duplicate grants gathered by both NOFO and Award searches.
+Error occurred while fetching grants for nofo 'PAR-18-248': 429
+Error occurred while fetching grants for nofo 'PAR-17-129': 429
+Error occurred while fetching grants for award 'U01CA218422': 429
+Error occurred while fetching grants for award 'U01CA213862': 429
+Error occurred while fetching grants for award 'U01CA198913': 429
+Error occurred while fetching grants for award 'U01CA198989': 429
+Error occurred while fetching grants for award 'R56CA213859': 429
+Error occurred while fetching grants for award 'R56CA207839': 429
+Error occurred while fetching grants for award 'R01CA253650': 429
+Error occurred while fetching grants for award 'R01CA253655': 429
+Error occurred while fetching grants for award 'R01CA253651': 429
+Error occurred while fetching grants for award 'R01CA247666': 429
+Error occurred while fetching grants for award 'R01CA247769': 429
+Error occurred while fetching grants for award 'R01CA253658': 429
+Error occurred while fetching grants for award 'R01CA253627': 429
+Error occurred while fetching grants for award 'R01CA243023': 429
+Error occurred while fetching grants for award 'R01CA232017': 429
+Error occurred while fetching grants for award 'R01CA236702': 429
+Error occurred while fetching grants for award 'R01CA247763': 429
+Error occurred while fetching grants for award 'R01CA232056': 429
+Error occurred while fetching grants for award 'R01CA232015': 429
+Error occurred while fetching grants for award 'R01CA218545': 429
+Error occurred while fetching grants for award 'R01CA263897': 429
+Error occurred while fetching grants for award 'R01CA264102': 429
+Error occurred while fetching grants for award 'R01CA257958': 429
+Error occurred while fetching grants for award 'R01CA274415': 429
+Error occurred while fetching grants for award 'R01CA284065': 429
+Error occurred while fetching grants for award 'R01CA284083': 429
+Error occurred while fetching grants for award 'R01CA264090': 429
+Error occurred while fetching grants for award 'R01CA278633': 429
+Error occurred while fetching grants for award 'R01CA278608': 429
+Error occurred while fetching grants for award 'R01CA288207': 429
+Error occurred while fetching grants for award 'P50CA236733': 429
+NOTICE: Both Awards and NOFOs provided. Results may include duplicate grants gathered by both NOFO and Award searches.
+NOTICE: Both Awards and NOFOs provided. Results may include duplicate grants gathered by both NOFO and Award searches.
+NOTICE: Both Awards and NOFOs provided. Results may include duplicate grants gathered by both NOFO and Award searches.
+NOTICE: No NOFOs or Awards defined for COnsortium of METabolomics Studies. Skipping program.
+NOTICE: No NOFOs or Awards defined for RAS Initiative. Skipping program.
+NOTICE: No NOFOs or Awards defined for Transdisciplinary Research on Energetics and Cancer (TREC) Centers. Skipping program.
+NOTICE: No NOFOs or Awards defined for Therapeutically Applicable Research to Generate Effective Treatments. Skipping program.
+Error occurred while fetching grants for award '600.300.20.01': 400
+Error occurred while fetching grants for award '600.035.2': 400
+Error occurred while fetching grants for award '600.300.21.01': 400
+100%|█████████████████████████████████████████| 195/195 [04:33<00:00,  1.40s/it]
+---
+Success! NIH RePORTER API data gathered, cleaned, and saved.
+19019 grants gathered across all Awards and NOFOs.
+15683 NCI-funded grants retained for INS.
+136 Awards/NOFO searches yielded 0 results.
+Combined results can be found in data/01_intermediate/2026-01-30/gathered-2026-02-17/grant.csv.
+---
+
+---
+SUMMARY STATISTICS:
+Generating summary statistics reports for grants...
+---
+
+Done! Results can be found in reports/2026-01-30/gathered-2026-02-17.
+
+---
+PROJECTS:
+Aggregating and formatting project data from grants...
+---
+
+Success! Project data exported to data/01_intermediate/2026-01-30/gathered-2026-02-17/project.csv
+DataFrame with mismatched rows exported to reports/2026-01-30/gathered-2026-02-17/mismatchedProjectValuesReport.csv
+
+---
+PUBLICATIONS:
+Gathering, formatting, and saving Publication data...
+---
+
+---
+Gathering associated PMIDs for each project from NIH RePORTER API...
+80 projects in programs: ['ccdi'] excluded from publication gathering steps.
+2945 total unique project IDs kept for publication gathering.
+First pass: Gathering PMIDs for 2945 projects...
+ 13%|█████                                   | 376/2945 [00:41<03:50, 11.16it/s]Received a 429 error for R21CA132039'. Retrying after 2 seconds. Attempt 1/5
+Received a 429 error for R21CA132039'. Retrying after 4 seconds. Attempt 2/5
+Received a 429 error for R21CA132039'. Retrying after 6 seconds. Attempt 3/5
+Received a 429 error for R21CA132039'. Retrying after 8 seconds. Attempt 4/5
+ 26%|██████████▎                             | 761/2945 [01:33<03:34, 10.20it/s]Received a 429 error for R33CA092725'. Retrying after 2 seconds. Attempt 1/5
+Received a 429 error for R33CA092725'. Retrying after 4 seconds. Attempt 2/5
+Received a 429 error for R33CA092725'. Retrying after 6 seconds. Attempt 3/5
+ 26%|██████████▍                             | 765/2945 [01:46<50:04,  1.38s/it]Received a 429 error for R33CA092792'. Retrying after 2 seconds. Attempt 1/5
+Received a 429 error for R33CA092792'. Retrying after 4 seconds. Attempt 2/5
+Received a 429 error for R33CA094334'. Retrying after 2 seconds. Attempt 1/5
+Received a 429 error for R33CA094334'. Retrying after 4 seconds. Attempt 2/5
+Received a 429 error for R33CA094334'. Retrying after 6 seconds. Attempt 3/5
+ 39%|███████████████▏                       | 1149/2945 [02:39<02:25, 12.38it/s]Received a 429 error for R43CA120937'. Retrying after 2 seconds. Attempt 1/5
+ 39%|███████████████▏                       | 1151/2945 [02:41<11:47,  2.54it/s]Received a 429 error for R43CA125605'. Retrying after 2 seconds. Attempt 1/5
+Received a 429 error for R43CA125605'. Retrying after 4 seconds. Attempt 2/5
+Received a 429 error for R43CA125605'. Retrying after 6 seconds. Attempt 3/5
+ 39%|███████████████▎                       | 1156/2945 [02:54<35:07,  1.18s/it]Received a 429 error for R43CA128752'. Retrying after 2 seconds. Attempt 1/5
+Received a 429 error for R43CA128752'. Retrying after 4 seconds. Attempt 2/5
+Received a 429 error for R43CA128752'. Retrying after 6 seconds. Attempt 3/5
+ 53%|████████████████████▌                  | 1552/2945 [03:40<01:49, 12.74it/s]Received a 429 error for U01DE028227'. Retrying after 2 seconds. Attempt 1/5
+ 53%|████████████████████▌                  | 1554/2945 [03:42<09:07,  2.54it/s]Received a 429 error for U01DE029188'. Retrying after 2 seconds. Attempt 1/5
+Received a 429 error for U01DE029188'. Retrying after 4 seconds. Attempt 2/5
+ 53%|████████████████████▌                  | 1556/2945 [03:49<28:33,  1.23s/it]Received a 429 error for U01DE029255'. Retrying after 2 seconds. Attempt 1/5
+Received a 429 error for U01DE029255'. Retrying after 4 seconds. Attempt 2/5
+Received a 429 error for U01DE029255'. Retrying after 6 seconds. Attempt 3/5
+Received a 429 error for U01DE029255'. Retrying after 8 seconds. Attempt 4/5
+ 65%|█████████████████████████▌             | 1928/2945 [04:44<01:27, 11.57it/s]Received a 429 error for Z01BC009052'. Retrying after 2 seconds. Attempt 1/5
+Received a 429 error for Z01BC009052'. Retrying after 4 seconds. Attempt 2/5
+Received a 429 error for Z01BC009052'. Retrying after 6 seconds. Attempt 3/5
+Received a 429 error for Z01BC009265'. Retrying after 2 seconds. Attempt 1/5
+ 66%|█████████████████████████▌             | 1930/2945 [04:58<37:48,  2.23s/it]Received a 429 error for Z01BC009273'. Retrying after 2 seconds. Attempt 1/5
+ 66%|█████████████████████████▌             | 1931/2945 [05:01<37:35,  2.22s/it]Received a 429 error for Z01BC009281'. Retrying after 2 seconds. Attempt 1/5
+ 66%|█████████████████████████▌             | 1932/2945 [05:03<37:17,  2.21s/it]Received a 429 error for Z01BC009283'. Retrying after 2 seconds. Attempt 1/5
+Received a 429 error for Z01BC009283'. Retrying after 4 seconds. Attempt 2/5
+Received a 429 error for Z01BC009283'. Retrying after 6 seconds. Attempt 3/5
+ 79%|██████████████████████████████▊        | 2323/2945 [05:48<00:51, 12.01it/s]Received a 429 error for ZIABC010808'. Retrying after 2 seconds. Attempt 1/5
+ 79%|██████████████████████████████▊        | 2326/2945 [05:50<03:39,  2.82it/s]Received a 429 error for ZIABC010819'. Retrying after 2 seconds. Attempt 1/5
+ 79%|██████████████████████████████▊        | 2327/2945 [05:53<07:30,  1.37it/s]Received a 429 error for ZIABC010822'. Retrying after 2 seconds. Attempt 1/5
+Received a 429 error for ZIABC010822'. Retrying after 4 seconds. Attempt 2/5
+Received a 429 error for ZIABC010822'. Retrying after 6 seconds. Attempt 3/5
+ 79%|██████████████████████████████▊        | 2328/2945 [06:05<34:05,  3.32s/it]Received a 429 error for ZIABC010830'. Retrying after 2 seconds. Attempt 1/5
+ 79%|██████████████████████████████▊        | 2323/2945 [05:48<00:51, 12.01it/s]Received a 429 error for ZIABC010808'. Retrying after 2 seconds. Attempt 1/5
+ 79%|██████████████████████████████▊        | 2326/2945 [05:50<03:39,  2.82it/s]Received a 429 error for ZIABC010819'. Retrying after 2 seconds. Attempt 1/5
+ 79%|██████████████████████████████▊        | 2327/2945 [05:53<07:30,  1.37it/s]Received a 429 error for ZIABC010822'. Retrying after 2 seconds. Attempt 1/5
+Received a 429 error for ZIABC010822'. Retrying after 4 seconds. Attempt 2/5
+Received a 429 error for ZIABC010822'. Retrying after 6 seconds. Attempt 3/5
+ 79%|██████████████████████████████▊        | 2328/2945 [06:05<34:05,  3.32s/it]Received a 429 error for ZIABC010830'. Retrying after 2 seconds. Attempt 1/5
+ 79%|██████████████████████████████▊        | 2327/2945 [05:53<07:30,  1.37it/s]Received a 429 error for ZIABC010822'. Retrying after 2 seconds. Attempt 1/5
+Received a 429 error for ZIABC010822'. Retrying after 4 seconds. Attempt 2/5
+Received a 429 error for ZIABC010822'. Retrying after 6 seconds. Attempt 3/5
+ 79%|██████████████████████████████▊        | 2328/2945 [06:05<34:05,  3.32s/it]Received a 429 error for ZIABC010830'. Retrying after 2 seconds. Attempt 1/5
+ 79%|██████████████████████████████▊        | 2329/2945 [06:07<31:10,  3.04s/it]Received a 429 error for ZIABC010832'. Retrying after 2 seconds. Attempt 1/5
+ 79%|██████████████████████████████▊        | 2330/2945 [06:09<28:48,  2.81s/it]Received a 429 error for ZIABC010844'. Retrying after 2 seconds. Attempt 1/5
+ 79%|██████████████████████████████▉        | 2332/2945 [06:11<21:23,  2.09s/it]Received a 429 error for ZIABC010845'. Retrying after 2 seconds. Attempt 1/5
+Received a 429 error for ZIABC010845'. Retrying after 4 seconds. Attempt 2/5
+ 93%|████████████████████████████████████▏  | 2729/2945 [06:52<00:18, 11.48it/s]Received a 429 error for ZIABC012072'. Retrying after 2 seconds. Attempt 1/5
+Received a 429 error for ZIABC012073'. Retrying after 2 seconds. Attempt 1/5
+Received a 429 error for ZIABC012073'. Retrying after 4 seconds. Attempt 2/5
+ 93%|████████████████████████████████████▏  | 2731/2945 [07:01<04:43,  1.32s/it]Received a 429 error for ZIABC012075'. Retrying after 2 seconds. Attempt 1/5
+Received a 429 error for ZIABC012075'. Retrying after 4 seconds. Attempt 2/5
+Received a 429 error for ZIABC012075'. Retrying after 6 seconds. Attempt 3/5
+Received a 429 error for ZIABC012075'. Retrying after 8 seconds. Attempt 4/5
+100%|███████████████████████████████████████| 2945/2945 [07:40<00:00,  6.40it/s]
+---
+---
+Complete! PMIDs successfully gathered.
+Complete! PMIDs successfully gathered.
+85044 total publication results.
+65082 unique PMIDs found across
+2585 unique Project IDs.
+Gathered PMIDs saved to data/01_intermediate/2026-01-30/gathered-2026-02-17/projectPMIDs.csv.
+Gathered PMIDs saved to data/01_intermediate/2026-01-30/gathered-2026-02-17/projectPMIDs.csv.
+---
+Gathering PubMed data for all PMIDs...
+---NOTE: THIS STEP CAN TAKE 8+ HOURS.---
+Saving partial files to data/01_intermediate/2026-01-30/gathered-2026-02-17/temp_pubmed_chunkfiles throughout.
+Error fetching information for PMID 18707199: list index out of range
+Error fetching information for PMID 23847723: list index out of range
+Error fetching information for PMID 23953481: Remote end closed connection without response
+Error fetching information for PMID 24277953: list index out of range
+Error fetching information for PMID 25513250: list index out of range
+Error fetching information for PMID 25513417: list index out of range
+Error fetching information for PMID 24277953: list index out of range
+Error fetching information for PMID 25513250: list index out of range
+Error fetching information for PMID 25513417: list index out of range
+Error fetching information for PMID 25513470: list index out of range
+Error fetching information for PMID 25513479: list index out of range
+Error fetching information for PMID 26556315: list index out of range
+Error fetching information for PMID 24277953: list index out of range
+Error fetching information for PMID 25513250: list index out of range
+Error fetching information for PMID 25513417: list index out of range
+Error fetching information for PMID 25513470: list index out of range
+Error fetching information for PMID 25513479: list index out of range
+Error fetching information for PMID 26556315: list index out of range
+Error fetching information for PMID 25513479: list index out of range
+Error fetching information for PMID 26556315: list index out of range
+Error fetching information for PMID 28410162: list index out of range
+Error fetching information for PMID 31693620: list index out of range
+Error fetching information for PMID 31857362: list index out of range
+Error fetching information for PMID 31993221: list index out of range
+Error fetching information for PMID 32123530: list index out of range
+Error fetching information for PMID 32282337: list index out of range
+Error fetching information for PMID 31693620: list index out of range
+Error fetching information for PMID 31857362: list index out of range
+Error fetching information for PMID 31993221: list index out of range
+Error fetching information for PMID 32123530: list index out of range
+Error fetching information for PMID 32282337: list index out of range
+Error fetching information for PMID 32332490: list index out of range
+Error fetching information for PMID 32123530: list index out of range
+Error fetching information for PMID 32282337: list index out of range
+Error fetching information for PMID 32332490: list index out of range
+Error fetching information for PMID 32332490: list index out of range
+Error fetching information for PMID 33234532: list index out of range
+Error fetching information for PMID 33574267: list index out of range
+Error fetching information for PMID 33574288: list index out of range
+Error fetching information for PMID 33579916: list index out of range
+Error fetching information for PMID 33579955: list index out of range
+Error fetching information for PMID 33580043: list index out of range
+Error fetching information for PMID 33597657: list index out of range
+Error fetching information for PMID 33685622: list index out of range
+Error fetching information for PMID 33755131: list index out of range
+Error fetching information for PMID 34233275: list index out of range
+Error fetching information for PMID 34233282: list index out of range
+Error fetching information for PMID 34236997: list index out of range
+Error fetching information for PMID 34238761: list index out of range
+Error fetching information for PMID 35304844: list index out of range
+Error fetching information for PMID 35553104: list index out of range
+Error fetching information for PMID 35556265: list index out of range
+Error fetching information for PMID 35776260: list index out of range
+Error fetching information for PMID 36085394: list index out of range
+Error fetching information for PMID 36434483: list index out of range
+Error fetching information for PMID 36480292: list index out of range
+Error fetching information for PMID 36775354: list index out of range
+Error fetching information for PMID 36775407: list index out of range
+Error fetching information for PMID 36775477: list index out of range
+Error fetching information for PMID 37165219: list index out of range
+Error fetching information for PMID 37171983: list index out of range
+Error fetching information for PMID 37501622: list index out of range
+Error fetching information for PMID 37613256: list index out of range
+Error fetching information for PMID 37613803: list index out of range
+Error fetching information for PMID 38390375: list index out of range
+ 90%|███████████████████████████████▍   | 58346/65082 [3:32:49<17:28,  6.43it/s]
+
+
+---
+PROCESS STOPPED MANUALLY
+---
+
+
+RESTARTED 2026-02-17
+
+---TIMESTAMP OVERRIDE IN USE---
+---Performing action using 2026-02-17 instead of current timestamp.---
+---Change the OVERRIDE_DATE in config.py to None to restore default behavior.---
+
+
+Running gather_publication_data.py as standalone module...
+Projects data loaded from data/01_intermediate/2026-01-30/gathered-2026-02-17/project.csv.
+
+---
+PUBLICATIONS:
+Gathering, formatting, and saving Publication data...
+---
+
+---
+Reusing PMIDs already gathered in data/01_intermediate/2026-01-30/gathered-2026-02-17/projectPMIDs.csv.
+---
+Gathering PubMed data for all PMIDs...
+---NOTE: THIS STEP CAN TAKE 8+ HOURS.---
+Saving partial files to data/01_intermediate/2026-01-30/gathered-2026-02-17/temp_pubmed_chunkfiles throughout.
+---
+Reusing existing publication details for 58000 PMIDs found in data/01_intermediate/2026-01-30/gathered-2026-02-17/temp_pubmed_chunkfiles.
+---
+Error fetching information for PMID 18707199: list index out of range
+Error fetching information for PMID 23847723: list index out of range
+Error fetching information for PMID 24277953: list index out of range
+Error fetching information for PMID 25513250: list index out of range
+Error fetching information for PMID 25513417: list index out of range
+Error fetching information for PMID 25513470: list index out of range
+Error fetching information for PMID 25513479: list index out of range
+Error fetching information for PMID 26556315: list index out of range
+Error fetching information for PMID 28410162: list index out of range
+Error fetching information for PMID 31693620: list index out of range
+Error fetching information for PMID 31857362: list index out of range
+Error fetching information for PMID 31993221: list index out of range
+Error fetching information for PMID 32123530: list index out of range
+Error fetching information for PMID 32282337: list index out of range
+Error fetching information for PMID 32332490: list index out of range
+Error fetching information for PMID 33234532: list index out of range
+Error fetching information for PMID 33574267: list index out of range
+Error fetching information for PMID 33574288: list index out of range
+Error fetching information for PMID 33579916: list index out of range
+Error fetching information for PMID 33579955: list index out of range
+Error fetching information for PMID 33580043: list index out of range
+Error fetching information for PMID 33597657: list index out of range
+Error fetching information for PMID 33685622: list index out of range
+Error fetching information for PMID 33755131: list index out of range
+Error fetching information for PMID 34233275: list index out of range
+Error fetching information for PMID 34233282: list index out of range
+Error fetching information for PMID 34236997: list index out of range
+Error fetching information for PMID 34238761: list index out of range
+Error fetching information for PMID 35304844: list index out of range
+Error fetching information for PMID 35553104: list index out of range
+Error fetching information for PMID 35556265: list index out of range
+Error fetching information for PMID 35776260: list index out of range
+Error fetching information for PMID 36085394: list index out of range
+Error fetching information for PMID 36434483: list index out of range
+Error fetching information for PMID 36480292: list index out of range
+Error fetching information for PMID 36775354: list index out of range
+Error fetching information for PMID 36775407: list index out of range
+Error fetching information for PMID 36775477: list index out of range
+Error fetching information for PMID 37165219: list index out of range
+Error fetching information for PMID 37171983: list index out of range
+Error fetching information for PMID 37501622: list index out of range
+Error fetching information for PMID 37613256: list index out of range
+Error fetching information for PMID 37613803: list index out of range
+Error fetching information for PMID 38390375: list index out of range
+Error fetching information for PMID 38853421: list index out of range
+Error fetching information for PMID 38940339: list index out of range
+Error fetching information for PMID 39528648: list index out of range
+Error fetching information for PMID 39699563: list index out of range
+Error fetching information for PMID 40908151: list index out of range
+Error fetching information for PMID 40994404: list index out of range
+Error fetching information for PMID 41040354: list index out of range
+Error fetching information for PMID 41264337: list index out of range
+Error fetching information for PMID 41466506: list index out of range
+100%|█████████████████████████████████████| 65082/65082 [45:26<00:00, 23.87it/s]
+First pass successful!
+Double-checking for any missing publication info...
+---
+Reusing existing publication details for 65029 PMIDs found in data/01_intermediate/2026-01-30/gathered-2026-02-17/temp_pubmed_chunkfiles.
+---
+Error fetching information for PMID 18707199: list index out of range
+Error fetching information for PMID 23847723: list index out of range
+Error fetching information for PMID 24277953: list index out of range
+Error fetching information for PMID 25513250: list index out of range
+Error fetching information for PMID 25513417: list index out of range
+Error fetching information for PMID 25513470: list index out of range
+Error fetching information for PMID 25513479: list index out of range
+Error fetching information for PMID 26556315: list index out of range
+Error fetching information for PMID 28410162: list index out of range
+Error fetching information for PMID 31693620: list index out of range
+Error fetching information for PMID 31857362: list index out of range
+Error fetching information for PMID 31993221: list index out of range
+Error fetching information for PMID 32123530: list index out of range
+Error fetching information for PMID 32282337: list index out of range
+Error fetching information for PMID 32332490: list index out of range
+Error fetching information for PMID 33234532: list index out of range
+Error fetching information for PMID 33574267: list index out of range
+Error fetching information for PMID 33574288: list index out of range
+Error fetching information for PMID 33579916: list index out of range
+Error fetching information for PMID 33579955: list index out of range
+Error fetching information for PMID 33580043: list index out of range
+Error fetching information for PMID 33597657: list index out of range
+Error fetching information for PMID 33685622: list index out of range
+Error fetching information for PMID 33755131: list index out of range
+Error fetching information for PMID 34233275: list index out of range
+Error fetching information for PMID 34233282: list index out of range
+Error fetching information for PMID 34236997: list index out of range
+Error fetching information for PMID 34238761: list index out of range
+Error fetching information for PMID 35304844: list index out of range
+Error fetching information for PMID 35553104: list index out of range
+Error fetching information for PMID 35556265: list index out of range
+Error fetching information for PMID 35776260: list index out of range
+Error fetching information for PMID 36085394: list index out of range
+Error fetching information for PMID 36434483: list index out of range
+Error fetching information for PMID 36480292: list index out of range
+Error fetching information for PMID 36775354: list index out of range
+Error fetching information for PMID 36775407: list index out of range
+Error fetching information for PMID 36775477: list index out of range
+Error fetching information for PMID 37165219: list index out of range
+Error fetching information for PMID 37171983: list index out of range
+Error fetching information for PMID 37501622: list index out of range
+Error fetching information for PMID 37613256: list index out of range
+Error fetching information for PMID 37613803: list index out of range
+Error fetching information for PMID 38390375: list index out of range
+Error fetching information for PMID 38853421: list index out of range
+Error fetching information for PMID 38940339: list index out of range
+Error fetching information for PMID 39528648: list index out of range
+Error fetching information for PMID 39699563: list index out of range
+Error fetching information for PMID 40908151: list index out of range
+Error fetching information for PMID 40994404: list index out of range
+Error fetching information for PMID 41040354: list index out of range
+Error fetching information for PMID 41264337: list index out of range
+Error fetching information for PMID 41466506: list index out of range
+100%|███████████████████████████████████| 65082/65082 [00:22<00:00, 2854.42it/s]
+Success! PubMed publication data gathered for all PMIDs.
+---
+Gathering iCite data for all PMIDs...
+155chunk [14:34,  2.79s/chunk]C:\Users\dormanza\AppData\Local\anaconda3\envs\ins-data-env\Lib\site-packages\tqdm\std.py:1178: DtypeWarning: Columns (22) have mixed types. Specify dtype option on import or set low_memory=False.
+  for obj in iterable:
+158chunk [14:46,  3.97s/chunk]C:\Users\dormanza\AppData\Local\anaconda3\envs\ins-data-env\Lib\site-packages\tqdm\std.py:1178: DtypeWarning: Columns (20) have mixed types. Specify dtype option on import or set low_memory=False.
+  for obj in iterable:
+159chunk [14:52,  4.49s/chunk]C:\Users\dormanza\AppData\Local\anaconda3\envs\ins-data-env\Lib\site-packages\tqdm\std.py:1178: DtypeWarning: Columns (20) have mixed types. Specify dtype option on import or set low_memory=False.
+  for obj in iterable:
+161chunk [14:58,  5.58s/chunk]
+---
+iCite data for PMIDS saved to data/01_intermediate/2026-01-30/gathered-2026-02-17/icitePMIDData.csv.
+---
+Combining and merging all publication data...
+Merged PMID data saved to data/01_intermediate/2026-01-30/gathered-2026-02-17/mergedPMIDData.csv.
+---
+Merging PMID data back to Core Projects...
+Success! Publication data saved to data/01_intermediate/2026-01-30/gathered-2026-02-17/publication.csv.
+Removed publications saved to reports/2026-01-30/gathered-2026-02-17/removedPublicationsReport.csv
+---
+
+Total unique publications saved:     64348
+Total removed publications:            753
+Project-publication associations:    84291
