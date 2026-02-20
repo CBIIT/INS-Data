@@ -471,13 +471,48 @@ def aggregate_batch_mappings(mapping_dfs: List[pd.DataFrame]) -> pd.DataFrame:
     """
     Aggregate mapping DataFrames from multiple batches.
     
+    Deduplicates by PMID to handle second-pass retries that may produce
+    multiple rows for the same PMID across batches. Prefers rows with
+    non-empty SRA_IDs/SRP_ERP_IDs, and among those keeps the last
+    occurrence (later batches override earlier ones).
+    
     Args:
         mapping_dfs: List of mapping DataFrames from batches
     
     Returns:
-        Combined mapping DataFrame
+        Combined mapping DataFrame with one row per unique PMID
     """
-    return pd.concat(mapping_dfs, ignore_index=True)
+    combined = pd.concat(mapping_dfs, ignore_index=True)
+
+    if combined.empty or 'PMID' not in combined.columns:
+        return combined
+
+    combined['PMID'] = combined['PMID'].astype(str)
+
+    # Build a preference flag: True if the row has any non-empty ID field.
+    has_sra = (
+        combined['SRA_IDs'].astype(str).str.strip().ne('')
+        if 'SRA_IDs' in combined.columns
+        else pd.Series(False, index=combined.index)
+    )
+    has_srp = (
+        combined['SRP_ERP_IDs'].astype(str).str.strip().ne('')
+        if 'SRP_ERP_IDs' in combined.columns
+        else pd.Series(False, index=combined.index)
+    )
+    combined['_dedup_pref'] = (has_sra | has_srp).astype(int)
+
+    # Sort so less-preferred (empty) rows come first, then drop duplicates
+    # keeping the last (most-preferred / latest batch) per PMID.
+    combined = (
+        combined
+        .sort_values(['PMID', '_dedup_pref'])
+        .drop_duplicates(subset=['PMID'], keep='last')
+        .drop(columns=['_dedup_pref'])
+        .reset_index(drop=True)
+    )
+
+    return combined
 
 
 

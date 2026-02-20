@@ -328,22 +328,50 @@ def test_merge_semicolon_fields_all_empty():
 def test_aggregate_batch_mappings():
     """Test aggregation of multiple batch mapping DataFrames."""
     df1 = pd.DataFrame({
-        'pmid': ['12345', '67890'],
-        'sra_id': ['SRX123', 'SRX456'],
-        'srp_id': ['SRP001', 'SRP002']
+        'PMID': ['12345', '67890'],
+        'SRA_IDs': ['SRX123', 'SRX456'],
+        'SRP_ERP_IDs': ['SRP001', 'SRP002']
     })
     
     df2 = pd.DataFrame({
-        'pmid': ['11111', '12345'],
-        'sra_id': ['SRX789', 'SRX999'],
-        'srp_id': ['SRP003', 'SRP001']
+        'PMID': ['11111'],
+        'SRA_IDs': ['SRX789'],
+        'SRP_ERP_IDs': ['SRP003']
     })
     
     result = aggregate_batch_mappings([df1, df2])
     
-    # Should combine all rows
-    assert len(result) == 4
-    assert set(result['pmid']) == {'12345', '67890', '11111'}
+    # Should combine all rows (no duplicates)
+    assert len(result) == 3
+    assert set(result['PMID']) == {'12345', '67890', '11111'}
+
+
+def test_aggregate_batch_mappings_dedup_prefers_nonempty():
+    """Test that dedup keeps non-empty rows over empty ones for the same PMID."""
+    # First pass: PMID 12345 failed (empty SRA/SRP)
+    df1 = pd.DataFrame({
+        'PMID': ['12345', '67890'],
+        'SRA_IDs': ['', 'SRX456'],
+        'SRP_ERP_IDs': ['', 'SRP002']
+    })
+    
+    # Second pass retry: PMID 12345 succeeded
+    df2 = pd.DataFrame({
+        'PMID': ['12345'],
+        'SRA_IDs': ['SRX999'],
+        'SRP_ERP_IDs': ['SRP001']
+    })
+    
+    result = aggregate_batch_mappings([df1, df2])
+    
+    # Should deduplicate: 2 unique PMIDs, not 3 rows
+    assert len(result) == 2
+    assert set(result['PMID']) == {'12345', '67890'}
+    
+    # PMID 12345 should have the retry (non-empty) data
+    row_12345 = result[result['PMID'] == '12345'].iloc[0]
+    assert row_12345['SRA_IDs'] == 'SRX999'
+    assert row_12345['SRP_ERP_IDs'] == 'SRP001'
 
 
 def test_aggregate_batch_srp_data():
