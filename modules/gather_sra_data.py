@@ -1381,6 +1381,16 @@ def gather_sra_data(
             batch_mapping_df.to_csv(mapping_path_batch, index=False)
             batch_srp_df.to_csv(srp_path_batch, index=False)
             
+            # Save the true per-SRA → SRP mapping as JSON for accurate
+            # reconstruction later (the CSV aggregates SRP IDs per PMID,
+            # which loses the per-SRA granularity)
+            sra_to_srp_json_path = os.path.join(
+                batch_dir,
+                f'batch_{chunk_number:04d}_sra_to_srp.json'
+            )
+            with open(sra_to_srp_json_path, 'w', encoding='utf-8') as f:
+                json.dump(sra_to_srp_ids, f)
+            
             # Update processed PMIDs set
             processed_pmids.update(batch_pmids)
             
@@ -1444,6 +1454,14 @@ def gather_sra_data(
             
             batch_mapping_df.to_csv(mapping_path_batch, index=False)
             batch_srp_df.to_csv(srp_path_batch, index=False)
+            
+            # Save the true per-SRA → SRP mapping as JSON (see first pass)
+            sra_to_srp_json_path = os.path.join(
+                batch_dir,
+                f'batch_{chunk_number:04d}_sra_to_srp.json'
+            )
+            with open(sra_to_srp_json_path, 'w', encoding='utf-8') as f:
+                json.dump(sra_to_srp_ids, f)
             
             # Update processed PMIDs set
             processed_pmids.update(batch_pmids)
@@ -1542,14 +1560,45 @@ def gather_sra_data(
     # Need to reconstruct the mappings from batch files or aggregated file
     print(f"  Reconstructing SRA mappings from batch files...")
     all_mapping_dfs = []
+    pmid_to_sra_ids: Dict[str, List[str]] = {}
+    sra_to_srp_ids: Dict[str, List[str]] = {}
     batch_num = 1
+
     while True:
         mapping_path_batch = os.path.join(
             batch_dir, 
             f'batch_{batch_num:04d}_mapping.csv'
         )
+        # Per-batch JSON containing the true SRA → SRP mapping
+        sra_to_srp_json_batch = os.path.join(
+            batch_dir,
+            f'batch_{batch_num:04d}_sra_to_srp.json'
+        )
         if os.path.exists(mapping_path_batch):
-            all_mapping_dfs.append(pd.read_csv(mapping_path_batch))
+            batch_df = pd.read_csv(mapping_path_batch)
+            all_mapping_dfs.append(batch_df)
+
+            # Populate PMID → SRA mapping from this batch
+            for _, row in batch_df.iterrows():
+                pmid = str(row['PMID'])
+                sra_str = str(row['SRA_IDs']) if pd.notna(row['SRA_IDs']) else ''
+                if sra_str:
+                    sra_list = [s.strip() for s in sra_str.split(';') if s.strip()]
+                    pmid_to_sra_ids[pmid] = sra_list
+
+            # Load the true per-SRA mapping from JSON if available
+            if os.path.exists(sra_to_srp_json_batch):
+                try:
+                    with open(sra_to_srp_json_batch, 'r', encoding='utf-8') as f:
+                        batch_sra_to_srp = json.load(f)
+                    for sra_id, srp_ids in batch_sra_to_srp.items():
+                        if isinstance(srp_ids, list):
+                            sra_to_srp_ids[str(sra_id)] = [str(x) for x in srp_ids]
+                        elif srp_ids is not None:
+                            sra_to_srp_ids[str(sra_id)] = [str(srp_ids)]
+                except Exception:
+                    pass
+
             batch_num += 1
         else:
             break
@@ -1557,28 +1606,18 @@ def gather_sra_data(
     if all_mapping_dfs:
         full_mapping_df = pd.concat(all_mapping_dfs, ignore_index=True)
     else:
-        # Fallback: load from aggregated file and parse
+        # Fallback: load from aggregated file and parse PMID → SRA only.
+        # NOTE: we intentionally do NOT reconstruct SRA → SRP from the
+        # aggregated SRP_ERP_IDs column, because that column is an
+        # aggregate across all SRA IDs for a PMID and does not preserve
+        # the true per-SRA mapping.
         full_mapping_df = pd.read_csv(sra_mapping_path)
-    
-    # Reconstruct the dictionaries from the mapping DataFrame
-    pmid_to_sra_ids = {}
-    sra_to_srp_ids = {}
-    
-    for _, row in full_mapping_df.iterrows():
-        pmid = str(row['PMID'])
-        sra_str = str(row['SRA_IDs']) if pd.notna(row['SRA_IDs']) else ''
-        srp_str = str(row['SRP_ERP_IDs']) if pd.notna(row['SRP_ERP_IDs']) else ''
-        
-        # Parse semicolon-separated SRA IDs
-        if sra_str:
-            sra_list = [s.strip() for s in sra_str.split(';') if s.strip()]
-            pmid_to_sra_ids[pmid] = sra_list
-            
-            # Parse semicolon-separated SRP IDs
-            if srp_str:
-                srp_list = [s.strip() for s in srp_str.split(';') if s.strip()]
-                for sra_id in sra_list:
-                    sra_to_srp_ids[sra_id] = srp_list
+        for _, row in full_mapping_df.iterrows():
+            pmid = str(row['PMID'])
+            sra_str = str(row['SRA_IDs']) if pd.notna(row['SRA_IDs']) else ''
+            if sra_str:
+                sra_list = [s.strip() for s in sra_str.split(';') if s.strip()]
+                pmid_to_sra_ids[pmid] = sra_list
     
     # Create SRP to sample SRA mapping
     srp_to_sra_mapping = create_srp_to_sra_mapping(
