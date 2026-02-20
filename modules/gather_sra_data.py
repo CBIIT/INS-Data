@@ -208,9 +208,11 @@ def get_sra_ids_for_pubmed_ids(pubmed_ids: List[str]) -> Tuple[Dict[str, List[st
               f"\nNCBI E-Utilities rate will be limited and may cause errors.")
     
     # Configure API rate limiting and max parallel threads
+    # NCBI allows 10 req/s with API key, 3 req/s without.
+    # Keep max_workers low to stay within limits and reduce 429 retries.
     Entrez.max_tries = 3
     Entrez.sleep_between_tries = 2
-    max_workers = 10
+    max_workers = 3
     
     # Get counts for progress tracking
     pmid_count = len(pubmed_ids)
