@@ -7,12 +7,12 @@ Pytest test suite for the `gather_sra_data.py` module.
 
 import os
 import sys
+import json
 import pandas as pd
 import pytest
 import uuid
 from unittest.mock import patch, MagicMock, mock_open
-from io import StringIO
-import xml.etree.ElementTree as ET
+from io import BytesIO
 
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -37,6 +37,8 @@ from modules.gather_sra_data import (
     fetch_sra_metadata_for_srp,
     enrich_srp_data_with_metadata,
     get_dataset_doc_from_project,
+    create_srp_to_sra_mapping,
+    gather_srp_metadata,
 )
 
 
@@ -66,20 +68,27 @@ def sample_mapping_data():
 
 @pytest.fixture
 def sample_batch_dir(tmp_path):
-    """Create a temporary batch directory with sample files."""
+    """Create a temporary batch directory with sample files.
+    
+    Uses uppercase column names (PMID, SRA_IDs, SRP_ERP_IDs) to match
+    the column conventions used by create_sra_mapping_dataframe() and
+    load_processed_pmids_from_batches().
+    """
     batch_dir = tmp_path / "sra_batches"
     batch_dir.mkdir()
     
-    # Create sample batch files
+    # Create sample batch files with correct column names
     batch_1_mapping = pd.DataFrame({
-        'pmid': ['12345', '67890'],
-        'sra_id': ['SRX123', 'SRX789']
+        'PMID': ['12345', '67890'],
+        'SRA_IDs': ['SRX123', 'SRX789'],
+        'SRP_ERP_IDs': ['SRP001', 'SRP002']
     })
     batch_1_mapping.to_csv(batch_dir / "batch_0001_mapping.csv", index=False)
     
     batch_2_mapping = pd.DataFrame({
-        'pmid': ['11111', '22222'],
-        'sra_id': ['SRX999', 'SRX888']
+        'PMID': ['11111', '22222'],
+        'SRA_IDs': ['SRX999', 'SRX888'],
+        'SRP_ERP_IDs': ['SRP003', 'SRP004']
     })
     batch_2_mapping.to_csv(batch_dir / "batch_0002_mapping.csv", index=False)
     
@@ -421,23 +430,7 @@ def test_get_max_batch_number_empty_dir(tmp_path):
 
 def test_load_processed_pmids_from_batches(sample_batch_dir):
     """Test loading PMIDs from existing batch files."""
-    # First update the sample batch files to use correct column names
-    batch_dir = sample_batch_dir
-    
-    # Create proper batch files with PMID column (uppercase)
-    batch_1_mapping = pd.DataFrame({
-        'PMID': ['12345', '67890'],
-        'SRA_IDs': ['SRX123', 'SRX789']
-    })
-    batch_1_mapping.to_csv(os.path.join(batch_dir, "batch_0001_mapping.csv"), index=False)
-    
-    batch_2_mapping = pd.DataFrame({
-        'PMID': ['11111', '22222'],
-        'SRA_IDs': ['SRX999', 'SRX888']
-    })
-    batch_2_mapping.to_csv(os.path.join(batch_dir, "batch_0002_mapping.csv"), index=False)
-    
-    processed_pmids = load_processed_pmids_from_batches(batch_dir)
+    processed_pmids = load_processed_pmids_from_batches(sample_batch_dir)
     
     # Should include all PMIDs from both batch files
     assert '12345' in processed_pmids
@@ -462,8 +455,8 @@ def test_load_processed_pmids_from_batches_no_dir(tmp_path):
 @patch('modules.gather_sra_data.config')
 def test_save_failed_pmids_report(mock_config, tmp_path):
     """Test saving failed PMIDs to CSV report."""
-    report_path = tmp_path / "reports" / "failed_pmid_sra_searches.csv"
-    mock_config.REPORTS_GATHERED_DIR = str(tmp_path / "reports")
+    reports_dir = tmp_path / "reports"
+    mock_config.REPORTS_GATHERED_DIR = str(reports_dir)
     
     failed_dict = {
         '12345': 'Error: timeout',
@@ -472,28 +465,65 @@ def test_save_failed_pmids_report(mock_config, tmp_path):
     
     save_failed_pmids_report(failed_dict)
     
-    # Check that file was created (would need proper mocking to verify content)
-    # This is a basic structure test
-    assert True  # Placeholder - full test would verify file content
+    # Verify the file was created and contains correct data
+    report_path = reports_dir / "failed_pmid_sra_searches.csv"
+    assert report_path.exists(), "Report CSV was not created"
+    
+    saved_df = pd.read_csv(str(report_path))
+    assert 'pmid' in saved_df.columns, "Missing 'pmid' column"
+    assert 'failure_type' in saved_df.columns, "Missing 'failure_type' column"
+    assert len(saved_df) == 2
+    
+    saved_dict = dict(zip(saved_df['pmid'].astype(str), saved_df['failure_type']))
+    assert saved_dict['12345'] == 'Error: timeout'
+    assert saved_dict['67890'] == 'Error: rate limit'
 
 
 @patch('modules.gather_sra_data.config')
-@patch('builtins.open', new_callable=mock_open, read_data='pmid,failure_type\n12345,timeout\n67890,rate_limit\n')
-@patch('os.path.exists', return_value=True)
-def test_load_failed_pmids_report(mock_exists, mock_file, mock_config, tmp_path):
-    """Test loading failed PMIDs from CSV report."""
-    mock_config.REPORTS_GATHERED_DIR = str(tmp_path / "reports")
+def test_save_failed_pmids_report_empty_dict(mock_config, tmp_path):
+    """Test that saving an empty dict creates no file."""
+    reports_dir = tmp_path / "reports"
+    mock_config.REPORTS_GATHERED_DIR = str(reports_dir)
+    
+    save_failed_pmids_report({})
+    
+    # Should not create directory or file when dict is empty
+    report_path = reports_dir / "failed_pmid_sra_searches.csv"
+    assert not report_path.exists()
+
+
+@patch('modules.gather_sra_data.config')
+def test_load_failed_pmids_report(mock_config, tmp_path):
+    """Test loading failed PMIDs from CSV report.
+    
+    Uses a real temporary file rather than mocking builtins.open,
+    because pd.read_csv uses its own C-level file handle.
+    """
+    reports_dir = tmp_path / "reports"
+    reports_dir.mkdir()
+    mock_config.REPORTS_GATHERED_DIR = str(reports_dir)
+    
+    # Write a real CSV file with known content
+    report_path = reports_dir / "failed_pmid_sra_searches.csv"
+    report_df = pd.DataFrame({
+        'pmid': ['12345', '67890'],
+        'failure_type': ['timeout', 'rate_limit']
+    })
+    report_df.to_csv(str(report_path), index=False)
     
     failed_dict = load_failed_pmids_report()
     
     assert '12345' in failed_dict
+    assert failed_dict['12345'] == 'timeout'
     assert '67890' in failed_dict
+    assert failed_dict['67890'] == 'rate_limit'
 
 
 @patch('modules.gather_sra_data.config')
-@patch('os.path.exists', return_value=False)
-def test_load_failed_pmids_report_no_file(mock_exists, mock_config):
+def test_load_failed_pmids_report_no_file(mock_config, tmp_path):
     """Test loading failed PMIDs when file doesn't exist."""
+    mock_config.REPORTS_GATHERED_DIR = str(tmp_path / "nonexistent_reports")
+    
     failed_dict = load_failed_pmids_report()
     assert failed_dict == {}
 
@@ -748,7 +778,6 @@ def test_get_srp_ids_for_sra_id_success(mock_entrez):
         </EXPERIMENT_PACKAGE>
     </EXPERIMENT_PACKAGE_SET>"""
     
-    from io import BytesIO
     mock_handle = BytesIO(mock_xml)
     mock_entrez.efetch.return_value = mock_handle
     
@@ -771,7 +800,6 @@ def test_get_srp_ids_for_sra_id_no_results(mock_entrez):
         </EXPERIMENT_PACKAGE>
     </EXPERIMENT_PACKAGE_SET>"""
     
-    from io import BytesIO
     mock_handle = BytesIO(mock_xml)
     mock_entrez.efetch.return_value = mock_handle
     
@@ -806,7 +834,6 @@ def test_get_srp_ids_for_sra_ids_batch(mock_get_srp):
 def test_fetch_sra_metadata_for_srp_success(mock_entrez, mock_xml_metadata):
     """Test successful metadata fetching and XML parsing."""
     # Mock efetch to return XML as bytes (what Entrez.efetch actually returns)
-    from io import BytesIO
     mock_handle = BytesIO(mock_xml_metadata.encode('utf-8'))
     mock_handle.close = MagicMock()  # Mock the close method
     mock_entrez.efetch.return_value = mock_handle
@@ -837,24 +864,25 @@ def test_fetch_sra_metadata_for_srp_api_error(mock_entrez):
 
 
 @patch('modules.gather_sra_data.Entrez')
-def test_fetch_sra_metadata_malformed_xml(mock_entrez):
-    """Test handling of malformed XML response."""
-    bad_xml = b"<?xml version='1.0'?><INVALID>Not proper SRA XML</INVALID>"
-    from io import BytesIO
-    mock_entrez.efetch.return_value = BytesIO(bad_xml)
+def test_fetch_sra_metadata_for_srp_no_study_section(mock_entrez):
+    """Test handling of valid XML that has no STUDY element."""
+    xml_no_study = b"<?xml version='1.0'?><EXPERIMENT_PACKAGE_SET><EXPERIMENT_PACKAGE></EXPERIMENT_PACKAGE></EXPERIMENT_PACKAGE_SET>"
+    mock_entrez.efetch.return_value = BytesIO(xml_no_study)
     
     metadata = fetch_sra_metadata_for_srp('SRP123', 'SRX123')
     
-    # Should return blank metadata on parsing error
+    # Should return metadata with SRP set but fields blank (no STUDY section)
     assert metadata['dataset_source_id'] == 'SRP123'
+    assert metadata['dataset_title'] == ''
+    assert metadata['description'] == ''
+    assert metadata['dataset_source_repo'] == 'SRA'
 
 
 # ============================================================================
 # Test Data Enrichment
 # ============================================================================
 
-@patch('modules.gather_sra_data.fetch_sra_metadata_for_srp')
-def test_enrich_srp_data_with_metadata(mock_fetch_metadata):
+def test_enrich_srp_data_with_metadata():
     """Test enriching SRP data with metadata."""
     # Create test SRP dataframe
     srp_df = pd.DataFrame({
@@ -881,13 +909,20 @@ def test_enrich_srp_data_with_metadata(mock_fetch_metadata):
     assert enriched_df.iloc[0]['dataset_title'] == 'Test Study'
     assert enriched_df.iloc[0]['assay_method'] == 'RNA-Seq'
     assert enriched_df.iloc[0]['dataset_pmid'] == '12345'  # PMIDs should be merged
+    # PMIDs column should be dropped (replaced by dataset_pmid)
+    assert 'PMIDs' not in enriched_df.columns
+    assert enriched_df.iloc[0]['PMID_Count'] == 1
 
 
 @patch('modules.gather_sra_data.config')
 @patch('os.path.exists')
 @patch('pandas.read_csv')
 def test_get_dataset_doc_from_project(mock_read_csv, mock_exists, mock_config):
-    """Test deriving dataset_doc from coreproject via publication/project/program chain."""
+    """Test deriving dataset_doc from coreproject via publication/project/program chain.
+    
+    The function chains: dataset_pmid → publication.pmid → publication.coreproject
+    → project.project_id → project.'program.program_id' → program.program_id → program.doc
+    """
     # Mock config paths
     mock_config.PUBLICATIONS_INTERMED_PATH = 'fake/pubs.csv'
     mock_config.PROJECTS_INTERMED_PATH = 'fake/projects.csv'
@@ -896,20 +931,22 @@ def test_get_dataset_doc_from_project(mock_read_csv, mock_exists, mock_config):
     # Mock file existence
     mock_exists.return_value = True
     
-    # Mock the CSV reads with proper linkages
+    # Mock the CSV reads with proper column names matching source code expectations
     mock_pubs = pd.DataFrame({
         'pmid': ['12345', '67890', '11111'],
         'coreproject': ['R01CA123456', 'P01CA789012', 'U01CA456789']
     })
     
+    # Source code uses 'program.program_id' (dotted column name), NOT 'program_id'
     mock_projects = pd.DataFrame({
         'project_id': ['R01CA123456', 'P01CA789012', 'U01CA456789'],
-        'program_id': ['PROG1', 'PROG2', 'PROG1']
+        'program.program_id': ['PROG1', 'PROG2', 'PROG1']
     })
     
+    # Source code uses 'doc' column, NOT 'program_doc'
     mock_programs = pd.DataFrame({
         'program_id': ['PROG1', 'PROG2'],
-        'program_doc': ['CA', 'CA']
+        'doc': ['CA', 'NCI']
     })
     
     # Setup read_csv to return different dataframes based on call order
@@ -927,36 +964,70 @@ def test_get_dataset_doc_from_project(mock_read_csv, mock_exists, mock_config):
     assert 'dataset_doc' in result.columns
     assert 'program_id' in result.columns
     assert 'funding_source' in result.columns
-    
-    # With proper CSV mocking, we should get CA
-    # The merge chain is complex, so just verify the function completes
     assert len(result) == 3
+    
+    # Verify the full chain resolved correctly
+    row_0 = result[result['dataset_source_id'] == 'SRP001'].iloc[0]
+    assert row_0['funding_source'] == 'R01CA123456'
+    assert row_0['program_id'] == 'PROG1'
+    assert row_0['dataset_doc'] == 'CA'
+    
+    row_1 = result[result['dataset_source_id'] == 'SRP002'].iloc[0]
+    assert row_1['funding_source'] == 'P01CA789012'
+    assert row_1['program_id'] == 'PROG2'
+    assert row_1['dataset_doc'] == 'NCI'
 
 
-def test_get_dataset_doc_from_project_missing_coreproject():
-    """Test dataset_doc when coreproject is missing."""
+@patch('modules.gather_sra_data.config')
+def test_get_dataset_doc_from_project_no_publication_file(mock_config, tmp_path):
+    """Test dataset_doc when publication file doesn't exist."""
+    mock_config.PUBLICATIONS_INTERMED_PATH = str(tmp_path / 'nonexistent_pubs.csv')
+    mock_config.PROJECTS_INTERMED_PATH = str(tmp_path / 'nonexistent_projects.csv')
+    mock_config.PROGRAMS_INTERMED_PATH = str(tmp_path / 'nonexistent_programs.csv')
+    
     df = pd.DataFrame({
-        'other_col': ['a', 'b', 'c']
+        'dataset_pmid': ['12345'],
+        'dataset_source_id': ['SRP001']
     })
     
     result = get_dataset_doc_from_project(df)
     
+    # Should return df_null_result with blank columns
     assert 'dataset_doc' in result.columns
-    # Should have blank or default value
-    assert result['dataset_doc'].isna().all() or (result['dataset_doc'] == '').all()
+    assert 'program_id' in result.columns
+    assert 'funding_source' in result.columns
+    assert (result['dataset_doc'] == '').all()
+    assert (result['program_id'] == '').all()
+    assert (result['funding_source'] == '').all()
 
 
-def test_get_dataset_doc_from_project_invalid_format():
-    """Test dataset_doc with invalid coreproject format."""
+@patch('modules.gather_sra_data.config')
+@patch('os.path.exists', return_value=True)
+@patch('pandas.read_csv')
+def test_get_dataset_doc_from_project_missing_columns(mock_read_csv, mock_exists, mock_config):
+    """Test dataset_doc when publication CSV is missing required columns."""
+    mock_config.PUBLICATIONS_INTERMED_PATH = 'fake/pubs.csv'
+    mock_config.PROJECTS_INTERMED_PATH = 'fake/projects.csv'
+    mock_config.PROGRAMS_INTERMED_PATH = 'fake/programs.csv'
+    
+    # The function reads all 3 CSVs (publication, project, program) before
+    # checking column requirements. Publication is missing 'coreproject'.
+    mock_read_csv.side_effect = [
+        pd.DataFrame({'pmid': ['12345'], 'wrong_col': ['X']}),  # pubs (missing coreproject)
+        pd.DataFrame({'project_id': ['P1'], 'program.program_id': ['PR1']}),  # projects
+        pd.DataFrame({'program_id': ['PR1'], 'doc': ['CA']}),  # programs
+    ]
+    
     df = pd.DataFrame({
-        'coreproject': ['INVALID123', '', None],
-        'other_col': ['a', 'b', 'c']
+        'dataset_pmid': ['12345'],
+        'dataset_source_id': ['SRP001']
     })
     
     result = get_dataset_doc_from_project(df)
     
-    # Should handle gracefully
+    # Should return null result due to missing 'coreproject' column
     assert 'dataset_doc' in result.columns
+    assert (result['dataset_doc'] == '').all()
 
 
 # ============================================================================
@@ -997,11 +1068,60 @@ def test_load_all_batch_files_empty_dir(tmp_path):
 # Test Real-world Scenarios (Integration-style)
 # ============================================================================
 
-def test_complete_pmid_processing_workflow():
-    """Test the complete workflow from PMIDs to enriched datasets."""
-    # This would test the full gather_sra_data() function
-    # Keeping it as a placeholder for future integration tests
-    pass
+@patch('modules.gather_sra_data.fetch_sra_ids')
+def test_complete_pmid_to_enriched_datasets_workflow(mock_fetch):
+    """Test the end-to-end workflow: PMIDs → SRA → SRP → mapping + metadata merge."""
+    # Mock fetch_sra_ids for three PMIDs
+    mock_fetch.side_effect = [
+        ('12345', ['SRX100', 'SRX200'], False, ''),
+        ('67890', ['SRX300'], False, ''),
+        ('11111', [], False, ''),  # No SRA match
+    ]
+    
+    # Step 1: Fetch SRA IDs
+    pmids = ['12345', '67890', '11111']
+    pmid_to_sra, failed = get_sra_ids_for_pubmed_ids(pmids)
+    assert len(failed) == 0
+    assert pmid_to_sra['12345'] == ['SRX100', 'SRX200']
+    assert pmid_to_sra['11111'] == []
+    
+    # Step 2: Simulate SRA → SRP mapping
+    sra_to_srp = {
+        'SRX100': ['SRP001'],
+        'SRX200': ['SRP001'],  # Same SRP as SRX100
+        'SRX300': ['SRP002'],
+    }
+    
+    # Step 3a: Create mapping DataFrame
+    mapping_df = create_sra_mapping_dataframe(pmid_to_sra, sra_to_srp)
+    assert len(mapping_df) == 3  # One row per PMID
+    row_12345 = mapping_df[mapping_df['PMID'] == '12345'].iloc[0]
+    assert 'SRP001' in row_12345['SRP_ERP_IDs']
+    
+    # Step 3b: Create SRP-centric DataFrame
+    srp_df = create_srp_centric_dataframe(pmid_to_sra, sra_to_srp)
+    assert len(srp_df) == 2  # SRP001 and SRP002
+    
+    # Step 4: Create SRP→SRA mapping for metadata
+    srp_to_sra = create_srp_to_sra_mapping(pmid_to_sra, sra_to_srp)
+    assert 'SRP001' in srp_to_sra
+    assert 'SRP002' in srp_to_sra
+    
+    # Step 5: Merge with metadata
+    metadata_df = pd.DataFrame({
+        'SRP_ERP_ID': ['SRP001', 'SRP002'],
+        'dataset_source_id': ['SRP001', 'SRP002'],
+        'dataset_title': ['Study A', 'Study B'],
+        'description': ['Desc A', 'Desc B'],
+        'dataset_pmid': ['', ''],
+    })
+    
+    enriched = enrich_srp_data_with_metadata(srp_df, metadata_df)
+    assert len(enriched) == 2
+    assert 'dataset_title' in enriched.columns
+    # PMIDs from srp_df should merge into dataset_pmid
+    srp001_row = enriched[enriched['SRP_ERP_ID'] == 'SRP001'].iloc[0]
+    assert '12345' in srp001_row['dataset_pmid']
 
 
 @patch('modules.gather_sra_data.fetch_sra_ids')
@@ -1033,6 +1153,246 @@ def test_workflow_with_mixed_results(mock_get_srp, mock_fetch_sra):
     # Check actual failure
     assert '99999' in failed
     assert 'API Error' in failed['99999']
+
+
+# ============================================================================
+# Test create_srp_to_sra_mapping
+# ============================================================================
+
+def test_create_srp_to_sra_mapping_basic():
+    """Test basic SRP to sample SRA mapping creation."""
+    pmid_to_sra_ids = {
+        '12345': ['SRX100', 'SRX200'],
+        '67890': ['SRX300'],
+    }
+    sra_to_srp_ids = {
+        'SRX100': ['SRP001'],
+        'SRX200': ['SRP001', 'SRP002'],
+        'SRX300': ['SRP003'],
+    }
+    
+    result = create_srp_to_sra_mapping(pmid_to_sra_ids, sra_to_srp_ids)
+    
+    # Should map each SRP to ONE sample SRA (the first encountered)
+    assert 'SRP001' in result
+    assert 'SRP002' in result
+    assert 'SRP003' in result
+    # SRP001 should get the first SRA that maps to it
+    assert result['SRP001'] == 'SRX100'
+    assert result['SRP003'] == 'SRX300'
+
+
+def test_create_srp_to_sra_mapping_empty():
+    """Test SRP to SRA mapping with empty inputs."""
+    result = create_srp_to_sra_mapping({}, {})
+    assert result == {}
+
+
+def test_create_srp_to_sra_mapping_no_srp_matches():
+    """Test when SRA IDs have no SRP matches."""
+    pmid_to_sra_ids = {'12345': ['SRX100']}
+    sra_to_srp_ids = {}  # No SRA→SRP mappings
+    
+    result = create_srp_to_sra_mapping(pmid_to_sra_ids, sra_to_srp_ids)
+    assert result == {}
+
+
+# ============================================================================
+# Test gather_srp_metadata
+# ============================================================================
+
+@patch('modules.gather_sra_data.fetch_sra_metadata_for_srp')
+def test_gather_srp_metadata_basic(mock_fetch):
+    """Test gathering metadata for a list of SRP IDs."""
+    # Mock the per-SRP fetch
+    mock_fetch.side_effect = [
+        {
+            'dataset_source_id': 'SRP001',
+            'dataset_title': 'Study A',
+            'description': 'Desc A',
+            'type': 'dataset',
+            'dataset_source_repo': 'SRA',
+        },
+        {
+            'dataset_source_id': 'SRP002',
+            'dataset_title': 'Study B',
+            'description': 'Desc B',
+            'type': 'dataset',
+            'dataset_source_repo': 'SRA',
+        },
+    ]
+    
+    srp_ids = ['SRP001', 'SRP002']
+    srp_to_sra = {'SRP001': 'SRX100', 'SRP002': 'SRX200'}
+    
+    result = gather_srp_metadata(srp_ids, srp_to_sra, max_workers=1)
+    
+    assert 'SRP_ERP_ID' in result.columns
+    assert len(result) == 2
+    assert set(result['SRP_ERP_ID']) == {'SRP001', 'SRP002'}
+
+
+@patch('modules.gather_sra_data.fetch_sra_metadata_for_srp')
+def test_gather_srp_metadata_missing_sra_sample(mock_fetch):
+    """Test gather_srp_metadata when SRP has no SRA sample in the mapping."""
+    # SRP002 has no SRA sample → function should call _create_blank_metadata_dict
+    mock_fetch.return_value = {
+        'dataset_source_id': 'SRP001',
+        'dataset_title': 'Study A',
+        'type': 'dataset',
+        'dataset_source_repo': 'SRA',
+    }
+    
+    srp_ids = ['SRP001', 'SRP002']
+    srp_to_sra = {'SRP001': 'SRX100'}  # SRP002 not mapped
+    
+    result = gather_srp_metadata(srp_ids, srp_to_sra, max_workers=1)
+    
+    assert len(result) == 2
+    # SRP002 should have blank metadata
+    srp002_row = result[result['dataset_source_id'] == 'SRP002']
+    assert len(srp002_row) == 1
+    assert srp002_row.iloc[0]['dataset_title'] == ''
+
+
+# ============================================================================
+# Test JSON Batch Persistence (sra_to_srp_ids)
+# ============================================================================
+
+def test_json_batch_roundtrip(tmp_path):
+    """Test that sra_to_srp_ids persisted as JSON can be loaded accurately."""
+    batch_dir = tmp_path / "sra_batches"
+    batch_dir.mkdir()
+    
+    # Simulate what gather_sra_data does: save per-batch JSON
+    sra_to_srp = {
+        'SRX100': ['SRP001', 'SRP002'],
+        'SRX200': ['SRP001'],
+        'SRX300': [],
+    }
+    json_path = batch_dir / "batch_0001_sra_to_srp.json"
+    with open(str(json_path), 'w', encoding='utf-8') as f:
+        json.dump(sra_to_srp, f)
+    
+    # Load it back
+    with open(str(json_path), 'r', encoding='utf-8') as f:
+        loaded = json.load(f)
+    
+    assert loaded == sra_to_srp
+    assert loaded['SRX100'] == ['SRP001', 'SRP002']
+    assert loaded['SRX300'] == []
+
+
+def test_json_batch_preserves_per_sra_granularity(tmp_path):
+    """Test that JSON preserves per-SRA→SRP mapping that CSV aggregation loses.
+    
+    This validates the fix for the reconstruction bug: the CSV aggregates
+    SRP IDs per PMID, losing per-SRA granularity. The JSON retains it.
+    """
+    batch_dir = tmp_path / "sra_batches"
+    batch_dir.mkdir()
+    
+    # Two SRAs from same PMID map to different SRPs
+    pmid_to_sra = {'12345': ['SRX100', 'SRX200']}
+    sra_to_srp = {
+        'SRX100': ['SRP001'],
+        'SRX200': ['SRP002'],
+    }
+    
+    # Save mapping CSV (aggregated per PMID - loses granularity)
+    mapping_df = create_sra_mapping_dataframe(pmid_to_sra, sra_to_srp)
+    mapping_path = batch_dir / "batch_0001_mapping.csv"
+    mapping_df.to_csv(str(mapping_path), index=False)
+    
+    # Save JSON (preserves per-SRA granularity)
+    json_path = batch_dir / "batch_0001_sra_to_srp.json"
+    with open(str(json_path), 'w', encoding='utf-8') as f:
+        json.dump(sra_to_srp, f)
+    
+    # Load CSV - shows both SRPs aggregated for PMID 12345
+    loaded_csv = pd.read_csv(str(mapping_path))
+    srp_cell = loaded_csv.iloc[0]['SRP_ERP_IDs']
+    # CSV has both SRPs in one cell, can't tell which SRA goes with which SRP
+    assert 'SRP001' in srp_cell
+    assert 'SRP002' in srp_cell
+    
+    # Load JSON - preserves exact SRA→SRP mapping
+    with open(str(json_path), 'r', encoding='utf-8') as f:
+        loaded_json = json.load(f)
+    assert loaded_json['SRX100'] == ['SRP001']
+    assert loaded_json['SRX200'] == ['SRP002']
+
+
+# ============================================================================
+# Test get_max_batch_number Edge Cases
+# ============================================================================
+
+def test_get_max_batch_number_nonexistent_dir():
+    """Test max batch number when directory doesn't exist at all."""
+    max_batch = get_max_batch_number('/nonexistent/path/that/cannot/exist')
+    assert max_batch == 0
+
+
+def test_get_max_batch_number_no_matching_files(tmp_path):
+    """Test max batch number when directory has files but none match pattern."""
+    batch_dir = tmp_path / "batches"
+    batch_dir.mkdir()
+    
+    # Create files that don't match the batch_*_mapping.csv pattern
+    (batch_dir / "random_file.csv").write_text("data")
+    (batch_dir / "batch_notes.txt").write_text("notes")
+    
+    max_batch = get_max_batch_number(str(batch_dir))
+    assert max_batch == 0
+
+
+# ============================================================================
+# Test enrich_srp_data_with_metadata edge cases
+# ============================================================================
+
+def test_enrich_srp_data_merges_metadata_and_mapping_pmids():
+    """Test that PMIDs from both mapping and metadata are merged/deduped."""
+    srp_df = pd.DataFrame({
+        'SRP_ERP_ID': ['SRP001'],
+        'PMIDs': ['12345; 67890'],
+        'PMID_Count': [2]
+    })
+    
+    metadata_df = pd.DataFrame({
+        'SRP_ERP_ID': ['SRP001'],
+        'dataset_source_id': ['SRP001'],
+        'dataset_title': ['Study'],
+        'dataset_pmid': ['67890; 99999'],  # 67890 overlaps, 99999 is new
+    })
+    
+    enriched = enrich_srp_data_with_metadata(srp_df, metadata_df)
+    
+    # dataset_pmid should contain merged, deduped PMIDs
+    pmid_str = enriched.iloc[0]['dataset_pmid']
+    pmids = [p.strip() for p in pmid_str.split(';')]
+    assert '12345' in pmids
+    assert '67890' in pmids
+    assert '99999' in pmids
+    assert len(pmids) == 3  # No duplicates
+
+
+# ============================================================================
+# Test aggregate_batch_mappings edge cases
+# ============================================================================
+
+def test_aggregate_batch_mappings_empty_input():
+    """Test aggregation with empty DataFrame list."""
+    empty_df = pd.DataFrame(columns=['PMID', 'SRA_IDs', 'SRP_ERP_IDs'])
+    result = aggregate_batch_mappings([empty_df])
+    assert len(result) == 0
+
+
+def test_aggregate_batch_mappings_no_pmid_column():
+    """Test aggregation when DataFrame has no PMID column (early return)."""
+    df = pd.DataFrame({'other_col': ['a', 'b']})
+    result = aggregate_batch_mappings([df])
+    # Should return combined df without dedup processing
+    assert len(result) == 2
 
 
 if __name__ == "__main__":
