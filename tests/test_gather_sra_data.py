@@ -11,7 +11,7 @@ import json
 import pandas as pd
 import pytest
 import uuid
-from unittest.mock import patch, MagicMock, mock_open
+from unittest.mock import patch, MagicMock
 from io import BytesIO
 
 
@@ -631,6 +631,7 @@ def test_mapping_to_srp_workflow(mock_fetch):
     # Step 1: Fetch SRA IDs
     pmids = ['12345', '67890']
     results, failed = get_sra_ids_for_pubmed_ids(pmids)
+    assert len(failed) == 0  # No failures expected with mocked responses
     
     # Mock SRA to SRP mapping
     sra_to_srp_ids = {
@@ -641,6 +642,9 @@ def test_mapping_to_srp_workflow(mock_fetch):
     
     # Step 2: Create mapping DataFrame
     mapping_df = create_sra_mapping_dataframe(results, sra_to_srp_ids)
+    assert len(mapping_df) == 2  # One row per PMID
+    assert 'PMID' in mapping_df.columns
+    assert set(mapping_df['PMID'].values) == {'12345', '67890'}
     
     # Step 3: Create SRP-centric DataFrame
     srp_df = create_srp_centric_dataframe(results, sra_to_srp_ids)
@@ -668,6 +672,7 @@ def test_duplicate_pmid_handling(mock_entrez):
     # Same PMID listed twice
     pmids = ['38738472', '38738472']
     results, failed = get_sra_ids_for_pubmed_ids(pmids)
+    assert len(failed) == 0  # No failures expected
     
     # Should handle duplicates gracefully
     assert '38738472' in results
@@ -710,6 +715,7 @@ def test_erp_match(mock_entrez):
     assert 'ERX123456' in sra_ids
     assert 'ERX789012' in sra_ids
     assert error_flag is False
+    assert error_msg == ''
 
 
 @patch('modules.gather_sra_data.Entrez')
@@ -725,8 +731,8 @@ def test_many_to_one_srp_mapping(mock_entrez):
         [{'LinkSetDb': [{'Link': [{'Id': 'SRX222'}]}]}]
     ]
     
-    pmid1, sra_ids1, err1, msg1 = fetch_sra_ids('38260414')
-    pmid2, sra_ids2, err2, msg2 = fetch_sra_ids('38802751')
+    pmid1, sra_ids1, err1, _ = fetch_sra_ids('38260414')
+    pmid2, sra_ids2, err2, _ = fetch_sra_ids('38802751')
     
     # Both should succeed with different SRA IDs
     assert not err1 and not err2
