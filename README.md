@@ -279,19 +279,17 @@ python modules/gather_sra_data.py
     - Creates a study-centric view by aggregating all PMIDs associated with each unique study.
 
 3. **Gather SRA Study Metadata**
-    - For each unique study ID, retrieves comprehensive metadata from NCBI using the EFetch API, including study title, abstract, design description, assay methods, platform information, and release dates.
-    - Parses XML responses to extract structured metadata fields like library strategy, sample counts, and investigator information.
-    - Saves metadata as a checkpoint file for reuse and debugging.
+    - For each unique study ID, pulls metadata from NCBI E-utilities.
+    - Parses and formats metadata fields like study title, abstract, and investigator.
 
 4. **Link to NCI Programs**
-    - Merges SRA datasets with publication, project, and program data to establish linkages to NCI funding sources.
+    - Traces INS associations backwards from SRA -> PMID -> Project -> Program
     - Derives associated NCI Division/Office/Center (DOC) and program(s) for each dataset.
     - Combines PMID information from both the SRA metadata and the publication-based mapping.
 
 5. **Generate UUIDs and Format Output**
-    - Generates deterministic internal UUID5 identifiers for each dataset based on the study accession (SRP/ERP ID).
-    - Adds standardized columns (e.g., URLs, type, repository) for downstream compatibility.
-    - Applies filtering to remove invalid or incomplete records.
+    - Adds standardized columns like UUIDs, URLs, type, repository name for odwnstrem handling.
+    - Applies validation and filtering to remove invalid or incomplete records.
 
 6. **Save Final Output**
     - Saves the processed `sra_datasets.csv` file in the intermediate data directory for downstream use and validation.
