@@ -428,6 +428,37 @@ COLUMN_CONFIGS = {
         'list_like_cols': ['dataset_pmid', 'funding_source',],
         'html_tag_cols': None
     },
+    'sra_dataset': {
+        'node_id': 'dataset_uuid',
+        'link_id': None,
+        'keep_and_rename': {
+            'type': 'type',
+            'dataset_uuid': 'dataset_uuid',
+            'dataset_source_repo': 'dataset_source_repo',
+            'dataset_title': 'dataset_title',
+            'description': 'description',
+            'dataset_source_id': 'dataset_source_id',
+            'dataset_source_url': 'dataset_source_url',
+            'PI_name': 'PI_name',
+            'GPA': 'GPA',
+            'dataset_doc': 'dataset_doc',
+            'dataset_pmid': 'dataset_pmid',
+            'funding_source': 'funding_source',
+            'release_date': 'release_date',
+            'limitations_for_reuse': 'limitations_for_reuse',
+            'assay_method': 'assay_method',
+            'study_type': 'study_type',
+            'primary_disease': 'primary_disease',
+            'participant_count': 'participant_count',    
+            'sample_count': 'sample_count',
+            'study_links': 'study_links',
+            'related_genes': 'related_genes',
+            'related_diseases': 'related_diseases',
+            'related_terms': 'related_terms',
+        },
+        'list_like_cols': ['dataset_pmid', 'funding_source',],
+        'html_tag_cols': None
+    },
     'cedcd_dataset': {
         'node_id': 'dataset_uuid',
         'link_id': None,
@@ -564,6 +595,23 @@ GEO_OUTPUT_PATH = OUTPUT_GATHERED_DIR +"/"+ "geo_datasets.tsv"
 
 # GEO reports
 GEO_DROPPED_ACCESSIONS_PATH = REPORTS_GATHERED_DIR +"/"+ "geo_dropped_accessions.csv"
+
+
+# SRA
+
+# SRA intermediates
+SRA_PMID_MAPPING_PATH = GATHERED_DIR +"/"+ "sra_pmid_mapping.csv"
+SRA_SRP_CENTRIC_PATH = GATHERED_DIR +"/"+ "sra_srp_centric.csv"
+SRA_BATCH_DIR = GATHERED_DIR +"/"+ "sra_batches"
+SRA_INTERMED_PATH = GATHERED_DIR +"/"+ "sra_datasets.csv"
+SRA_CURATED_INTERMED_PATH = GATHERED_DIR +"/"+ "sra_datasets_curated.tsv"
+
+# SRA outputs
+SRA_OUTPUT_PATH = OUTPUT_GATHERED_DIR +"/"+ "sra_datasets.tsv"
+SRA_OUTPUT_CURATED_CLEANED = OUTPUT_GATHERED_DIR +"/"+ "sra_datasets_curated_clean.tsv"
+
+# SRA reports
+SRA_DROPPED_STUDIES_PATH = REPORTS_GATHERED_DIR +"/"+ "sra_dropped_studies.csv"
 
 
 # CEDCD
