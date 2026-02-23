@@ -506,9 +506,11 @@ def aggregate_batch_mappings(mapping_dfs: List[pd.DataFrame]) -> pd.DataFrame:
 
     # Sort so less-preferred (empty) rows come first, then drop duplicates
     # keeping the last (most-preferred / latest batch) per PMID.
+    # Use kind='mergesort' (stable) so that when _dedup_pref ties,
+    # the original concat order is preserved — later batches stay last.
     combined = (
         combined
-        .sort_values(['PMID', '_dedup_pref'])
+        .sort_values(['PMID', '_dedup_pref'], kind='mergesort')
         .drop_duplicates(subset=['PMID'], keep='last')
         .drop(columns=['_dedup_pref'])
         .reset_index(drop=True)
