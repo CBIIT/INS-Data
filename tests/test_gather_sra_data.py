@@ -39,6 +39,7 @@ from modules.gather_sra_data import (
     get_dataset_doc_from_project,
     create_srp_to_sra_mapping,
     gather_srp_metadata,
+    validate_and_drop_incomplete_studies,
 )
 
 
@@ -1399,6 +1400,147 @@ def test_aggregate_batch_mappings_no_pmid_column():
     result = aggregate_batch_mappings([df])
     # Should return combined df without dedup processing
     assert len(result) == 2
+
+
+# ============================================================================
+# Test validate_and_drop_incomplete_studies
+# ============================================================================
+
+def test_validate_drops_missing_title(tmp_path):
+    """Test that rows with empty dataset_title are dropped and saved."""
+    df = pd.DataFrame({
+        'SRP_ERP_ID': ['SRP001', 'SRP002', 'SRP003'],
+        'dataset_title': ['Good Title', '', 'Another Title'],
+        'description': ['Desc A', 'Desc B', 'Desc C'],
+        'dataset_source_id': ['SRP001', 'SRP002', 'SRP003'],
+    })
+
+    dropped_path = str(tmp_path / "dropped.csv")
+    result = validate_and_drop_incomplete_studies(df, dropped_path)
+
+    # SRP002 should be dropped (empty title)
+    assert len(result) == 2
+    assert 'SRP002' not in result['SRP_ERP_ID'].values
+    assert 'SRP001' in result['SRP_ERP_ID'].values
+    assert 'SRP003' in result['SRP_ERP_ID'].values
+
+    # Dropped CSV should be written
+    dropped_df = pd.read_csv(dropped_path)
+    assert len(dropped_df) == 1
+    assert dropped_df.iloc[0]['SRP_ERP_ID'] == 'SRP002'
+    assert 'Missing field: dataset_title' in dropped_df.iloc[0]['DROPPED_REASON']
+
+
+def test_validate_drops_missing_description(tmp_path):
+    """Test that rows with empty description are dropped and saved."""
+    df = pd.DataFrame({
+        'SRP_ERP_ID': ['SRP001', 'SRP002'],
+        'dataset_title': ['Title A', 'Title B'],
+        'description': ['Good Desc', ''],
+        'dataset_source_id': ['SRP001', 'SRP002'],
+    })
+
+    dropped_path = str(tmp_path / "dropped.csv")
+    result = validate_and_drop_incomplete_studies(df, dropped_path)
+
+    assert len(result) == 1
+    assert result.iloc[0]['SRP_ERP_ID'] == 'SRP001'
+
+    dropped_df = pd.read_csv(dropped_path)
+    assert len(dropped_df) == 1
+    assert 'Missing field: description' in dropped_df.iloc[0]['DROPPED_REASON']
+
+
+def test_validate_drops_both_missing(tmp_path):
+    """Test row missing both title and description gets both reasons."""
+    df = pd.DataFrame({
+        'SRP_ERP_ID': ['SRP001'],
+        'dataset_title': [''],
+        'description': [''],
+        'dataset_source_id': ['SRP001'],
+    })
+
+    dropped_path = str(tmp_path / "dropped.csv")
+    result = validate_and_drop_incomplete_studies(df, dropped_path)
+
+    assert len(result) == 0
+
+    dropped_df = pd.read_csv(dropped_path)
+    assert len(dropped_df) == 1
+    reason = dropped_df.iloc[0]['DROPPED_REASON']
+    assert 'Missing field: dataset_title' in reason
+    assert 'Missing field: description' in reason
+
+
+def test_validate_no_drops_all_valid(tmp_path):
+    """Test that no rows are dropped when all have title and description."""
+    df = pd.DataFrame({
+        'SRP_ERP_ID': ['SRP001', 'SRP002'],
+        'dataset_title': ['Title A', 'Title B'],
+        'description': ['Desc A', 'Desc B'],
+        'dataset_source_id': ['SRP001', 'SRP002'],
+    })
+
+    dropped_path = str(tmp_path / "dropped.csv")
+    result = validate_and_drop_incomplete_studies(df, dropped_path)
+
+    assert len(result) == 2
+    # No dropped file should be created
+    assert not os.path.exists(dropped_path)
+
+
+def test_validate_treats_whitespace_as_missing(tmp_path):
+    """Test that whitespace-only values are treated as missing."""
+    df = pd.DataFrame({
+        'SRP_ERP_ID': ['SRP001', 'SRP002'],
+        'dataset_title': ['  ', 'Real Title'],
+        'description': ['Desc A', '   '],
+        'dataset_source_id': ['SRP001', 'SRP002'],
+    })
+
+    dropped_path = str(tmp_path / "dropped.csv")
+    result = validate_and_drop_incomplete_studies(df, dropped_path)
+
+    assert len(result) == 0  # Both should be dropped
+
+    dropped_df = pd.read_csv(dropped_path)
+    assert len(dropped_df) == 2
+
+
+def test_validate_preserves_all_columns(tmp_path):
+    """Test that dropped rows retain all original columns plus DROPPED_REASON."""
+    df = pd.DataFrame({
+        'SRP_ERP_ID': ['SRP001'],
+        'dataset_title': [''],
+        'description': ['Desc'],
+        'dataset_source_id': ['SRP001'],
+        'PI_name': ['Dr. Test'],
+        'release_date': ['2023-01-01'],
+    })
+
+    dropped_path = str(tmp_path / "dropped.csv")
+    validate_and_drop_incomplete_studies(df, dropped_path)
+
+    dropped_df = pd.read_csv(dropped_path)
+    # All original columns plus DROPPED_REASON
+    assert 'PI_name' in dropped_df.columns
+    assert 'release_date' in dropped_df.columns
+    assert 'DROPPED_REASON' in dropped_df.columns
+    assert dropped_df.iloc[0]['PI_name'] == 'Dr. Test'
+
+
+def test_validate_resets_index(tmp_path):
+    """Test that the returned DataFrame has a clean reset index."""
+    df = pd.DataFrame({
+        'SRP_ERP_ID': ['SRP001', 'SRP002', 'SRP003'],
+        'dataset_title': ['Title', '', 'Title'],
+        'description': ['Desc', 'Desc', 'Desc'],
+    })
+
+    dropped_path = str(tmp_path / "dropped.csv")
+    result = validate_and_drop_incomplete_studies(df, dropped_path)
+
+    assert list(result.index) == [0, 1]  # Clean 0-based index
 
 
 if __name__ == "__main__":

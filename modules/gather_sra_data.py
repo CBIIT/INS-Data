@@ -1109,6 +1109,78 @@ def enrich_srp_data_with_metadata(
     return enriched_df
 
 
+def validate_and_drop_incomplete_studies(
+    df: pd.DataFrame,
+    dropped_studies_path: str,
+    required_fields: Optional[List[str]] = None
+) -> pd.DataFrame:
+    """
+    Validate enriched SRA dataset rows and drop any missing required fields.
+    
+    Rows missing a non-empty value for dataset_title or description are
+    removed from the returned DataFrame and saved to a separate CSV with
+    a DROPPED_REASON column indicating which field was missing.
+    
+    Args:
+        df: Enriched SRA datasets DataFrame
+        dropped_studies_path: Filepath for the dropped-studies CSV report
+        required_fields: List of column names that must be non-empty.
+            Defaults to ['dataset_title', 'description'].
+    
+    Returns:
+        DataFrame with incomplete rows removed
+    """
+    if required_fields is None:
+        required_fields = ['dataset_title', 'description']
+
+    # Build a boolean mask for rows to drop and track reasons per row
+    drop_mask = pd.Series(False, index=df.index)
+    drop_reasons: Dict[int, List[str]] = {}
+
+    for field in required_fields:
+        if field not in df.columns:
+            continue
+        missing = df[field].astype(str).str.strip().isin(['', 'nan', 'None', 'NaN'])
+        for idx in df.index[missing]:
+            drop_mask.at[idx] = True
+            drop_reasons.setdefault(idx, []).append(f"Missing field: {field}")
+
+    dropped_count = drop_mask.sum()
+
+    if dropped_count > 0:
+        dropped_df = df.loc[drop_mask].copy()
+        dropped_df['DROPPED_REASON'] = [
+            '; '.join(drop_reasons[idx]) for idx in dropped_df.index
+        ]
+
+        # Ensure output directory exists
+        Path(os.path.dirname(dropped_studies_path)).mkdir(
+            parents=True, exist_ok=True
+        )
+
+        dropped_df.to_csv(dropped_studies_path, index=False)
+
+        print(f"\n  Validation: {dropped_count} study row(s) dropped "
+              f"for missing required fields.")
+        print(f"  Dropped studies saved to:")
+        print(f"    {dropped_studies_path}")
+
+        # # Show a brief breakdown
+        # for field in required_fields:
+        #     if field in df.columns:
+        #         field_missing = df.loc[
+        #             drop_mask, field
+        #         ].astype(str).str.strip().isin(['', 'nan', 'None', 'NaN']).sum()
+        #         if field_missing:
+        #             print(f"    - Missing '{field}': {field_missing}")
+    # else:
+    #     print(f"\n  Validation: All rows have required fields "
+    #           f"({', '.join(required_fields)}). No rows dropped.")
+
+    # Return only valid rows
+    return df.loc[~drop_mask].reset_index(drop=True)
+
+
 def get_dataset_doc_from_project(df_sra: pd.DataFrame) -> pd.DataFrame:
     """
     Merge dataset df with project and program dfs to link DOCs with datasets.
@@ -1686,6 +1758,14 @@ def gather_sra_data(
     # Replace NaN with empty strings for consistency
     sra_datasets_df = sra_datasets_df.fillna('')
     
+    # Validate: drop rows missing required fields (title or description)
+    pre_validation_count = len(sra_datasets_df)
+    sra_datasets_df = validate_and_drop_incomplete_studies(
+        sra_datasets_df,
+        config.SRA_DROPPED_STUDIES_PATH
+    )
+    dropped_count = pre_validation_count - len(sra_datasets_df)
+    
     # Save final enriched dataset
     sra_datasets_df.to_csv(sra_datasets_path, index=False)
     print(f"\n  Enriched SRA datasets saved to:")
@@ -1718,7 +1798,10 @@ def gather_sra_data(
     else:
         print(f"  Unique PMIDs with SRP/ERP IDs:       {pmids_with_srp:>8} (N/A)")
     print(f"  Total unique SRA IDs:                {len(unique_sra_ids):>8}")
-    print(f"  Total unique SRP/ERP studies:        {len(sra_datasets_df):>8}")
+    print(f"  Total unique datasets:               {pre_validation_count:>8}")
+    if dropped_count > 0:
+        print(f"  Studies with missing title/description removed:        {dropped_count:>8}")
+        print(f"  Final unique SRP/ERP datasets:                         {len(sra_datasets_df):>8}")
     print(f"---")
     
     return sra_datasets_df
@@ -1728,43 +1811,43 @@ def gather_sra_data(
 # Run module as a standalone script when called directly
 if __name__ == "__main__":
     
-    print(f"Running {os.path.basename(__file__)} as standalone module...")
+    # print(f"Running {os.path.basename(__file__)} as standalone module...")
 
-    # Load publications
-    pubs_path = config.PUBLICATIONS_INTERMED_PATH
-    if os.path.exists(pubs_path):
-        publications = pd.read_csv(pubs_path)
-        print(f"Publications data loaded from {pubs_path}")
+    # # Load publications
+    # pubs_path = config.PUBLICATIONS_INTERMED_PATH
+    # if os.path.exists(pubs_path):
+    #     publications = pd.read_csv(pubs_path)
+    #     print(f"Publications data loaded from {pubs_path}")
 
-        # Run the gathering workflow
-        sra_datasets_df = gather_sra_data(publications, overwrite_intermeds=False)
+    #     # Run the gathering workflow
+    #     sra_datasets_df = gather_sra_data(publications, overwrite_intermeds=False)
 
-    else:
-        print(f"Error: Publications file not found at {pubs_path}")
-        print("Please run the publication gathering workflow first.")
+    # else:
+    #     print(f"Error: Publications file not found at {pubs_path}")
+    #     print("Please run the publication gathering workflow first.")
 
-    # # TESTING
-    # print(f"\n---\nTEST MODE")
+    # TESTING
+    print(f"\n---\nTEST MODE")
 
-    # # Small test params
-    # publications_df = pd.DataFrame({'pmid': ['38738472', # Standard
-    #                                          '38738472', # Duplicate
-    #                                          '10637239', # No SRA match
-    #                                          '26829319', # ERP match
-    #                                          '38260414', # Many-to-one (1/2)
-    #                                          '38802751', # Many-to-one (2/2)
-    #                                          'bad_input' # Bad PMID
-    #                                          ]}) 
-    # batch_size = 2
-    # overwrite_intermeds=False
+    # Small test params
+    publications_df = pd.DataFrame({'pmid': ['38738472', # Standard
+                                             '38738472', # Duplicate
+                                             '10637239', # No SRA match
+                                             '26829319', # ERP match
+                                             '38260414', # Many-to-one (1/2)
+                                             '38802751', # Many-to-one (2/2)
+                                             'bad_input' # Bad PMID
+                                             ]}) 
+    batch_size = 2
+    overwrite_intermeds=False
 
-    # print(f"TEST PARAM: PMID list: {publications_df['pmid'].tolist()}")
-    # print(f"TEST PARAM: Batch size: {batch_size}")
+    print(f"TEST PARAM: PMID list: {publications_df['pmid'].tolist()}")
+    print(f"TEST PARAM: Batch size: {batch_size}")
 
-    # # Run the test workflow
-    # sra_datasets_df = gather_sra_data(publications_df, 
-    #                                   overwrite_intermeds=overwrite_intermeds, 
-    #                                   batch_size=batch_size)
+    # Run the test workflow
+    sra_datasets_df = gather_sra_data(publications_df, 
+                                      overwrite_intermeds=overwrite_intermeds, 
+                                      batch_size=batch_size)
     
-    # print(f"\n---\nTEST MODE COMPLETE: ")
-    # print(f"SRA intermediate CSV shape: {sra_datasets_df.shape}")
+    print(f"\n---\nTEST MODE COMPLETE: ")
+    print(f"SRA intermediate CSV shape: {sra_datasets_df.shape}")
