@@ -288,8 +288,8 @@ python modules/gather_sra_data.py
     - Combines PMID information from both the SRA metadata and the publication-based mapping.
 
 5. **Generate UUIDs and Format Output**
-    - Adds standardized columns like UUIDs, URLs, type, repository name for odwnstrem handling.
-    - Applies validation and filtering to remove invalid or incomplete records.
+    - Adds standardized columns like UUIDs, URLs, type, repository name for downstream handling.
+    - Applies validation to remove records missing required fields.
 
 6. **Save Final Output**
     - Saves the processed `sra_datasets.csv` file in the intermediate data directory for downstream use and validation.
