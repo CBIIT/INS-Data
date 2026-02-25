@@ -1813,43 +1813,43 @@ def gather_sra_data(
 # Run module as a standalone script when called directly
 if __name__ == "__main__":
     
-    # print(f"Running {os.path.basename(__file__)} as standalone module...")
+    print(f"Running {os.path.basename(__file__)} as standalone module...")
 
-    # # Load publications
-    # pubs_path = config.PUBLICATIONS_INTERMED_PATH
-    # if os.path.exists(pubs_path):
-    #     publications = pd.read_csv(pubs_path)
-    #     print(f"Publications data loaded from {pubs_path}")
+    # Load publications
+    pubs_path = config.PUBLICATIONS_INTERMED_PATH
+    if os.path.exists(pubs_path):
+        publications = pd.read_csv(pubs_path)
+        print(f"Publications data loaded from {pubs_path}")
 
-    #     # Run the gathering workflow
-    #     sra_datasets_df = gather_sra_data(publications, overwrite_intermeds=False)
+        # Run the gathering workflow
+        sra_datasets_df = gather_sra_data(publications, overwrite_intermeds=False)
 
-    # else:
-    #     print(f"Error: Publications file not found at {pubs_path}")
-    #     print("Please run the publication gathering workflow first.")
+    else:
+        print(f"Error: Publications file not found at {pubs_path}")
+        print("Please run the publication gathering workflow first.")
 
-    # TESTING
-    print(f"\n---\nTEST MODE")
+    # # TESTING
+    # print(f"\n---\nTEST MODE")
 
-    # Small test params
-    publications_df = pd.DataFrame({'pmid': ['38738472', # Standard
-                                             '38738472', # Duplicate
-                                             '10637239', # No SRA match
-                                             '26829319', # ERP match
-                                             '38260414', # Many-to-one (1/2)
-                                             '38802751', # Many-to-one (2/2)
-                                             'bad_input' # Bad PMID
-                                             ]}) 
-    batch_size = 2
-    overwrite_intermeds=False
+    # # Small test params
+    # publications_df = pd.DataFrame({'pmid': ['38738472', # Standard
+    #                                          '38738472', # Duplicate
+    #                                          '10637239', # No SRA match
+    #                                          '26829319', # ERP match
+    #                                          '38260414', # Many-to-one (1/2)
+    #                                          '38802751', # Many-to-one (2/2)
+    #                                          'bad_input' # Bad PMID
+    #                                          ]}) 
+    # batch_size = 2
+    # overwrite_intermeds=False
 
-    print(f"TEST PARAM: PMID list: {publications_df['pmid'].tolist()}")
-    print(f"TEST PARAM: Batch size: {batch_size}")
+    # print(f"TEST PARAM: PMID list: {publications_df['pmid'].tolist()}")
+    # print(f"TEST PARAM: Batch size: {batch_size}")
 
-    # Run the test workflow
-    sra_datasets_df = gather_sra_data(publications_df, 
-                                      overwrite_intermeds=overwrite_intermeds, 
-                                      batch_size=batch_size)
+    # # Run the test workflow
+    # sra_datasets_df = gather_sra_data(publications_df, 
+    #                                   overwrite_intermeds=overwrite_intermeds, 
+    #                                   batch_size=batch_size)
     
-    print(f"\n---\nTEST MODE COMPLETE: ")
-    print(f"SRA intermediate CSV shape: {sra_datasets_df.shape}")
+    # print(f"\n---\nTEST MODE COMPLETE: ")
+    # print(f"SRA intermediate CSV shape: {sra_datasets_df.shape}")
