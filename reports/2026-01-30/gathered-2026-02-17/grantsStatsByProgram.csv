@@ -13,7 +13,7 @@ cap_it,2,3,11,2022
 cascade,4,13,50,2022
 ccbir,1,4,19,2021
 ccdi,108,80,135,2014
-ccr,643,869,7131,2007
+ccr,655,883,7242,2007
 ccss,2,1,11,2017
 cgci,2,2,2,2013
 cibmtr_data_resource,3,1,15,2013
@@ -25,7 +25,7 @@ communication_and_decision_making_for_individuals_with_inherited_cancer_syndrome
 cp_ctnet,3,6,34,2019
 cptac,4,15,69,2016
 csbc,6,56,291,2016
-csrn,3,9,26,2024
+csrn,3,9,27,2024
 ctd_2,2,19,84,2017
 cusp2ct,2,5,18,2022
 dceg,111,173,1398,2007
@@ -36,7 +36,7 @@ fusonc2,2,9,16,2018
 gdan,4,24,122,2016
 hamrcs,2,10,56,2020
 htan,4,12,35,2018
-imat,112,1042,2481,2000
+imat,112,1042,2482,2000
 impact,2,4,4,2018
 improving_outcomes_for_pediatric_adolescent_and_young_adult_cancer_survivors,1,8,29,2019
 iotn,8,29,89,2018
@@ -58,7 +58,7 @@ pivot,3,10,66,2015
 precinct,2,6,27,2022
 prospr,2,4,24,2018
 psrc,2,7,28,2022
-qin,1,1,5,2019
+qin,3,16,49,2018
 respond,1,1,5,2019
 sclc,5,21,107,2017
 spore_brain_cancer_duke,1,1,11,2014
