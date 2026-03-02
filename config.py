@@ -325,7 +325,8 @@ COLUMN_CONFIGS = {
 
         },
         'list_like_cols': ['keywords', 'principal_investigators'],
-        'datetime_cols': ['award_notice_date', 'grant_start_date', 'grant_end_date']
+        'datetime_cols': ['award_notice_date', 'grant_start_date', 'grant_end_date'],
+        'int_cols': ['award_amount', 'nci_funded_amount'],
     },
     'project': {
         'node_id': 'project_id',
