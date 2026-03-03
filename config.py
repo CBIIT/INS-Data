@@ -12,11 +12,11 @@ from datetime import datetime
 # Inputs and outputs will use this versioning
 # Version must match suffix in input filename
 
-QUALTRICS_VERSION = "2025-05-09"    # <-- CHANGE VERSION HERE
+QUALTRICS_VERSION = "2026-01-30"    # <-- CHANGE VERSION HERE
 QUALTRICS_TYPE = "manual_fix"              # <-- Define "raw" or "manual_fix" type of the input csv
 
 # Version of bulk download from iCite
-ICITE_VERSION = "2025-04"           # <-- CHANGE VERSION HERE
+ICITE_VERSION = "2026-01"           # <-- CHANGE VERSION HERE
 
 # Version of dbGaP seearch results download (download date)
 DBGAP_CSV_VERSION = "2025-05-19"   # <-- CHANGE VERSION HERE
@@ -30,7 +30,7 @@ CTD2_VERSION = "2025-12-01"
 # An override date can be used instead of today's date for pulling and saving data versions
 # This is useful when running downstream modules on grants data gathered before today
 
-OVERRIDE_DATE = "2025-05-15"               # <-- Optional. Define override date (e.g. "2023-12-14"). Default None.
+OVERRIDE_DATE = "2026-02-17"               # <-- Optional. Define override date (e.g. "2023-12-14"). Default None.
 
 
 
@@ -325,7 +325,8 @@ COLUMN_CONFIGS = {
 
         },
         'list_like_cols': ['keywords', 'principal_investigators'],
-        'datetime_cols': ['award_notice_date', 'grant_start_date', 'grant_end_date']
+        'datetime_cols': ['award_notice_date', 'grant_start_date', 'grant_end_date'],
+        'int_cols': ['award_amount', 'nci_funded_amount'],
     },
     'project': {
         'node_id': 'project_id',
@@ -642,4 +643,5 @@ CTD2_FILE_INTERMED_CSV = CTD2_INTERMED_DIR + "ctd2_filedata.csv"
 # CTD^2 outputs
 CTD2_OUTPUT_DIR = OUTPUT_DIR + "ctd2/" + CTD2_VERSION + "/"
 CTD2_DATASET_OUTPUT_PATH = CTD2_OUTPUT_DIR + "ctd2_datasets.tsv"
+CTD2_DATASET_CURATED_LOCKED_PATH = CTD2_OUTPUT_DIR + "ctd2_datasets_curated.tsv"
 CTD2_FILE_OUTPUT_PATH = CTD2_OUTPUT_DIR + "ctd2_filedata.tsv"

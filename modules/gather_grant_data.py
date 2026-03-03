@@ -217,6 +217,10 @@ def format_name_column(name_str):
 def extract_total_cost(fundings):
     """Extract the total NCI funding from IC award totals"""
 
+    # Return 0 if API returns NoneType
+    if fundings is None or not fundings:
+        return int(0)
+
     for funding in fundings:
         # CA is the NCI code
         if funding['code'] == 'CA':

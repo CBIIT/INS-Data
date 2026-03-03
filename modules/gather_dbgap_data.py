@@ -51,7 +51,20 @@ from Bio import Entrez  # for PubMed API
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import config
 
-
+# Load .env into the process environment so os.environ.get(...) works
+# Use an explicit path to the repository root .env for reliability
+try:
+    from dotenv import load_dotenv
+    dotenv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env')
+    if os.path.exists(dotenv_path):
+        load_dotenv(dotenv_path)
+    else:
+        # Fall back to default behavior (load from CWD) if explicit file not found
+        load_dotenv()
+except Exception:
+    # If python-dotenv is not available, assume environment variables are
+    # already present in the running process (e.g., set by the shell or IDE).
+    pass
 
 def get_dbgap_api_data(phs:str, api_type:str):
     """Fetches data from the dbGaP Study Metadata or SSTR API in JSON format.

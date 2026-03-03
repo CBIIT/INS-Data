@@ -120,6 +120,9 @@ def test_extract_total_cost():
     ]
     assert extract_total_cost(test_no_nci) == 0
 
+    # Test with no funding field at all
+    assert extract_total_cost(None) == 0
+
 
 def test_clean_abstract():
     """Test text cleaning and normalizing of abstracts."""
