@@ -34,7 +34,8 @@ def add_type_column(df, datatype):
                      'geo_dataset',
                      'sra_dataset',
                      'cedcd_dataset', 
-                     'ctd2_dataset'}
+                     'ctd2_dataset',
+                     'dceg_dataset'}
     
     # Map to 'dataset' if in the list, otherwise keep the original value
     df_with_type['type'] = 'dataset' if datatype in dataset_types else datatype
@@ -668,6 +669,43 @@ def package_cedcd_datasets(df_cedcd_datasets, column_configs):
 
 
 
+def package_dceg_datasets(df_dceg_datasets, column_configs):
+    """Package DCEG Cohorts as datasets for INS loading.
+
+    Generates deterministic UUID5 values for dataset_uuid based on
+    dataset_title and dataset_source_id. This is a curated-only source
+    with no gathering pipeline.
+    """
+
+    print(f"---\nFinalizing TSV for DCEG Cohorts data...")
+
+    # Generate deterministic UUID5 for each row based on title + source ID
+    NAMESPACE = uuid.UUID('12345678-1234-5678-1234-567812345678')
+
+    def generate_dceg_uuid(row):
+        name = '||'.join(str(row[field]) for field in 
+                         ['dataset_title', 'dataset_source_id'])
+        return uuid.uuid5(NAMESPACE, name)
+
+    df_dceg_datasets['dataset_uuid'] = df_dceg_datasets.apply(
+        generate_dceg_uuid, axis=1)
+
+    # Standardize and validate data
+    df_dceg_datasets_output = standardize_data(df_dceg_datasets, column_configs,
+                                        datatype='dceg_dataset')
+
+    # Export as TSV
+    output_filepath = config.DCEG_OUTPUT_PATH
+    os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
+    df_dceg_datasets_output.to_csv(output_filepath, sep='\t', index=False,
+                                    encoding='utf-8')
+
+    print(f"Done! Final DCEG Cohorts data saved as {output_filepath}.")
+
+    return df_dceg_datasets_output
+
+
+
 def package_ctd2_datasets(df_ctd2_datasets, column_configs, ctd2_curated=False):
     """Package CTD^2 Datasets data for INS loading."""
 
@@ -992,6 +1030,15 @@ def package_output_data():
         cedcd_datasets_exist = False
         print(f"No CEDCD Datasets file found.")
 
+    # Load DCEG Cohorts curated data
+    if os.path.exists(config.DCEG_CURATED_INTERMED_PATH):
+        dceg_datasets_exist = True
+        df_dceg_datasets = pd.read_csv(config.DCEG_CURATED_INTERMED_PATH, sep='\t')
+        print(f"Loaded DCEG Cohorts file from {config.DCEG_CURATED_INTERMED_PATH}")
+    else:
+        dceg_datasets_exist = False
+        print(f"No DCEG Cohorts file found.")
+
     # Load CTD2 datasets data
     if os.path.exists(config.CTD2_DATASET_CURATED_LOCKED_PATH):
         ctd2_datasets_exist = True
@@ -1060,6 +1107,8 @@ def package_output_data():
                                                     sra_curated)
     if cedcd_datasets_exist:
         df_cedcd_datasets_out = package_cedcd_datasets(df_cedcd_datasets, column_configs)
+    if dceg_datasets_exist:
+        df_dceg_datasets_out = package_dceg_datasets(df_dceg_datasets, column_configs)
     if ctd2_datasets_exist:
         df_ctd2_datasets_out = package_ctd2_datasets(df_ctd2_datasets, column_configs,
                                                      ctd2_curated)

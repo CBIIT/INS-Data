@@ -27,6 +27,9 @@ CEDCD_VERSION = "2025-04-24"        # <-- CHANGE VERSION HERE
 # Version of CTD^2 datasets. Not expected to change
 CTD2_VERSION = "2025-12-01"
 
+# Version of DCEG Cohorts curated dataset
+DCEG_COHORTS_VERSION = "2026-02-03"    # <-- CHANGE VERSION HERE
+
 # An override date can be used instead of today's date for pulling and saving data versions
 # This is useful when running downstream modules on grants data gathered before today
 
@@ -495,6 +498,47 @@ COLUMN_CONFIGS = {
         'list_like_cols': None,
         'html_tag_cols': None
     },
+    'dceg_dataset': {
+        'node_id': 'dataset_uuid',
+        'link_id': None,
+        'keep_and_rename': {
+            'type': 'type',
+            'dataset_uuid': 'dataset_uuid',
+            'dataset_source_repo': 'dataset_source_repo',
+            'dataset_title': 'dataset_title',
+            'description': 'description',
+            'dataset_source_id': 'dataset_source_id',
+            'dataset_source_url': 'dataset_source_url',
+            'PI_name': 'PI_name',
+            'GPA': 'GPA',
+            'dataset_doc': 'dataset_doc',
+            'dataset_pmid': 'dataset_pmid',
+            'funding_source': 'funding_source',
+            'release_date': 'release_date',
+            'limitations_for_reuse': 'limitations_for_reuse',
+            'assay_method': 'assay_method',
+            'study_type': 'study_type',
+            'primary_disease': 'primary_disease',
+            'participant_count': 'participant_count',
+            'sample_count': 'sample_count',
+            'study_links': 'study_links',
+            'related_genes': 'related_genes',
+            'related_diseases': 'related_diseases',
+            'related_terms': 'related_terms',
+            'dataset_year_enrollment_started': 'dataset_year_enrollment_started',
+            'dataset_year_enrollment_ended': 'dataset_year_enrollment_ended',
+            'dataset_minimum_age_at_baseline': 'dataset_minimum_age_at_baseline',
+            'dataset_maximum_age_at_baseline': 'dataset_maximum_age_at_baseline',
+        },
+        'list_like_cols': ['dataset_pmid', 'funding_source', 'study_links'],
+        'html_tag_cols': None,
+        'int_cols': ['participant_count', 
+                     'sample_count',
+                     'dataset_year_enrollment_started',
+                     'dataset_year_enrollment_ended',
+                     'dataset_minimum_age_at_baseline',
+                     'dataset_maximum_age_at_baseline'],
+    },
     'ctd2_dataset': {
         'node_id': 'dataset_uuid',
         'link_id': None,
@@ -645,3 +689,14 @@ CTD2_OUTPUT_DIR = OUTPUT_DIR + "ctd2/" + CTD2_VERSION + "/"
 CTD2_DATASET_OUTPUT_PATH = CTD2_OUTPUT_DIR + "ctd2_datasets.tsv"
 CTD2_DATASET_CURATED_LOCKED_PATH = CTD2_OUTPUT_DIR + "ctd2_datasets_curated.tsv"
 CTD2_FILE_OUTPUT_PATH = CTD2_OUTPUT_DIR + "ctd2_filedata.tsv"
+
+
+# DCEG Cohorts (curated only, no gathering pipeline)
+
+# DCEG Cohorts intermediate - curated TSV lives directly in intermediates
+DCEG_INTERMED_DIR = INTERMED_DIR + "dceg_cohorts/" + DCEG_COHORTS_VERSION + "/"
+DCEG_CURATED_INTERMED_PATH = DCEG_INTERMED_DIR + "dceg_datasets_curated.tsv"
+
+# DCEG Cohorts output
+DCEG_OUTPUT_DIR = OUTPUT_DIR + "dceg_cohorts/" + DCEG_COHORTS_VERSION + "/"
+DCEG_OUTPUT_PATH = DCEG_OUTPUT_DIR + "dceg_datasets.tsv"
