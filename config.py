@@ -699,4 +699,4 @@ DCEG_CURATED_INTERMED_PATH = DCEG_INTERMED_DIR + "dceg_datasets_curated.tsv"
 
 # DCEG Cohorts output
 DCEG_OUTPUT_DIR = OUTPUT_DIR + "dceg_cohorts/" + DCEG_COHORTS_VERSION + "/"
-DCEG_OUTPUT_PATH = DCEG_OUTPUT_DIR + "dceg_datasets.tsv"
+DCEG_OUTPUT_PATH = DCEG_OUTPUT_DIR + "dceg_datasets_curated_clean.tsv"
