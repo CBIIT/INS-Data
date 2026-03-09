@@ -578,6 +578,7 @@ def clean_dbgap_study_metadata(record:str,
     study_metadata = {
         'full_phs': record['full_phs'],
         'description': record['description'],
+        'report_name': record['report_name'],
         'principal_investigator': get_principal_investigators(record, 
                                                               pi_title_set),
         'cited_publications': get_cited_publications(record),
@@ -970,6 +971,11 @@ def gather_dbgap_data(input_csv:str):
 
 
     print(f"\nFormatting dbGaP dataset output...")
+
+    # Use report_name (from Study Metadata API) as name when available
+    merged_df['name'] = merged_df['report_name'].where(
+        merged_df['report_name'].notna() & (merged_df['report_name'] != ''),
+        merged_df['name'])
 
     # Drop full dbgap accession and keep only core phs
     merged_df['accession'] = merged_df['accession'].str.split('.').str[0]
