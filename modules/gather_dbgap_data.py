@@ -39,6 +39,7 @@ import sys
 import html
 import json
 import re
+import time
 import uuid
 
 import pandas as pd
@@ -99,8 +100,34 @@ def get_dbgap_api_data(phs:str, api_type:str):
                          f"either 'study_metadata', 'sstr_summary', "
                          f"or 'sstr_subjects'.")
 
-    # Call the API with requests
-    response = requests.get(url)
+    # Call the API with requests (retry on transient network errors)
+    max_retries = 5
+    for attempt in range(max_retries):
+        try:
+            response = requests.get(url, timeout=60)
+            break  # success – exit retry loop
+        except (requests.exceptions.ConnectionError,
+                requests.exceptions.Timeout) as exc:
+            if attempt < max_retries - 1:
+                wait = 2 ** attempt * 2
+                tqdm.write(
+                    f"Warning: {phs} - network error on attempt "
+                    f"{attempt + 1}/{max_retries}, retrying in {wait}s… "
+                    f"({exc.__class__.__name__})")
+                time.sleep(wait)
+            else:
+                tqdm.write(
+                    f"Error: {phs} - network error persisted after "
+                    f"{max_retries} attempts. Returning error record.")
+                return {
+                    'error': {
+                        'full_phs': phs,
+                        'error_message': f'Network error after {max_retries} '
+                                         f'retries: {exc}',
+                        'error_code': 'NA',
+                        'response_code': 'NA'
+                    }
+                }
 
     # Handle breaking 502 errors
     if response.status_code == 502:
@@ -989,11 +1016,17 @@ def gather_dbgap_data(input_csv:str):
     # Correct DOC names for non-NIH-funded studies
     dbgap_df = update_non_nih_funded_docs(dbgap_df)
 
-    # Add uuid column
-    dbgap_df['dataset_uuid'] = dbgap_df.apply(lambda row: uuid.uuid4(), axis=1)
-
     # Add source repo column
     dbgap_df['dataset_source_repo'] = 'dbGaP'
+
+    # Generate deterministic UUID5 for each row based on source repo + accession
+    NAMESPACE = uuid.UUID('12345678-1234-5678-1234-567812345678')
+    dbgap_df['dataset_uuid'] = dbgap_df.apply(
+        lambda row: uuid.uuid5(
+            NAMESPACE,
+            '||'.join([str(row['dataset_source_repo']),
+                       str(row['accession'])])),
+        axis=1)
 
     # Remove newline characters
     dbgap_df = clean_newlines(dbgap_df, exclude_cols=None)

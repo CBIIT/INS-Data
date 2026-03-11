@@ -1123,9 +1123,14 @@ def package_output_data():
     
     print(f"---\nAdding dataset UUIDs to curated dbGaP datasets if not present...")
     # Add dbgap dataset uuids for any that do not exist
+    # Uses deterministic UUID5 based on source repo + source id
     if dbgap_curated:
+        DBGAP_UUID_NAMESPACE = uuid.UUID('12345678-1234-5678-1234-567812345678')
         df_dbgap_datasets['dataset_uuid'] = df_dbgap_datasets.apply(
-            lambda row: uuid.uuid4()
+            lambda row: uuid.uuid5(
+                DBGAP_UUID_NAMESPACE,
+                '||'.join([str(row['dataset_source_repo']),
+                           str(row['dataset_source_id'])]))
             if pd.isna(row['dataset_uuid'])
             or str(row['dataset_uuid']).lower() == 'na'
             or str(row['dataset_uuid']) == ''
