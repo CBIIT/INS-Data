@@ -19,7 +19,8 @@ QUALTRICS_TYPE = "manual_fix"              # <-- Define "raw" or "manual_fix" ty
 ICITE_VERSION = "2026-01"           # <-- CHANGE VERSION HERE
 
 # Version of dbGaP seearch results download (download date)
-DBGAP_CSV_VERSION = "2025-05-19"   # <-- CHANGE VERSION HERE
+DBGAP_CSV_VERSION = "2026-03-09"   # <-- CHANGE VERSION HERE
+DBGAP_PREVIOUS_VERSION = "2025-05-19"
 
 # Version of CEDCD cohort metadata CSV
 CEDCD_VERSION = "2025-04-24"        # <-- CHANGE VERSION HERE
@@ -671,6 +672,12 @@ DBGAP_NON_NIH_LIST = INPUT_DIR + "dbgap/gpa_tables/" + "dbgap_non_nih_funded_stu
 # dbGaP cleaned output file
 DBGAP_OUTPUT_PATH = OUTPUT_DIR + "dbgap/" + DBGAP_CSV_VERSION +"/"+ "dbgap_datasets.tsv"
 DBGAP_OUTPUT_CURATED_CLEANED = OUTPUT_DIR + "dbgap/" + DBGAP_CSV_VERSION +"/"+ "dbgap_datasets_curated_clean.tsv"
+
+# dbGaP merge: old curated TSV to merge with new gathered TSV
+# Update the old path each cycle to point to the previous curated clean output
+DBGAP_MERGED_OLD_CURATED_PATH = OUTPUT_DIR + "dbgap/" +DBGAP_PREVIOUS_VERSION+ "/dbgap_datasets_curated_clean.tsv"
+DBGAP_MERGED_OUTPUT_PATH = INTERMED_DIR + "dbgap/" + DBGAP_CSV_VERSION +"/"+ "dbgap_datasets_merged.tsv"
+DBGAP_MERGE_REVIEW_PATH = INTERMED_DIR + "dbgap/" + DBGAP_CSV_VERSION + "/merge_title_review.csv"
 
 
 # GEO
