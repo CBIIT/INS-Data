@@ -1,0 +1,205 @@
+dataset_source_id,old_title,new_title,use_new_title
+phs000147,CGEMS Breast Cancer GWAS,Cancer Genetic Markers of Susceptibility (CGEMS) Breast Cancer Genome-wide Association Study (GWAS) - Primary Scan: Nurses' Health Study - Additional Cases: Nurses' Health Study 2,y
+phs000178,The Cancer Genome Atlas (TCGA),National Institutes of Health The Cancer Genome Atlas (TCGA),y
+phs000329,Evolution of Human BCR-ABL1 Lymphoblastic Leukemia-Initiating Cells,Functional and Genetic Characterization of BCR-ABL1 Acute Lymphoblastic Leukemia (ALL),y
+phs000346,Cancer Genetic Markers of Susceptibility for Bladder Cancer (CGEMS Bladder),Genome-wide association study for Bladder Cancer Risk,y
+phs000369,Sequence Analysis of Mutations and Translocations Across Breast Cancer Subtypes,Sequence Analysis of Mutations and Translocations Across Breast Cancer    Subtypes,n
+phs000383,GWAS of Breast Cancer in the African Diaspora,Genome-Wide Association Study of Breast Cancer in the African Diaspora - the ROOT study,y
+phs000384,Genentech Whole Genome Sequencing of Four Hepatocellular Carcinoma Patients,Genentech Whole Genome Sequencing of Four Hepatocellular Carcinoma    Patients,n
+phs000419,A Novel Recurrent Mutation in MITF Predisposes to Familial and Sporadic Melanoma,A Novel Recurrent Mutation in MITF Predisposes to Familial and Sporadic    Melanoma,n
+phs000450,Whole Exome Sequencing of Primary Mediastinal B-cell Lymphoma,Whole Exome Sequencing of Diffuse Large B-Cell Lymphoma,y
+phs000480,Familial Breast Cancer Study (FBCS),Identification of Cancer Predisposition Genes in Breast Cancer Families,y
+phs000487,Functionally Active Copy Number Variants Associated with Prostate Cancer Risk,Functionally Active Copy Number Variants Associated with Prostate Cancer    Risk,n
+phs000505,Gene Fusion Discovery through RNA Sequencing of Human Glioblastoma Stem Cell Lines,Gene Fusion Discovery through RNA Sequencing of Human Glioblastoma Stem    Cell Lines,n
+phs000517,Multiethnic Cohort (MEC) Breast Cancer Genetics,"GWAS in African Americans, Latinos and Japanese",y
+phs000567,NAB2-STAT6 Gene Fusions in Solitary Fibrous Tumor by Integrative Sequencing,Identification of Recurrent NAB2-STAT6 Gene Fusions in Solitary Fibrous Tumor by Integrative Sequencing,y
+phs000629,GWAS of Familial Lung Cancer,Genetic Epidemiology of Lung Cancer Consortium GWAS of Familial Lung Cancer,y
+phs000634,NCI GWAS of Lung Cancer in Never Smokers,National Cancer Institute (NCI) Genome Wide Association Study (GWAS) of Lung Cancer in Never Smokers,y
+phs000648,Pancreatic Cancer Case-Control Association Study,Pancreatic Cancer Case Control Association Study,y
+phs000669,AMBER Consortium,The African American Breast Cancer Epidemiology and Risk (AMBER) Consortium Study,y
+phs000720,Genomic sequencing of Pediatric Rhabdomyosarcoma,Genomic Sequencing of Pediatric Rhabdomyosarcoma,y
+phs000729,Follicular Lymphoma 2013 - Malek,Solution-based exome capture and HiSeq2000-based massively parallel sequencing of Follicular Lymphoma,y
+phs000733,ICPCG Genome Wide Association Study of Familial Prostate Cancer,The International Consortium for Prostate Cancer Genetics Genome Wide Association Study of Familial Prostate Cancer,y
+phs000734,Osteosarcoma Genome-Wide Association Study,A Genome-Wide Association Study (GWAS) of Risk for Osteosarcoma,y
+phs000748,Multiple Myeloma CoMMpass Study,Relating Clinical Outcomes in Multiple Myeloma to Personal Assessment of Genetic Profile,y
+phs000759,Spectrum of Mutations in Myeloid Neoplasms,The spectrum of somatic mutations in high-risk acute myeloid leukemia with -7/del(7q),y
+phs000768,Genomic Sequencing of Ewing's Sarcoma,Genomic sequencing of Ewing's Sarcoma,y
+phs000773,CTLA4:CD28 in Sezary Syndrome,Personalized Treatment of Sezary Syndrome through a CTLA4:CD28 Fusion,y
+phs000782,Post-Liver Transplant Recurrent Human Hepatocellular Carcinoma Study (RHCCS),Post-liver transplant recurrent human hepatocellular carcinoma study (RHCCS),y
+phs000790,Comparative Analysis of Primary and Metastatic Colorectal Cancer,Comparative Sequence Analysis Between Primary and Metastatic Colorectal Cancer Lesions,y
+phs000794,Longitudinal Genome-Wide Analysis of Patients with Chronic Lymphocytic Leukemia,"Longitudinal genome-wide analysis of progressive chronic lymphocytic leukemia under uniform front-line therapy of pentostatin, cyclophosphamide, and rituximab",y
+phs000801,NCI Non-Hodgkin Lymphoma GWAS,National Cancer Institute (NCI) Non-Hodgkin Lymphoma Genome-wide Association Study (GWAS),y
+phs000802,NCI Non-Hodgkin Lymphoma GWAS: CLL,National Cancer Institute (NCI) Non-Hodgkin Lymphoma Genome-wide Association Study (GWAS): Chronic Lymphocytic Leukemia (CLL),y
+phs000813,Sequencing of Targeted Genomic Regions Associated with Smoking,"CIDR, NCI, NIDA Sequencing of Targeted Genomic Regions Associated with Smoking",y
+phs000818,NCI Non-Hodgkin Lymphoma GWAS: Controls,National Cancer Institute (NCI) Non-Hodgkin Lymphoma Genome-Wide Association Study (GWAS): Controls,y
+phs000826,Prediction of Trastuzumab Benefit in Adjuvant Breast Cancer: NSABP B31,Prediction of Trastuzumab Benefit in Adjuvant Breast Cancer: Gene Expression Profiling in NSABP B31,y
+phs000828,Genomic Analysis of Hepatocellular Carcinoma,Genomic Analysis of Fibrolamellar Hepatocellular Carcinoma,y
+phs000830,XPC and Non-XPC Cutaneous Squamous Cell Carcinoma Mutation Rate Study,"Xeroderma Pigmentosum, Complementation Group C, (XPC) and Non-XPC Cutaneous Squamous Cell Carcinoma (cSCC) Mutation Rate Study",y
+phs000863,NCI GWAS of Renal Cell Carcinoma in African Americans,National Cancer Institute (NCI) Genome-Wide Association Study (GWAS) of Renal Cell Carcinoma in African Americans,y
+phs000882,Prostate Cancer Genome-Wide Association Study for Uncommon Susceptibility Loci (PEGASUS),National Cancer Institute (NCI) Prostate Cancer Genome-Wide Association Study for Uncommon Susceptibility Loci (PEGASUS),y
+phs000884,Gut Microbiome Profiles and Risk of Colorectal Cancer,"Gut microbiome profiles according to sex, body mass index and dietary fiber intake",y
+phs000885,Strong Activation of Retroviral LTRs in HCC,CAGE Profiling of ncRNAs in Hepatocellular Carcinoma Reveals a Strong Activation of Retroviral LTR Promoters in Virus-Induced Tumors,y
+phs000889,NCI Non-Hodgkin Lymphoma GWAS: DLBCL,National Cancer Institute (NCI) Non-Hodgkin Lymphoma Genome-wide Association Study (GWAS): Diffuse Large B-Cell Lymphoma (DLBCL),y
+phs000890,NCI Non-Hodgkin Lymphoma GWAS: FL,National Cancer Institute (NCI) Non-Hodgkin Lymphoma Genome-wide Association Study (GWAS): Follicular Lymphoma (FL),y
+phs000891,NCI Non-Hodgkin Lymphoma GWAS: MZL,National Cancer Institute (NCI) Non-Hodgkin Lymphoma Genome-wide Association Study (GWAS): Marginal Zone Lymphoma (MZL),y
+phs000893,Genome-Wide Association Study of Endometrial Cancer in E2C2,Genome-Wide Association Study of Endometrial Cancer in the Epidemiology of Endometrial Cancer Consortium (E2C2),y
+phs000900,Functionally-defined Therapeutic Targets in DIPG,Functionally-defined Therapeutic Targets in Diffuse Intrinsic Pontine Glioma (DIPG),y
+phs000907,Brain Metastases in Squamous Cell Lung Cancers,Next Generation Sequencing of Stage IV Squamous Cell Lung Cancers Reveals an Association of PI3K Aberrations and Evidence of Clonal Heterogeneity in Patients with Brain Metastases,y
+phs000913,Genomic Analysis of Mycosis Fungoides and Sezary Syndrome,Genomic Analysis of Mycosis Fungoides and Sezary Syndrome Identifies Recurrent Alterations in TNFR2,y
+phs000915,Integrative Clinical Sequencing Analysis of Metastatic Castration Resistant Prostate Cancer Reveals a High Frequency of Clinical Actionability,Stand Up To Cancer East Coast Prostate Cancer Research Group,y
+phs000932,Somatic Reference Standard for Cancer Sequencing,A Somatic Reference Standard for Cancer Genome Sequencing,y
+phs000941,Phylogenetic Analyses Reveal Complex Patterns of Melanoma Metastasis,Phylogenetic Analyses of Melanoma Reveal Complex Patterns of Metastatic Dissemination,y
+phs000942,Use of WGS for Diagnosis and Discovery in the Cancer Genetics Clinic,Use of Whole Genome Sequencing for Diagnosis and Discovery in the Cancer Genetics Clinic,y
+phs000950,NCI SEER Formalin Fixed Paraffin Embedded (FFPE) Tissue Feasibility Study,"Surveillance, Epidemiology and End Results (SEER) Formalin Fixed Paraffin Embedded (FFPE) Tissue Feasibility Study",y
+phs000975,Nurses' Health Study (NHS),The Nurses' Health Study (NHS) GWAS of Mammographic Density,y
+phs000978,WGS of a Malignant GCT with Metabolic Response to Pazopanib,Whole-Genome Sequencing (WGS) of a Malignant Granular Cell Tumor (GCT) with Metabolic Response to Pazopanib,y
+phs000980,PD-1 Blockade in Non-Small Cell Lung Cancer,Mutational Landscape Determines Sensitivity to PD-1 Blockade in Non-Small Cell Lung Cancer,y
+phs000994,The Mutational Landscape of CTCL and Sezary Syndrome.,The Mutational Landscape of CTCL and Sezary Syndrome,y
+phs001006,Intra-Lesion Heterogeneity and Clonality of Lobular Carcinomas In Situ,Lobular Carcinomas In Situ Display Intra-Lesion Genetic Heterogeneity and Clonal Evolution in the Progression to Invasive Disease,y
+phs001007,The Genetic Landscape of Metastasis and Recurrence in HNSCC,The Genetic Landscape of Metastasis and Recurrence in Head and Neck Squamous Cell Carcinoma,y
+phs001034,New England-Based Case-Control Study of Ovarian Cancer (NECC),New England-Based Case-Control Study of Ovarian Cancer,y
+phs001036,Genomic Characterization of Acral Melanoma,Comprehensive Genomic Characterization of Acral Melanoma,y
+phs001038,DNA Methylation Inhibitors in Immunotherapy,Inhibiting DNA Methylation Causes an Interferon Response in Cancer via dsRNA Including Endogenous Retroviruses,y
+phs001045,Molecular Epidemiology of Colorectal Cancer (MECC) Metastasis Study,Molecular Epidemiology of Colorectal Cancer (MECC) Metastasis Study: A Germline Variant on Chromosome 4q31.1 Associates with Susceptibility to Developing Colon Cancer Metastasis,y
+phs001063,Genomic Characterization of PDX Models for Breast Cancer Brain Metastases,Genomic Characterization of Patient-Derived Xenograft Models to Improve Targeted Therapy for HER2+ Breast Cancer Brain Metastases Treatments,y
+phs001064,Whole Exome Sequencing of Signet Ring/Plasmacytoid Variant Bladder Cancer,Whole Exome Sequencing of Six Signet Ring/Plasmacytoid Variant Bladder Tumors,y
+phs001066,DNA and RNA Sequence of an Acute Lymphoblastic Leukemia,"Whole Genome, Exome, Transcriptome and Validation Sequencing of an Acute Lymphoblastic Leukemia",y
+phs001072,Genomic Analysis of Relapsed Pediatric Acute Lymphoblastic Leukemia,Mechanisms of Therapy Driven Clonal Evolution in Oncogenic RAS Mutant Relapsed Acute Lymphoblastic Leukemia,y
+phs001078,"Common Variant GWAS, GECCO","Common Variant GWAS, Genetics & Epidemiology of Colorectal Cancer Consortium (GECCO)",y
+phs001107,Patient-Specific Factors Influence Somatic Variations in VHL Tumors,Patient-Specific Factors Influence Somatic Variation Patterns in Von Hippel-Lindau Disease Renal Tumors,y
+phs001111,A Prognostic Role of APC in Colorectal Cancers,A Multi-Gene Mutation Classification of 468 Colorectal Cancers Reveals a Prognostic Role for APC,y
+phs001115,Tissue Specimens from Patients with Melanoma for Genetic Analysis,Melanoma and Cancer-Associated Fibroblast Short-Term Cultures Derived from Patient Metastases,y
+phs001159,Genetic Analysis to Interrogate Tumor Heterogeneity in Lung Adenocarcinoma,Genomic Profiling of Sequentially Acquired Metastatic Sites from an 'Exceptional Responder' Lung Adenocarcinoma Patient Reveals Extensive Genomic Heterogeneity and Novel Somatic Variants,y
+phs001169,Integrative Analysis of Lung Adenocarcinoma (Version 2),Integrative Analysis of Lung Adenocarcinoma in EAGLE (Version 2),y
+phs001173,Head and Neck Cancer Genome-Wide Association Study,National Cancer Institute (NCI) Head and Neck Cancer Study,y
+phs001177,Rare Germline Variations in Familial Melanoma,"Rare germline sequence variants, copy number variations, expression alterations, methylation variations and disease susceptibility in familial melanoma",y
+phs001178,UCLA/Gabriella Miller Kids First Disorders of Sex Development Study,"Disorders/Differences of Sex Development (DSD) Study Performed at UCLA in Collaboration with the DSD-Translational Research Network (DSD-TRN), with the Support of the Gabriella Miller Kids First Pediatric Research Program",y
+phs001181,Single-Cell DNA and RNA Sequencing over A 29-Year Period of A CLL Patient,Single-Cell DNA and RNA Sequencing over A 29-Year Period of A CLL Patient Demonstrating Evolution of Multiple Cell Clones,y
+phs001185,Genome-Wide Scan of Early-onset Prostate Cancer,Genome-Wide Scan for Genetic Variants Associated with Early-Onset Prostate Cancer,y
+phs001193,Hispanic Colorectal Cancer Study,National Cancer Institute (NCI) Adding Hispanics to Ongoing GWAS in Colorectal Cancer,y
+phs001199,TIGER-LC OncoVar Sequencing,TIGER-LC High-Throughput Sequencing,y
+phs001204,Mayo Clinic - Fecal Microbiota and Colorectal Cancer Development,Mayo Clinic - Fecal Microbiota and Adenomas,y
+phs001210,NCI Lung Cancer and Smoking Phenotypes in African-American Subjects,National Cancer Institute (NCI) Study of Lung Cancer and Smoking Phenotypes in African-American Cases and Controls,y
+phs001234,Sequence of Primary ER+ Breast Tumors Treated with 5 Years of Tamoxifen,Targeted Sequencing of Primary ER-positive Breast Tumors Treated with 5 Years of Tamoxifen,y
+phs001257,Genetic Analysis of Tumor Samples,Loss of IFN-gamma Signaling in Tumor Cells Associates with Primary Resistance to Anti-CTLA-4 Therapy,y
+phs001263,DRIVE Breast Cancer GWAS Meta-Analysis,"Discovery, Biology, and Risk of Inherited Variants in Breast Cancer (DRIVE) - Genome-Wide Association Study Meta-Analysis",y
+phs001264,A Super-Enhancer Associated with CD47 in Breast Cancer,A super-enhancer associated with CD47 links pro-inflammatory signaling to CD47 upregulation in breast cancer,y
+phs001265,DRIVE Breast Cancer OncoArray Genotypes,"Discovery, Biology, and Risk of Inherited Variants in Breast Cancer (DRIVE) - OncoArray Genotypes",y
+phs001284,NCI Waldenstrom Macroglobulinemia Genome-Wide Association Study,National Cancer Institute (NCI) Waldenstrom Macroglobulinemia Genome-Wide Association Study,y
+phs001303,GWAS of Sporadic and Familial Testicular Germ Cell Tumors,Genome-Wide Association Study of Sporadic and Familial Testicular Germ Cell Tumors,y
+phs001304,NCI Biospecimen Pre-analytical Variables (BPV) Analysis,National Cancer Institute (NCI) Biospecimen Pre-analytical Variables (BPV) Analysis,y
+phs001337,AACR Project GENIE,"AACR Project Genomics, Evidence, Neoplasia, Information, Exchange (GENIE)",y
+phs001372,Integrated Single-Cell Analysis in Chronic Lymphocytic Leukemia,Integrated Single-Cell Genetic and Transcriptional Analysis Suggests Novel Drivers of Chronic Lymphocytic Leukemia,y
+phs001385,Ancestry Admixture among Chileans,Evaluation of Ancestry Admixture among Chileans,y
+phs001389,Gene Expression and Histone Modification Profiles in GBM Tumors,"University of Texas at Austin (UTA) Histone Modification and Gene Expression Profiling in 9 Primary Glioblastoma Multiforme, 2 Anaplastic Astrocytomas and Two Meningiomas",y
+phs001403,WES and CNV analysis of NF1-Associated Plexiform Neurofibromas,Somatic mutation burden and copy-number variation analysis in neurofibromatosis type 1-associated plexiform neurofibromas,y
+phs001405,Defining the Triple Negative Breast Cancer Kinome Response to GSK1120212,LCCC1122: Defining the Triple Negative Breast Cancer Kinome Response to GSK1120212,y
+phs001421,Whole Exome Sequencing and Methylation Profiling of Uveal Melanoma,Whole exome sequencing and methylation profiling of uveal melanoma,y
+phs001425,Melanoma Sequential Immune Checkpoint Blockade Treatment Sequencing Study,Integrative Analysis of Tumor Biopsies on Sequential CTLA-4 and PD-1 Blockade Reveals Markers of Response and Resistance,y
+phs001428,GWAS for Breast Cancer Chemotherapy Toxicities in S0221,Genome-Wide Predictors of Treatment-Related Toxicities in SWOG S0221 Trial,y
+phs001432,Rapid Autopsy in Thoracic Malignancy Cancer Patients to Investigate Tumor Heterogeneity,A Pilot Study of Rapid Autopsy and Procurement of Tissue in Thoracic Malignancy Cancer Patients to Investigate Tumor Heterogeneity,y
+phs001433,Non-coding RNAs Activated in Hepatoblastoma,Non-coding RNAs Activated by the Wnt/Beta-catenin Signaling Pathway in Hepatoblastoma,y
+phs001447,Metastatic Castrate-Resistant Prostate Cancer Study (MCRPCS),Genomic Resistance Patterns to Second Generation Androgen Blockade in Paired Tumor Biopsies of Metastatic Castrate-Resistant Prostate Cancer,y
+phs001448,Sub-Saharan Sophageal Squamous Cell Carcinoma Molecular Analysis,Subtyping Sub-Saharan Esophageal Squamous Cell Carcinoma by Comprehensive Molecular Analysis,y
+phs001464,Acquired Resistance to Immune Checkpoint Inhibitors in Lung Cancer,Impaired HLA Class I Antigen Processing and Presentation as a Mechanism of Acquired Resistance to Immune Checkpoint Inhibitors in Lung Cancer,y
+phs001469,High Response Rate to Anti PD-1 Therapy in Desmoplastic Melanoma,High response rate to anti PD-1 therapy in desmoplastic melanoma,y
+phs001481,Inherited Bone Marrow Failure Syndromes Study,Etiological Investigation of Cancer Susceptibility in Inherited Bone Marrow Failure Syndromes: A Natural History Study,y
+phs001483,DRIVE Breast Cancer Whole Genome Sequencing,"Discovery, Biology, and Risk of Inherited Variants in Breast Cancer (DRIVE) - germline whole genome sequencing",y
+phs001493,Whole Exome Predictors Immune Checkpoint Therapy Response in Renal Cell Carcinoma,Genomic Predictors of Response to Immune Checkpoint Therapy,y
+phs001495,DAXX Suppression of ALT,DAXX restoration suppresses alternative lengthening of telomeres in ATRX wild-type cells,y
+phs001499,CORECT: Meta-analysis,Transdisciplinary Studies of Genetic Variation in Colorectal Cancer(CORECT): Meta-analysis,y
+phs001526,Next Generation Sequencing of Diffuse Intrinsic Pontine Glioma Samples,"Next generation sequencing of diffuse intrinsic pontine glioma samples to identify recurrent mutations, variations, and expression patterns to define novel therapies",y
+phs001565,Pre-treatment Molecular Characterizations of Tumors from Patients Who Receive Immune Checkpoint Therapies,Genomic Correlates of Response and Resistance to Immune Checkpoint Blockade in Solid Tumors,y
+phs001566,Mutations in Breast Cancer Patient with Neurofibromatosis,Metaplastic breast cancer in a patient with neurofibromatosis type 1 and somatic loss of heterozygosity,y
+phs001568,Genetic Epidemiology of CLL,Genetic Epidemiology of Chronic Lymphocytic Leukemia,y
+phs001572,Pan-Tumor Genomic Biomarkers for PD-1 Based Immunotherapy,Pan-tumor genomic biomarkers for personalization of PD-1 checkpoint blockade based immunotherapy,y
+phs001573,Intra-Tumor Heterogeneity and Clonal Evolution of Papillary Renal Cell Carcinoma,Intra-tumor heterogeneity and clonal evolution of papillary renal cell carcinoma,y
+phs001577,Structural Alterations in Castration-Resistant Prostate Cancer,Structural Alterations Driving Castration-Resistant Prostate Cancer Revealed by Linked-Read Genome Sequencing,y
+phs001580,MGH/Broad Hurthle Cell Carcinoma Whole Exome Sequencing Study,Massachusetts General Hospital (MGH)/Broad Hurthle cell carcinoma whole exome sequencing study,y
+phs001594,Mucosal Melanoma Targeted Sequencing Study (UCSF),Mucosal Melanoma Targeted Exome Sequencing Study (UCSF),y
+phs001596,Acral Melanoma Targeted Sequencing Study (UCSF),Acral melanoma targeted exome sequencing study (UCSF),y
+phs001611,Pancreas Cancer Organoid Profiling,Organoid Profiling Identifies Common Responders to Chemotherapy in Pancreatic Cancer,y
+phs001618,Dormant TILs and Sensitivity to Immune Checkpoint Blockers in Lung Cancer,A Dormant TIL Phenotype Defines Non-Small Cell Lung Carcinomas Sensitive to Immune Checkpoint Blockers,y
+phs001621,The Platinum Study,Genetic Susceptibility and Biomarkers of Platinum-Related Toxicities,y
+phs001628,Clinical Crenolanib Resistance in AML,Clinical Resistance to Crenolanib in Acute Myeloid Leukemia Due to Diverse Molecular Mechanisms,y
+phs001634,CIT_mRNA,mRNA Signature for Stratification by Cold Ischemia Time,y
+phs001635,CNV_aCGH,Preanalytical Impacts on Copy Number Variation Detection by aCGH Technology,y
+phs001636,FixationDelay,Investigate the Effect of the Delay to Fixation on the Proteome and Phosphoproteome,y
+phs001637,GlobalMetaboliteProfiling,Preanalytical Impacts on Global Metabolite Profiling,y
+phs001638,mRNA_TaqMan,Evaluation of Frozen Conditions on mRNA Profiling by TaqMan Assay,y
+phs001639,NGS,Preanalytic Impacts on Genomic Sequencing by NGS Technology,y
+phs001640,TumorStorage,Investigate the Effect of Storage Conditions of Tumor Specimens on the Proteome and Phosphoproteome Profiling,y
+phs001643,Chordoma Genomics,Genomic and transcriptomic characterization of chordoma,y
+phs001654,NSAIDS and Somatic Mutations in Barrett's Esophagus,"Aspirin and Inflammation: Mutations, Genes, Pathways and Prevention in Barrett's Esophagus",y
+phs001658,Tumor Heterogeneity in Metastatic Adrenocortical Tumors,Metastatic Adrenocortical Carcinoma Displays Higher Mutation Rate and Tumor Heterogeneity than Primary Tumors,y
+phs001660,Lung Cancer Pharmacogenomics (LUPG),Prospective Analysis of Genotypes in Adults Undergoing Therapy for Lung Cancer (Paclitaxel Cohort),y
+phs001666,Phase II Trial of the Aurora Kinase A Inhibitor Alisertib for Castration Resistant and Neuroendocrine Prostate Cancer,A phase II trial of the aurora kinase A inhibitor alisertib for patients with castration resistant and neuroendocrine prostate cancer: efficacy and biomarker evaluation,y
+phs001674,The Genomic Landscape of Endocrine Resistant Advanced Breast Cancers.,The Genomic Landscape of Endocrine Resistant Advanced Breast Cancers: Paired Pre- and Post-endocrine Therapy Samples.,y
+phs001678,High-Throughput Determination of the Antigen Specificities of T cell Receptors in Single Cells,High-throughput determination of the antigen specificities of T cell receptors in single cells,y
+phs001680,T Cell States Associated with Response to Checkpoint Blockade in Melanoma,Defining T cell States Associated with Response to Checkpoint Immunotherapy in Melanoma,y
+phs001687,West Africa Breast Cancer Study (WABCS),Using Genomics to Reduce Breast Cancer Disparities in the African Diaspora,y
+phs001697,Integrative Analysis of Lung Adenocarcinoma in Never Smokers,Integrative Analysis of Lung Cancers in Never Smokers (The Sherlock-Lung Study),y
+phs001705,NCI-Epidemiology of Burkitt Lymphoma in East African Children and Minors (EMBLEM),National Cancer Institute - Population Structure and Natural Selection in the Epidemiology of Burkitt Lymphoma in East African Children and Minors (EMBLEM) study in Uganda,y
+phs001709,Count Me In: Metastatic Breast Cancer Project (CMI-MBCproject),Count Me In (CMI): The Metastatic Breast Cancer (MBC) Project (CMI-MBCproject),y
+phs001710,Transplant Outcomes in Aplastic Anemia (TOAA),Transplant Outcomes in Aplastic Anemia (TOAA): GWAS and Whole Exome Sequence Data,y
+phs001713,LCCC 1108 (UNCseqTM),LCCC 1108: Development of a Tumor Molecular Analyses Program and Its Use to Support Treatment Decisions (UNCseqTM),y
+phs001742,Clonal Mapping of Multi-Organ Metastasis and Chemoresistance in Triple Negative Breast cancer,"High-Resolution Clonal Mapping of Multi-Organ Metastasis, and Resistance to Neoadjuvant Chemotherapy, in Triple Negative Breast Cancer",y
+phs001743,Contribution of Systemic and Somatic Factors to Clinical Response and Resistance in Urothelial Cancer,Contribution of systemic and somatic factors to clinical response and resistance in urothelial cancer: an exploratory multi-omic analysis,y
+phs001761,Genomic Characteristics of MPNs in IR-Exposed Patients,Genomic Characteristics of Myeloproliferative Neoplasms in Patients Exposed to Ionizing Radiation following the Chernobyl Nuclear Accident,y
+phs001765,Genomic Characterization of Parathyroid Cancer,Whole Exome Sequencing of Parathyroid Cancer Identifies Candidate Driver Mutations and Core Pathways,y
+phs001776,NCI LTG Human Pancreas QTL Study,NCI Laboratory of Translational Genomics (LTG) Human Pancreas QTL study,y
+phs001784,Functional Genomics and Molecular Imaging of Liver Disease and Cancer,Molecular Features of Hepatocellular Carcinoma Associated with 18F-Fluorocholine PET/CT Imaging Phenotype,y
+phs001786,SU2C GEMM Trial,Stand Up 2 Cancer (SU2C) Genomics-Enabled Medicine for Melanoma (GEMM) Trial,y
+phs001794,Beckwith-Wiedemann Syndrome (BWS) Study,Beckwith-Wiedemann Syndrome (BWS) miRNA Data,y
+phs001805,"Endogenous CD4+ T Cells Recognize Neoantigens in Lung Cancer, including KRAS and Her2","Endogenous CD4+ T Cells Recognize Neoantigens in Lung Cancer Patients, including KRAS and ERBB2 (Her2) Driver Mutations",y
+phs001823,Genome and Transcriptome Analysis of Lung Cancer Cell Lines,Molecular Biomarkers Predicting Lung Cancer Response Phenotypes,y
+phs001824,RNASeq of Plasmacytoid Dendritic Cells in Head and Neck Squamous Cell Cancer,RNASeq of Plasmacytoid Dendritic Cells in Head and Neck Squamous Cell Cancer Patients,y
+phs001830,Tumor Heterogeneity and Drug Resistance in FGFR2-Fusion Cholangiocarcinoma,Tumor heterogeneity and acquired drug resistance in FGFR2 fusion-positive cholangiocarcinoma through rapid research autopsy,y
+phs001839,Deep Sequencing of 3 Cancer Cell Lines on 2 Sequencing Platforms,Deep Sequencing of 3 Cancer Cell Lines on 2 Sequencing Platforms (Illumina HiSeqX and NovaSeq),y
+phs001840,Single-Cell Analysis of Human Pancreatic Ductal Adenocarcinoma,Cross-Species Single-Cell Analysis of Pancreatic Ductal Adenocarcinoma Reveals Antigen-Presenting Cancer-Associated Fibroblasts,y
+phs001846,Kids First: The Intersection of Childhood Cancer and Birth Defects,Gabriella Miller Kids First Pediatric Research Program in Genetics at the Intersection of Childhood Cancer and Birth Defects,y
+phs001847,Understanding RNA Biology and Therapeutics in Hematopoiesis and Leukemia,Characterization of Structural Variants in Acute Myeloid Leukemia Patients,y
+phs001853,MGH Gastrointestinal Malignancies Resistance Initiative,Liquid Biopsy Versus Tissue Biopsy to Assess Acquired Resistance and Tumor Heterogeneity in Gastrointestinal Cancers,y
+phs001856,CORECT: Affymetrix Axiom GWAS Data,Transdisciplinary Studies of Genetic Variation in Colorectal Cancer(CORECT): Axiom GWAS,y
+phs001858,Germline Variants of Clinical Cancer Specimens,Anonymized germline variants of prospectively characterized clinical cancer specimens,y
+phs001861,Single Cell Analysis Reveals New Evolutionary Complexity in Uveal Melanoma,Single cell analysis reveals new evolutionary complexity in uveal melanoma,y
+phs001868,Genetic Architecture of Susceptibility to Melanoma,Cutaneous Melanoma GWAS Combining Multiple Populations and Risk Phenotypes,y
+phs001883,Whole Exome Sequencing of DNA in Breast Cancers Enrolled in the S0800 Trial,Whole Exome Sequencing of DNA from Pre-and Post-Chemotherapy Needle Biopsies of Triple Negative and Inflammatory Breast Cancers Enrolled in the S0800 Trial,y
+phs001890,Single Molecule Molecular Inversion Probe Capture Developed Using CIViC,Single molecule molecular inversion probe capture developed using the CIViC database,y
+phs001895,Genome Sequencing of Lung Cancer in European Americans and African Americans,Enrichment of PTPRT and JAK2 mutations in lung cancer from African Americans and evidence for increased GI and HRD in LUSC,y
+phs001906,Altered topology drives oncogenic programs in SDH-deficient GIST,Altered chromosomal topology drives oncogenic programs in gastrointestinal stromal tumors,y
+phs001910,Enhancer Signatures of Neuroendocrine Tumors,Enhancer signatures stratify and predict outcomes of non-functional pancreatic neuroendocrine tumors,y
+phs001917,DNA Methylation Markers and Pancreatic Cancer Risk,"DNA Methylation Markers and Pancreatic Cancer Risk in 3 Cohort Studies (NHS, PHS, HPFS)",y
+phs001919,PAK4 Inhibition Improves PD-1 Blockade Immunotherapy,PAK4 inhibition improves PD-1 blockade immunotherapy,y
+phs001921,DNA Methylation and Prostate Cancer,Primary Prostate Tumor Tissue DNA Methylation Profiles,y
+phs001924,Case Study of Acquired Resistance to FGFR Inhibition in Cholangiocarcinoma,Case Study of Acquired Resistance to FGFR Inhibition in Cholangiocarcinoma using Targeted DNA and RNA Sequencing,y
+phs001931,Count Me In: Angiosarcoma Project (CMI-ASCproject),Count Me In (CMI): The Angiosarcoma (ASC) Project (CMI-ASCproject),y
+phs001936,"Genome, Exome, and Transcriptome Sequencing of Gastric Cancer",Extent and Significance of Bacterial DNA Integrations in the Human Cancer Genome,y
+phs001940,Genomic Determinants of Response to Immunotherapy,Multimodal Genomic Features Predict Outcome of Immune Checkpoint Blockade in Non-small Cell Lung Cancer,y
+phs001953,Genomic Profiling of Metastatic Uveal Melanoma,Genomic profiling for metastatic uveal melanoma from a phase I study of the protein kinase C inhibitor AEB071,y
+phs001954,Early Stage Lung Adenocarcinoma,International Cancer Proteogenome Consortium (ICPC): Proteogenomics of Early Stage Lung Adenocarcinoma in Taiwan,y
+phs001970,DNA Methylation in Rhabdomyosarcoma,DNA Methylation Characterization of Fusion-Positive and Fusion-Negative Rhabdomyosarcoma,y
+phs001982,Rb and p53-Deficient Pleomorphic Myofibroblastic Sarcomas Require Skp2,Rb and p53-Deficient Myxofibrosarcoma and Undifferentiated Pleomorphic Sarcoma Require Skp2 for Survival,y
+phs001993,"WES, RNASeq and CNV Analysis of NF1-Associated Atypical Neurofibromas","Low mutation burden and frequent loss of CDKN2A/B and SMARCA2, but not PRC2, define pre-malignant neurofibromatosis type 1-associated atypical neurofibromas",y
+phs001994,Smoking and Tumor Immune Microenvironment in HNSCC,Effects of tobacco smoking on the tumor immune microenvironment in head and neck squamous cell carcinoma,y
+phs001997,Kids First: Genomics of African and Asian Orofacial Clefts Triads,Gabriella Miller Kids First Pediatric Research Program in Whole Genome Sequencing of African and Asian Orofacial Clefts Case-Parent Triads,y
+phs002019,WES and RNA-Seq Analysis in Paired Sun-Exposed Epidermis and SCCIS Samples,Whole exome and transcriptome analysis of UV-exposed epidermis and carcinoma in situ reveals early drivers of carcinogenesis,y
+phs002021,Chemotherapy and Unrelated Donor SCT for Blood and Immune System Cancers,"Phase II trial of targeted immune-depleting chemotherapy and reduced-intensity allogeneic hematopoietic stem cell transplantation using 8/8 and 7/8 HLA-matched unrelated donors and utilizing two graft-versus-host disease prophylaxis regimens for the treatment of leukemias, lymphomas, and pre-malignant blood disorders",y
+phs002022,Genomic Analysis of Primary Plasma Cell Leukemia,Genomic analysis of primary plasma cell leukemia reveals complex structural alterations and high risk mutational patterns,y
+phs002023,Drug Screening of Patient-Derived Organoids from Colorectal Peritoneal Metastases,Drug screening of patient-derived organoids from colorectal peritoneal metastases,y
+phs002037,Methylation Biomarker Study of Magnesium Deficiency and Colorectal Cancer,Methylation biomarker study of magnesium deficiency and colorectal cancer,y
+phs002045,Intraductal Transplantation Models of PDAC Reveal Progression of Subtypes,Intraductal transplantation models of human pancreatic ductal adenocarcinoma reveal progressive transition of molecular subtypes,y
+phs002051,DNA Methylation in Rhabdomyosarcoma PDX and PDX-Derived Primary Cells,DNA methylation in rhabdomyosarcoma PDX and PDX-derived primary cells,y
+phs002061,Genomic Damage in HIV-Uninfected Children with In Utero Zidovudine Exposure,The Surveillance Monitoring for ART Toxicities (SMARTT) and the Women and Infants Transmission Study (WITS),y
+phs002162,Kids First: Genetics of Kidney and Urinary Tract Malformations,Kids First: Genetics of  Kidney and Urinary Tract Malformations,y
+phs002262,Characterization of High-Grade Serous Ovarian Cancer Subtypes via Single-Cell Profiling,Characterization of High-Grade Serous Ovarian Cancer Subtypes via Single-Cell and Spatial-Transcriptomics Profiling,y
+phs002321,Characterizing Advanced Breast Cancer Heterogeneity and Treatment Resistance through Serial Biopsies and Comprehensive Analytics,Characterizing Advanced Breast Cancer Heterogeneity and Treatment Resistance through Serial Biopsies and Comprehensive  Analytics,y
+phs002486,Nivolumab and Tumor Infiltrating Lymphocytes (TIL) in Advanced Non-Small Cell Lung Cancer,Nivolumab and Tumor Infiltrating Lymphocytes (TIL) in Advanced Non-Small    Cell Lung Cancer,y
+phs002504,UCSF Database for the Advancement of JMML - Integration of Metadata with 'Omic' Data,UCSF Database for the Advancement of JMML - Integration of Metadata with Omic Data,y
+phs002556,Genomic Features of Lung Adenocarcinoma from Individuals with 10 Pack-Year Smoking History,Genomic Features of Lung Adenocarcinoma from Individuals with <= 10 Pack-Year Smoking History,y
+phs003041,Mayo Clinic Adult Diffuse Glioma Illumina OncoArray SNP data,Mayo Clinic Adult Diffuse Glioma Illumina OncoArray SNP Data,y
+phs003325,DNA-Sequencing of Baseline Plasma From the Phase III Alliance A031201 Trial,DNA-Sequencing of Baseline and Progression Plasma from the Phase III Alliance A031201 Trial,y
+phs003428,CALGB/SWOG 80405: Genome-Wide Association Study of Patients with Advanced or Metastatic Colorectal Cancer Treated with First-Line Chemotherapy Combined with Cetuximab and/or Bevacizumab,CALGB/SWOG 80405: Genome-Wide Association Study of Patients with Advanced or Metastatic Colorectal Cancer Treated with  First-Line Chemotherapy Combined with Cetuximab and/or Bevacizumab,y
+phs003725,Project 1: Carolina Breast Cancer Study (CBCS): Linking Tumor Biology to Social,Carolina Breast Cancer Study (CBCS),y
+phs003780,Rearrangements of Viral and Human Genomes at Human Papillomavirus Integration Events and Their Allele-Specific Impacts on Cancer GenomeRegulation,Rearrangements of Viral and Human Genomes at Human Papillomavirus Integration Events and Their Allele-Specific Impacts on Cancer Genome Regulation,y
+phs003853,Stanford Acute Myeloid Leukemia Single-Cell DNA Sequencing,Stanford Acute Myeloid Leukemia Sequencing,y
