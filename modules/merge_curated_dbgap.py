@@ -240,9 +240,11 @@ def merge_dbgap_datasets(old_curated_path: str,
 
     # 1. Start with ALL rows from the old curated file (shared + old-only)
     merged_df = old_df.copy()
+    merged_df['curation_status'] = 'previously_curated'
 
-    # 2. Append rows that exist only in the new file
-    new_only_df = new_df[new_df[MERGE_KEY].isin(new_only_ids)]
+    # 2. Append rows that exist only in the new file (at the end)
+    new_only_df = new_df[new_df[MERGE_KEY].isin(new_only_ids)].copy()
+    new_only_df['curation_status'] = 'new_study'
     merged_df = pd.concat([merged_df, new_only_df], ignore_index=True)
 
     # --- Console summary ---
