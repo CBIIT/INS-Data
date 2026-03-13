@@ -928,6 +928,78 @@ def clean_html_entities(df, exclude_cols=None):
 
 
 
+def tag_storage_distribution(dbgap_df:pd.DataFrame) -> pd.DataFrame:
+    """Tag each dbGaP dataset with its storage distribution(s) based on
+    subset CSV files located in the dbGaP input directory.
+
+    Each subset CSV (e.g. CRDC_subset_2026-03-09.csv) contains rows with
+    phs accessions. For every phs in dbgap_df that also appears in a subset
+    CSV, the corresponding human-readable label is appended to the
+    ``dataset_storage_distribution`` column as a semicolon-separated value.
+
+    The mapping from filename prefix to display label is defined in
+    ``config.DBGAP_STORAGE_DISTRIBUTION_MAP``.
+
+    Args:
+        dbgap_df (pd.DataFrame): DataFrame of dbGaP datasets. Must contain
+            an ``accession`` column with short phs accessions (e.g. phs002790).
+
+    Returns:
+        pd.DataFrame: Input DataFrame with a new or updated
+            ``dataset_storage_distribution`` column.
+    """
+
+    # Initialize column with empty strings
+    dbgap_df['dataset_storage_distribution'] = ''
+
+    # Read mapping and input directory from config
+    distribution_map = config.DBGAP_STORAGE_DISTRIBUTION_MAP
+    subset_dir = config.DBGAP_SUBSET_INPUT_DIR
+    version = config.DBGAP_CSV_VERSION
+
+    print(f"\nTagging dataset_storage_distribution from subset files...")
+
+    for key, label in distribution_map.items():
+
+        # Build expected filename: <KEY>_subset_<VERSION>.csv
+        subset_filename = f"{key}_subset_{version}.csv"
+        subset_filepath = os.path.join(subset_dir, subset_filename)
+
+        if not os.path.exists(subset_filepath):
+            print(f"  WARNING: Subset file not found, skipping: {subset_filepath}")
+            continue
+
+        # Read the subset CSV and extract short phs accessions
+        subset_df = pd.read_csv(subset_filepath, keep_default_na=False)
+
+        if 'accession' not in subset_df.columns:
+            print(f"  WARNING: No 'accession' column in {subset_filename}, skipping.")
+            continue
+
+        # Strip versioning from subset accessions to match short phs format
+        subset_phs = set(
+            subset_df['accession'].astype(str).str.split('.').str[0]
+        )
+
+        # Tag matching rows by appending the label
+        mask = dbgap_df['accession'].isin(subset_phs)
+        match_count = mask.sum()
+
+        dbgap_df.loc[mask, 'dataset_storage_distribution'] = (
+            dbgap_df.loc[mask, 'dataset_storage_distribution'].apply(
+                lambda val: (val + ';' + label) if val else label
+            )
+        )
+
+        print(f"  {key}: matched {match_count} of {len(subset_phs)} "
+              f"subset accessions to '{label}'")
+
+    print(f"  Storage distribution tagging complete.\n")
+
+    return dbgap_df
+
+
+
 def gather_dbgap_data(input_csv:str):
     """Gather dbGaP study data from multiple sources.
 
@@ -1033,6 +1105,9 @@ def gather_dbgap_data(input_csv:str):
 
     # Clean HTML characters
     dbgap_df = clean_html_entities(dbgap_df, exclude_cols=['description'])
+
+    # Tag storage distribution based on subset CSV files
+    dbgap_df = tag_storage_distribution(dbgap_df)
 
     # Export final merged df as CSV 
     dbgap_df.to_csv(config.DBGAP_INTERMED_PATH, index=False, na_rep='')

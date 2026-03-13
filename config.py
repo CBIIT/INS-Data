@@ -398,10 +398,12 @@ COLUMN_CONFIGS = {
             'gene_keywords': 'related_genes',
             'disease_keywords': 'related_diseases',
             'Related Terms': 'related_terms',
+            'dataset_storage_distribution': 'dataset_storage_distribution',
         },
         'list_like_cols': ['PI_name', 'dataset_pmid', 'funding_source',
                            'limitations_for_reuse','study_links','related_genes',
-                           'related_diseases','related_terms'],
+                           'related_diseases','related_terms',
+                           'dataset_storage_distribution'],
         'html_tag_cols': None, # Keep HTML tags in dbgap descriptions
         'int_cols': ['participant_count', 'sample_count'],
     },
@@ -678,6 +680,21 @@ DBGAP_OUTPUT_CURATED_CLEANED = OUTPUT_DIR + "dbgap/" + DBGAP_CSV_VERSION +"/"+ "
 DBGAP_MERGED_OLD_CURATED_PATH = OUTPUT_DIR + "dbgap/" +DBGAP_PREVIOUS_VERSION+ "/dbgap_datasets_curated_clean.tsv"
 DBGAP_MERGED_OUTPUT_PATH = INTERMED_DIR + "dbgap/" + DBGAP_CSV_VERSION +"/"+ "dbgap_datasets_merged.tsv"
 DBGAP_MERGE_REVIEW_PATH = INTERMED_DIR + "dbgap/" + DBGAP_CSV_VERSION + "/merge_title_review.csv"
+
+
+# DBGAP DERIVATIVES
+# DATASETS CLONED FROM DBGAP STUDIES AS STANDALONE REPOSITORY STUDIES
+
+# dbGaP storage distribution subset files
+# Maps a short key (matching filename prefix before '_subset_') to a display label.
+# Subset CSVs are expected at: data/00_input/dbgap/<KEY>_subset_<DBGAP_CSV_VERSION>.csv
+# To add a new distribution, add a new key:label entry below.
+DBGAP_SUBSET_INPUT_DIR = INPUT_DIR + "dbgap/"
+DBGAP_STORAGE_DISTRIBUTION_MAP = {
+    'CRDC-GC': 'Cancer Research Data Commons - General Commons (CRDC-GC)',
+    'CTDC': 'Clinical and Translational Data Commons (CTDC)',
+    'GDC':  'NCI Genomic Data Commons (GDC)',
+}
 
 
 # GEO
