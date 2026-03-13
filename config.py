@@ -682,8 +682,8 @@ DBGAP_MERGED_OUTPUT_PATH = INTERMED_DIR + "dbgap/" + DBGAP_CSV_VERSION +"/"+ "db
 DBGAP_MERGE_REVIEW_PATH = INTERMED_DIR + "dbgap/" + DBGAP_CSV_VERSION + "/merge_title_review.csv"
 
 
-# DBGAP DERIVATIVES
-# DATASETS CLONED FROM DBGAP STUDIES AS STANDALONE REPOSITORY STUDIES
+# DBGAP SUBSETS
+# DATASETS CLONED FROM DBGAP DATASETS AND RELABELED WITH NEW SOURCE REPO
 
 # dbGaP storage distribution subset files
 # Maps a short key (matching filename prefix before '_subset_') to a display label.
@@ -695,6 +695,10 @@ DBGAP_STORAGE_DISTRIBUTION_MAP = {
     'CTDC': 'Clinical and Translational Data Commons (CTDC)',
     'GDC':  'NCI Genomic Data Commons (GDC)',
 }
+
+# dbGaP subset clones output - cloned datasets relabeled per derivative repository
+# This is generated AFTER package_output_data.py using the curated clean output
+DBGAP_SUBSET_CLONES_OUTPUT_PATH = OUTPUT_DIR + "dbgap/" + DBGAP_CSV_VERSION +"/"+ "dbgap_subset_clones.tsv"
 
 
 # GEO
