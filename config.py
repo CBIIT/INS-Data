@@ -659,7 +659,7 @@ DBGAP_INTERMED_DIR = INTERMED_DIR + "dbgap/" + DBGAP_CSV_VERSION + "/"
 DBGAP_META_INTERMED_PATH = DBGAP_INTERMED_DIR + "dbgap_study_metadata.json"
 DBGAP_SSTR_INTERMED_PATH = DBGAP_INTERMED_DIR + "dbgap_sstr.json"
 DBGAP_INTERMED_PATH = DBGAP_INTERMED_DIR + "dbgap_datasets.csv"
-DBGAP_CURATED_INTERMED_PATH = DBGAP_INTERMED_DIR + "dbgap_datasets_curated.tsv"
+DBGAP_CURATED_INTERMED_PATH = DBGAP_INTERMED_DIR + "dbgap_datasets_merged_curated.tsv"
 
 # dbGaP reports and error logs
 DBGAP_REPORTS_DIR = "reports/dbgap/" + DBGAP_CSV_VERSION + "/"
@@ -673,11 +673,11 @@ DBGAP_NON_NIH_LIST = INPUT_DIR + "dbgap/gpa_tables/" + "dbgap_non_nih_funded_stu
 
 # dbGaP cleaned output file
 DBGAP_OUTPUT_PATH = OUTPUT_DIR + "dbgap/" + DBGAP_CSV_VERSION +"/"+ "dbgap_datasets.tsv"
-DBGAP_OUTPUT_CURATED_CLEANED = OUTPUT_DIR + "dbgap/" + DBGAP_CSV_VERSION +"/"+ "dbgap_datasets_curated_clean.tsv"
+DBGAP_OUTPUT_CURATED_CLEANED = OUTPUT_DIR + "dbgap/" + DBGAP_CSV_VERSION +"/"+ "dbgap_datasets_merged_curated_clean.tsv"
 
 # dbGaP merge: old curated TSV to merge with new gathered TSV
 # Update the old path each cycle to point to the previous curated clean output
-DBGAP_MERGED_OLD_CURATED_PATH = OUTPUT_DIR + "dbgap/" +DBGAP_PREVIOUS_VERSION+ "/dbgap_datasets_curated_clean.tsv"
+DBGAP_MERGED_OLD_CURATED_PATH = OUTPUT_DIR + "dbgap/" +DBGAP_PREVIOUS_VERSION+ "/dbgap_datasets_merged_curated_clean.tsv"
 DBGAP_MERGED_OUTPUT_PATH = INTERMED_DIR + "dbgap/" + DBGAP_CSV_VERSION +"/"+ "dbgap_datasets_merged.tsv"
 DBGAP_MERGE_REVIEW_PATH = INTERMED_DIR + "dbgap/" + DBGAP_CSV_VERSION + "/merge_title_review.csv"
 
