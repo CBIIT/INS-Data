@@ -3,13 +3,19 @@ gather_dbgap_subset_clones.py
 2026-03-13 ZD
 
 This script creates cloned dataset entries for dbGaP studies that are
-also available through other NCI data repositories (e.g. CRDC-GC, GDC, CTDC).
+also available through other NCI data repositories (e.g. CRDC, GDC).
 
 For each dbGaP study tagged with a storage distribution, this script:
     1. Clones the row from the final curated clean dbGaP output
-    2. Replaces `dataset_source_repo` with the subset repository key
-    3. Generates a new deterministic UUID5 based on the new repo + phs accession
-    4. Blanks out `dataset_storage_distribution` (avoids redundant self-reference)
+    2. Replaces `dataset_source_repo` with the target repository name
+       (looked up via config.DBGAP_SUBSET_REPO_MAP)
+    3. Generates a new deterministic UUID5 based on the target repo + phs
+    4. Preserves `dataset_storage_distribution` on the clone
+
+Multiple subset keys can map to the same target repository. For example,
+both the CRDC and CTDC subset CSVs produce clones labelled "CRDC".
+When the same phs accession appears in more than one subset that maps to
+the same repo, only one clone is produced (deduplicated).
 
 All other field values (including dataset_source_id and dataset_source_url,
 which still point to dbGaP) are preserved unchanged.
@@ -46,7 +52,7 @@ def load_subset_phs(subset_key: str) -> set:
 
     Args:
         subset_key (str): Key from DBGAP_STORAGE_DISTRIBUTION_MAP
-            (e.g. 'CRDC-GC', 'GDC', 'CTDC'). Used to build the filename.
+            (e.g. 'CRDC', 'GDC', 'CTDC'). Used to build the filename.
 
     Returns:
         set: Short phs accession strings (e.g. {'phs002790', 'phs001287'})
@@ -79,11 +85,11 @@ def generate_clone_uuid(repo_key: str, source_id: str) -> str:
     """Generate a deterministic UUID5 for a cloned dataset entry.
 
     Uses the same namespace as the main dbGaP pipeline but with the
-    subset repository key instead of 'dbGaP', producing a unique
+    target repository name instead of 'dbGaP', producing a unique
     but reproducible UUID for each repo+phs combination.
 
     Args:
-        repo_key (str): subset repository key (e.g. 'CRDC-GC')
+        repo_key (str): Target repository name (e.g. 'CRDC', 'GDC')
         source_id (str): The dataset_source_id (phs accession)
 
     Returns:
@@ -102,7 +108,11 @@ def build_subset_clones(dbgap_df: pd.DataFrame) -> pd.DataFrame:
     For each repository key in DBGAP_STORAGE_DISTRIBUTION_MAP:
         1. Load the corresponding subset CSV to get relevant phs accessions
         2. Filter the dbGaP dataframe to matching rows
-        3. Clone those rows with updated repo, UUID, and blanked distribution
+        3. Clone those rows with updated repo, UUID, and preserved distribution
+
+    Multiple subset keys may map to the same target repo (via
+    DBGAP_SUBSET_REPO_MAP). When this happens the phs sets are merged
+    and only one clone per phs is produced for that repo.
 
     Args:
         dbgap_df (pd.DataFrame): The final curated clean dbGaP dataset TSV.
@@ -113,35 +123,47 @@ def build_subset_clones(dbgap_df: pd.DataFrame) -> pd.DataFrame:
         pd.DataFrame: Concatenated cloned rows for all subset repositories.
     """
 
-    all_clones = []
+    repo_map = config.DBGAP_SUBSET_REPO_MAP
 
-    for repo_key, label in config.DBGAP_STORAGE_DISTRIBUTION_MAP.items():
+    # Gather phs sets per target repo (merge keys that share the same repo)
+    repo_phs: dict[str, set] = {}
+    for subset_key in config.DBGAP_STORAGE_DISTRIBUTION_MAP:
+        target_repo = repo_map[subset_key]
 
-        print(f"\n  Processing: {repo_key} ({label})")
+        print(f"\n  Loading subset: {subset_key}  →  target repo: {target_repo}")
 
-        # Get phs accessions for this subset
-        subset_phs = load_subset_phs(repo_key)
-        if not subset_phs:
+        phs = load_subset_phs(subset_key)
+        if not phs:
             continue
 
-        # Filter dbGaP rows that match this subset
-        mask = dbgap_df['dataset_source_id'].isin(subset_phs)
+        print(f"    {len(phs)} accessions loaded from {subset_key} CSV")
+
+        repo_phs.setdefault(target_repo, set()).update(phs)
+
+    # Build clones per target repo (deduplicated)
+    all_clones = []
+
+    for target_repo, phs_set in repo_phs.items():
+
+        print(f"\n  Cloning for target repo '{target_repo}' "
+              f"({len(phs_set)} unique accessions)")
+
+        mask = dbgap_df['dataset_source_id'].isin(phs_set)
         matched_df = dbgap_df[mask].copy()
 
         if len(matched_df) == 0:
             print(f"    No matching rows found in curated clean TSV.")
             continue
 
-        # Clone and relabel
-        matched_df['dataset_source_repo'] = repo_key
+        # Clone and relabel — keep dataset_storage_distribution as-is
+        matched_df['dataset_source_repo'] = target_repo
         matched_df['dataset_uuid'] = matched_df['dataset_source_id'].apply(
-            lambda phs: generate_clone_uuid(repo_key, phs)
+            lambda phs: generate_clone_uuid(target_repo, phs)
         )
-        matched_df['dataset_storage_distribution'] = ''
 
         all_clones.append(matched_df)
 
-        print(f"    Cloned {len(matched_df)} datasets as '{repo_key}' entries.")
+        print(f"    Cloned {len(matched_df)} datasets as '{target_repo}' entries.")
 
     # Combine all clones into a single dataframe
     if all_clones:

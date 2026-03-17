@@ -691,9 +691,18 @@ DBGAP_MERGE_REVIEW_PATH = INTERMED_DIR + "dbgap/" + DBGAP_CSV_VERSION + "/merge_
 # To add a new distribution, add a new key:label entry below.
 DBGAP_SUBSET_INPUT_DIR = INPUT_DIR + "dbgap/"
 DBGAP_STORAGE_DISTRIBUTION_MAP = {
-    'CRDC-GC': 'Cancer Research Data Commons - General Commons (CRDC-GC)',
-    'CTDC': 'Clinical and Translational Data Commons (CTDC)',
+    'CRDC': 'Cancer Research Data Commons (CRDC)',
+    'CTDC': 'Cancer Research Data Commons (CRDC)',
     'GDC':  'NCI Genomic Data Commons (GDC)',
+}
+
+# Maps each subset filename key to the target repository name used when
+# cloning datasets. Multiple keys can map to the same repo (e.g. both
+# CRDC and CTDC subsets produce clones labelled "CRDC").
+DBGAP_SUBSET_REPO_MAP = {
+    'CRDC': 'CRDC',
+    'CTDC': 'CRDC',
+    'GDC':  'GDC',
 }
 
 # dbGaP subset clones output - cloned datasets relabeled per derivative repository
