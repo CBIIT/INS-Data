@@ -2,7 +2,7 @@
 
 **Welcome to the Data Gathering Repository for the [Index of NCI Studies (INS)](https://studycatalog.cancer.gov/)!**
 
-This repository uses a curated list of National Cancer Institute (NCI) programs to automate the gathering of information about grants, projects and their associated research outputs. This process uses publicly available resources from the [NIH RePORTER API](https://api.reporter.nih.gov/), [NIH iCite](https://icite.od.nih.gov/api), [NCBI E-utilities](https://www.ncbi.nlm.nih.gov/books/NBK25497/) (through [BioPython](https://biopython.org/docs/1.75/api/Bio.Entrez.html)), and [NCBI dbGaP APIs](https://www.ncbi.nlm.nih.gov/gap/).
+This repository uses a curated list of National Cancer Institute (NCI) programs to automate the gathering of information about grants, projects and their associated research outputs. This process uses publicly available resources from the [NIH RePORTER API](https://api.reporter.nih.gov/), [NIH iCite](https://icite.od.nih.gov/api), [NCBI E-utilities](https://www.ncbi.nlm.nih.gov/books/NBK25497/) (through [BioPython](https://biopython.org/docs/1.75/api/Bio.Entrez.html)), and [NCBI dbGaP APIs](https://www.ncbi.nlm.nih.gov/gap/) along with curated and submitted data.
 
 **To access the raw data outputs**, [please see our latest release](https://github.com/CBIIT/INS-Data/releases/latest).
 
@@ -463,7 +463,7 @@ NOTE: CTD^2 input data is not expected to change frequently. This module should 
 
 ## Process Curated Sources
 
-**Some datasets in INS are sourced from curated input files provided by NCI teams.** These sources do not have an automated gathering pipeline — their curated TSVs are placed directly in the `data/01_intermediate/` directory and processed during the [Package Data](#package-data) step. Deterministic UUID5 values are generated for each dataset during packaging.
+**Some datasets in INS are sourced from curated or submitted input files.** These sources do not have an automated gathering pipeline — their curated TSVs are placed directly in the `data/01_intermediate/` directory and processed during the [Package Data](#package-data) step. Deterministic UUID5 values are generated for each dataset during packaging.
 
 ### DCEG Cohorts
 
