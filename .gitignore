@@ -21,6 +21,3 @@ data/01_intermediate/*/gathered-*/sra_batches/
 
 # Archived old data
 archive
-
-# Exceptions
-!notebooks/21_sra_datasets.ipynb
