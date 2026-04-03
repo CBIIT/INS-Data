@@ -2,7 +2,7 @@
 
 **Welcome to the Data Gathering Repository for the [Index of NCI Studies (INS)](https://studycatalog.cancer.gov/)!**
 
-This repository uses a curated list of National Cancer Institute (NCI) programs to automate the gathering of information about grants, projects and their associated research outputs. This process uses publicly available resources from the [NIH RePORTER API](https://api.reporter.nih.gov/), [NIH iCite](https://icite.od.nih.gov/api), [NCBI E-utilities](https://www.ncbi.nlm.nih.gov/books/NBK25497/) (through [BioPython](https://biopython.org/docs/1.75/api/Bio.Entrez.html)), and [NCBI dbGaP APIs](https://www.ncbi.nlm.nih.gov/gap/).
+This repository uses a curated list of National Cancer Institute (NCI) programs to automate the gathering of information about grants, projects and their associated research outputs. This process uses publicly available resources from the [NIH RePORTER API](https://api.reporter.nih.gov/), [NIH iCite](https://icite.od.nih.gov/api), [NCBI E-utilities](https://www.ncbi.nlm.nih.gov/books/NBK25497/) (through [BioPython](https://biopython.org/docs/1.75/api/Bio.Entrez.html)), and [NCBI dbGaP APIs](https://www.ncbi.nlm.nih.gov/gap/) along with curated and submitted data.
 
 **To access the raw data outputs**, [please see our latest release](https://github.com/CBIIT/INS-Data/releases/latest).
 
@@ -25,13 +25,18 @@ The INS Data Gathering workflow consists of the following steps designed to run 
 3. [Gather Projects](#gather-projects)
 4. [Gather Publications](#gather-publications)
 5. [Gather GEO Datasets](#gather-geo-datasets)
-6. [Process CEDCD Cohorts](#gather-cedcd-datasets)
-7. [Package Data](#package-data)
-8. [Validate Data](#validate-data)
+6. [Gather SRA Datasets](#gather-sra-datasets)
+7. [Process CEDCD Cohorts](#gather-cedcd-datasets)
+8. [Package Data](#package-data)
+9. [Validate Data](#validate-data)
 
 The workflow is supported by additional, independent steps run as needed:
 
+- [Process CTD^2 Datasets](#process-ctd2-datasets)
 - [Gather dbGaP Datasets](#gather-dbgap-datasets)
+- [Merge Curated dbGaP Datasets](#merge-curated-dbgap-datasets)
+- [Generate dbGaP Subset Clones](#generate-dbgap-subset-clones)
+- [Process Curated Sources (DCEG Cohorts, NCCR)](#process-curated-sources)
 
 ![INS-Data workflow. This diagram shows a detailed visualization of the steps listed below.](images/ins-data-repo-diagram.png)
 
@@ -193,14 +198,14 @@ python modules/gather_publication_data.py
         - Authors
         - Publication date
             - NOTE: Publication dates are inconsistent within the PubMed data. When month and/or date cannot be identified, they will default to January and/or 1st. (e.g. `2010 Dec` would be interpreted as `2010-12-01` and `2010` as `2010-01-01`). Publication year is never estimated.
-    - Because of the long processing time, checkpoint files are saved periodically in a temporary `temp_pubmed_chunkfiles` in the `data/processed/` directory.
+    - Because of the long processing time, checkpoint files are saved periodically in a temporary `temp_pubmed_chunkfiles` directory within the versioned `data/01_intermediate/` directory.
         - The default length of each checkpoint file is 2000 rows, but this can be changed in config.py with `PUB_DATA_CHUNK_SIZE`
         - Whenever this workflow is run for the same start date (version), any existing checkpoint files are all loaded together and the unique PMIDs within are accounted for. Each run will check for any missing PMIDs and restart the data gathering wherever it left off. This allows the publications workflow to be stopped and restarted without problems.
 
 3. **Gather iCite information for each PMID**
     - Uses the most recent [NIH iCite bulk download](https://nih.figshare.com/collections/iCite_Database_Snapshots_NIH_Open_Citation_Collection_/4586573) (zipped CSV) to access iCite data for each PMID
     - This manual download process must be completed **before starting the automated workflow**
-        - The downloaded `icite_metadata.zip` should be stored in a versioned (e.g. `2023-11/`) directory in the `data/raw/icite/` directory
+        - The downloaded `icite_metadata.zip` should be stored in a versioned (e.g. `2023-11/`) directory in the `data/00_input/icite/` directory
             - Note: iCite files are ~10GB and are not stored under git control
         - The download takes **2-4 hours** depending upon download speed.
         - Note: The iCite API was explored, but operates much slower (3-4x) than the PubMed API.
@@ -255,6 +260,45 @@ python modules/gather_geo_data.py
 5. **Save Final Output**
     - Saves the processed `geo_datasets.csv` file in the intermediate data directory for downstream use and validation.
 
+## Gather SRA Datasets
+
+**This step gathers Sequence Read Archive (SRA) dataset data from [NCBI SRA](https://www.ncbi.nlm.nih.gov/sra) using NCBI E-utilities. All SRA datasets are associated with at least one publication and at least one project.**
+
+### SRA Dataset Workflow
+
+All SRA dataset processing is handled within the `gather_sra_data.py` module and can be run as an independent process with the command:
+
+```bash
+python modules/gather_sra_data.py
+```
+
+1. **Map PMIDs to SRA IDs**
+    - Reads the publication data (with PMIDs and project info) and uses NCBI E-utilities to find all SRA experiment IDs (accessions) linked to each PMID.
+    - Processes PMIDs in configurable batches (default 2000) to enable resumption and handle large datasets efficiently.
+    - Saves batch mapping files and tracks failed PMIDs for retry in a second pass.
+
+2. **Map SRA IDs to Study IDs**
+    - For each unique SRA experiment ID, retrieves the parent study ID (SRP/ERP) using NCBI E-utilities.
+    - Handles both NCBI SRA (SRP) and European Nucleotide Archive (ERP) study accessions.
+    - Creates a study-centric view by aggregating all PMIDs associated with each unique study.
+
+3. **Gather SRA Study Metadata**
+    - For each unique study ID, pulls metadata from NCBI E-utilities.
+    - Parses and formats metadata fields like study title, abstract, and investigator.
+
+4. **Link to NCI Programs**
+    - Traces INS associations backwards from SRA -> PMID -> Project -> Program
+    - Derives associated NCI Division/Office/Center (DOC) and program(s) for each dataset.
+    - Combines PMID information from both the SRA metadata and the publication-based mapping.
+
+5. **Generate UUIDs and Format Output**
+    - Adds standardized columns like UUIDs, URLs, type, repository name for downstream handling.
+    - Applies validation to remove records missing required fields.
+
+6. **Save Final Output**
+    - Saves the processed `sra_datasets.csv` file in the intermediate data directory for downstream use and validation.
+    - Generates comprehensive reports of failed PMID lookups with error details for troubleshooting.
+
 ## Gather CEDCD Datasets
 
 **This step processes cohort metadata from the [NCI Cancer Epidemiology Descriptive Cohort Database (CEDCD)](https://cedcd.nci.nih.gov/). These cohorts are included as datasets in INS and are not enriched by APIs or other external resources.**
@@ -289,7 +333,7 @@ python modules/gather_cedcd_data.py
 
 **This independent step gathers NCI-supported datasets from the [NCBI dbGaP](https://www.ncbi.nlm.nih.gov/gap/). These are not necessarily associated with any of the Programs, Grants, Projects, or Publications gathered in the main workflow.**  
 
-**Datasets** within INS represent open-access or controlled data released as an output of an NCI-supported effort. Currently, INS datasets are sourced only from dbGaP study metadata, but future releases will expand to additional resources.
+**Datasets** within INS represent open-access or controlled data released as an output of an NCI-supported effort. INS datasets are sourced from dbGaP study metadata as well as several other repositories and curated sources described below.
 
 ### dbGaP Dataset Examples
 
@@ -327,6 +371,108 @@ NOTE: This module is intended to automate the effort to gather a large number of
     - Missing, erroneous, or unstructured source data is refined by expert curation
     - The curated file is validated and ready for INS data loading
 
+## Merge Curated dbGaP Datasets
+
+**This independent step merges a previously curated dbGaP datasets file with a newly gathered dbGaP datasets file.** It preserves hand-curated values from previous releases while incorporating any newly added studies from the latest dbGaP search results.
+
+### Merge Workflow
+
+All merge processing is handled within the `merge_curated_dbgap.py` module and can be run as an independent process with the command:
+
+```bash
+python modules/merge_curated_dbgap.py
+```
+
+NOTE: This module should be run after `gather_dbgap_data.py` has produced a new gathered output and a curated file from a previous release is available.
+
+1. **Load old curated and new gathered datasets**
+    - Loads the previously curated dbGaP TSV (from the prior release cycle) and the newly gathered dbGaP TSV
+    - Uses `dataset_source_id` (phs accession) as the merge key
+
+2. **Merge datasets**
+    - Rows present in the old curated file are kept as-is, preserving hand-edited values and existing UUIDs
+    - Rows present only in the new file are appended as new studies requiring curation
+    - Rows present only in the old file are retained with a warning, as they may have been removed from the latest dbGaP search results but should not be silently dropped
+    - Regenerates deterministic UUID5 values on old curated rows to ensure consistency with the current scheme
+
+3. **Detect and review title changes**
+    - Identifies studies where the title differs between the old and new datasets
+    - On the first run, exports a review CSV (`merge_title_review.csv`) for the user to indicate whether to accept the new title or keep the old one
+    - On subsequent runs, if a reviewed CSV is found, the user's title decisions are applied automatically
+
+4. **Save merged output**
+    - Saves the merged file as `dbgap_datasets_merged.tsv` in the versioned `data/01_intermediate/dbgap/` directory
+    - The merged file is ready for manual curation before final packaging
+
+## Generate dbGaP Subset Clones
+
+**This independent step creates cloned dataset entries for dbGaP studies that are also available through other NCI data repositories**, such as the [Cancer Research Data Commons (CRDC)](https://datacommons.cancer.gov/) or the [NCI Genomic Data Commons (GDC)](https://gdc.cancer.gov/).
+
+For each dbGaP study tagged with a storage distribution, this step clones the row from the final curated dbGaP output and relabels it with the target repository name. All other field values (including the `dataset_source_id` and `dataset_source_url`, which still point to dbGaP) are preserved unchanged. A new deterministic UUID5 is generated for each clone.
+
+### Subset Clone Workflow
+
+All subset clone processing is handled within the `gather_dbgap_subset_clones.py` module and can be run as an independent process with the command:
+
+```bash
+python modules/gather_dbgap_subset_clones.py
+```
+
+NOTE: This module should be run **after** `package_output_data.py` has produced the final curated clean dbGaP TSV. It does not modify the source file.
+
+1. **Load subset CSVs**
+    - For each configured subset key (e.g. `CRDC`, `CTDC`, `GDC`), loads the corresponding subset CSV from `data/00_input/dbgap/` to get the set of relevant phs accessions
+    - Multiple subset keys can map to the same target repository (e.g. both `CRDC` and `CTDC` subsets produce clones labelled "CRDC")
+
+2. **Clone and relabel matching rows**
+    - Filters the curated clean dbGaP output to rows matching the subset phs accessions
+    - Replaces `dataset_source_repo` with the target repository name
+    - Generates a new deterministic UUID5 for each clone based on the target repo and phs accession
+    - When the same phs accession appears in multiple subsets that map to the same repo, only one clone is produced
+
+3. **Save subset clones output**
+    - Saves the cloned dataset entries as `dbgap_subset_clones.tsv` in the versioned `data/02_output/dbgap/` directory
+
+## Process CTD^2 Datasets
+
+**This independent step processes curated datasets and file metadata from the [Cancer Target Discovery and Development (CTD^2) Network](https://www.cancer.gov/ccg/research/functional-genomics/ctd2).** These datasets are included in INS based on curated input files and are not enriched by APIs or other external resources.
+
+### CTD^2 Dataset Workflow
+
+All CTD^2 processing is handled within the `gather_ctd2_data.py` module and can be run as an independent process with the command:
+
+```bash
+python modules/gather_ctd2_data.py
+```
+
+NOTE: CTD^2 input data is not expected to change frequently. This module should only be run when dataset or file metadata needs to be updated.
+
+1. **Process CTD^2 dataset metadata**
+    - Loads a curated CSV of CTD^2 dataset metadata from `data/00_input/ctd2/`
+    - Generates deterministic UUID5 values for each dataset based on source repository, title, and description
+    - Saves the intermediate output as `ctd2_datasets.csv` in the versioned `data/01_intermediate/ctd2/` directory
+
+2. **Process CTD^2 file metadata**
+    - Loads a curated CSV of file metadata from `data/00_input/ctd2/`
+    - Generates deterministic UUID5 values for each file based on file name, file type, and access level
+
+3. **Map files to datasets**
+    - Maps each file to a dataset using the curated `download_file_links` field
+    - Validates the mapping by checking for unmapped files, datasets with no mapped files, and files mapped to more than one dataset
+    - Saves the processed file metadata (with dataset UUIDs) as `ctd2_filedata.csv` in the versioned `data/01_intermediate/ctd2/` directory
+
+## Process Curated Sources
+
+**Some datasets in INS are sourced from curated or submitted input files.** These sources do not have an automated gathering pipeline — their curated TSVs are placed directly in the `data/01_intermediate/` directory and processed during the [Package Data](#package-data) step. Deterministic UUID5 values are generated for each dataset during packaging.
+
+### DCEG Cohorts
+
+Cohort datasets from the [NCI Division of Cancer Epidemiology and Genetics (DCEG)](https://dceg.cancer.gov/) are included in INS as curated datasets. The curated TSV is placed in a versioned `data/01_intermediate/dceg_cohorts/` directory and the `DCEG_COHORTS_VERSION` in `config.py` should be updated to match.
+
+### NCCR Data Platform
+
+Datasets from the [NCI Center for Cancer Research (NCCR)](https://nccr.cancer.gov/) Data Platform are included in INS as curated datasets. The curated TSV is placed in a versioned `data/01_intermediate/nccr/` directory and the `NCCR_VERSION` in `config.py` should be updated to match.
+
 ## Package Data
 
 **This step standardizes, validates, and exports all data gathered from other steps of the process.**
@@ -358,7 +504,7 @@ python modules/package_output_data.py
         - NOTE: Nodes with many-to-many relationships (e.g. `publications`) will have duplicate records where all values are identical **except** for the linking column (e.g. `project.project_id`). This is intentional.
     - Validates that all list-like columns are separated by semicolons
     - Generates a list of enumerated values for each column specified in `config.py`. These can be used to update the [INS Data Model](https://github.com/CBIIT/ins-model) before loading.
-    - Saves all final outputs as TSV files in the `data/02_outputs` directory. These are ready for INS data loading.
+    - Saves all final outputs as TSV files in the `data/02_output` directory. These are ready for INS data loading.
 
 ## Validate Data
 
@@ -487,6 +633,7 @@ python modules/build_validation_file.py
         python modules/gather_project_data.py
         python modules/gather_publication_data.py
         python modules/gather_geo_data.py
+        python modules/gather_sra_data.py
         python modules/gather_cedcd_data.py
         python modules/package_output_data.py
         python modules/build_validation_file.py
@@ -499,16 +646,45 @@ python modules/build_validation_file.py
     - Update the `DBGAP_CSV_VERSION` in `config.py`
     - Obtain an updated GPA study list from a point of contact at the NCI Office of Data Sharing and store as `data/00_input/dbgap/gpa_tables/gpa_study_table.csv`
     - If needed, manually update the `gpa_doc_lookup_table.csv` in the same folder
-    - Run the dbGaP gathering module and then the data packaging module with the following commands:
+    - Run the dbGaP gathering module:
 
     ```bash
     python modules/gather_dbgap_data.py
+    ```
+
+    - Merge the new gathered output with the previously curated dbGaP file:
+
+    ```bash
+    python modules/merge_curated_dbgap.py
+    ```
+
+    - Review the merge output and the title review CSV if generated. Manually curate the merged file as needed and save as `dbgap_datasets_merged_curated.tsv` in the versioned `data/01_intermediate/dbgap/` directory.
+    - Run the data packaging module, which will auto-detect and use the curated version if available:
+
+    ```bash
     python modules/package_output_data.py
     ```
 
-    - Manually review and curate results as needed and save as `dbgap_datasets_curated.tsv` in the `01_intermediate` dbGaP folder.
-        - It is recommended to continue additive manual curation of this file for each release rather than re-running the datasets module and repeating full curation unless necessary
-    - Rerun the data packaging module, which will auto-detect and use the curated version if available
+    - If applicable, place subset CSVs (e.g. `CRDC_subset_{version}.csv`, `GDC_subset_{version}.csv`) in `data/00_input/dbgap/` and generate cloned entries for other repositories:
+
+    ```bash
+    python modules/gather_dbgap_subset_clones.py
+    ```
+
+9. **Process CTD^2 Datasets (optional)**
+    - This step is only needed when CTD^2 dataset or file metadata changes
+    - Place curated CSVs (`ctd2_datasets_{version}.csv` and `ctd2_filedata_{version}.csv`) in `data/00_input/ctd2/`
+    - Update the `CTD2_VERSION` in `config.py`
+    - Run the CTD^2 module:
+
+    ```bash
+    python modules/gather_ctd2_data.py
+    ```
+
+10. **Add or update curated source files (optional)**
+    - **DCEG Cohorts**: Place the curated TSV as `dceg_datasets_curated.tsv` in a versioned `data/01_intermediate/dceg_cohorts/` directory. Update `DCEG_COHORTS_VERSION` in `config.py`.
+    - **NCCR Data Platform**: Place the curated TSV as `nccr_datasets_curated.tsv` in a versioned `data/01_intermediate/nccr/` directory. Update `NCCR_VERSION` in `config.py`.
+    - Curated sources are processed automatically during the [Package Data](#package-data) step.
 
 ## Errors and Warnings
 

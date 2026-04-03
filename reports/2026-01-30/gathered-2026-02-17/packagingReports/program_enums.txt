@@ -1,0 +1,62 @@
+PropDefinitions:
+  #properties of program
+  ...
+  focus_area:
+    ... 
+    Type:
+      value_type: list
+      Enum:
+        - Cancer Moonshot
+        - Clinical Networks
+        - General
+        - HIV/AIDS
+        - Health Disparities
+        - Pediatric/AYA
+        - SPORE
+    ...
+  cancer_type:
+    ... 
+    Type:
+      value_type: list
+      Enum:
+        - Adrenal Gland Cancer
+        - Bile Duct Cancer
+        - Bladder Cancer
+        - Blood Cancer
+        - Bone Cancer
+        - Brain Cancer
+        - Breast Cancer
+        - CNS Cancer
+        - Cervical Cancer
+        - Colorectal Cancer
+        - Esophageal Cancer
+        - Ewing Sarcoma
+        - Gastric Cancer
+        - Glioblastoma
+        - Gynecologic Cancer
+        - HIV/AIDS
+        - Head and Neck Cancer
+        - Kaposi Sarcoma
+        - Kidney Cancer
+        - Leukemia
+        - Liver Cancer
+        - Lung Cancer
+        - Lymphoma
+        - Melanoma
+        - Mesothelioma
+        - Multiple Cancer Types
+        - Multiple Myeloma
+        - Neuroblastoma
+        - Osteosarcoma
+        - Ovarian Cancer
+        - Pancreas Cancer
+        - Pediatric/AYA
+        - Prostate Cancer
+        - Rhabdomyosarcoma
+        - Sarcoma
+        - Skin Cancer
+        - Testicular Cancer
+        - Thyroid Cancer
+        - Uterine Cancer
+        - Wilms Tumor
+    ...

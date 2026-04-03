@@ -1,0 +1,38 @@
+dataset_source_id,dataset_title,change_type,notes
+CTD2_003,Expression Profile of Neuroendocrine Tumor Cell-line Perturbed with Small Molecules,Remove ? artifacts from text,"6?h → 6 h, 24?h → 24 h"
+CTD2_005,Pharmacological Targeting of Mechanistic Dependencies in Neuroendocrine Tumors,Replace ? with hyphen-minus; Replace Unicode minus with ASCII hyphen,"P?value → P-value, 10−8 → 10-8"
+CTD2_008,CTD² Pancancer Drug Activity Challenge,Replace ? with μ; Replace ? with °; Fix 37C → 37°C,"100 ?L → 100 μL, 37C → 37°C throughout"
+CTD2_013,A Transcriptome-Based Precision Oncology Platform for Patient-Therapy Alignment,Replace ? with ≥; Replace superscript ± with ASCII; Add missing superscripts,"? 100 → ≥ 100; 25⁺+25⁻ → 25+25- (×2); mm3 → mm³, width2 → width²"
+CTD2_014,Kinases Controlling Stability of the Oncogenic MYCN Protein,Replace ? with μ,"?M → μM, ?L → μL throughout"
+CTD2_015,Subtype-selective Prenylated Isoflavonoids Disrupt Regulatory Drivers of MYCN-amplified Cancers,Replace ? with μ,?M → μM throughout
+CTD2_016,Tumor-selective Effects of Active RAS Inhibition in Pancreatic Ductal Adenocarcinoma,Replace ? with μ; Replace ? with °; Replace Unicode minus with ASCII hyphen,"?L → μL, ?80 C → -80°C"
+CTD2_019,Discovery of Resistance Mechanisms: Colon Cancer,Replace Unicode prime with ASCII apostrophe,3′ → 3'
+CTD2_027,Identification of Therapeutic Targets in Ovarian Cancer,Replace ? with ~,?8000 → ~8000
+CTD2_028,Genome-wide shRNA Screens with DEMETER Inferred Gene Effects,Replace ? with μ; Replace ? with °,"280??g → 280 μg, 95?C → 95°C, etc.; also removed ?min → min spacing fixes"
+CTD2_038,Identification of Protein-protein Interaction Inhibitors as Potential Anti-tumor Immunity Enhancers,Fix typo,bnriched → Enriched
+CTD2_042,Functional Landscape of the Human Kinome in MYCN Amplified and Non-amplified Neuroblastoma,Replace ? with μ; Fix citation reference,"?l → μl, ?l/ml → μl/ml; Toyoshima et al [Toyoshima, 2012 #4918] → Toyoshima et al. (2012)"
+CTD2_043,Identification of Drug Targets for Combination Therapy with Retinoic Acid in Neuroblastoma,Replace ? with μ,"5?M → 5 μM, ?l → μl throughout"
+CTD2_044,Functional Exploration of the Druggable Genome in MYCN Amplified and Non-amplified Neuroblastoma,Replace ? with μ,?l → μl throughout
+CTD2_046,Kinome-wide siRNA Screens (screen 1) to Discover Novel Vulnerabilities in Ras/Tp53 Mutant Murine SCC,Replace ? with μ; Replace ? with °; Fix 37C → 37°C; Remove superscript ref numbers; Fix table reference; Remove EndNote citations,"?l → μl, 37C → 37°C; Table S44 → Table S4; superscript 1-6 ref numbers removed from inline citations; MSCC-CK1041,2 → MSCC-CK104"
+CTD2_047,Functional Exploration of the Druggable Genome in Cisplatin Resistant Ovarian Cancer,Replace ? with μ; Replace ? with °; Fix 37C → 37°C,"?l → μl, ?M → μM, 37C → 37°C"
+CTD2_048,Functional Exploration of the Kinome in MYC Driven Ovarian Cancer,Replace ? with μ; Replace ? with °; Fix 37C → 37°C,"?l → μl, 37 C → 37°C, 5 L → 5 μL"
+CTD2_049,Functional Exploration of the Kinome in Pancreatic Ductal Adenocarcinoma,Replace ? with μ; Replace ? with °; Fix 37C → 37°C; Remove superscript ref numbers,"?l → μl, 37C → 37°C; superscript 1,2 ref numbers removed"
+CTD2_050,Functional Exploration of the Druggable Genome in Pancreatic Ductal Adenocarcinoma,Replace ? with μ; Replace ? with °; Fix 37C → 37°C; Remove superscript ref numbers,Same pattern as CTD2_049
+CTD2_051,Functional Exploration of the Druggable Genome in Head and Neck Squamous Cell Carcinoma,Replace ? with μ; Replace ? with °; Fix 37C → 37°C; Remove superscript ref numbers; Fix identifier,FHCRC_SCC_11 → FHCRC_SCC_1
+CTD2_052,Kinome-wide siRNA Screens (screen 2) to Discover Novel Vulnerabilities in Ras/Tp53 Mutant Murine SCC,Replace ? with μ; Replace ? with °; Fix 37C → 37°C; Remove superscript ref numbers; Fix table reference,Table S44 → Table S4
+CTD2_053,Identification of Novel Targets and Sensitizers to the PARP Inhibitor Rucaparib in Ovarian Cancer,Replace ? with μ; Replace ? with °; Fix 37C → 37°C; Remove superscript ref numbers,Same pattern as CTD2_049
+CTD2_056,Functional Genomic Landscape of Acute Myeloid Leukaemia,Replace ? with β/γ/μ/°/≤; Replace Unicode minus with ASCII hyphen; Remove Exit Disclaimer artifacts; Fix CO2 subscript,"I?B → I-kappaB (IKK), ?-catenin → β-catenin, ?-mercaptoethanol → β-mercaptoethanol, ?80 C → -80°C, ?20 C → -20°C, CO2 → CO₂, ?0.1% → ≤0.1%"
+CTD2_063,A CRISPR/Cas9-engineered ARID1A-deficient Human Gastric Cancer Organoid Model,Fix typos,"nutilin-3 → nutlin-3, transducted → transduced"
+CTD2_066,Screening for Dependencies in Cancer Cell Lines Using Small Molecules,Remove Exit Disclaimer artifacts,"(CTRP)Exit Disclaimer → (CTRP); ccleExit Disclaimer → ccle; websiteExit Disclaimer → website"
+CTD2_069,Quantified Cancer Cell Line Encyclopedia RNA-seq Data,Fix typo; Fix identifier,avaliable → available; Salmon1 → Salmon
+CTD2_072,A Quantitative Chemical-genetic Interaction Map of Cancer Chemotherapy,Fix typo,Hoescht → Hoechst
+CTD2_073,Characterization of PIK3R1 Neomorphic Mutations,Replace ? with μ; Replace ? with °; Replace Unicode minus with ASCII hyphen; Remove Exit Disclaimer artifact,"?M → μM; (T − T0)/(C − C0) → (T - T0)/(C - C0); bioinformatics.mdanderson.org/Exit Disclaimer → bioinformatics.mdanderson.org/"
+CTD2_075,Phenotypic Examination of PIK3CA Allelic Series Using MCF10A Cell Sensor Platform,Replace ? with μ; Fix typo,?g/?l → μg/μl; blastocidin → blasticidin
+CTD2_076,Systematic Functional Annotation of Somatic Mutations in Cancer,Replace ? with μ; Replace ? with °; Fix 37C → 37°C,"?M → μM, ?g/ml → μg/ml, 37C → 37°C"
+CTD2_077,Informer Drug Library Screening Against Patient-derived PDGFRA Mutations,Replace ? with μ; Fix scientific notation,"?M → μM, ?L → μL; 1104 → 1×10⁴, 3104 → 3x10⁴"
+CTD2_081,High-throughput siRNA Screening of a Non-small Cell Lung Cancer (NSCLC) Cell Line Panel,Replace ? with μ; Replace ? with °,"?l → μl; 80C → -80°C"
+CTD2_085,DRC Study of Natural Products Against Non-small Cell Lung Cancer (NSCLC) Cell Lines,Replace ? with μ; Replace ? with °; Fix 37C → 37°C,"?L → μL, oC → °C, 37oC → 37°C"
+CTD2_086,High-throughput Screening of CTD² Network Informer Set (CNIS) Compounds Against NSCLC Cell Lines,Replace ? with μ; Replace ? with °; Fix 37C → 37°C; Fix CO2 subscript,"?L → μL, ?M → μM, CO^2 → CO₂, 37 oC → 37°C"
+CTD2_091,In Vivo Functional Characterization of EGFR Variants Identifies Novel Drivers of Glioblastoma,Fix typos,"Form → From, MultiQZ → MultiQC"
+CTD2_093,C5aR1 Inhibition Reprograms Tumor Associated Macrophages and Reverses PARP Inhibitor Resistance,Replace ? with °/μ/×; Fix typos; Fix identifier; Fix scientific notation; Add missing superscripts; Reconstruct truncated text,"oral galvage → oral gavage (×2), orthotopicly → orthotopically, manufactural → manufacturer's (×2), opposite site → opposite-side; LPA1-T27 → LPA1-T127; 2106 → 2x10⁶, 5105 → 5x10⁵; 25mm3 → 25mm³ (×3); n?>?5 → n > 5; reconstructed truncated sentence about gentleMACS kits"
+CTD2_094,Single Cell RNA Trajectory Analysis Reveals a CD9 Positive Cell State,Replace ? with °/μ/×; Fix typos; Reconstruct truncated text,"mamary → mammary, manufactural → manufacturer's, sequensing → sequencing; 293?T → 293T; e dissociation kits → Tumor tissue was dissociated with gentleMACS tissue dissociation kits"

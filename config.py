@@ -12,14 +12,15 @@ from datetime import datetime
 # Inputs and outputs will use this versioning
 # Version must match suffix in input filename
 
-QUALTRICS_VERSION = "2025-05-09"    # <-- CHANGE VERSION HERE
+QUALTRICS_VERSION = "2026-01-30"    # <-- CHANGE VERSION HERE
 QUALTRICS_TYPE = "manual_fix"              # <-- Define "raw" or "manual_fix" type of the input csv
 
 # Version of bulk download from iCite
-ICITE_VERSION = "2025-04"           # <-- CHANGE VERSION HERE
+ICITE_VERSION = "2026-01"           # <-- CHANGE VERSION HERE
 
 # Version of dbGaP seearch results download (download date)
-DBGAP_CSV_VERSION = "2025-05-19"   # <-- CHANGE VERSION HERE
+DBGAP_CSV_VERSION = "2026-03-09"   # <-- CHANGE VERSION HERE
+DBGAP_PREVIOUS_VERSION = "2025-05-19"
 
 # Version of CEDCD cohort metadata CSV
 CEDCD_VERSION = "2025-04-24"        # <-- CHANGE VERSION HERE
@@ -27,10 +28,16 @@ CEDCD_VERSION = "2025-04-24"        # <-- CHANGE VERSION HERE
 # Version of CTD^2 datasets. Not expected to change
 CTD2_VERSION = "2025-12-01"
 
+# Version of DCEG Cohorts curated dataset
+DCEG_COHORTS_VERSION = "2026-02-03"    # <-- CHANGE VERSION HERE
+
+# Version of NCCR curated dataset
+NCCR_VERSION = "2026-03-02"            # <-- CHANGE VERSION HERE
+
 # An override date can be used instead of today's date for pulling and saving data versions
 # This is useful when running downstream modules on grants data gathered before today
 
-OVERRIDE_DATE = "2025-05-15"               # <-- Optional. Define override date (e.g. "2023-12-14"). Default None.
+OVERRIDE_DATE = "2026-02-17"               # <-- Optional. Define override date (e.g. "2023-12-14"). Default None.
 
 
 
@@ -325,7 +332,8 @@ COLUMN_CONFIGS = {
 
         },
         'list_like_cols': ['keywords', 'principal_investigators'],
-        'datetime_cols': ['award_notice_date', 'grant_start_date', 'grant_end_date']
+        'datetime_cols': ['award_notice_date', 'grant_start_date', 'grant_end_date'],
+        'int_cols': ['award_amount', 'nci_funded_amount'],
     },
     'project': {
         'node_id': 'project_id',
@@ -390,10 +398,12 @@ COLUMN_CONFIGS = {
             'gene_keywords': 'related_genes',
             'disease_keywords': 'related_diseases',
             'Related Terms': 'related_terms',
+            'dataset_storage_distribution': 'dataset_storage_distribution',
         },
         'list_like_cols': ['PI_name', 'dataset_pmid', 'funding_source',
                            'limitations_for_reuse','study_links','related_genes',
-                           'related_diseases','related_terms'],
+                           'related_diseases','related_terms',
+                           'dataset_storage_distribution'],
         'html_tag_cols': None, # Keep HTML tags in dbgap descriptions
         'int_cols': ['participant_count', 'sample_count'],
     },
@@ -409,6 +419,37 @@ COLUMN_CONFIGS = {
             'dataset_source_id': 'dataset_source_id',
             'dataset_source_url': 'dataset_source_url',
             'series_contributor': 'PI_name',
+            'GPA': 'GPA',
+            'dataset_doc': 'dataset_doc',
+            'dataset_pmid': 'dataset_pmid',
+            'funding_source': 'funding_source',
+            'release_date': 'release_date',
+            'limitations_for_reuse': 'limitations_for_reuse',
+            'assay_method': 'assay_method',
+            'study_type': 'study_type',
+            'primary_disease': 'primary_disease',
+            'participant_count': 'participant_count',    
+            'sample_count': 'sample_count',
+            'study_links': 'study_links',
+            'related_genes': 'related_genes',
+            'related_diseases': 'related_diseases',
+            'related_terms': 'related_terms',
+        },
+        'list_like_cols': ['dataset_pmid', 'funding_source',],
+        'html_tag_cols': None
+    },
+    'sra_dataset': {
+        'node_id': 'dataset_uuid',
+        'link_id': None,
+        'keep_and_rename': {
+            'type': 'type',
+            'dataset_uuid': 'dataset_uuid',
+            'dataset_source_repo': 'dataset_source_repo',
+            'dataset_title': 'dataset_title',
+            'description': 'description',
+            'dataset_source_id': 'dataset_source_id',
+            'dataset_source_url': 'dataset_source_url',
+            'PI_name': 'PI_name',
             'GPA': 'GPA',
             'dataset_doc': 'dataset_doc',
             'dataset_pmid': 'dataset_pmid',
@@ -462,6 +503,88 @@ COLUMN_CONFIGS = {
         },
         'list_like_cols': None,
         'html_tag_cols': None
+    },
+    'dceg_dataset': {
+        'node_id': 'dataset_uuid',
+        'link_id': None,
+        'keep_and_rename': {
+            'type': 'type',
+            'dataset_uuid': 'dataset_uuid',
+            'dataset_source_repo': 'dataset_source_repo',
+            'dataset_title': 'dataset_title',
+            'description': 'description',
+            'dataset_source_id': 'dataset_source_id',
+            'dataset_source_url': 'dataset_source_url',
+            'PI_name': 'PI_name',
+            'GPA': 'GPA',
+            'dataset_doc': 'dataset_doc',
+            'dataset_pmid': 'dataset_pmid',
+            'funding_source': 'funding_source',
+            'release_date': 'release_date',
+            'limitations_for_reuse': 'limitations_for_reuse',
+            'assay_method': 'assay_method',
+            'study_type': 'study_type',
+            'primary_disease': 'primary_disease',
+            'participant_count': 'participant_count',
+            'sample_count': 'sample_count',
+            'study_links': 'study_links',
+            'related_genes': 'related_genes',
+            'related_diseases': 'related_diseases',
+            'related_terms': 'related_terms',
+            'dataset_year_enrollment_started': 'dataset_year_enrollment_started',
+            'dataset_year_enrollment_ended': 'dataset_year_enrollment_ended',
+            'dataset_minimum_age_at_baseline': 'dataset_minimum_age_at_baseline',
+            'dataset_maximum_age_at_baseline': 'dataset_maximum_age_at_baseline',
+        },
+        'list_like_cols': ['dataset_pmid', 'funding_source', 'study_links'],
+        'html_tag_cols': None,
+        'int_cols': ['participant_count', 
+                     'sample_count',
+                     'dataset_year_enrollment_started',
+                     'dataset_year_enrollment_ended',
+                     'dataset_minimum_age_at_baseline',
+                     'dataset_maximum_age_at_baseline'],
+    },
+    'nccr_dataset': {
+        'node_id': 'dataset_uuid',
+        'link_id': None,
+        'keep_and_rename': {
+            'type': 'type',
+            'dataset_uuid': 'dataset_uuid',
+            'dataset_source_repo': 'dataset_source_repo',
+            'dataset_title': 'dataset_title',
+            'description': 'description',
+            'dataset_source_id': 'dataset_source_id',
+            'dataset_source_url': 'dataset_source_url',
+            'PI_name': 'PI_name',
+            'GPA': 'GPA',
+            'dataset_doc': 'dataset_doc',
+            'dataset_pmid': 'dataset_pmid',
+            'funding_source': 'funding_source',
+            'release_date': 'release_date',
+            'limitations_for_reuse': 'limitations_for_reuse',
+            'assay_method': 'assay_method',
+            'study_type': 'study_type',
+            'primary_disease': 'primary_disease',
+            'participant_count': 'participant_count',
+            'sample_count': 'sample_count',
+            'study_links': 'study_links',
+            'related_genes': 'related_genes',
+            'related_diseases': 'related_diseases',
+            'related_terms': 'related_terms',
+            'dataset_year_enrollment_started': 'dataset_year_enrollment_started',
+            'dataset_year_enrollment_ended': 'dataset_year_enrollment_ended',
+            'dataset_minimum_age_at_baseline': 'dataset_minimum_age_at_baseline',
+            'dataset_maximum_age_at_baseline': 'dataset_maximum_age_at_baseline',
+        },
+        'list_like_cols': ['dataset_pmid', 'funding_source', 'study_links'],
+        'html_tag_cols': None,
+        'int_cols': ['participant_count',
+                     'sample_count',
+                     'dataset_year_enrollment_started',
+                     'dataset_year_enrollment_ended',
+                     'dataset_minimum_age_at_baseline',
+                     'dataset_maximum_age_at_baseline'],
     },
     'ctd2_dataset': {
         'node_id': 'dataset_uuid',
@@ -536,7 +659,7 @@ DBGAP_INTERMED_DIR = INTERMED_DIR + "dbgap/" + DBGAP_CSV_VERSION + "/"
 DBGAP_META_INTERMED_PATH = DBGAP_INTERMED_DIR + "dbgap_study_metadata.json"
 DBGAP_SSTR_INTERMED_PATH = DBGAP_INTERMED_DIR + "dbgap_sstr.json"
 DBGAP_INTERMED_PATH = DBGAP_INTERMED_DIR + "dbgap_datasets.csv"
-DBGAP_CURATED_INTERMED_PATH = DBGAP_INTERMED_DIR + "dbgap_datasets_curated.tsv"
+DBGAP_CURATED_INTERMED_PATH = DBGAP_INTERMED_DIR + "dbgap_datasets_merged_curated.tsv"
 
 # dbGaP reports and error logs
 DBGAP_REPORTS_DIR = "reports/dbgap/" + DBGAP_CSV_VERSION + "/"
@@ -550,7 +673,41 @@ DBGAP_NON_NIH_LIST = INPUT_DIR + "dbgap/gpa_tables/" + "dbgap_non_nih_funded_stu
 
 # dbGaP cleaned output file
 DBGAP_OUTPUT_PATH = OUTPUT_DIR + "dbgap/" + DBGAP_CSV_VERSION +"/"+ "dbgap_datasets.tsv"
-DBGAP_OUTPUT_CURATED_CLEANED = OUTPUT_DIR + "dbgap/" + DBGAP_CSV_VERSION +"/"+ "dbgap_datasets_curated_clean.tsv"
+DBGAP_OUTPUT_CURATED_CLEANED = OUTPUT_DIR + "dbgap/" + DBGAP_CSV_VERSION +"/"+ "dbgap_datasets_merged_curated_clean.tsv"
+
+# dbGaP merge: old curated TSV to merge with new gathered TSV
+# Update the old path each cycle to point to the previous curated clean output
+DBGAP_MERGED_OLD_CURATED_PATH = OUTPUT_DIR + "dbgap/" +DBGAP_PREVIOUS_VERSION+ "/dbgap_datasets_merged_curated_clean.tsv"
+DBGAP_MERGED_OUTPUT_PATH = INTERMED_DIR + "dbgap/" + DBGAP_CSV_VERSION +"/"+ "dbgap_datasets_merged.tsv"
+DBGAP_MERGE_REVIEW_PATH = INTERMED_DIR + "dbgap/" + DBGAP_CSV_VERSION + "/merge_title_review.csv"
+
+
+# DBGAP SUBSETS
+# DATASETS CLONED FROM DBGAP DATASETS AND RELABELED WITH NEW SOURCE REPO
+
+# dbGaP storage distribution subset files
+# Maps a short key (matching filename prefix before '_subset_') to a display label.
+# Subset CSVs are expected at: data/00_input/dbgap/<KEY>_subset_<DBGAP_CSV_VERSION>.csv
+# To add a new distribution, add a new key:label entry below.
+DBGAP_SUBSET_INPUT_DIR = INPUT_DIR + "dbgap/"
+DBGAP_STORAGE_DISTRIBUTION_MAP = {
+    'CRDC': 'Cancer Research Data Commons (CRDC)',
+    'CTDC': 'Cancer Research Data Commons (CRDC)',
+    'GDC':  'NCI Genomic Data Commons (GDC)',
+}
+
+# Maps each subset filename key to the target repository name used when
+# cloning datasets. Multiple keys can map to the same repo (e.g. both
+# CRDC and CTDC subsets produce clones labelled "CRDC").
+DBGAP_SUBSET_REPO_MAP = {
+    'CRDC': 'CRDC',
+    'CTDC': 'CRDC',
+    'GDC':  'GDC',
+}
+
+# dbGaP subset clones output - cloned datasets relabeled per derivative repository
+# This is generated AFTER package_output_data.py using the curated clean output
+DBGAP_SUBSET_CLONES_OUTPUT_PATH = OUTPUT_DIR + "dbgap/" + DBGAP_CSV_VERSION +"/"+ "dbgap_subset_clones.tsv"
 
 
 # GEO
@@ -564,6 +721,23 @@ GEO_OUTPUT_PATH = OUTPUT_GATHERED_DIR +"/"+ "geo_datasets.tsv"
 
 # GEO reports
 GEO_DROPPED_ACCESSIONS_PATH = REPORTS_GATHERED_DIR +"/"+ "geo_dropped_accessions.csv"
+
+
+# SRA
+
+# SRA intermediates
+SRA_PMID_MAPPING_PATH = GATHERED_DIR +"/"+ "sra_pmid_mapping.csv"
+SRA_SRP_CENTRIC_PATH = GATHERED_DIR +"/"+ "sra_srp_centric.csv"
+SRA_BATCH_DIR = GATHERED_DIR +"/"+ "sra_batches"
+SRA_INTERMED_PATH = GATHERED_DIR +"/"+ "sra_datasets.csv"
+SRA_CURATED_INTERMED_PATH = GATHERED_DIR +"/"+ "sra_datasets_curated.tsv"
+
+# SRA outputs
+SRA_OUTPUT_PATH = OUTPUT_GATHERED_DIR +"/"+ "sra_datasets.tsv"
+SRA_OUTPUT_CURATED_CLEANED = OUTPUT_GATHERED_DIR +"/"+ "sra_datasets_curated_clean.tsv"
+
+# SRA reports
+SRA_DROPPED_STUDIES_PATH = REPORTS_GATHERED_DIR +"/"+ "sra_dropped_studies.csv"
 
 
 # CEDCD
@@ -594,4 +768,27 @@ CTD2_FILE_INTERMED_CSV = CTD2_INTERMED_DIR + "ctd2_filedata.csv"
 # CTD^2 outputs
 CTD2_OUTPUT_DIR = OUTPUT_DIR + "ctd2/" + CTD2_VERSION + "/"
 CTD2_DATASET_OUTPUT_PATH = CTD2_OUTPUT_DIR + "ctd2_datasets.tsv"
+CTD2_DATASET_CURATED_LOCKED_PATH = CTD2_OUTPUT_DIR + "ctd2_datasets_curated.tsv"
 CTD2_FILE_OUTPUT_PATH = CTD2_OUTPUT_DIR + "ctd2_filedata.tsv"
+
+
+# DCEG Cohorts (curated only, no gathering pipeline)
+
+# DCEG Cohorts intermediate - curated TSV lives directly in intermediates
+DCEG_INTERMED_DIR = INTERMED_DIR + "dceg_cohorts/" + DCEG_COHORTS_VERSION + "/"
+DCEG_CURATED_INTERMED_PATH = DCEG_INTERMED_DIR + "dceg_datasets_curated.tsv"
+
+# DCEG Cohorts output
+DCEG_OUTPUT_DIR = OUTPUT_DIR + "dceg_cohorts/" + DCEG_COHORTS_VERSION + "/"
+DCEG_OUTPUT_PATH = DCEG_OUTPUT_DIR + "dceg_datasets_curated_clean.tsv"
+
+
+# NCCR (curated only, no gathering pipeline)
+
+# NCCR intermediate - curated TSV lives directly in intermediates
+NCCR_INTERMED_DIR = INTERMED_DIR + "nccr/" + NCCR_VERSION + "/"
+NCCR_CURATED_INTERMED_PATH = NCCR_INTERMED_DIR + "nccr_datasets_curated.tsv"
+
+# NCCR output
+NCCR_OUTPUT_DIR = OUTPUT_DIR + "nccr/" + NCCR_VERSION + "/"
+NCCR_OUTPUT_PATH = NCCR_OUTPUT_DIR + "nccr_datasets_curated_clean.tsv"

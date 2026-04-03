@@ -42,11 +42,26 @@ from Bio import Entrez  # for e-Utils API
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import config
 
+# Load .env into the process environment so os.environ.get(...) works
+# Use an explicit path to the repository root .env for reliability
+try:
+    from dotenv import load_dotenv
+    dotenv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env')
+    if os.path.exists(dotenv_path):
+        load_dotenv(dotenv_path)
+    else:
+        # Fall back to default behavior (load from CWD) if explicit file not found
+        load_dotenv()
+except Exception:
+    # If python-dotenv is not available, assume environment variables are
+    # already present in the running process (e.g., set by the shell or IDE).
+    pass
+
 
 
 def fetch_geo_ids(pmid: str) -> Tuple[str, List[str]]:
     """
-    Fetch GEO IDs for a single PubMed ID
+    Fetch GEO IDs for a single PubMed ID with retry logic for rate limiting.
     
     Args:
         pmid: PubMed ID to query
@@ -55,32 +70,56 @@ def fetch_geo_ids(pmid: str) -> Tuple[str, List[str]]:
         Tuple of (pmid, list_of_geo_ids)
     """
 
-    try:
-        # Small delay to control API rate
-        time.sleep(0.1)
+    # Configure Entrez for this thread
+    Entrez.email = os.environ.get('NCBI_EMAIL', 'your-email@example.com')
+    Entrez.api_key = os.environ.get('NCBI_API_KEY', '')
+    Entrez.max_tries = 3
+    Entrez.sleep_between_tries = 2
+
+    # Retry logic for rate limiting
+    max_retries = 5
+    retry_delay = 1.0
+
+    for attempt in range(max_retries):
+        try:
+            # Small delay to control API rate
+            time.sleep(0.2)
+            
+            link_handle = Entrez.elink(
+                dbfrom="pubmed",
+                db="gds",
+                id=pmid,
+                linkname="pubmed_gds"
+            )
+            
+            link_record = Entrez.read(link_handle)
+            link_handle.close()
+            
+            geo_ids = [
+                link['Id']
+                for link_set in link_record
+                for link in link_set.get('LinkSetDb', [])
+                for link in link.get('Link', [])
+            ]
+            
+            return (pmid, geo_ids)
         
-        link_handle = Entrez.elink(
-            dbfrom="pubmed",
-            db="gds",
-            id=pmid,
-            linkname="pubmed_gds"
-        )
-        
-        link_record = Entrez.read(link_handle)
-        link_handle.close()
-        
-        geo_ids = [
-            link['Id']
-            for link_set in link_record
-            for link in link_set.get('LinkSetDb', [])
-            for link in link.get('Link', [])
-        ]
-        
-        return (pmid, geo_ids)
-    
-    except Exception as e:
-        print(f"Error processing PMID {pmid}: {e}")
-        return (pmid, [])
+        except Exception as e:
+            error_msg = str(e)
+            # Check if it's a rate limiting error (429)
+            if "429" in error_msg or "Too Many Requests" in error_msg:
+                if attempt < max_retries - 1:
+                    # Exponential backoff: 1s, 2s, 4s, 8s, 16s
+                    wait_time = retry_delay * (2 ** attempt)
+                    time.sleep(wait_time)
+                    continue
+                else:
+                    print(f"Error processing PMID {pmid} after {max_retries} retries: {e}")
+                    return (pmid, [])
+            else:
+                # For non-rate-limiting errors, fail immediately
+                print(f"Error processing PMID {pmid}: {e}")
+                return (pmid, [])
 
 
 
@@ -104,9 +143,11 @@ def get_geo_ids_for_pubmed_ids(pubmed_ids: List[str]) -> Dict[str, List[str]]:
               f"\nNCBI E-Utilities rate will be limited and may cause errors.")
     
     # Configure API rate limiting and max parallel threads
+    # NCBI allows 10 req/s with API key, 3 req/s without.
+    # Keep max_workers low to stay within limits and reduce 429 retries.
     Entrez.max_tries = 3
     Entrez.sleep_between_tries = 2
-    max_workers = 10
+    max_workers = 3
     
     # Get counts for progress tracking
     pmid_count = len(pubmed_ids)

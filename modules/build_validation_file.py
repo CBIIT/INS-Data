@@ -442,8 +442,10 @@ def get_single_filter_value_results(filter_field: str,
             node_id_col = 'program_id'
     """
 
-    # Find matching filter strings
-    df_filtered = node_df[node_df[filter_field].str.contains(filter_value)]
+    # Split semicolon-separated values and check for exact match
+    # This avoids false positives (e.g. "Sarcoma" matching "Ewing Sarcoma")
+    df_filtered = node_df[node_df[filter_field].apply(
+        lambda x: filter_value in [v.strip() for v in str(x).split(';')])]
 
     # Get list of unique associated program ids
     id_list = df_filtered[node_id_col].unique().tolist()

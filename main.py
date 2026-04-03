@@ -37,6 +37,7 @@ from modules.gather_project_data import gather_project_data
 from modules.summary_statistics import get_summary_statistics
 from modules.gather_publication_data import gather_publication_data
 from modules.gather_geo_data import gather_geo_data
+from modules.gather_sra_data import gather_sra_data
 from modules.gather_cedcd_data import gather_cedcd_data
 from modules.gather_ctd2_data import gather_ctd2_data
 from modules.package_output_data import package_output_data
@@ -70,7 +71,11 @@ def main():
     # Gather, process, and save GEO dataset data
     gather_geo_data(publications_df, overwrite_intermeds=False)
 
-    # STEP 7: CEDCD DATASETS
+    # STEP 7: SRA DATASETS
+    # Gather, process, and save SRA dataset data
+    gather_sra_data(publications_df, overwrite_intermeds=False)
+
+    # STEP 8: CEDCD DATASETS
     # Process and save CEDCD cohort data
     gather_cedcd_data()
 
@@ -81,11 +86,11 @@ def main():
     # OPTIONAL STEP: DBGAP DATASETS
     # If needed, update/run/curate `modules/gather_dbgap_data.py` independently
 
-    # STEP 8: PACKAGE
+    # STEP 9: PACKAGE
     # Final packaging steps to store output files as TSVs
     package_output_data()
 
-    # STEP 9: VALIDATE
+    # STEP 10: VALIDATE
     # Create report for QA testing of data within site UI
     build_validation_file()
 
