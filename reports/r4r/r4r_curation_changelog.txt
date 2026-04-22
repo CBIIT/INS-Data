@@ -1,6 +1,6 @@
 ======================================================================
   R4R Post-Conversion Curation Changelog
-  Applied: 2026-04-22 09:31:26
+  Applied: 2026-04-22 10:24:46
   Method: AI-recommended values (GitHub Copilot)
   Source: Resource titles, full descriptions, and contextual analysis
 ======================================================================

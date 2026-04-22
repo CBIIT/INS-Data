@@ -1,6 +1,6 @@
 ======================================================================
   R4R Markdown → TSV Conversion Report
-  Generated: 2026-04-22 09:31:26
+  Generated: 2026-04-22 10:24:46
 ======================================================================
 
 OVERVIEW
@@ -9,7 +9,7 @@ OVERVIEW
   Missing IDs in range      : [68, 69, 79, 101, 124, 141, 142, 206, 221]
   Input directory            : data\00_input\r4r
   Output TSV                 : data\01_intermediate\r4r_resources_conversion.tsv
-  Columns (14)              : resource_uuid, resource_source_id, resource_title, resource_short_description, resource_source_url, resource_tool_type, resource_tool_subtype, resource_research_area, resource_research_type, resource_access, resource_doc, resource_poc_email, resource_poc_name, resource_full_description
+  Columns (15)              : type, resource_uuid, resource_source_id, resource_title, resource_short_description, resource_source_url, resource_tool_type, resource_tool_subtype, resource_research_area, resource_research_type, resource_access, resource_doc, resource_poc_email, resource_poc_name, resource_full_description
 
 BLANK FIELD AUDIT
   resource_tool_subtype            34 blank  │  ids: 17, 18, 54, 55, 58, 59, 77, 78, 86, 111, 126, 135, 156, 165, 167  ... and 19 more

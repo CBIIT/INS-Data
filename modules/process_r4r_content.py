@@ -33,6 +33,7 @@ markdown body below it. The YAML fields are:
 
 Output TSV columns
 ──────────────────
+  type                       – record type (hardcoded "resource")
   resource_uuid              – deterministic UUID5 from id + title
   resource_source_id         – original numeric id
   resource_title             – cleaned title text
@@ -47,6 +48,7 @@ Output TSV columns
   resource_poc_email         – semicolon-separated contact emails
   resource_poc_name          – semicolon-separated contact names
   resource_full_description  – full narrative text (markdown → HTML)
+
 
 Processing steps
 ────────────────
@@ -85,6 +87,7 @@ REPORT_PATH = os.path.join("reports", "r4r", "r4r_conversion_report.txt")
 
 # ── Output column order ─────────────────────────────────────────────────
 COLUMNS = [
+    "type",
     "resource_uuid",
     "resource_source_id",
     "resource_title",
@@ -306,6 +309,7 @@ def parse_markdown_file(filepath: str) -> dict:
     ))
 
     return {
+        "type":                      "resource",
         "resource_uuid":             resource_uuid,
         "resource_source_id":        r4r_id,
         "resource_title":            clean_for_tsv(r4r_title),
