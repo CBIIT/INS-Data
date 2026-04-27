@@ -1,6 +1,6 @@
 """
 process_r4r_content.py
-──────────────────────
+----------------------
 One-time conversion script that reads R4R (Resources for Researchers)
 markdown files from data/00_input/r4r/, parses their YAML front-matter
 and markdown body, and writes a flattened, INS-ready TSV to
@@ -15,43 +15,43 @@ A conversion report with value distributions, blank-field audit, and
 data quality notes is saved to reports/r4r/r4r_conversion_report.txt.
 
 Source markdown structure
-─────────────────────────
+-------------------------
 Each .md file contains YAML front-matter delimited by --- and a
 markdown body below it. The YAML fields are:
 
-  id              – int, unique resource identifier
-  title           – str, resource name
-  description     – str, short description (YAML block scalar)
-  website         – str, resource URL
-  toolTypes       – list of {toolType: "category/subcategory"}
-  researchAreas   – list of {researchArea: "area_name"}
-  researchTypes   – list of {researchType: "type_name"}
-  resourceAccess  – dict with {type: "open" | "register" | "cost"}
-  docs            – list of {doc: "nci_division_code"}
-  poc             – list of contacts (optional); each may have
+  id              - int, unique resource identifier
+  title           - str, resource name
+  description     - str, short description (YAML block scalar)
+  website         - str, resource URL
+  toolTypes       - list of {toolType: "category/subcategory"}
+  researchAreas   - list of {researchArea: "area_name"}
+  researchTypes   - list of {researchType: "type_name"}
+  resourceAccess  - dict with {type: "open" | "register" | "cost"}
+  docs            - list of {doc: "nci_division_code"}
+  poc             - list of contacts (optional); each may have
                     email and name {firstname, lastname}
 
 Output TSV columns
-──────────────────
-  type                       – record type (hardcoded "resource")
-  resource_uuid              – deterministic UUID5 from id + title
-  resource_source_id         – original numeric id
-  resource_title             – cleaned title text
-  resource_short_description – short description (markdown → HTML)
-  resource_source_url        – resource website URL
-  resource_tool_type         – semicolon-separated parent categories
-  resource_tool_subtype      – semicolon-separated subcategories
-  resource_research_area     – semicolon-separated research areas
-  resource_research_type     – semicolon-separated research types
-  resource_access            – access level (open / register / cost)
-  resource_doc               – semicolon-separated NCI division codes
-  resource_poc_email         – semicolon-separated contact emails
-  resource_poc_name          – semicolon-separated contact names
-  resource_full_description  – full narrative text (markdown → HTML)
+------------------
+  type                       - record type (hardcoded "resource")
+  resource_uuid              - deterministic UUID5 from id + title
+  resource_source_id         - original numeric id
+  resource_title             - cleaned title text
+  resource_short_description - short description (markdown -> HTML)
+  resource_source_url        - resource website URL
+  resource_tool_type         - semicolon-separated parent categories
+  resource_tool_subtype      - semicolon-separated subcategories
+  resource_research_area     - semicolon-separated research areas
+  resource_research_type     - semicolon-separated research types
+  resource_access            - access level (open / register / cost)
+  resource_doc               - semicolon-separated NCI division codes
+  resource_poc_email         - semicolon-separated contact emails
+  resource_poc_name          - semicolon-separated contact names
+  resource_full_description  - full narrative text (markdown -> HTML)
 
 
 Processing steps
-────────────────
+----------------
   1. Parse YAML front-matter and markdown body from each .md file
   2. Flatten nested YAML structures into semicolon-separated strings
   3. Split toolTypes at "/" into parent type and subtype columns
@@ -61,7 +61,7 @@ Processing steps
   7. Write TSV and conversion report
 
 Post-generation curation
-────────────────────────
+------------------------
 After initial TSV generation, AI-recommended values (via GitHub Copilot)
 were applied to resources that had blank fields for short_description,
 tool_type, or research_area.  Curated values live in the CURATIONS dict
@@ -76,16 +76,17 @@ import uuid
 from collections import Counter 
 from datetime import datetime
 import yaml
+import unicodedata
 
-# ── UUID namespace (matches convention in package_output_data.py) ────────
+# -- UUID namespace (matches convention in package_output_data.py) --------
 R4R_UUID_NAMESPACE = uuid.UUID('12345678-1234-5678-1234-567812345678')
 
-# ── Paths ────────────────────────────────────────────────────────────────
+# -- Paths ----------------------------------------------------------------
 INPUT_DIR   = os.path.join("data", "00_input", "r4r")
 OUTPUT_TSV  = os.path.join("data", "01_intermediate", "r4r_resources_conversion.tsv")
 REPORT_PATH = os.path.join("reports", "r4r", "r4r_conversion_report.txt")
 
-# ── Output column order ─────────────────────────────────────────────────
+# -- Output column order -------------------------------------------------
 COLUMNS = [
     "type",
     "resource_uuid",
@@ -104,7 +105,7 @@ COLUMNS = [
     "resource_full_description",
 ]
 
-# ── Human-friendly label overrides ───────────────────────────────────────
+# -- Human-friendly label overrides ---------------------------------------
 # The default transform is:  value.replace("_", " ").title()
 # Entries here override that default for values that need special casing,
 # punctuation, or wording.  Add new overrides as needed.
@@ -141,7 +142,7 @@ def humanize_semicolon_list(raw_field: str) -> str:
     return ";".join(humanize_label(v.strip()) for v in raw_field.split(";"))
 
 
-# ── Access-level mapping ────────────────────────────────────────────────
+# -- Access-level mapping ------------------------------------------------
 ACCESS_LABELS: dict[str, str] = {
     "open":     "Open Access",
     "register": "Requires Registration",
@@ -154,7 +155,24 @@ def humanize_access(raw_value: str) -> str:
     return ACCESS_LABELS.get(raw_value.strip(), raw_value)
 
 
-# ── NCI division / office code mapping ──────────────────────────────────
+def dedup_semicolon_list(raw_field: str) -> str:
+    """Remove duplicate values from a semicolon-separated string, preserving order.
+
+    Empty tokens (e.g. from trailing/double semicolons) are also filtered out.
+    """
+    if not raw_field:
+        return raw_field
+    seen: set[str] = set()
+    result: list[str] = []
+    for v in raw_field.split(";"):
+        v = v.strip()
+        if v and v not in seen:
+            seen.add(v)
+            result.append(v)
+    return ";".join(result)
+
+
+# -- NCI division / office code mapping ----------------------------------
 DOC_LABELS: dict[str, str] = {
     "itcr":   "Informatics Technology for Cancer Research (ITCR)",
     "dctd":   "Division of Cancer Treatment & Diagnosis (DCTD)",
@@ -185,6 +203,88 @@ def humanize_doc_list(raw_field: str) -> str:
     return ";".join(humanize_doc(v.strip()) for v in raw_field.split(";"))
 
 
+# -- Special character replacement ---------------------------------------
+# Mirrors the approach in package_output_data.replace_defined_characters
+# but applied directly to R4R string fields so the TSV is clean without
+# needing to route through that module.
+
+_CHAR_REPLACEMENTS: dict[int, str] = {
+    # Punctuation / whitespace
+    0x2028: ' ',       # Line Separator -> space
+    0x2029: ' ',       # Paragraph Separator -> space
+    0x00A0: ' ',       # Non-breaking space -> space
+    0xFEFF: '',        # BOM -> remove
+    0x2013: '-',       # En dash -> hyphen
+    0x2014: '-',       # Em dash -> hyphen
+    0x2010: '-',       # Unicode hyphen -> ASCII hyphen
+    0x201C: "'",       # Left double quote -> single quote
+    0x201D: "'",       # Right double quote -> single quote
+    0x2018: "'",       # Left single quote -> single quote
+    0x2019: "'",       # Right single quote -> single quote
+    # Greek letters -> HTML entities for proper page rendering
+    0x03B1: '&alpha;',   # alpha
+    0x03B2: '&beta;',    # beta
+    0x03B3: '&gamma;',   # gamma
+    0x03B4: '&delta;',   # delta (lower)
+    0x03B5: '&epsilon;', # epsilon (lower)
+    0x03F5: '&epsilon;', # epsilon variant
+    0x03BA: '&kappa;',   # kappa
+    0x03BB: '&lambda;',  # lambda
+    0x03BC: '&mu;',      # mu
+    0x0394: '&Delta;',   # Delta (upper)
+    0x03A3: '&Sigma;',   # Sigma (upper)
+    # Superscripts -> <sup> HTML tags for proper page rendering
+    0x2070: '<sup>0</sup>', 0x00B9: '<sup>1</sup>',
+    0x00B2: '<sup>2</sup>', 0x00B3: '<sup>3</sup>',
+    0x2074: '<sup>4</sup>', 0x2075: '<sup>5</sup>',
+    0x2076: '<sup>6</sup>', 0x2077: '<sup>7</sup>',
+    0x2078: '<sup>8</sup>', 0x2079: '<sup>9</sup>',
+    # Subscripts -> <sub> HTML tags for proper page rendering
+    0x2080: '<sub>0</sub>', 0x2081: '<sub>1</sub>',
+    0x2082: '<sub>2</sub>', 0x2083: '<sub>3</sub>',
+    0x2084: '<sub>4</sub>', 0x2085: '<sub>5</sub>',
+    0x2086: '<sub>6</sub>', 0x2087: '<sub>7</sub>',
+    0x2088: '<sub>8</sub>', 0x2089: '<sub>9</sub>',
+    # Symbols -> HTML entities for proper page rendering
+    0x00A9: '&copy;',     # Copyright
+    0x00AE: '&reg;',      # Registered trademark
+    0x2122: '&trade;',    # Trademark
+    0x00D7: '&times;',    # Multiplication sign
+    0x2264: '&le;',       # Less than or equal
+    0x2265: '&ge;',       # Greater than or equal
+    # Ligatures
+    0xFB00: 'ff',      # ff ligature
+    0xFB01: 'fi',      # fi ligature
+    0xFB02: 'fl',      # fl ligature
+    0xFB03: 'ffi',     # ffi ligature
+    0xFB04: 'ffl',     # ffl ligature
+}
+
+_TRANSLATION_TABLE = str.maketrans(_CHAR_REPLACEMENTS)
+
+
+def replace_special_characters(text: str) -> str:
+    """Replace non-standard characters with ASCII-safe equivalents.
+
+    Uses a translation table modeled after package_output_data's
+    replace_defined_characters.  Any remaining non-ASCII characters
+    (after translation) are dropped via NFD normalization + ASCII
+    encoding, which also strips accents from Latin characters.
+    """
+    if not text:
+        return text
+
+    # Apply explicit replacements
+    text = text.translate(_TRANSLATION_TABLE)
+
+    # Drop any remaining non-ASCII (accents, stray Unicode, etc.)
+    text = (unicodedata.normalize('NFD', text)
+            .encode('ascii', 'ignore')
+            .decode('utf-8'))
+
+    return text
+
+
 def clean_for_tsv(text: str) -> str:
     """Collapse whitespace so a string is safe inside a single TSV cell.
 
@@ -201,37 +301,37 @@ def markdown_to_html(text: str) -> str:
     """Convert lightweight markdown formatting to inline HTML.
 
     Handles the patterns actually found in the R4R corpus:
-      • Markdown links   [text](url)   → <a href="url">text</a>
-      • Bold             **text**      → <strong>text</strong>
-      • Italic           *text*        → <em>text</em>  (after bold)
-      • Unordered lists  * item / - item on their own lines
-      • Newlines / paragraph breaks    → <br>
-      • Tabs, multi-spaces             → collapsed
+      - Markdown links   [text](url)   -> <a href="url">text</a>
+      - Bold             **text**      -> <strong>text</strong>
+      - Italic           *text*        -> <em>text</em>  (after bold)
+      - Unordered lists  * item / - item on their own lines
+      - Newlines / paragraph breaks    -> <br>
+      - Tabs, multi-spaces             -> collapsed
     Existing HTML tags (<sub>, <br>, etc.) are preserved as-is.
     """
     # Normalise line endings
     text = text.replace("\r\n", "\n").replace("\r", "\n")
 
-    # ── Markdown links → <a> ────────────────────────────────────────────
+    # -- Markdown links -> <a> --------------------------------------------
     text = re.sub(
         r"\[([^\]]+)\]\(([^)]+)\)",
         r'<a href="\2">\1</a>',
         text,
     )
 
-    # ── Bold **text** → <strong> (before italic) ────────────────────────
+    # -- Bold **text** -> <strong> (before italic) ------------------------
     text = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", text)
 
-    # ── Italic *text* → <em> ────────────────────────────────────────────
+    # -- Italic *text* -> <em> --------------------------------------------
     # Avoid matching list markers (* item) at the start of a line
     text = re.sub(r"(?<!\*)\*(?!\s)(.+?)(?<!\s)\*(?!\*)", r"<em>\1</em>", text)
 
-    # ── Unordered list items  (* item  or  - item) ──────────────────────
+    # -- Unordered list items  (* item  or  - item) ----------------------
     # Convert markdown list markers at the beginning of a line to a
-    # bullet character so they survive the whitespace collapse below.
-    text = re.sub(r"(?m)^[*\-+]\s+", "• ", text)
+    # hyphen so they survive the whitespace collapse below.
+    text = re.sub(r"(?m)^[*\-+]\s+", "- ", text)
 
-    # ── Collapse whitespace for TSV safety ──────────────────────────────
+    # -- Collapse whitespace for TSV safety ------------------------------
     # Replace newlines with <br>, tabs with space, multi-spaces with one.
     text = text.replace("\t", " ")
     text = text.replace("\n", "<br>")
@@ -248,7 +348,7 @@ def parse_markdown_file(filepath: str) -> dict:
     with open(filepath, "r", encoding="utf-8") as fh:
         raw = fh.read()
 
-    # ── Split YAML front-matter from markdown body ──────────────────────
+    # -- Split YAML front-matter from markdown body ----------------------
     # Files are structured as:  ---\n<yaml>\n---\n<body>
     parts = raw.split("---", 2)
     if len(parts) < 3:
@@ -259,7 +359,7 @@ def parse_markdown_file(filepath: str) -> dict:
 
     meta = yaml.safe_load(yaml_text)
 
-    # ── Flatten list-of-dict fields into semicolon-separated strings ────
+    # -- Flatten list-of-dict fields into semicolon-separated strings ----
     # toolTypes are split at "/" into parent type and subtype columns
     raw_tool_types = [item["toolType"] for item in (meta.get("toolTypes") or [])]
     tool_types     = ";".join(t.split("/")[0] for t in raw_tool_types)
@@ -276,7 +376,7 @@ def parse_markdown_file(filepath: str) -> dict:
         item["doc"] for item in (meta.get("docs") or [])
     )
 
-    # ── resourceAccess — single-value dict {"type": "open"} ──────────────
+    # -- resourceAccess - single-value dict {"type": "open"} --------------
     resource_access = ""
     ra = meta.get("resourceAccess")
     if isinstance(ra, dict):
@@ -285,7 +385,7 @@ def parse_markdown_file(filepath: str) -> dict:
         resource_access = ra
     resource_access = humanize_access(resource_access)
 
-    # ── poc (point of contact) — optional list of contacts ────────────────
+    # -- poc (point of contact) - optional list of contacts ----------------
     poc_emails = []
     poc_names  = []
     for contact in (meta.get("poc") or []):
@@ -301,7 +401,7 @@ def parse_markdown_file(filepath: str) -> dict:
                 if full:
                     poc_names.append(full)
 
-    # ── Generate deterministic UUID5 from id + title ─────────────────────
+    # -- Generate deterministic UUID5 from id + title ---------------------
     r4r_id = str(meta.get("id", ""))
     r4r_title = (meta.get("title") or "").strip()
     resource_uuid = str(uuid.uuid5(
@@ -315,10 +415,10 @@ def parse_markdown_file(filepath: str) -> dict:
         "resource_title":            clean_for_tsv(r4r_title),
         "resource_short_description":      markdown_to_html((meta.get("description") or "")) or "No description preview.",
         "resource_source_url":       (meta.get("website") or "").strip(),
-        "resource_tool_type":        humanize_semicolon_list(tool_types) or "No Tool Type provided",
-        "resource_tool_subtype":     humanize_semicolon_list(tool_subtypes),
-        "resource_research_area":    humanize_semicolon_list(research_areas) or "No Research Area provided",
-        "resource_research_type":    humanize_semicolon_list(research_types),
+        "resource_tool_type":        dedup_semicolon_list(humanize_semicolon_list(tool_types)) or "No Tool Type provided",
+        "resource_tool_subtype":     dedup_semicolon_list(humanize_semicolon_list(tool_subtypes)),
+        "resource_research_area":    dedup_semicolon_list(humanize_semicolon_list(research_areas)) or "No Research Area provided",
+        "resource_research_type":    dedup_semicolon_list(humanize_semicolon_list(research_types)),
         "resource_access":           resource_access,
         "resource_doc":              humanize_doc_list(docs),
         "resource_poc_email":        ";".join(poc_emails),
@@ -349,6 +449,18 @@ def process_all_r4r_files() -> list[dict]:
     return rows
 
 
+def sanitize_rows(rows: list[dict]) -> None:
+    """Replace non-standard characters across all string fields in-place.
+
+    Should be called after all other processing (parsing, humanization,
+    curation) and before writing the TSV and generating the report.
+    """
+    for row in rows:
+        for key, val in row.items():
+            if isinstance(val, str):
+                row[key] = replace_special_characters(val)
+
+
 def write_tsv(rows: list[dict], output_path: str) -> None:
     """Write resource rows to a tab-separated file."""
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
@@ -357,7 +469,7 @@ def write_tsv(rows: list[dict], output_path: str) -> None:
                                 extrasaction="ignore")
         writer.writeheader()
         writer.writerows(rows)
-    print(f"[OK] Wrote {len(rows)} rows → {output_path}")
+    print(f"[OK] Wrote {len(rows)} rows -> {output_path}")
 
 
 def generate_report(rows: list[dict]) -> str:
@@ -366,16 +478,16 @@ def generate_report(rows: list[dict]) -> str:
     w = lines.append  # shorthand
 
     w("=" * 70)
-    w("  R4R Markdown → TSV Conversion Report")
+    w("  R4R Markdown -> TSV Conversion Report")
     w(f"  Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     w("=" * 70)
 
-    # ── Overview ────────────────────────────────────────────────────────
+    # -- Overview --------------------------------------------------------
     int_ids = sorted(int(r["resource_source_id"]) for r in rows)
     w("")
     w("OVERVIEW")
     w(f"  Total resources processed : {len(rows)}")
-    w(f"  ID range                  : {int_ids[0]} – {int_ids[-1]}")
+    w(f"  ID range                  : {int_ids[0]} - {int_ids[-1]}")
     expected = set(range(int_ids[0], int_ids[-1] + 1))
     missing_ids = sorted(expected - set(int_ids))
     w(f"  Missing IDs in range      : {missing_ids if missing_ids else 'None'}")
@@ -383,7 +495,7 @@ def generate_report(rows: list[dict]) -> str:
     w(f"  Output TSV                 : {OUTPUT_TSV}")
     w(f"  Columns ({len(COLUMNS)})              : {', '.join(COLUMNS)}")
 
-    # ── Blank / empty field audit ───────────────────────────────────────
+    # -- Blank / empty field audit ---------------------------------------
     REQUIRED = ["resource_source_id", "resource_title", "resource_short_description",
                 "resource_source_url", "resource_tool_type",
                 "resource_tool_subtype", "resource_research_area",
@@ -397,11 +509,11 @@ def generate_report(rows: list[dict]) -> str:
             any_blanks = True
             preview = ", ".join(blanks[:15])
             suffix = f"  ... and {len(blanks) - 15} more" if len(blanks) > 15 else ""
-            w(f"  {col:<30s}  {len(blanks):>3} blank  │  ids: {preview}{suffix}")
+            w(f"  {col:<30s}  {len(blanks):>3} blank  -  ids: {preview}{suffix}")
     if not any_blanks:
         w("  All required fields populated.")
 
-    # ── Value distributions ─────────────────────────────────────────────
+    # -- Value distributions ---------------------------------------------
     w("")
     w("VALUE DISTRIBUTIONS")
     for field in ("resource_tool_type", "resource_tool_subtype",
@@ -417,7 +529,7 @@ def generate_report(rows: list[dict]) -> str:
         for v, c in vals.most_common():
             w(f"      {c:>4}  {v}")
 
-    # ── POC coverage ────────────────────────────────────────────────────
+    # -- POC coverage ----------------------------------------------------
     poc_with_email    = sum(1 for r in rows if r["resource_poc_email"].strip())
     poc_with_name     = sum(1 for r in rows if r["resource_poc_name"].strip())
     poc_email_no_name = sum(1 for r in rows
@@ -428,7 +540,7 @@ def generate_report(rows: list[dict]) -> str:
     w(f"  With name           : {poc_with_name}/{len(rows)}")
     w(f"  Email but no name   : {poc_email_no_name}")
 
-    # ── Description length stats ────────────────────────────────────────
+    # -- Description length stats ----------------------------------------
     desc_lens = [len(r["resource_full_description"]) for r in rows]
     empty_desc = [str(r["resource_source_id"]) for r in rows if not r["resource_full_description"].strip()]
     w("")
@@ -438,11 +550,11 @@ def generate_report(rows: list[dict]) -> str:
     w(f"  Avg length : {sum(desc_lens) // len(desc_lens)} chars")
     w(f"  Empty      : {', '.join(empty_desc) if empty_desc else 'None'}")
 
-    # ── Preview ─────────────────────────────────────────────────────────
+    # -- Preview ---------------------------------------------------------
     w("")
     w("PREVIEW (first 10 rows)")
     w(f"  {'id':>4}  {'title':<55s}  {'tool_types'}")
-    w(f"  {'──':>4}  {'─' * 55}  {'─' * 40}")
+    w(f"  {'--':>4}  {'-' * 55}  {'-' * 40}")
     for r in rows[:10]:
         w(f"  {r['resource_source_id']:>4}  {r['resource_title'][:55]:<55s}  {r['resource_tool_type']}")
 
@@ -455,23 +567,23 @@ def write_report(report_text: str, report_path: str) -> None:
     os.makedirs(os.path.dirname(report_path), exist_ok=True)
     with open(report_path, "w", encoding="utf-8") as fh:
         fh.write(report_text + "\n")
-    print(f"[OK] Report saved → {report_path}")
+    print(f"[OK] Report saved -> {report_path}")
 
 
-# ── Post-generation curation ────────────────────────────────────────────
+# -- Post-generation curation --------------------------------------------
 # AI-recommended values (GitHub Copilot) for resources whose original
 # markdown files had blank fields for short_description, tool_type,
 # or research_area.  Applied in-memory before writing the TSV.
 # See reports/r4r/r4r_curation_changelog.txt for the full audit trail.
 
 CURATIONS: dict[str, dict[str, str]] = {
-    # ── resource_short_description (1 resource) ─────────────────────────
+    # -- resource_short_description (1 resource) -------------------------
     "44": {
         "resource_short_description":
             "A Microsoft Excel-based program for dose level assignment "
             "in accelerated titration designs for phase I clinical trials.",
     },
-    # ── resource_tool_type (6 resources) ────────────────────────────────
+    # -- resource_tool_type (6 resources) --------------------------------
     "171": {"resource_tool_type": "Analysis Tools",
             "resource_tool_subtype": "Statistical Software"},
     "172": {"resource_tool_type": "Analysis Tools",
@@ -485,7 +597,7 @@ CURATIONS: dict[str, dict[str, str]] = {
             "resource_research_area": "Cancer Treatment"},
     "215": {"resource_tool_type": "Community Research Tools",
             "resource_research_area": "Cancer Biology;Cancer Treatment"},
-    # ── resource_research_area (remaining 30 resources) ─────────────────
+    # -- resource_research_area (remaining 30 resources) -----------------
     "62":  {"resource_research_area": "Bioinformatics"},
     "63":  {"resource_research_area": "Bioinformatics"},
     "64":  {"resource_research_area": "Bioinformatics"},
@@ -540,9 +652,9 @@ def apply_curations(rows: list[dict]) -> int:
     changelog.append("for resources where the original markdown files had no value for the field.")
     changelog.append("")
     changelog.append("Fields curated:")
-    changelog.append("  • resource_short_description  (1 resource)")
-    changelog.append("  • resource_tool_type          (6 resources, some with tool_subtype)")
-    changelog.append("  • resource_research_area      (32 resources)")
+    changelog.append("  - resource_short_description  (1 resource)")
+    changelog.append("  - resource_tool_type          (6 resources, some with tool_subtype)")
+    changelog.append("  - resource_research_area      (32 resources)")
     changelog.append("")
     changelog.append("-" * 70)
 
@@ -560,7 +672,7 @@ def apply_curations(rows: list[dict]) -> int:
                 changelog.append(f"  Field       : {field}")
                 changelog.append(f"  Old value   : {old_val}")
                 changelog.append(f"  New value   : {new_val}")
-                changelog.append(f"  {'─' * 60}")
+                changelog.append(f"  {'-' * 60}")
 
     changelog.append("")
     changelog.append(f"Total changes applied: {changes}")
@@ -568,16 +680,19 @@ def apply_curations(rows: list[dict]) -> int:
     os.makedirs(os.path.dirname(CURATION_LOG_PATH), exist_ok=True)
     with open(CURATION_LOG_PATH, "w", encoding="utf-8") as fh:
         fh.write("\n".join(changelog) + "\n")
-    print(f"[OK] Applied {changes} curated values → {CURATION_LOG_PATH}")
+    print(f"[OK] Applied {changes} curated values -> {CURATION_LOG_PATH}")
     return changes
 
 
-# ── Main ─────────────────────────────────────────────────────────────────
+# -- Main -----------------------------------------------------------------
 if __name__ == "__main__":
     rows = process_all_r4r_files()
 
     # Apply AI-curated values for blank fields
     apply_curations(rows)
+
+    # Replace non-standard characters with ASCII / HTML entities
+    sanitize_rows(rows)
 
     # Write TSV
     write_tsv(rows, OUTPUT_TSV)

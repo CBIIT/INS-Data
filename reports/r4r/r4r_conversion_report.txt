@@ -1,32 +1,32 @@
 ======================================================================
-  R4R Markdown → TSV Conversion Report
-  Generated: 2026-04-22 10:24:46
+  R4R Markdown -> TSV Conversion Report
+  Generated: 2026-04-27 10:12:08
 ======================================================================
 
 OVERVIEW
   Total resources processed : 270
-  ID range                  : 1 – 279
+  ID range                  : 1 - 279
   Missing IDs in range      : [68, 69, 79, 101, 124, 141, 142, 206, 221]
   Input directory            : data\00_input\r4r
   Output TSV                 : data\01_intermediate\r4r_resources_conversion.tsv
   Columns (15)              : type, resource_uuid, resource_source_id, resource_title, resource_short_description, resource_source_url, resource_tool_type, resource_tool_subtype, resource_research_area, resource_research_type, resource_access, resource_doc, resource_poc_email, resource_poc_name, resource_full_description
 
 BLANK FIELD AUDIT
-  resource_tool_subtype            34 blank  │  ids: 17, 18, 54, 55, 58, 59, 77, 78, 86, 111, 126, 135, 156, 165, 167  ... and 19 more
-  resource_research_type           27 blank  │  ids: 62, 144, 182, 193, 194, 195, 196, 197, 201, 202, 208, 209, 210, 211, 229  ... and 12 more
-  resource_access                   5 blank  │  ids: 170, 173, 204, 208, 211
-  resource_doc                     19 blank  │  ids: 196, 197, 202, 205, 207, 216, 229, 231, 232, 233, 234, 235, 236, 237, 242  ... and 4 more
+  resource_tool_subtype            39 blank  -  ids: 17, 18, 23, 54, 55, 58, 59, 77, 78, 86, 111, 117, 126, 135, 156  ... and 24 more
+  resource_research_type           27 blank  -  ids: 62, 144, 182, 193, 194, 195, 196, 197, 201, 202, 208, 209, 210, 211, 229  ... and 12 more
+  resource_access                   5 blank  -  ids: 170, 173, 204, 208, 211
+  resource_doc                     19 blank  -  ids: 196, 197, 202, 205, 207, 216, 229, 231, 232, 233, 234, 235, 236, 237, 242  ... and 4 more
 
 VALUE DISTRIBUTIONS
 
   resource_tool_type  (8 unique values):
-       176  Analysis Tools
-       125  Datasets and Databases
-        65  Lab Tools
-        29  Community Research Tools
+       135  Analysis Tools
+       101  Datasets and Databases
+        45  Lab Tools
+        26  Community Research Tools
         16  Terminology
-        14  Clinical Research Tools
         13  Networks and Consortiums
+        13  Clinical Research Tools
          6  Training Resources
 
   resource_tool_subtype  (30 unique values):
@@ -116,11 +116,11 @@ FULL DESCRIPTION STATS
 
 PREVIEW (first 10 rows)
     id  title                                                    tool_types
-    ──  ───────────────────────────────────────────────────────  ────────────────────────────────────────
+    --  -------------------------------------------------------  ----------------------------------------
      1  Enhancer Linking by Methylation/Expression Relationship  Analysis Tools
      2  Next-Generation Clustered Heat Maps (NG-CHM)             Analysis Tools
      3  The BioMedical Evidence Graph (BMEG)                     Datasets and Databases;Analysis Tools
-     4  Driver-gene Inference by Genetical-Genomics and Informa  Analysis Tools;Analysis Tools
+     4  Driver-gene Inference by Genetical-Genomics and Informa  Analysis Tools
      5  Cancer Slide Digital Archive (CDSA)                      Datasets and Databases;Analysis Tools
      6  Cancer and Phenomics Toolkit (CaPTK)                     Analysis Tools
      7  Cloud-based Image Biomarker Platform (C-BIBOP)           Datasets and Databases;Analysis Tools

@@ -1,6 +1,6 @@
 ======================================================================
   R4R Post-Conversion Curation Changelog
-  Applied: 2026-04-22 10:24:46
+  Applied: 2026-04-27 10:12:08
   Method: AI-recommended values (GitHub Copilot)
   Source: Resource titles, full descriptions, and contextual analysis
 ======================================================================
@@ -11,9 +11,9 @@ values that were inserted during the initial markdown-to-TSV conversion
 for resources where the original markdown files had no value for the field.
 
 Fields curated:
-  • resource_short_description  (1 resource)
-  • resource_tool_type          (6 resources, some with tool_subtype)
-  • resource_research_area      (32 resources)
+  - resource_short_description  (1 resource)
+  - resource_tool_type          (6 resources, some with tool_subtype)
+  - resource_research_area      (32 resources)
 
 ----------------------------------------------------------------------
 
@@ -22,307 +22,307 @@ Fields curated:
   Field       : resource_short_description
   Old value   : No description preview.
   New value   : A Microsoft Excel-based program for dose level assignment in accelerated titration designs for phase I clinical trials.
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 62
   Title       : Data Dictionary Refine (D2Refine)
   Field       : resource_research_area
   Old value   : No Research Area provided
   New value   : Bioinformatics
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 63
   Title       : Web Ontology Language Quality Assurance (OWL-QA)
   Field       : resource_research_area
   Old value   : No Research Area provided
   New value   : Bioinformatics
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 64
   Title       : Shape Expression Validation Tools (ShEx)
   Field       : resource_research_area
   Old value   : No Research Area provided
   New value   : Bioinformatics
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 171
   Title       : Standardized Occupation Coding for Computer-assisted Epidemiologic Research (SOCcer)
   Field       : resource_tool_type
   Old value   : No Tool Type provided
   New value   : Analysis Tools
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 171
   Title       : Standardized Occupation Coding for Computer-assisted Epidemiologic Research (SOCcer)
   Field       : resource_tool_subtype
   Old value   : 
   New value   : Statistical Software
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 172
   Title       : Power for Genetic Association Analyses (PGA)
   Field       : resource_tool_type
   Old value   : No Tool Type provided
   New value   : Analysis Tools
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 172
   Title       : Power for Genetic Association Analyses (PGA)
   Field       : resource_tool_subtype
   Old value   : 
   New value   : Statistical Software
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 173
   Title       : Job Modules for Occupational Questionnaires
   Field       : resource_tool_type
   Old value   : No Tool Type provided
   New value   : Community Research Tools
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 173
   Title       : Job Modules for Occupational Questionnaires
   Field       : resource_tool_subtype
   Old value   : 
   New value   : Questionnaire
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 174
   Title       : Computerized Heterocyclic Amines Resource for Research in Epidemiology of Disease (CHARRED)
   Field       : resource_tool_type
   Old value   : No Tool Type provided
   New value   : Analysis Tools
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 174
   Title       : Computerized Heterocyclic Amines Resource for Research in Epidemiology of Disease (CHARRED)
   Field       : resource_tool_subtype
   Old value   : 
   New value   : Modeling
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 182
   Title       : Dietary Assessment Primer
   Field       : resource_research_area
   Old value   : No Research Area provided
   New value   : Cancer Prevention
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 193
   Title       : NCI Dictionary of Genetic Terms
   Field       : resource_research_area
   Old value   : No Research Area provided
   New value   : Cancer Biology;Cancer Omics
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 194
   Title       : NCI Dictionary of Cancer Terms
   Field       : resource_research_area
   Old value   : No Research Area provided
   New value   : Cancer Biology;Cancer Treatment
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 195
   Title       : NCI Drug Dictionary
   Field       : resource_research_area
   Old value   : No Research Area provided
   New value   : Cancer Treatment
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 196
   Title       : FDA Terminology
   Field       : resource_research_area
   Old value   : No Research Area provided
   New value   : Cancer Treatment;Cancer Biology
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 197
   Title       : NCI Thesaurus (NCIt)
   Field       : resource_research_area
   Old value   : No Research Area provided
   New value   : Cancer Biology;Cancer Treatment;Bioinformatics
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 201
   Title       : Protocol Development
   Field       : resource_research_area
   Old value   : No Research Area provided
   New value   : Cancer Treatment
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 202
   Title       : National Cryo-Electron Microscopy Facility (NCEF)
   Field       : resource_research_area
   Old value   : No Research Area provided
   New value   : Cancer Biology
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 203
   Title       : Handbook for Clinical Investigators Conducting Therapeutic Clinical Trials
   Field       : resource_research_area
   Old value   : No Research Area provided
   New value   : Cancer Treatment
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 204
   Title       : Requirements for Registering and Reporting NIH-funded Clinical Trials in ClinicalTrials.gov
   Field       : resource_research_area
   Old value   : No Research Area provided
   New value   : Cancer Treatment
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 205
   Title       : Cancer Trials Support Unit (CTSU)
   Field       : resource_research_area
   Old value   : No Research Area provided
   New value   : Cancer Treatment
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 207
   Title       : The Central Institutional Review Board (CIRB) for the National Cancer Institute
   Field       : resource_research_area
   Old value   : No Research Area provided
   New value   : Cancer Treatment
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 208
   Title       : Surveillance, Epidemiology and End Results (SEER)-Medicare Linked Database
   Field       : resource_research_area
   Old value   : No Research Area provided
   New value   : Cancer Statistics;Cancer Treatment;Cancer Health Disparities
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 209
   Title       : Cancer Therapy Evaluation Program Adverse Event Reporting System (CTEP-AERS)
   Field       : resource_research_area
   Old value   : No Research Area provided
   New value   : Cancer Treatment
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 210
   Title       : Common Terminology Criteria for Adverse Events (CTCAE)
   Field       : resource_research_area
   Old value   : No Research Area provided
   New value   : Cancer Treatment
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 211
   Title       : Guidelines for Collaborations with Industry
   Field       : resource_tool_type
   Old value   : No Tool Type provided
   New value   : Clinical Research Tools
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 211
   Title       : Guidelines for Collaborations with Industry
   Field       : resource_tool_subtype
   Old value   : 
   New value   : Guidelines and Protocols
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 211
   Title       : Guidelines for Collaborations with Industry
   Field       : resource_research_area
   Old value   : No Research Area provided
   New value   : Cancer Treatment
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 215
   Title       : Team Science Toolkit
   Field       : resource_tool_type
   Old value   : No Tool Type provided
   New value   : Community Research Tools
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 215
   Title       : Team Science Toolkit
   Field       : resource_research_area
   Old value   : No Research Area provided
   New value   : Cancer Biology;Cancer Treatment
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 229
   Title       : Cancer Data Access System (CDAS)
   Field       : resource_research_area
   Old value   : No Research Area provided
   New value   : Cancer Prevention;Cancer Diagnosis;Screening and Detection
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 230
   Title       : Clinical Data Interchange Standards Consortium (CDISC) Terminology
   Field       : resource_research_area
   Old value   : No Research Area provided
   New value   : Cancer Treatment;Cancer Biology
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 233
   Title       : NCI Brain Neoplasia Data
   Field       : resource_research_area
   Old value   : No Research Area provided
   New value   : Cancer Biology;Cancer Omics
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 234
   Title       : NCI Metathesaurus (NCIm)
   Field       : resource_research_area
   Old value   : No Research Area provided
   New value   : Cancer Biology;Cancer Treatment;Bioinformatics
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 235
   Title       : NCI Term Browser
   Field       : resource_research_area
   Old value   : No Research Area provided
   New value   : Cancer Biology;Cancer Treatment;Bioinformatics
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 236
   Title       : National Council for Prescription Drug Programs (NCPDP) Terminology
   Field       : resource_research_area
   Old value   : No Research Area provided
   New value   : Cancer Treatment
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 237
   Title       : Pediatric Terminology
   Field       : resource_research_area
   Old value   : No Research Area provided
   New value   : Cancer Treatment;Cancer Biology
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 238
   Title       : Consortium of Metabolomics Studies (COMETS)
   Field       : resource_research_area
   Old value   : No Research Area provided
   New value   : Cancer Biology;Cancer Omics;Causes of Cancer
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 239
   Title       : Metabolomics Quality Assurance & Quality Control Consortium (mQACC)
   Field       : resource_research_area
   Old value   : No Research Area provided
   New value   : Cancer Biology;Cancer Omics
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 241
   Title       : Collaboration and Team Science: A Field Guide
   Field       : resource_research_area
   Old value   : No Research Area provided
   New value   : Cancer Biology;Cancer Treatment
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 242
   Title       : D3Oncoprint
   Field       : resource_research_area
   Old value   : No Research Area provided
   New value   : Cancer Omics;Cancer Biology
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
   Resource ID : 263
   Title       : TREAT (TREe-based Association Test)
   Field       : resource_research_area
   Old value   : No Research Area provided
   New value   : Causes of Cancer;Cancer Omics
-  ────────────────────────────────────────────────────────────
+  ------------------------------------------------------------
 
 Total changes applied: 44
