@@ -571,12 +571,17 @@ def write_report(report_text: str, report_path: str) -> None:
 
 
 # -- Post-generation curation --------------------------------------------
-# AI-recommended values (GitHub Copilot) for resources whose original
-# markdown files had blank fields for short_description, tool_type,
-# or research_area.  Applied in-memory before writing the TSV.
+# Curated and AI-recommended values (GitHub Copilot) for resources whose 
+# original markdown files needed edits or had blank fields. 
+# Fixes are applied in-memory before writing the TSV.
 # See reports/r4r/r4r_curation_changelog.txt for the full audit trail.
 
 CURATIONS: dict[str, dict[str, str]] = {
+    # -- resource_title typo fixes (4 resources) ----------------------------------------
+    "28": {"resource_title": "Tumor Heterogeneity Research Interactive Visualization Environment (THRIVE)"}, # Heterogenity -> Heterogeneity
+    "47": {"resource_title": "Pathological Complete Response (pCR) Trial-Level Surrogate Analysis Software"}, # Added missing space
+    "51": {"resource_title": "Bayesian Phase II Single Arm Clinical Trials"}, # Baysian -> Bayesian
+    "52": {"resource_title": "Bayesian Phase II Single Arm Clinical Trials"}, # Baysian -> Bayesian
     # -- resource_short_description (1 resource) -------------------------
     "44": {
         "resource_short_description":
