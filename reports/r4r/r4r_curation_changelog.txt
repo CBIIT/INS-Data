@@ -1,6 +1,6 @@
 ======================================================================
   R4R Post-Conversion Curation Changelog
-  Applied: 2026-04-27 11:35:18
+  Applied: 2026-05-13 09:09:47
   Method: AI-recommended values (GitHub Copilot)
   Source: Resource titles, full descriptions, and contextual analysis
 ======================================================================
@@ -71,6 +71,20 @@ Fields curated:
   Field       : resource_research_area
   Old value   : No Research Area provided
   New value   : Bioinformatics
+  ------------------------------------------------------------
+
+  Resource ID : 126
+  Title       : Cancer Target Discovery and Development (CTD2) Dashboard
+  Field       : resource_title
+  Old value   : Cancer Target Discovery and Development (CTD^2) Dashboard
+  New value   : Cancer Target Discovery and Development (CTD2) Dashboard
+  ------------------------------------------------------------
+
+  Resource ID : 135
+  Title       : Cancer Target Discovery and Development (CTD2) Data Portal
+  Field       : resource_title
+  Old value   : Cancer Target Discovery and Development (CTD^2) Data Portal
+  New value   : Cancer Target Discovery and Development (CTD2) Data Portal
   ------------------------------------------------------------
 
   Resource ID : 171
@@ -353,4 +367,4 @@ Fields curated:
   New value   : Causes of Cancer;Cancer Omics
   ------------------------------------------------------------
 
-Total changes applied: 48
+Total changes applied: 50

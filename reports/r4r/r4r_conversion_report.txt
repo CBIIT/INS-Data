@@ -1,6 +1,6 @@
 ======================================================================
   R4R Markdown -> TSV Conversion Report
-  Generated: 2026-04-27 11:35:18
+  Generated: 2026-05-13 09:09:47
 ======================================================================
 
 OVERVIEW
@@ -111,7 +111,7 @@ POINT-OF-CONTACT (POC) COVERAGE
 FULL DESCRIPTION STATS
   Min length : 68 chars
   Max length : 2316 chars
-  Avg length : 491 chars
+  Avg length : 492 chars
   Empty      : None
 
 PREVIEW (first 10 rows)
@@ -119,12 +119,12 @@ PREVIEW (first 10 rows)
     --  -------------------------------------------------------  ----------------------------------------
      1  Enhancer Linking by Methylation/Expression Relationship  Analysis Tools
      2  Next-Generation Clustered Heat Maps (NG-CHM)             Analysis Tools
-     3  The BioMedical Evidence Graph (BMEG)                     Datasets and Databases;Analysis Tools
+     3  The BioMedical Evidence Graph (BMEG)                     Analysis Tools;Datasets and Databases
      4  Driver-gene Inference by Genetical-Genomics and Informa  Analysis Tools
-     5  Cancer Slide Digital Archive (CDSA)                      Datasets and Databases;Analysis Tools
+     5  Cancer Slide Digital Archive (CDSA)                      Analysis Tools;Datasets and Databases
      6  Cancer and Phenomics Toolkit (CaPTK)                     Analysis Tools
-     7  Cloud-based Image Biomarker Platform (C-BIBOP)           Datasets and Databases;Analysis Tools
-     8  Cistrome                                                 Datasets and Databases;Analysis Tools
-     9  CLAMP-Cancer                                             Datasets and Databases;Analysis Tools
+     7  Cloud-based Image Biomarker Platform (C-BIBOP)           Analysis Tools;Datasets and Databases
+     8  Cistrome                                                 Analysis Tools;Datasets and Databases
+     9  CLAMP-Cancer                                             Analysis Tools;Datasets and Databases
     10  Apache Clinical Text and Knowledge Extraction System (c  Analysis Tools
 

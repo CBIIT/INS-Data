@@ -7,6 +7,7 @@ Pytest test suite for the process_r4r_content.py module.
 import os
 import sys
 import csv
+import re
 import uuid
 import pytest
 import tempfile
@@ -20,6 +21,7 @@ from modules.process_r4r_content import (
     humanize_doc,
     humanize_doc_list,
     dedup_semicolon_list,
+    sort_semicolon_list,
     clean_for_tsv,
     markdown_to_html,
     replace_special_characters,
@@ -146,6 +148,35 @@ class TestDedupSemicolonList:
 
     def test_all_same(self):
         assert dedup_semicolon_list("X;X;X") == "X"
+
+
+# ---------------------------------------------------------------------------
+# sort_semicolon_list
+# ---------------------------------------------------------------------------
+
+class TestSortSemicolonList:
+    """Tests for alphabetical sorting of semicolon-separated values."""
+
+    def test_sorts_alphabetically(self):
+        assert sort_semicolon_list("Zebra;Apple;Mango") == "Apple;Mango;Zebra"
+
+    def test_case_insensitive(self):
+        assert sort_semicolon_list("banana;Apple;cherry") == "Apple;banana;cherry"
+
+    def test_single_value(self):
+        assert sort_semicolon_list("Only") == "Only"
+
+    def test_empty_string(self):
+        assert sort_semicolon_list("") == ""
+
+    def test_none_passthrough(self):
+        assert sort_semicolon_list(None) is None
+
+    def test_filters_empty_tokens(self):
+        assert sort_semicolon_list("B;;A;") == "A;B"
+
+    def test_strips_whitespace(self):
+        assert sort_semicolon_list(" C ; A ; B ") == "A;B;C"
 
 
 # ---------------------------------------------------------------------------
@@ -306,6 +337,107 @@ class TestSanitizeRows:
         sanitize_rows(rows)
         assert rows[0]["a"] == "&alpha;"
         assert rows[1]["a"] == "&beta;"
+
+    def test_ctd2_superscript_in_descriptions(self):
+        """CTD^2 and CTD2 in descriptions should become CTD<sup>2</sup>."""
+        rows = [{
+            "resource_short_description": "The CTD^2 Dashboard",
+            "resource_full_description": "CTD2 Network data",
+            "resource_title": "CTD2 Dashboard",
+        }]
+        sanitize_rows(rows)
+        assert "CTD<sup>2</sup>" in rows[0]["resource_short_description"]
+        assert "CTD<sup>2</sup>" in rows[0]["resource_full_description"]
+
+    def test_ctd2_not_superscripted_in_title(self):
+        """CTD2 in title should remain plain text (no HTML)."""
+        rows = [{
+            "resource_short_description": "desc",
+            "resource_full_description": "desc",
+            "resource_title": "CTD2 Dashboard",
+        }]
+        sanitize_rows(rows)
+        assert rows[0]["resource_title"] == "CTD2 Dashboard"
+        assert "<sup>" not in rows[0]["resource_title"]
+
+
+# ---------------------------------------------------------------------------
+# HTML entities / elements confined to description columns
+# ---------------------------------------------------------------------------
+
+# Columns where HTML content is expected (markdown -> HTML conversion)
+_DESCRIPTION_COLS = {"resource_short_description", "resource_full_description"}
+
+# Columns that are never checked (not user-facing text)
+_SKIP_COLS = {"resource_source_url", "resource_uuid"}
+
+# Pattern matching HTML entities (&alpha; &#947; &#x03B3;) and tags (<em>, <br>, etc.)
+_HTML_PATTERN = re.compile(r"&[a-zA-Z]+;|&#[0-9]+;|&#x[0-9a-fA-F]+;|<[a-z/][^>]*>", re.IGNORECASE)
+
+
+class TestHtmlConfinedToDescriptions:
+    """HTML entities and elements should only appear in the two description columns."""
+
+    def _make_row(self, **overrides):
+        """Return a sanitized row with HTML content in descriptions."""
+        base = {
+            "type": "resource",
+            "resource_uuid": "00000000-0000-0000-0000-000000000000",
+            "resource_source_id": "1",
+            "resource_title": "Plain Title",
+            "resource_short_description": "Text with <em>emphasis</em>.",
+            "resource_source_url": "https://example.com",
+            "resource_tool_type": "Analysis Tools",
+            "resource_tool_subtype": "R Software",
+            "resource_research_area": "Cancer Omics",
+            "resource_research_type": "Basic",
+            "resource_access": "Open Access",
+            "resource_doc": "Informatics Technology for Cancer Research (ITCR)",
+            "resource_poc_email": "",
+            "resource_poc_name": "",
+            "resource_full_description": "Greek &alpha; and <sub>2</sub>.",
+        }
+        base.update(overrides)
+        return base
+
+    def test_no_html_in_non_description_columns(self):
+        """A well-formed row has no HTML entities or tags outside the two description columns."""
+        row = self._make_row()
+        for col, val in row.items():
+            if col in _DESCRIPTION_COLS or col in _SKIP_COLS:
+                continue
+            assert not _HTML_PATTERN.search(val), (
+                f"Unexpected HTML in column '{col}': {val!r}")
+
+    def test_html_is_present_in_description_columns(self):
+        """Confirm the description columns do contain the expected HTML."""
+        row = self._make_row()
+        assert _HTML_PATTERN.search(row["resource_short_description"])
+        assert _HTML_PATTERN.search(row["resource_full_description"])
+
+    def test_sanitized_greek_stays_in_description(self):
+        """Greek letters converted to HTML entities should only be in descriptions."""
+        row = self._make_row(
+            resource_title="Alpha Beta Tool",
+            resource_full_description="Uses &alpha; and &beta; constants.",
+        )
+        sanitize_rows([row])
+        for col, val in row.items():
+            if col in _DESCRIPTION_COLS or col in _SKIP_COLS:
+                continue
+            assert not _HTML_PATTERN.search(val), (
+                f"HTML entity leaked into column '{col}': {val!r}")
+
+    def test_sup_sub_tags_only_in_descriptions(self):
+        """<sup> and <sub> tags should not appear outside description columns."""
+        row = self._make_row(
+            resource_full_description="H<sub>2</sub>O and x<sup>2</sup>.",
+        )
+        for col, val in row.items():
+            if col in _DESCRIPTION_COLS or col in _SKIP_COLS:
+                continue
+            assert "<sup>" not in val and "<sub>" not in val, (
+                f"<sup>/<sub> tag found in column '{col}': {val!r}")
 
 
 # ---------------------------------------------------------------------------

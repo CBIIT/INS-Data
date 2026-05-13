@@ -172,6 +172,17 @@ def dedup_semicolon_list(raw_field: str) -> str:
     return ";".join(result)
 
 
+def sort_semicolon_list(raw_field: str) -> str:
+    """Sort values in a semicolon-separated string alphabetically (case-insensitive).
+
+    Empty/blank tokens are filtered out.
+    """
+    if not raw_field:
+        return raw_field
+    values = [v.strip() for v in raw_field.split(";") if v.strip()]
+    return ";".join(sorted(values, key=str.casefold))
+
+
 # -- NCI division / office code mapping ----------------------------------
 DOC_LABELS: dict[str, str] = {
     "itcr":   "Informatics Technology for Cancer Research (ITCR)",
@@ -415,14 +426,14 @@ def parse_markdown_file(filepath: str) -> dict:
         "resource_title":            clean_for_tsv(r4r_title),
         "resource_short_description":      markdown_to_html((meta.get("description") or "")) or "No description preview.",
         "resource_source_url":       (meta.get("website") or "").strip(),
-        "resource_tool_type":        dedup_semicolon_list(humanize_semicolon_list(tool_types)) or "No Tool Type provided",
-        "resource_tool_subtype":     dedup_semicolon_list(humanize_semicolon_list(tool_subtypes)),
-        "resource_research_area":    dedup_semicolon_list(humanize_semicolon_list(research_areas)) or "No Research Area provided",
-        "resource_research_type":    dedup_semicolon_list(humanize_semicolon_list(research_types)),
+        "resource_tool_type":        sort_semicolon_list(dedup_semicolon_list(humanize_semicolon_list(tool_types))) or "No Tool Type provided",
+        "resource_tool_subtype":     sort_semicolon_list(dedup_semicolon_list(humanize_semicolon_list(tool_subtypes))),
+        "resource_research_area":    sort_semicolon_list(dedup_semicolon_list(humanize_semicolon_list(research_areas))) or "No Research Area provided",
+        "resource_research_type":    sort_semicolon_list(dedup_semicolon_list(humanize_semicolon_list(research_types))),
         "resource_access":           resource_access,
-        "resource_doc":              humanize_doc_list(docs),
-        "resource_poc_email":        ";".join(poc_emails),
-        "resource_poc_name":         ";".join(poc_names),
+        "resource_doc":              sort_semicolon_list(dedup_semicolon_list(humanize_doc_list(docs))),
+        "resource_poc_email":        sort_semicolon_list(dedup_semicolon_list(";".join(poc_emails))),
+        "resource_poc_name":         sort_semicolon_list(dedup_semicolon_list(";".join(poc_names))),
         "resource_full_description": markdown_to_html(body_text),
     }
 
@@ -455,10 +466,20 @@ def sanitize_rows(rows: list[dict]) -> None:
     Should be called after all other processing (parsing, humanization,
     curation) and before writing the TSV and generating the report.
     """
+    # Columns where HTML tags are allowed (description fields only)
+    _DESCRIPTION_COLS = {"resource_short_description", "resource_full_description"}
+
     for row in rows:
         for key, val in row.items():
             if isinstance(val, str):
                 row[key] = replace_special_characters(val)
+
+        # Normalize "CTD^2" and "CTD2" to "CTD<sup>2</sup>" in description
+        # columns only.  Title columns use plain "CTD2" (set via CURATIONS).
+        for col in _DESCRIPTION_COLS:
+            if col in row and isinstance(row[col], str):
+                row[col] = re.sub(r'CTD\^2', r'CTD<sup>2</sup>', row[col])
+                row[col] = re.sub(r'CTD2(?!</)', r'CTD<sup>2</sup>', row[col])
 
 
 def write_tsv(rows: list[dict], output_path: str) -> None:
@@ -582,6 +603,8 @@ CURATIONS: dict[str, dict[str, str]] = {
     "47": {"resource_title": "Pathological Complete Response (pCR) Trial-Level Surrogate Analysis Software"}, # Added missing space
     "51": {"resource_title": "Bayesian Phase II Single Arm Clinical Trials"}, # Baysian -> Bayesian
     "52": {"resource_title": "Bayesian Phase II Single Arm Clinical Trials"}, # Baysian -> Bayesian
+    "126": {"resource_title": "Cancer Target Discovery and Development (CTD2) Dashboard"}, # CTD^2 -> CTD2 (plain text, no HTML in titles)
+    "135": {"resource_title": "Cancer Target Discovery and Development (CTD2) Data Portal"}, # CTD^2 -> CTD2 (plain text, no HTML in titles)
     # -- resource_short_description (1 resource) -------------------------
     "44": {
         "resource_short_description":
