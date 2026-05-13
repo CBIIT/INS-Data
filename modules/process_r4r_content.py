@@ -35,7 +35,7 @@ Output TSV columns
 ------------------
   type                       - record type (hardcoded "resource")
   resource_uuid              - deterministic UUID5 from id + title
-  resource_source_id         - original numeric id
+  resource_source_id         - prefixed id (e.g. r4r_005, cbiit_catalog_001)
   resource_title             - cleaned title text
   resource_short_description - short description (markdown -> HTML)
   resource_source_url        - resource website URL
@@ -82,9 +82,10 @@ import unicodedata
 R4R_UUID_NAMESPACE = uuid.UUID('12345678-1234-5678-1234-567812345678')
 
 # -- Paths ----------------------------------------------------------------
-INPUT_DIR   = os.path.join("data", "00_input", "r4r")
-OUTPUT_TSV  = os.path.join("data", "01_intermediate", "r4r_resources_conversion.tsv")
-REPORT_PATH = os.path.join("reports", "r4r", "r4r_conversion_report.txt")
+INPUT_DIR    = os.path.join("data", "00_input", "r4r")
+CATALOG_TSV  = os.path.join("data", "00_input", "r4r", "cbiit_catalog_resources.tsv")
+OUTPUT_TSV   = os.path.join("data", "01_intermediate", "r4r_resources_conversion.tsv")
+REPORT_PATH  = os.path.join("reports", "r4r", "r4r_conversion_report.txt")
 
 # -- Output column order -------------------------------------------------
 COLUMNS = [
@@ -120,6 +121,23 @@ LABEL_OVERRIDES: dict[str, str] = {
     "screening_detection":      "Screening and Detection",
     "cancer_omics":             "Cancer Omics",
 }
+
+
+def format_source_id(raw_id: str, prefix: str = "r4r") -> str:
+    """Format a raw numeric ID into a prefixed, zero-padded string.
+
+    Examples:
+        format_source_id("5")          -> "r4r_0005"
+        format_source_id("42")         -> "r4r_0042"
+        format_source_id("250")        -> "r4r_0250"
+        format_source_id("7", "example_source") -> "example_source_0007"
+
+    Non-numeric IDs are returned unchanged (they already have a prefix).
+    """
+    stripped = raw_id.strip()
+    if stripped.isdigit():
+        return f"{prefix}_{int(stripped):04d}"
+    return stripped
 
 
 def humanize_label(raw_value: str) -> str:
@@ -412,17 +430,16 @@ def parse_markdown_file(filepath: str) -> dict:
                 if full:
                     poc_names.append(full)
 
-    # -- Generate deterministic UUID5 from id + title ---------------------
+    # -- Generate deterministic UUID5 from formatted source ID -------------
     r4r_id = str(meta.get("id", ""))
     r4r_title = (meta.get("title") or "").strip()
-    resource_uuid = str(uuid.uuid5(
-        R4R_UUID_NAMESPACE, "||".join([r4r_id, r4r_title])
-    ))
+    formatted_id = format_source_id(r4r_id)
+    resource_uuid = str(uuid.uuid5(R4R_UUID_NAMESPACE, formatted_id))
 
     return {
         "type":                      "resource",
         "resource_uuid":             resource_uuid,
-        "resource_source_id":        r4r_id,
+        "resource_source_id":        formatted_id,
         "resource_title":            clean_for_tsv(r4r_title),
         "resource_short_description":      markdown_to_html((meta.get("description") or "")) or "No description preview.",
         "resource_source_url":       (meta.get("website") or "").strip(),
@@ -455,8 +472,64 @@ def process_all_r4r_files() -> list[dict]:
         except Exception as exc:
             print(f"[ERROR] Failed to parse {fp}: {exc}")
 
-    # Sort by numeric resource_source_id
-    rows.sort(key=lambda r: int(r["resource_source_id"]))
+    # Sort by resource_source_id (zero-padded, sorts correctly as strings)
+    rows.sort(key=lambda r: r["resource_source_id"])
+    return rows
+
+
+def load_catalog_resources(catalog_path: str = CATALOG_TSV) -> list[dict]:
+    """Load pre-curated resources from the CBIIT Data Catalog TSV.
+
+    The catalog TSV has the same column structure as the R4R output but
+    arrives pre-formatted (no markdown parsing needed).  This function:
+      - Reads the file (cp1252 encoding, as exported from Excel)
+      - Generates deterministic UUID5 for each row
+      - Strips whitespace from all fields
+      - Applies the same dedup/sort to semicolon-separated fields
+    """
+    if not os.path.isfile(catalog_path):
+        print(f"[WARN] Catalog TSV not found: {catalog_path}")
+        return []
+
+    with open(catalog_path, "r", encoding="cp1252") as fh:
+        reader = csv.DictReader(fh, delimiter="\t")
+        raw_rows = list(reader)
+
+    if not raw_rows:
+        print(f"[WARN] No rows in catalog TSV: {catalog_path}")
+        return []
+
+    # Fields that get dedup + sort (same set as the R4R pipeline)
+    _SEMICOLON_FIELDS = [
+        "resource_tool_type", "resource_tool_subtype",
+        "resource_research_area", "resource_research_type",
+        "resource_doc", "resource_poc_email", "resource_poc_name",
+    ]
+
+    rows: list[dict] = []
+    for raw in raw_rows:
+        # Strip all values
+        row = {k: v.strip() for k, v in raw.items()}
+
+        # Generate UUID5 from source_id only (same namespace as R4R)
+        row["resource_uuid"] = str(uuid.uuid5(
+            R4R_UUID_NAMESPACE, row["resource_source_id"],
+        ))
+
+        # Clear URLs placed in poc fields
+        if row.get("resource_poc_email", "").startswith("http"):
+            row["resource_poc_email"] = ""
+        if row.get("resource_poc_name", "").startswith("http"):
+            row["resource_poc_name"] = ""
+
+        # Dedup and sort semicolon-separated fields
+        for field in _SEMICOLON_FIELDS:
+            if field in row and row[field]:
+                row[field] = sort_semicolon_list(dedup_semicolon_list(row[field]))
+
+        rows.append(row)
+
+    print(f"[OK] Loaded {len(rows)} catalog resources from {catalog_path}")
     return rows
 
 
@@ -504,14 +577,11 @@ def generate_report(rows: list[dict]) -> str:
     w("=" * 70)
 
     # -- Overview --------------------------------------------------------
-    int_ids = sorted(int(r["resource_source_id"]) for r in rows)
+    all_ids = sorted(r["resource_source_id"] for r in rows)
     w("")
     w("OVERVIEW")
     w(f"  Total resources processed : {len(rows)}")
-    w(f"  ID range                  : {int_ids[0]} - {int_ids[-1]}")
-    expected = set(range(int_ids[0], int_ids[-1] + 1))
-    missing_ids = sorted(expected - set(int_ids))
-    w(f"  Missing IDs in range      : {missing_ids if missing_ids else 'None'}")
+    w(f"  ID range                  : {all_ids[0]} - {all_ids[-1]}")
     w(f"  Input directory            : {INPUT_DIR}")
     w(f"  Output TSV                 : {OUTPUT_TSV}")
     w(f"  Columns ({len(COLUMNS)})              : {', '.join(COLUMNS)}")
@@ -574,10 +644,10 @@ def generate_report(rows: list[dict]) -> str:
     # -- Preview ---------------------------------------------------------
     w("")
     w("PREVIEW (first 10 rows)")
-    w(f"  {'id':>4}  {'title':<55s}  {'tool_types'}")
-    w(f"  {'--':>4}  {'-' * 55}  {'-' * 40}")
+    w(f"  {'id':<20s}  {'title':<55s}  {'tool_types'}")
+    w(f"  {'-' * 20}  {'-' * 55}  {'-' * 40}")
     for r in rows[:10]:
-        w(f"  {r['resource_source_id']:>4}  {r['resource_title'][:55]:<55s}  {r['resource_tool_type']}")
+        w(f"  {r['resource_source_id']:<20s}  {r['resource_title'][:55]:<55s}  {r['resource_tool_type']}")
 
     w("")
     return "\n".join(lines)
@@ -599,63 +669,63 @@ def write_report(report_text: str, report_path: str) -> None:
 
 CURATIONS: dict[str, dict[str, str]] = {
     # -- resource_title typo fixes (4 resources) ----------------------------------------
-    "28": {"resource_title": "Tumor Heterogeneity Research Interactive Visualization Environment (THRIVE)"}, # Heterogenity -> Heterogeneity
-    "47": {"resource_title": "Pathological Complete Response (pCR) Trial-Level Surrogate Analysis Software"}, # Added missing space
-    "51": {"resource_title": "Bayesian Phase II Single Arm Clinical Trials"}, # Baysian -> Bayesian
-    "52": {"resource_title": "Bayesian Phase II Single Arm Clinical Trials"}, # Baysian -> Bayesian
-    "126": {"resource_title": "Cancer Target Discovery and Development (CTD2) Dashboard"}, # CTD^2 -> CTD2 (plain text, no HTML in titles)
-    "135": {"resource_title": "Cancer Target Discovery and Development (CTD2) Data Portal"}, # CTD^2 -> CTD2 (plain text, no HTML in titles)
+    "r4r_0028": {"resource_title": "Tumor Heterogeneity Research Interactive Visualization Environment (THRIVE)"}, # Heterogenity -> Heterogeneity
+    "r4r_0047": {"resource_title": "Pathological Complete Response (pCR) Trial-Level Surrogate Analysis Software"}, # Added missing space
+    "r4r_0051": {"resource_title": "Bayesian Phase II Single Arm Clinical Trials"}, # Baysian -> Bayesian
+    "r4r_0052": {"resource_title": "Bayesian Phase II Single Arm Clinical Trials"}, # Baysian -> Bayesian
+    "r4r_0126": {"resource_title": "Cancer Target Discovery and Development (CTD2) Dashboard"}, # CTD^2 -> CTD2 (plain text, no HTML in titles)
+    "r4r_0135": {"resource_title": "Cancer Target Discovery and Development (CTD2) Data Portal"}, # CTD^2 -> CTD2 (plain text, no HTML in titles)
     # -- resource_short_description (1 resource) -------------------------
-    "44": {
+    "r4r_0044": {
         "resource_short_description":
             "A Microsoft Excel-based program for dose level assignment "
             "in accelerated titration designs for phase I clinical trials.",
     },
     # -- resource_tool_type (6 resources) --------------------------------
-    "171": {"resource_tool_type": "Analysis Tools",
-            "resource_tool_subtype": "Statistical Software"},
-    "172": {"resource_tool_type": "Analysis Tools",
-            "resource_tool_subtype": "Statistical Software"},
-    "173": {"resource_tool_type": "Community Research Tools",
-            "resource_tool_subtype": "Questionnaire"},
-    "174": {"resource_tool_type": "Analysis Tools",
-            "resource_tool_subtype": "Modeling"},
-    "211": {"resource_tool_type": "Clinical Research Tools",
-            "resource_tool_subtype": "Guidelines and Protocols",
-            "resource_research_area": "Cancer Treatment"},
-    "215": {"resource_tool_type": "Community Research Tools",
-            "resource_research_area": "Cancer Biology;Cancer Treatment"},
+    "r4r_0171": {"resource_tool_type": "Analysis Tools",
+                 "resource_tool_subtype": "Statistical Software"},
+    "r4r_0172": {"resource_tool_type": "Analysis Tools",
+                 "resource_tool_subtype": "Statistical Software"},
+    "r4r_0173": {"resource_tool_type": "Community Research Tools",
+                 "resource_tool_subtype": "Questionnaire"},
+    "r4r_0174": {"resource_tool_type": "Analysis Tools",
+                 "resource_tool_subtype": "Modeling"},
+    "r4r_0211": {"resource_tool_type": "Clinical Research Tools",
+                 "resource_tool_subtype": "Guidelines and Protocols",
+                 "resource_research_area": "Cancer Treatment"},
+    "r4r_0215": {"resource_tool_type": "Community Research Tools",
+                 "resource_research_area": "Cancer Biology;Cancer Treatment"},
     # -- resource_research_area (remaining 30 resources) -----------------
-    "62":  {"resource_research_area": "Bioinformatics"},
-    "63":  {"resource_research_area": "Bioinformatics"},
-    "64":  {"resource_research_area": "Bioinformatics"},
-    "182": {"resource_research_area": "Cancer Prevention"},
-    "193": {"resource_research_area": "Cancer Biology;Cancer Omics"},
-    "194": {"resource_research_area": "Cancer Biology;Cancer Treatment"},
-    "195": {"resource_research_area": "Cancer Treatment"},
-    "196": {"resource_research_area": "Cancer Treatment;Cancer Biology"},
-    "197": {"resource_research_area": "Cancer Biology;Cancer Treatment;Bioinformatics"},
-    "201": {"resource_research_area": "Cancer Treatment"},
-    "202": {"resource_research_area": "Cancer Biology"},
-    "203": {"resource_research_area": "Cancer Treatment"},
-    "204": {"resource_research_area": "Cancer Treatment"},
-    "205": {"resource_research_area": "Cancer Treatment"},
-    "207": {"resource_research_area": "Cancer Treatment"},
-    "208": {"resource_research_area": "Cancer Statistics;Cancer Treatment;Cancer Health Disparities"},
-    "209": {"resource_research_area": "Cancer Treatment"},
-    "210": {"resource_research_area": "Cancer Treatment"},
-    "229": {"resource_research_area": "Cancer Prevention;Cancer Diagnosis;Screening and Detection"},
-    "230": {"resource_research_area": "Cancer Treatment;Cancer Biology"},
-    "233": {"resource_research_area": "Cancer Biology;Cancer Omics"},
-    "234": {"resource_research_area": "Cancer Biology;Cancer Treatment;Bioinformatics"},
-    "235": {"resource_research_area": "Cancer Biology;Cancer Treatment;Bioinformatics"},
-    "236": {"resource_research_area": "Cancer Treatment"},
-    "237": {"resource_research_area": "Cancer Treatment;Cancer Biology"},
-    "238": {"resource_research_area": "Cancer Biology;Cancer Omics;Causes of Cancer"},
-    "239": {"resource_research_area": "Cancer Biology;Cancer Omics"},
-    "241": {"resource_research_area": "Cancer Biology;Cancer Treatment"},
-    "242": {"resource_research_area": "Cancer Omics;Cancer Biology"},
-    "263": {"resource_research_area": "Causes of Cancer;Cancer Omics"},
+    "r4r_0062": {"resource_research_area": "Bioinformatics"},
+    "r4r_0063": {"resource_research_area": "Bioinformatics"},
+    "r4r_0064": {"resource_research_area": "Bioinformatics"},
+    "r4r_0182": {"resource_research_area": "Cancer Prevention"},
+    "r4r_0193": {"resource_research_area": "Cancer Biology;Cancer Omics"},
+    "r4r_0194": {"resource_research_area": "Cancer Biology;Cancer Treatment"},
+    "r4r_0195": {"resource_research_area": "Cancer Treatment"},
+    "r4r_0196": {"resource_research_area": "Cancer Treatment;Cancer Biology"},
+    "r4r_0197": {"resource_research_area": "Cancer Biology;Cancer Treatment;Bioinformatics"},
+    "r4r_0201": {"resource_research_area": "Cancer Treatment"},
+    "r4r_0202": {"resource_research_area": "Cancer Biology"},
+    "r4r_0203": {"resource_research_area": "Cancer Treatment"},
+    "r4r_0204": {"resource_research_area": "Cancer Treatment"},
+    "r4r_0205": {"resource_research_area": "Cancer Treatment"},
+    "r4r_0207": {"resource_research_area": "Cancer Treatment"},
+    "r4r_0208": {"resource_research_area": "Cancer Statistics;Cancer Treatment;Cancer Health Disparities"},
+    "r4r_0209": {"resource_research_area": "Cancer Treatment"},
+    "r4r_0210": {"resource_research_area": "Cancer Treatment"},
+    "r4r_0229": {"resource_research_area": "Cancer Prevention;Cancer Diagnosis;Screening and Detection"},
+    "r4r_0230": {"resource_research_area": "Cancer Treatment;Cancer Biology"},
+    "r4r_0233": {"resource_research_area": "Cancer Biology;Cancer Omics"},
+    "r4r_0234": {"resource_research_area": "Cancer Biology;Cancer Treatment;Bioinformatics"},
+    "r4r_0235": {"resource_research_area": "Cancer Biology;Cancer Treatment;Bioinformatics"},
+    "r4r_0236": {"resource_research_area": "Cancer Treatment"},
+    "r4r_0237": {"resource_research_area": "Cancer Treatment;Cancer Biology"},
+    "r4r_0238": {"resource_research_area": "Cancer Biology;Cancer Omics;Causes of Cancer"},
+    "r4r_0239": {"resource_research_area": "Cancer Biology;Cancer Omics"},
+    "r4r_0241": {"resource_research_area": "Cancer Biology;Cancer Treatment"},
+    "r4r_0242": {"resource_research_area": "Cancer Omics;Cancer Biology"},
+    "r4r_0263": {"resource_research_area": "Causes of Cancer;Cancer Omics"},
 }
 
 CURATION_LOG_PATH = os.path.join("reports", "r4r", "r4r_curation_changelog.txt")
@@ -718,6 +788,9 @@ if __name__ == "__main__":
 
     # Apply AI-curated values for blank fields
     apply_curations(rows)
+
+    # Append CBIIT Data Catalog resources
+    rows.extend(load_catalog_resources())
 
     # Replace non-standard characters with ASCII / HTML entities
     sanitize_rows(rows)

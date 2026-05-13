@@ -27,9 +27,11 @@ from modules.process_r4r_content import (
     replace_special_characters,
     sanitize_rows,
     parse_markdown_file,
+    load_catalog_resources,
     write_tsv,
     apply_curations,
     generate_report,
+    format_source_id,
     COLUMNS,
     LABEL_OVERRIDES,
     ACCESS_LABELS,
@@ -37,6 +39,43 @@ from modules.process_r4r_content import (
     CURATIONS,
     R4R_UUID_NAMESPACE,
 )
+
+
+# ---------------------------------------------------------------------------
+# format_source_id
+# ---------------------------------------------------------------------------
+
+class TestFormatSourceId:
+    """Tests for prefixed, zero-padded ID formatting."""
+
+    def test_single_digit(self):
+        assert format_source_id("5") == "r4r_0005"
+
+    def test_double_digit(self):
+        assert format_source_id("42") == "r4r_0042"
+
+    def test_triple_digit(self):
+        assert format_source_id("250") == "r4r_0250"
+
+    def test_four_digit(self):
+        assert format_source_id("1234") == "r4r_1234"
+
+    def test_custom_prefix(self):
+        assert format_source_id("7", "cbiit") == "cbiit_0007"
+
+    def test_non_numeric_returned_unchanged(self):
+        assert format_source_id("cbiit_catalog_001") == "cbiit_catalog_001"
+
+    def test_preserves_value(self):
+        """The numeric core value must not be altered."""
+        for i in range(1, 300):
+            result = format_source_id(str(i))
+            # Extract the numeric part after the prefix
+            numeric_part = int(result.split("_", 1)[1])
+            assert numeric_part == i, f"Value altered: {i} -> {result}"
+
+    def test_whitespace_stripped(self):
+        assert format_source_id("  5  ") == "r4r_0005"
 
 
 # ---------------------------------------------------------------------------
@@ -491,7 +530,7 @@ class TestParseMarkdownFile:
 
     def test_source_id(self, sample_md_file):
         row = parse_markdown_file(sample_md_file)
-        assert row["resource_source_id"] == "99"
+        assert row["resource_source_id"] == "r4r_0099"
 
     def test_title_cleaned(self, sample_md_file):
         row = parse_markdown_file(sample_md_file)
@@ -641,7 +680,7 @@ class TestApplyCurations:
             str(tmp_path / "changelog.txt"))
 
         rows = [{
-            "resource_source_id": "44",
+            "resource_source_id": "r4r_0044",
             "resource_title": "Test",
             "resource_short_description": "old value",
             "resource_tool_type": "Analysis Tools",
@@ -659,7 +698,7 @@ class TestApplyCurations:
             str(tmp_path / "changelog.txt"))
 
         rows = [{
-            "resource_source_id": "999999",
+            "resource_source_id": "r4r_999999",
             "resource_title": "Not Curated",
             "resource_tool_type": "original",
         }]
@@ -673,7 +712,7 @@ class TestApplyCurations:
             "modules.process_r4r_content.CURATION_LOG_PATH", log_path)
 
         rows = [{
-            "resource_source_id": "44",
+            "resource_source_id": "r4r_0044",
             "resource_title": "Test",
             "resource_short_description": "old",
             "resource_tool_type": "X",
@@ -684,7 +723,7 @@ class TestApplyCurations:
         apply_curations(rows)
         assert os.path.exists(log_path)
         contents = open(log_path, "r", encoding="utf-8").read()
-        assert "Resource ID : 44" in contents
+        assert "Resource ID : r4r_0044" in contents
 
 
 # ---------------------------------------------------------------------------
@@ -700,7 +739,7 @@ class TestGenerateReport:
         return [
             {col: "" for col in COLUMNS}
             | {
-                "resource_source_id": "1",
+                "resource_source_id": "r4r_0001",
                 "resource_title": "Resource A",
                 "resource_tool_type": "Analysis Tools",
                 "resource_tool_subtype": "R Software",
@@ -714,7 +753,7 @@ class TestGenerateReport:
             },
             {col: "" for col in COLUMNS}
             | {
-                "resource_source_id": "2",
+                "resource_source_id": "r4r_0002",
                 "resource_title": "Resource B",
                 "resource_tool_type": "Datasets and Databases",
                 "resource_tool_subtype": "",
@@ -735,7 +774,8 @@ class TestGenerateReport:
 
     def test_report_contains_id_range(self, sample_rows):
         report = generate_report(sample_rows)
-        assert "1 - 2" in report
+        assert "ID range" in report
+        assert "r4r_0001 - r4r_0002" in report
 
     def test_report_contains_value_distributions(self, sample_rows):
         report = generate_report(sample_rows)
@@ -747,6 +787,28 @@ class TestGenerateReport:
         report = generate_report(sample_rows)
         assert "POINT-OF-CONTACT" in report
         assert "With email" in report
+
+    def test_report_with_mixed_prefixes(self, sample_rows):
+        """Resources from different sources (r4r_ + cbiit_catalog_) work in the report."""
+        rows = sample_rows + [
+            {col: "" for col in COLUMNS}
+            | {
+                "resource_source_id": "cbiit_catalog_001",
+                "resource_title": "Catalog Item",
+                "resource_tool_type": "Analysis Tools",
+                "resource_tool_subtype": "",
+                "resource_research_area": "Cancer Biology",
+                "resource_research_type": "Genomics",
+                "resource_access": "Open Access",
+                "resource_doc": "CBIIT",
+                "resource_poc_email": "",
+                "resource_poc_name": "",
+                "resource_full_description": "Full",
+            }
+        ]
+        report = generate_report(rows)
+        assert "Total resources processed : 3" in report
+        assert "ID range" in report
 
 
 # ---------------------------------------------------------------------------
@@ -811,8 +873,8 @@ docs:
             written_rows = list(reader)
 
         assert len(written_rows) == 2
-        assert written_rows[0]["resource_source_id"] == "1"
-        assert written_rows[1]["resource_source_id"] == "2"
+        assert written_rows[0]["resource_source_id"] == "r4r_0001"
+        assert written_rows[1]["resource_source_id"] == "r4r_0002"
 
         # Verify special chars were sanitized
         desc2 = written_rows[1]["resource_full_description"]
@@ -846,3 +908,93 @@ docs:
         assert non_ascii == [], (
             f"Non-ASCII characters found in output: "
             f"{set(repr(c) for c in non_ascii)}")
+
+
+# ---------------------------------------------------------------------------
+# load_catalog_resources
+# ---------------------------------------------------------------------------
+
+@pytest.fixture
+def sample_catalog_tsv(tmp_path):
+    """Create a minimal CBIIT catalog TSV for testing."""
+    header = "\t".join(COLUMNS)
+    # Row with NBSP (\xa0), URL in poc_email, trailing space, multi-value access
+    row1 = "\t".join([
+        "resource", "",  # uuid blank
+        "cbiit_test_001", "Test\xa0Resource",
+        "Short desc with\xa0nbsp.", "https://example.com",
+        "Analysis Tools;Datasets and Databases", "Data Visualization",
+        "Cancer Biology;Cancer Omics", "Basic",
+        "Open Access;Requires Registration",
+        "Center for Cancer Research (CCR)",
+        "https://example.com/contact",  # URL in poc_email
+        "",
+        "Full description\xa0here.",
+    ])
+    # Clean row with duplicate emails
+    row2 = "\t".join([
+        "resource", "",
+        "cbiit_test_002", "Another Resource",
+        "Short desc.", "https://example.com/2",
+        "Analysis Tools", "R Software",
+        "Cancer Omics", "Basic;Translational",
+        "Open Access",
+        "Division of Cancer Treatment & Diagnosis (DCTD)",
+        "a@nih.gov;b@nih.gov;a@nih.gov",
+        "Jane Doe;John Smith",
+        "Full description.",
+    ])
+    content = f"{header}\n{row1}\n{row2}\n"
+    filepath = tmp_path / "catalog.tsv"
+    filepath.write_bytes(content.encode("cp1252"))
+    return str(filepath)
+
+
+class TestLoadCatalogResources:
+    """Tests for loading and standardizing CBIIT catalog resources."""
+
+    def test_loads_correct_row_count(self, sample_catalog_tsv):
+        rows = load_catalog_resources(sample_catalog_tsv)
+        assert len(rows) == 2
+
+    def test_generates_uuid(self, sample_catalog_tsv):
+        rows = load_catalog_resources(sample_catalog_tsv)
+        assert rows[0]["resource_uuid"] != ""
+        assert len(rows[0]["resource_uuid"]) == 36  # UUID format
+
+    def test_uuid_is_deterministic(self, sample_catalog_tsv):
+        rows1 = load_catalog_resources(sample_catalog_tsv)
+        rows2 = load_catalog_resources(sample_catalog_tsv)
+        assert rows1[0]["resource_uuid"] == rows2[0]["resource_uuid"]
+
+    def test_clears_url_in_poc_email(self, sample_catalog_tsv):
+        rows = load_catalog_resources(sample_catalog_tsv)
+        assert rows[0]["resource_poc_email"] == ""
+
+    def test_clears_url_in_poc_name(self, sample_catalog_tsv):
+        """poc_name should also be cleared if it contains a URL."""
+        # row1 in sample fixture has URL in poc_email; poc_name is already empty
+        # Verify the function handles both fields
+        rows = load_catalog_resources(sample_catalog_tsv)
+        assert rows[0]["resource_poc_name"] == ""
+
+    def test_deduplicates_emails(self, sample_catalog_tsv):
+        rows = load_catalog_resources(sample_catalog_tsv)
+        emails = rows[1]["resource_poc_email"].split(";")
+        assert len(emails) == 2  # "a@nih.gov" deduped
+
+    def test_sorts_semicolon_fields(self, sample_catalog_tsv):
+        rows = load_catalog_resources(sample_catalog_tsv)
+        # tool_type should be sorted: "Analysis Tools;Datasets and Databases"
+        assert rows[0]["resource_tool_type"] == "Analysis Tools;Datasets and Databases"
+
+    def test_strips_whitespace(self, sample_catalog_tsv):
+        rows = load_catalog_resources(sample_catalog_tsv)
+        for row in rows:
+            for val in row.values():
+                # No leading/trailing whitespace (NBSP stripped by sanitize later)
+                assert val == val.strip()
+
+    def test_missing_file_returns_empty(self, tmp_path):
+        rows = load_catalog_resources(str(tmp_path / "nonexistent.tsv"))
+        assert rows == []

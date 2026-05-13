@@ -1,28 +1,27 @@
 ======================================================================
   R4R Markdown -> TSV Conversion Report
-  Generated: 2026-05-13 09:09:47
+  Generated: 2026-05-13 13:33:28
 ======================================================================
 
 OVERVIEW
-  Total resources processed : 270
-  ID range                  : 1 - 279
-  Missing IDs in range      : [68, 69, 79, 101, 124, 141, 142, 206, 221]
+  Total resources processed : 286
+  ID range                  : cbiit_catalog_001 - r4r_0279
   Input directory            : data\00_input\r4r
   Output TSV                 : data\01_intermediate\r4r_resources_conversion.tsv
   Columns (15)              : type, resource_uuid, resource_source_id, resource_title, resource_short_description, resource_source_url, resource_tool_type, resource_tool_subtype, resource_research_area, resource_research_type, resource_access, resource_doc, resource_poc_email, resource_poc_name, resource_full_description
 
 BLANK FIELD AUDIT
-  resource_tool_subtype            39 blank  -  ids: 17, 18, 23, 54, 55, 58, 59, 77, 78, 86, 111, 117, 126, 135, 156  ... and 24 more
-  resource_research_type           27 blank  -  ids: 62, 144, 182, 193, 194, 195, 196, 197, 201, 202, 208, 209, 210, 211, 229  ... and 12 more
-  resource_access                   5 blank  -  ids: 170, 173, 204, 208, 211
-  resource_doc                     19 blank  -  ids: 196, 197, 202, 205, 207, 216, 229, 231, 232, 233, 234, 235, 236, 237, 242  ... and 4 more
+  resource_tool_subtype            39 blank  -  ids: r4r_0017, r4r_0018, r4r_0023, r4r_0054, r4r_0055, r4r_0058, r4r_0059, r4r_0077, r4r_0078, r4r_0086, r4r_0111, r4r_0117, r4r_0126, r4r_0135, r4r_0156  ... and 24 more
+  resource_research_type           27 blank  -  ids: r4r_0062, r4r_0144, r4r_0182, r4r_0193, r4r_0194, r4r_0195, r4r_0196, r4r_0197, r4r_0201, r4r_0202, r4r_0208, r4r_0209, r4r_0210, r4r_0211, r4r_0229  ... and 12 more
+  resource_access                   5 blank  -  ids: r4r_0170, r4r_0173, r4r_0204, r4r_0208, r4r_0211
+  resource_doc                     26 blank  -  ids: r4r_0196, r4r_0197, r4r_0202, r4r_0205, r4r_0207, r4r_0216, r4r_0229, r4r_0231, r4r_0232, r4r_0233, r4r_0234, r4r_0235, r4r_0236, r4r_0237, r4r_0242  ... and 11 more
 
 VALUE DISTRIBUTIONS
 
   resource_tool_type  (8 unique values):
-       135  Analysis Tools
-       101  Datasets and Databases
-        45  Lab Tools
+       147  Analysis Tools
+       114  Datasets and Databases
+        47  Lab Tools
         26  Community Research Tools
         16  Terminology
         13  Networks and Consortiums
@@ -30,18 +29,18 @@ VALUE DISTRIBUTIONS
          6  Training Resources
 
   resource_tool_subtype  (30 unique values):
-        56  Genomic Analysis
-        35  Data Visualization
-        28  Clinical Data
+        58  Genomic Analysis
+        40  Data Visualization
+        40  Clinical Data
+        28  Genomic Datasets
+        28  Modeling
         28  Epidemiologic Data
-        25  Genomic Datasets
-        25  Modeling
-        21  Imaging
+        24  Imaging
         21  Statistical Software
         18  R Software
-        15  Imaging Analysis
+        17  Imaging Analysis
+        13  Biospecimen
         13  Reagents
-        11  Biospecimen
         10  Questionnaire
          8  Cell Lines
          8  Protocols
@@ -62,69 +61,69 @@ VALUE DISTRIBUTIONS
          1  Consent Forms
 
   resource_research_area  (12 unique values):
-       120  Cancer Biology
-       105  Cancer Treatment
-       101  Cancer Omics
-        42  Causes of Cancer
-        36  Screening and Detection
+       132  Cancer Biology
+       115  Cancer Treatment
+       107  Cancer Omics
+        43  Causes of Cancer
+        38  Screening and Detection
         30  Cancer Health Disparities
+        29  Cancer Diagnosis
         28  Bioinformatics
         27  Cancer Public Health
-        25  Cancer Diagnosis
         24  Cancer Prevention
         21  Cancer Survivorship
         20  Cancer Statistics
 
   resource_research_type  (5 unique values):
-       131  Basic
-       108  Translational
+       144  Basic
+       113  Translational
         64  Epidemiologic
-        39  Clinical Trials
-        23  Clinical
+        41  Clinical Trials
+        35  Clinical
 
   resource_access  (3 unique values):
-       213  Open Access
-        50  Requires Registration
+       229  Open Access
+        52  Requires Registration
          2  Requires Payment
 
   resource_doc  (14 unique values):
         60  Informatics Technology for Cancer Research (ITCR)
-        54  Division of Cancer Treatment & Diagnosis (DCTD)
+        56  Division of Cancer Treatment & Diagnosis (DCTD)
         47  Center for Cancer Genomics (CCG)
         45  Division of Cancer Control & Population Sciences (DCCPS)
         28  Division of Cancer Epidemiology & Genetics (DCEG)
+         9  Center for Biomedical Informatics & Information Technology (CBIIT)
          8  Office of Cancer Genomics (OCG)
          7  Division of Cancer Biology (DCB)
-         4  Center for Biomedical Informatics & Information Technology (CBIIT)
          3  Center for Strategic Scientific Initiatives (CSSI)
          3  Office of Communications & Public Liaison (OCPL)
+         3  Center for Cancer Research (CCR)
          2  Office of Cancer Clinical Proteomics Research (OCCPR)
          2  Division of Cancer Prevention (DCP)
          1  Office of Extramural Research (OER)
-         1  Center for Cancer Research (CCR)
 
 POINT-OF-CONTACT (POC) COVERAGE
-  With email          : 141/270
-  With name           : 117/270
-  Email but no name   : 28
+  With email          : 154/286
+  With name           : 120/286
+  Email but no name   : 38
 
 FULL DESCRIPTION STATS
   Min length : 68 chars
   Max length : 2316 chars
-  Avg length : 492 chars
+  Avg length : 506 chars
   Empty      : None
 
 PREVIEW (first 10 rows)
-    id  title                                                    tool_types
-    --  -------------------------------------------------------  ----------------------------------------
-     1  Enhancer Linking by Methylation/Expression Relationship  Analysis Tools
-     2  Next-Generation Clustered Heat Maps (NG-CHM)             Analysis Tools
-     3  The BioMedical Evidence Graph (BMEG)                     Analysis Tools;Datasets and Databases
-     4  Driver-gene Inference by Genetical-Genomics and Informa  Analysis Tools
-     5  Cancer Slide Digital Archive (CDSA)                      Analysis Tools;Datasets and Databases
-     6  Cancer and Phenomics Toolkit (CaPTK)                     Analysis Tools
-     7  Cloud-based Image Biomarker Platform (C-BIBOP)           Analysis Tools;Datasets and Databases
-     8  Cistrome                                                 Analysis Tools;Datasets and Databases
-     9  CLAMP-Cancer                                             Analysis Tools;Datasets and Databases
-    10  Apache Clinical Text and Knowledge Extraction System (c  Analysis Tools
+  id                    title                                                    tool_types
+  --------------------  -------------------------------------------------------  ----------------------------------------
+  r4r_0001              Enhancer Linking by Methylation/Expression Relationship  Analysis Tools
+  r4r_0002              Next-Generation Clustered Heat Maps (NG-CHM)             Analysis Tools
+  r4r_0003              The BioMedical Evidence Graph (BMEG)                     Analysis Tools;Datasets and Databases
+  r4r_0004              Driver-gene Inference by Genetical-Genomics and Informa  Analysis Tools
+  r4r_0005              Cancer Slide Digital Archive (CDSA)                      Analysis Tools;Datasets and Databases
+  r4r_0006              Cancer and Phenomics Toolkit (CaPTK)                     Analysis Tools
+  r4r_0007              Cloud-based Image Biomarker Platform (C-BIBOP)           Analysis Tools;Datasets and Databases
+  r4r_0008              Cistrome                                                 Analysis Tools;Datasets and Databases
+  r4r_0009              CLAMP-Cancer                                             Analysis Tools;Datasets and Databases
+  r4r_0010              Apache Clinical Text and Knowledge Extraction System (c  Analysis Tools
 
