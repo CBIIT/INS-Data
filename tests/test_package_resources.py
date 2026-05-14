@@ -28,6 +28,7 @@ from modules.package_resources import (
     fix_type_column,
     generate_uuids,
     read_resources,
+    sort_semicolon_lists,
     validate,
     write_issues,
     write_output,
@@ -226,6 +227,88 @@ class TestFixTypeColumn:
         assert len(issues) == 1
         assert "r4r_0099" in issues[0]
         assert "dataset" in issues[0]
+
+
+# ===========================================================================
+# sort_semicolon_lists
+# ===========================================================================
+
+class TestSortSemicolonLists:
+
+    def test_already_sorted_no_issues(self):
+        rows = [_make_row(resource_tool_type="Analysis Tools;Datasets and Databases")]
+        issues = sort_semicolon_lists(rows)
+        assert issues == []
+        assert rows[0]["resource_tool_type"] == "Analysis Tools;Datasets and Databases"
+
+    def test_unsorted_gets_sorted_and_reported(self):
+        rows = [_make_row(
+            resource_source_id="r4r_0010",
+            resource_research_area="Cancer Treatment;Cancer Biology",
+        )]
+        issues = sort_semicolon_lists(rows)
+        assert rows[0]["resource_research_area"] == "Cancer Biology;Cancer Treatment"
+        assert len(issues) == 1
+        assert "r4r_0010" in issues[0]
+        assert "resource_research_area" in issues[0]
+
+    def test_single_value_not_touched(self):
+        """Fields without semicolons are left alone."""
+        rows = [_make_row(resource_tool_type="Analysis Tools")]
+        issues = sort_semicolon_lists(rows)
+        assert issues == []
+
+    def test_case_insensitive_sort(self):
+        rows = [_make_row(resource_doc="Zebra;alpha")]
+        issues = sort_semicolon_lists(rows)
+        assert rows[0]["resource_doc"] == "alpha;Zebra"
+        assert len(issues) == 1
+
+    def test_multiple_fields_sorted_independently(self):
+        rows = [_make_row(
+            resource_tool_type="Lab Tools;Analysis Tools",
+            resource_research_area="Cancer Treatment;Cancer Biology",
+        )]
+        issues = sort_semicolon_lists(rows)
+        assert rows[0]["resource_tool_type"] == "Analysis Tools;Lab Tools"
+        assert rows[0]["resource_research_area"] == "Cancer Biology;Cancer Treatment"
+        assert len(issues) == 2
+
+    def test_empty_field_ignored(self):
+        rows = [_make_row(resource_tool_subtype="")]
+        issues = sort_semicolon_lists(rows)
+        assert issues == []
+
+    def test_duplicates_removed_and_reported(self):
+        rows = [_make_row(
+            resource_source_id="r4r_0050",
+            resource_research_area="Cancer Biology;Cancer Treatment;Cancer Biology",
+        )]
+        issues = sort_semicolon_lists(rows)
+        assert rows[0]["resource_research_area"] == "Cancer Biology;Cancer Treatment"
+        assert len(issues) == 1
+        assert "r4r_0050" in issues[0]
+        assert "duplicate" in issues[0].lower()
+
+    def test_duplicates_removed_and_result_sorted(self):
+        rows = [_make_row(
+            resource_tool_type="Zebra;Alpha;Zebra;Alpha",
+        )]
+        issues = sort_semicolon_lists(rows)
+        assert rows[0]["resource_tool_type"] == "Alpha;Zebra"
+        assert len(issues) == 1
+        assert "duplicate" in issues[0].lower()
+
+    def test_dedup_only_no_sort_issue(self):
+        """When duplicates are removed but remaining values are already sorted,
+        only the dedup issue is reported (not a separate sort issue)."""
+        rows = [_make_row(
+            resource_research_area="Alpha;Alpha;Beta",
+        )]
+        issues = sort_semicolon_lists(rows)
+        assert rows[0]["resource_research_area"] == "Alpha;Beta"
+        assert len(issues) == 1
+        assert "duplicate" in issues[0].lower()
 
 
 # ===========================================================================

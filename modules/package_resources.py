@@ -200,6 +200,64 @@ def fix_type_column(rows: list[dict]) -> list[str]:
     return issues
 
 
+# -- Fields that contain semicolon-separated lists -----------------------
+SEMICOLON_FIELDS = [
+    "resource_tool_type",
+    "resource_tool_subtype",
+    "resource_research_area",
+    "resource_research_type",
+    "resource_doc",
+    "resource_poc_email",
+    "resource_poc_name",
+]
+
+
+def sort_semicolon_lists(rows: list[dict]) -> list[str]:
+    """Dedup and sort values within semicolon-separated fields alphabetically.
+
+    Modifies rows in-place.  Returns a list of issue strings noting
+    which rows/fields were changed.
+    """
+    issues: list[str] = []
+    for row in rows:
+        rid = row.get("resource_source_id", "?")
+        for field in SEMICOLON_FIELDS:
+            val = row.get(field, "")
+            if not val:
+                continue
+            values = [v.strip() for v in val.split(";") if v.strip()]
+            if len(values) <= 1:
+                continue
+
+            # Dedup (preserve first occurrence, case-sensitive)
+            seen: set[str] = set()
+            deduped: list[str] = []
+            removed: list[str] = []
+            for v in values:
+                if v in seen:
+                    removed.append(v)
+                else:
+                    seen.add(v)
+                    deduped.append(v)
+
+            # Sort
+            sorted_values = sorted(deduped, key=str.casefold)
+
+            if removed:
+                row[field] = ";".join(sorted_values)
+                issues.append(
+                    f"Row '{rid}': '{field}' removed duplicate(s): "
+                    f"{', '.join(repr(d) for d in removed)}"
+                )
+            elif deduped != sorted_values:
+                row[field] = ";".join(sorted_values)
+                issues.append(
+                    f"Row '{rid}': '{field}' re-sorted "
+                    f"({';'.join(deduped)} -> {row[field]})"
+                )
+    return issues
+
+
 def validate(rows: list[dict], extra_columns: list[str]) -> list[str]:
     """Run all validation checks and return a list of issue strings.
 
@@ -210,7 +268,7 @@ def validate(rows: list[dict], extra_columns: list[str]) -> list[str]:
 
     # -- Extra columns ---------------------------------------------------
     if extra_columns:
-        issues.append("EXTRA COLUMNS (not in expected schema, ignored in output):")
+        issues.append("EXTRA COLUMNS (manual review - not in expected schema, ignored in output):")
         for col in extra_columns:
             issues.append(f"  - {col}")
         issues.append("")
@@ -222,7 +280,7 @@ def validate(rows: list[dict], extra_columns: list[str]) -> list[str]:
         id_counts[rid] = id_counts.get(rid, 0) + 1
     dupes = {k: v for k, v in id_counts.items() if v > 1}
     if dupes:
-        issues.append("DUPLICATE resource_source_id VALUES:")
+        issues.append("DUPLICATE resource_source_id VALUES (manual fix required):")
         for rid, count in sorted(dupes.items()):
             issues.append(f"  '{rid}' appears {count} times")
         issues.append("")
@@ -234,7 +292,7 @@ def validate(rows: list[dict], extra_columns: list[str]) -> list[str]:
         if rid and not ID_PATTERN.match(rid):
             bad_ids.append(rid)
     if bad_ids:
-        issues.append("IDs NOT MATCHING EXPECTED FORMAT (prefix_NNNN):")
+        issues.append("IDs NOT MATCHING EXPECTED FORMAT (manual fix required - prefix_NNNN):")
         for rid in bad_ids[:20]:
             issues.append(f"  '{rid}'")
         if len(bad_ids) > 20:
@@ -249,7 +307,7 @@ def validate(rows: list[dict], extra_columns: list[str]) -> list[str]:
             if not row.get(field, "").strip():
                 blank_issues.append(f"  {rid}: '{field}' is blank")
     if blank_issues:
-        issues.append("REQUIRED FIELDS WITH BLANK VALUES:")
+        issues.append("REQUIRED FIELDS WITH BLANK VALUES (manual fix required):")
         issues.extend(blank_issues[:50])
         if len(blank_issues) > 50:
             issues.append(f"  ... and {len(blank_issues) - 50} more")
@@ -279,7 +337,7 @@ def validate(rows: list[dict], extra_columns: list[str]) -> list[str]:
                     break  # one per cell is enough
 
     if non_ascii_issues:
-        issues.append("NON-ASCII CHARACTERS DETECTED:")
+        issues.append("NON-ASCII CHARACTERS DETECTED (manual fix required):")
         issues.append("  These may display as \ufffd (diamond question marks) or garbled text.")
         issues.append("  Fix them in the intermediate TSV before the next run.")
         issues.append("")
@@ -425,10 +483,13 @@ def main() -> None:
     # 3. Fix type column
     type_issues = fix_type_column(rows)
 
-    # 4. Generate UUIDs (overwrites any existing values)
+    # 4. Sort semicolon-separated lists alphabetically
+    sort_issues = sort_semicolon_lists(rows)
+
+    # 5. Generate UUIDs (overwrites any existing values)
     generate_uuids(rows)
 
-    # 5. Check for duplicate UUIDs (critical)
+    # 6. Check for duplicate UUIDs (critical)
     uuid_dupes = check_duplicate_uuids(rows)
     if uuid_dupes:
         print("[FATAL] Duplicate UUIDs detected (implies duplicate source IDs):")
@@ -436,21 +497,24 @@ def main() -> None:
             print(msg)
         sys.exit(1)
 
-    # 6. Validate
+    # 7. Validate
     issues = validate(rows, extra_columns)
+    if sort_issues:
+        issues.insert(0, "SEMICOLON-LIST CORRECTIONS (auto-corrected):")
+        issues[1:1] = sort_issues + [""]
     if type_issues:
-        issues.insert(0, "TYPE COLUMN AUTO-CORRECTIONS:")
+        issues.insert(0, "TYPE COLUMN CORRECTIONS (auto-corrected):")
         issues[1:1] = type_issues + [""]
 
-    # 7. Write output
+    # 8. Write output
     output_path = os.path.join(OUTPUT_DIR, f"resources_{file_date}_processed.tsv")
     write_output(rows, output_path)
 
-    # 8. Write issue report
+    # 9. Write issue report
     report_path = os.path.join(REPORT_DIR, f"resources_{file_date}_issue_report.txt")
     write_issues(issues, report_path, input_path, rows)
 
-    # 9. Summary
+    # 10. Summary
     if issues:
         print(f"[WARN] {len(issues)} issue line(s) logged. Review: {report_path}")
     else:
