@@ -94,6 +94,9 @@ def main():
     # Create report for QA testing of data within site UI
     build_validation_file()
 
+    # OPTIONAL STEP: RESOURCES
+    # Curate and validate resources as needed with package_resources()
+
 
 if __name__ == "__main__":
     main()
