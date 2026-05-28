@@ -1,0 +1,69 @@
+======================================================================
+  Resources Packaging Issue Report
+  Generated: 2026-05-14 13:50:59
+  Input file: data\01_intermediate\resources\resources_2026-05-14.tsv
+  Rows processed: 284
+======================================================================
+
+ISSUES
+----------------------------------------------------------------------
+SEMICOLON-LIST CORRECTIONS (auto-corrected):
+Row 'r4r_0196': 'resource_research_area' re-sorted (Cancer Treatment;Cancer Biology -> Cancer Biology;Cancer Treatment)
+Row 'r4r_0197': 'resource_research_area' re-sorted (Cancer Biology;Cancer Treatment;Bioinformatics -> Bioinformatics;Cancer Biology;Cancer Treatment)
+Row 'r4r_0208': 'resource_research_area' re-sorted (Cancer Statistics;Cancer Treatment;Cancer Health Disparities -> Cancer Health Disparities;Cancer Statistics;Cancer Treatment)
+Row 'r4r_0229': 'resource_research_area' re-sorted (Cancer Prevention;Cancer Diagnosis;Screening and Detection -> Cancer Diagnosis;Cancer Prevention;Screening and Detection)
+Row 'r4r_0230': 'resource_research_area' re-sorted (Cancer Treatment;Cancer Biology -> Cancer Biology;Cancer Treatment)
+Row 'r4r_0234': 'resource_research_area' re-sorted (Cancer Biology;Cancer Treatment;Bioinformatics -> Bioinformatics;Cancer Biology;Cancer Treatment)
+Row 'r4r_0235': 'resource_research_area' re-sorted (Cancer Biology;Cancer Treatment;Bioinformatics -> Bioinformatics;Cancer Biology;Cancer Treatment)
+Row 'r4r_0237': 'resource_research_area' re-sorted (Cancer Treatment;Cancer Biology -> Cancer Biology;Cancer Treatment)
+Row 'r4r_0242': 'resource_research_area' re-sorted (Cancer Omics;Cancer Biology -> Cancer Biology;Cancer Omics)
+Row 'r4r_0263': 'resource_research_area' re-sorted (Causes of Cancer;Cancer Omics -> Cancer Omics;Causes of Cancer)
+
+
+----------------------------------------------------------------------
+
+FIELD COMPLETION
+  Field                                Populated  Blank
+  -----------------------------------  ---------  -----
+  type                                       284      0
+  resource_uuid                              284      0
+  resource_source_id                         284      0
+  resource_title                             284      0
+  resource_short_description                 284      0
+  resource_source_url                        284      0
+  resource_tool_type                         284      0
+  resource_tool_subtype                      246     38
+  resource_research_area                     284      0
+  resource_research_type                     257     27
+  resource_access                            279      5
+  resource_doc                               258     26
+  resource_poc_email                         151    133
+  resource_poc_name                          118    166
+  resource_full_description                  284      0
+
+EXPECTED FACET FILTER COUNTS
+
+  resource_tool_type  (8 unique values):
+       147  Analysis Tools
+       112  Datasets and Databases
+        47  Lab Tools
+        26  Community Research Tools
+        16  Terminology
+        13  Networks and Consortiums
+        13  Clinical Research Tools
+         6  Training Resources
+
+  resource_research_area  (12 unique values):
+       131  Cancer Biology
+       114  Cancer Treatment
+       106  Cancer Omics
+        42  Causes of Cancer
+        38  Screening and Detection
+        30  Cancer Health Disparities
+        29  Cancer Diagnosis
+        28  Bioinformatics
+        27  Cancer Public Health
+        24  Cancer Prevention
+        21  Cancer Survivorship
+        20  Cancer Statistics
+
