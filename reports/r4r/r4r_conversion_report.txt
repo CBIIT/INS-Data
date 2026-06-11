@@ -1,0 +1,129 @@
+======================================================================
+  R4R Markdown -> TSV Conversion Report
+  Generated: 2026-05-13 13:33:28
+======================================================================
+
+OVERVIEW
+  Total resources processed : 286
+  ID range                  : cbiit_catalog_001 - r4r_0279
+  Input directory            : data\00_input\r4r
+  Output TSV                 : data\01_intermediate\r4r_resources_conversion.tsv
+  Columns (15)              : type, resource_uuid, resource_source_id, resource_title, resource_short_description, resource_source_url, resource_tool_type, resource_tool_subtype, resource_research_area, resource_research_type, resource_access, resource_doc, resource_poc_email, resource_poc_name, resource_full_description
+
+BLANK FIELD AUDIT
+  resource_tool_subtype            39 blank  -  ids: r4r_0017, r4r_0018, r4r_0023, r4r_0054, r4r_0055, r4r_0058, r4r_0059, r4r_0077, r4r_0078, r4r_0086, r4r_0111, r4r_0117, r4r_0126, r4r_0135, r4r_0156  ... and 24 more
+  resource_research_type           27 blank  -  ids: r4r_0062, r4r_0144, r4r_0182, r4r_0193, r4r_0194, r4r_0195, r4r_0196, r4r_0197, r4r_0201, r4r_0202, r4r_0208, r4r_0209, r4r_0210, r4r_0211, r4r_0229  ... and 12 more
+  resource_access                   5 blank  -  ids: r4r_0170, r4r_0173, r4r_0204, r4r_0208, r4r_0211
+  resource_doc                     26 blank  -  ids: r4r_0196, r4r_0197, r4r_0202, r4r_0205, r4r_0207, r4r_0216, r4r_0229, r4r_0231, r4r_0232, r4r_0233, r4r_0234, r4r_0235, r4r_0236, r4r_0237, r4r_0242  ... and 11 more
+
+VALUE DISTRIBUTIONS
+
+  resource_tool_type  (8 unique values):
+       147  Analysis Tools
+       114  Datasets and Databases
+        47  Lab Tools
+        26  Community Research Tools
+        16  Terminology
+        13  Networks and Consortiums
+        13  Clinical Research Tools
+         6  Training Resources
+
+  resource_tool_subtype  (30 unique values):
+        58  Genomic Analysis
+        40  Data Visualization
+        40  Clinical Data
+        28  Genomic Datasets
+        28  Modeling
+        28  Epidemiologic Data
+        24  Imaging
+        21  Statistical Software
+        18  R Software
+        17  Imaging Analysis
+        13  Biospecimen
+        13  Reagents
+        10  Questionnaire
+         8  Cell Lines
+         8  Protocols
+         7  Guidelines and Protocols
+         6  Sample Size Calculator
+         6  Assays
+         5  Vectors
+         5  Risk Assessment
+         4  Biological Networks
+         4  Animal Models
+         4  Patient Registries
+         4  Compounds
+         3  Natural Language Processing
+         3  Policies
+         2  Plant Samples
+         2  Survey
+         1  Screener
+         1  Consent Forms
+
+  resource_research_area  (12 unique values):
+       132  Cancer Biology
+       115  Cancer Treatment
+       107  Cancer Omics
+        43  Causes of Cancer
+        38  Screening and Detection
+        30  Cancer Health Disparities
+        29  Cancer Diagnosis
+        28  Bioinformatics
+        27  Cancer Public Health
+        24  Cancer Prevention
+        21  Cancer Survivorship
+        20  Cancer Statistics
+
+  resource_research_type  (5 unique values):
+       144  Basic
+       113  Translational
+        64  Epidemiologic
+        41  Clinical Trials
+        35  Clinical
+
+  resource_access  (3 unique values):
+       229  Open Access
+        52  Requires Registration
+         2  Requires Payment
+
+  resource_doc  (14 unique values):
+        60  Informatics Technology for Cancer Research (ITCR)
+        56  Division of Cancer Treatment & Diagnosis (DCTD)
+        47  Center for Cancer Genomics (CCG)
+        45  Division of Cancer Control & Population Sciences (DCCPS)
+        28  Division of Cancer Epidemiology & Genetics (DCEG)
+         9  Center for Biomedical Informatics & Information Technology (CBIIT)
+         8  Office of Cancer Genomics (OCG)
+         7  Division of Cancer Biology (DCB)
+         3  Center for Strategic Scientific Initiatives (CSSI)
+         3  Office of Communications & Public Liaison (OCPL)
+         3  Center for Cancer Research (CCR)
+         2  Office of Cancer Clinical Proteomics Research (OCCPR)
+         2  Division of Cancer Prevention (DCP)
+         1  Office of Extramural Research (OER)
+
+POINT-OF-CONTACT (POC) COVERAGE
+  With email          : 154/286
+  With name           : 120/286
+  Email but no name   : 38
+
+FULL DESCRIPTION STATS
+  Min length : 68 chars
+  Max length : 2316 chars
+  Avg length : 506 chars
+  Empty      : None
+
+PREVIEW (first 10 rows)
+  id                    title                                                    tool_types
+  --------------------  -------------------------------------------------------  ----------------------------------------
+  r4r_0001              Enhancer Linking by Methylation/Expression Relationship  Analysis Tools
+  r4r_0002              Next-Generation Clustered Heat Maps (NG-CHM)             Analysis Tools
+  r4r_0003              The BioMedical Evidence Graph (BMEG)                     Analysis Tools;Datasets and Databases
+  r4r_0004              Driver-gene Inference by Genetical-Genomics and Informa  Analysis Tools
+  r4r_0005              Cancer Slide Digital Archive (CDSA)                      Analysis Tools;Datasets and Databases
+  r4r_0006              Cancer and Phenomics Toolkit (CaPTK)                     Analysis Tools
+  r4r_0007              Cloud-based Image Biomarker Platform (C-BIBOP)           Analysis Tools;Datasets and Databases
+  r4r_0008              Cistrome                                                 Analysis Tools;Datasets and Databases
+  r4r_0009              CLAMP-Cancer                                             Analysis Tools;Datasets and Databases
+  r4r_0010              Apache Clinical Text and Knowledge Extraction System (c  Analysis Tools
+

@@ -37,6 +37,7 @@ The workflow is supported by additional, independent steps run as needed:
 - [Merge Curated dbGaP Datasets](#merge-curated-dbgap-datasets)
 - [Generate dbGaP Subset Clones](#generate-dbgap-subset-clones)
 - [Process Curated Sources (DCEG Cohorts, NCCR)](#process-curated-sources)
+- [Curate Resources](#curate-resources)
 
 ![INS-Data workflow. This diagram shows a detailed visualization of the steps listed below.](images/ins-data-repo-diagram.png)
 
@@ -472,6 +473,40 @@ Cohort datasets from the [NCI Division of Cancer Epidemiology and Genetics (DCEG
 ### NCCR Data Platform
 
 Datasets from the [NCI Center for Cancer Research (NCCR)](https://nccr.cancer.gov/) Data Platform are included in INS as curated datasets. The curated TSV is placed in a versioned `data/01_intermediate/nccr/` directory and the `NCCR_VERSION` in `config.py` should be updated to match.
+
+## Curate Resources
+
+**This independent step manages the curation and packaging of NCI research resources for INS.** Resources represent tools, datasets, databases, and other research aids curated for the cancer research community. The initial set of resources was migrated from the [Resources for Researchers (R4R)](https://www.cancer.gov/research/resources) content using a one-time conversion script (`process_r4r_content.py`).
+
+Ongoing resource curation is managed through a curated TSV file at `data/01_intermediate/resources/resources_{date}.tsv`. After edits are made to this file (adding, updating, or removing resources), the packaging module processes it into the final output.
+
+### Resource Packaging Workflow
+
+All resource packaging is handled within the `package_resources.py` module and can be run as an independent process with the command:
+
+```bash
+python modules/package_resources.py
+```
+
+1. **Read curated resources TSV**
+    - Automatically finds the most recent `resources_{date}.tsv` in `data/01_intermediate/resources/`
+    - Handles common Excel encoding artifacts (BOM, cp1252 fallback, whitespace)
+
+2. **Auto-correct formatting**
+    - Ensures the `type` column is set to `resource` for every row
+    - Deduplicates and alphabetically sorts values within semicolon-separated fields (tool type, research area, etc.)
+
+3. **Generate deterministic UUIDs**
+    - Stamps each row with a deterministic UUID5 based on `resource_source_id`
+    - Checks for duplicate UUIDs (critical error if found)
+
+4. **Validate data quality**
+    - Checks for duplicate `resource_source_id` values, malformed IDs, blank required fields, and non-ASCII characters
+    - Generates an issue report distinguishing auto-corrected issues from those requiring manual curation
+
+5. **Save outputs**
+    - Writes the processed TSV to `data/02_output/resources/resources_{date}_processed.tsv`
+    - Writes a detailed issue report (with field completion summary and facet value counts) to `reports/resources/resources_{date}_issue_report.txt`
 
 ## Package Data
 
