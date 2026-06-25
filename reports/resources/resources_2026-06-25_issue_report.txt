@@ -1,0 +1,56 @@
+======================================================================
+  Resources Packaging Issue Report
+  Generated: 2026-06-25 12:57:20
+  Input file: data\01_intermediate\resources\resources_2026-06-25.tsv
+  Rows processed: 276
+======================================================================
+
+No issues found. All checks passed.
+
+----------------------------------------------------------------------
+
+FIELD COMPLETION
+  Field                                Populated  Blank
+  -----------------------------------  ---------  -----
+  type                                       276      0
+  resource_uuid                              276      0
+  resource_source_id                         276      0
+  resource_title                             276      0
+  resource_short_description                 276      0
+  resource_source_url                        276      0
+  resource_tool_type                         276      0
+  resource_tool_subtype                      240     36
+  resource_research_area                     276      0
+  resource_research_type                     250     26
+  resource_access                            273      3
+  resource_doc                               251     25
+  resource_poc_email                         145    131
+  resource_poc_name                          115    161
+  resource_full_description                  276      0
+
+EXPECTED FACET FILTER COUNTS
+
+  resource_tool_type  (8 unique values):
+       143  Analysis Tools
+       109  Datasets and Databases
+        44  Lab Tools
+        24  Community Research Tools
+        16  Terminology
+        13  Networks and Consortiums
+        13  Clinical Research Tools
+         6  Training Resources
+
+  resource_research_area  (12 unique values):
+       127  Cancer Biology
+       112  Cancer Treatment
+       101  Cancer Omics
+        39  Causes of Cancer
+        38  Screening and Detection
+        30  Cancer Health Disparities
+        29  Cancer Diagnosis
+        28  Bioinformatics
+        27  Cancer Public Health
+        24  Cancer Prevention
+        20  Cancer Statistics
+        19  Cancer Survivorship
+
