@@ -1,0 +1,86 @@
+Resource ID	Resource Name	Field	Issue Type	Issue	New Link	Priority	Redirect Flag
+r4r_0006	Cancer and Phenomics Toolkit (CaPTK)	website	Broken Link	403 Forbidden page	https://www.nitrc.org/projects/captk/	3	
+r4r_0008	Cistrome	website	Broken Link	Not Found	https://db3.cistrome.org/browser/	3	
+r4r_0012	DINC 2.0 (Docking INCrementally)	website	Broken Link	"Not secure, infinite loading"	https://proteancr.kavrakilab.rice.edu/structural-computational-biology/dinc-ensemble 	3	
+r4r_0014	LesionTracker Web Image Viewer	website	Broken Link	"Not secure, infinite loading"	https://ohif.org/	3	
+r4r_0017	OmniSearch	website	Broken Link	"Not secure, infinite loading"	https://github.com/OmniSearch	3	
+r4r_0018	Ontology for MIcroRNA Target (OMIT)	website	Broken Link	"Not secure, infinite loading"	https://github.com/OmniSearch/omit	3	
+r4r_0020	Tools for Quantitative Analysis of Positron-Emission Tomography (PET) Imaging	website	Broken Link	"Not secure, infinite loading"	https://github.com/QIICR	3	
+r4r_0028	Tumor Heterogeneity Research Interactive Visualization Environment (THRIVE)	website	Broken Link	"Not secure, infinite loading"	https://csbweb.csb.pitt.edu/ith/index.html	3	
+r4r_0031	Patient-Derived Xenograft (PDX) Finder	website	Broken Link	Database blocked page	https://www.cancermodels.org/	3	
+r4r_0050	"Design, Monitoring, and Analysis of Bayesian Basket Discovery Trials"	website	Broken Link	404. Typo in url	https://ncibrp.shinyapps.io/BasketTrials/	3	
+r4r_0051	Bayesian Phase II Single Arm Clinical Trials	website	Broken Link	Fix link brpnci -> ncibrp	https://ncibrp.shinyapps.io/Phase2sim_survival_v1/	3	
+r4r_0052	Bayesian Phase II Single Arm Clinical Trials	website	Broken Link	Fix link brpnci -> ncibrp	https://ncibrp.shinyapps.io/Phase2sim_v1/	3	
+r4r_0071	"Repository of Biologicals-Monoclonal Antibodies, Cytokines, and Biological Reagents"	website	Broken Link	Wrong link. Error	https://frederick.cancer.gov/resources/repositories/Brb/	3	
+r4r_0075	AMARETTO	website	Broken Link	Not Found	https://github.com/broadinstitute/AMARETTO-Hub	3	
+r4r_0076	P-Mart	website	Broken Link	Redirects to login for legacy PNNL internal site	https://github.com/pmartR/pmartR	3	
+r4r_0078	Sarcoma Project Data	website	Broken Link	Not Found	https://sarcomacelllines.cancer.gov/sarcoma/	3	
+r4r_0086	"Modified UMS, Modified SemRep and SemMedDB-UTH"	website	Broken Link	Not Found	https://lhncbc.nlm.nih.gov/temp/SemRep_SemMedDB_SKR/SemMedDB_download.html	3	
+r4r_0102	Allele-Specific Alternative mRNA processing (ASARP)	website	Broken Link	Expired Domain. Legacy site works	https://legacy.ibp.ucla.edu/research/xiao/Software_files/ASARP/doc/Overview.html	3	
+r4r_0113	PhenStat	website	Broken Link	404 within Bioconductor site	https://bioconductor.posit.co/packages/3.21/bioc/html/PhenStat.html	3	
+r4r_0115	Text Information Extraction System (TIES)	website	Broken Link	403 Access is denied	https://github.com/dbmi-pitt/TCRN	3	
+r4r_0117	National Institute of General Medical Sciences and National Cancer Institute (GM/CA) X-ray Beamline	website	Broken Link	Not secure. Missing aps domain	https://www.gmca.aps.anl.gov/	3	
+r4r_0118	Evaluation of Differential DependencY (EDDY)	website	Broken Link	DNS not found	https://pmc.ncbi.nlm.nih.gov/articles/PMC3985670/	3	
+r4r_0119	Evaluation of Differential DependencY-Cancer Therapeutic Response Portal (EDDY-CTRP)	website	Broken Link	DNS not found	https://pubmed.ncbi.nlm.nih.gov/27897001/	3	
+r4r_0122	PiHelper	website	Broken Link	Repository not found	https://pmc.ncbi.nlm.nih.gov/articles/PMC3722529/	3	
+r4r_0133	Mammalian Gene Collection (MGC)	website	Broken Link	Not found - DNS issue	https://genecollections.nci.nih.gov/genecollections_retire_notice.html	3	
+r4r_0139	Deconvolution Analysis of RNAi Screening data (DecoRNAi)	website	Broken Link	Not Found	https://qbrc.swmed.edu/labs/xiaolab/software.php	3	
+r4r_0158	The ORFeome Collection (OC)	website	Broken Link	Redirects to spam site. Use commercial horizon site?	https://horizondiscovery.com/en/gene-modulation/overexpression/cdna-and-orfs/orfeome-collaboration-collection	3	
+r4r_0166	Clinical Interpretation of Variants in Cancer (CIViC) Knowledgebase	website	Broken Link	Not secure / doesn't exist	https://civicdb.org/	3	
+r4r_0178	NCI Mouse Repository	website	Broken Link	Page retired. Found new FNL mouse repo site	https://ostr.ccr.cancer.gov/resources/provider_details/nci-mouse-repository	3	
+r4r_0215	Team Science Toolkit	website	Broken Link	DNS not found	https://cancercontrol.cancer.gov/brp/research/team-science-toolkit	3	
+r4r_0239	Metabolomics Quality Assurance & Quality Control Consortium (mQACC)	website	Broken Link	Needs https://	https://epi.grants.cancer.gov/Consortia/mQACC	3	
+r4r_0032	The International Registry of Werner Syndrome	website	Broken Link	Error within domain	https://www.wernersyndrome.org/	2	
+r4r_0134	Cancer Genome Characterization Initiative (CGCI) Data Matrix	website	Broken Link	Main CCG redirect	https://www.cancer.gov/ccg/research/genome-sequencing/cgci/about	2	
+r4r_0135	Cancer Target Discovery and Development (CTD2) Data Portal	website	Broken Link	Main CCG redirect	https://www.cancer.gov/ccg/research/functional-genomics/ctd2/data-portal	2	
+r4r_0136	cDNA Clones with Rare and Recurrent Mutations found in Cancers	website	Broken Link	Main CCG redirect	https://www.cancer.gov/ccg/research/functional-genomics/ctd2/using-ctd2-data/supported-reagents	2	
+r4r_0137	Therapeutically Applicable Research to Generate Effective Treatments (TARGET) Data Matrix	website	Broken Link	Main CCG redirect	https://www.cancer.gov/ccg/research/genome-sequencing/target	2	
+r4r_0138	Protein-Protein Interaction (PPI) Reagents	website	Broken Link	Main CCG redirect	https://www.cancer.gov/ccg/research/functional-genomics/ctd2/using-ctd2-data/supported-reagents	2	
+r4r_0150	Modulator Inference by Network Dynamics (MINDy2)/ Conditional Inference of Network Dynamics (CINDy)	website	Broken Link	Redirects to main Califano page	https://califano.c2b2.columbia.edu/software	2	
+r4r_0163	Repository of Tumors and Tumor Cell Lines	website	Broken Link	"Redirects to data downloads, not biorepository"	https://dctd.cancer.gov/drug-discovery-development/reagents-materials/animal-tumor-models	2	
+r4r_0171	Standardized Occupation Coding for Computer-assisted Epidemiologic Research (SOCcer)	website	Broken Link	DCEG page not found	https://soccer.nci.nih.gov/	2	
+r4r_0172	Power for Genetic Association Analyses (PGA)	website	Broken Link	DCEG page not found	https://dceg.cancer.gov/tools/exposure-assessment-tools/pga	2	
+r4r_0173	Job Modules for Occupational Questionnaires	website	Broken Link	DCEG page not found	https://dceg.cancer.gov/research/how-we-study/exposure-assessment/specific-modules	2	
+r4r_0174	Computerized Heterocyclic Amines Resource for Research in Epidemiology of Disease (CHARRED)	website	Broken Link	DCEG page not found	https://pubmed.ncbi.nlm.nih.gov/15986387/	2	
+r4r_0175	Clinical Proteomic Tumor Analysis Consortium (CPTAC) Data Portal	website	Broken Link	Redirects to DCTD data downloads	https://proteomic.datacommons.cancer.gov/pdc/	2	
+r4r_0176	Clinical Proteomic Tumor Analysis Consortium (CPTAC) Antibody Portal	website	Broken Link	Redirects to OCCPR main page	https://antibodies.cancer.gov/browse	2	
+r4r_0177	Clinical Proteomic Tumor Analysis Consortium (CPTAC) Assay Portal	website	Broken Link	Redirects to OCCPR main page	https://assays.cancer.gov/available_assays	2	
+r4r_0196	FDA Terminology	website	Broken Link	Cancer.gov page not found	https://www.cancer.gov/about-nci/organization/cbiit/vocabulary/fda	2	
+r4r_0209	Cancer Therapy Evaluation Program Adverse Event Reporting System (CTEP-AERS)	website	Broken Link	General CTEP page instead of AERS	https://dctd.cancer.gov/research/ctep-trials/for-sites/adverse-events	2	
+r4r_0210	Common Terminology Criteria for Adverse Events (CTCAE)	website	Broken Link	General CTEP page instead of CTC	https://dctd.cancer.gov/research/ctep-trials/for-sites/adverse-events	2	
+r4r_0224	Functional Annotation of Somatic Mutations in Cancer (FASMIC)	website	Broken Link	"Not found, redirected to main page"	https://bioinformatics.mdanderson.org/public-software/fasmic/	2	
+r4r_0231	"Investigation of Serial Studies to Predict Your Therapeutic Response with Imaging and Molecular Analysis, I-SPY1"	website	Broken Link	Links to active ftp server not supported by modern browsers. Try GEO	https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=gse22226	2	
+r4r_0233	NCI Brain Neoplasia Data	website	Broken Link	Links to active ftp server not supported by modern browsers. Try GEO	https://www.cancerimagingarchive.net/collection/rembrandt/	2	
+r4r_0240	Investigational New Drug (IND) Regulatory and Manufacturing Resources	website	Broken Link	DCTD page not found	https://dctd.cancer.gov/drug-discovery-development/reagents-materials/imaging-ind-resources	2	
+r4r_0245	RAS Pathway Gene Set	website	Broken Link	Redirects to general RAS page	https://frederick.cancer.gov/investigator-resources/data-repositories/ras-reagents-tools	2	
+r4r_0247	Wild-Type and Mutant RAS Genes	website	Broken Link	Redirects to general RAS page	https://frederick.cancer.gov/investigator-resources/data-repositories/ras-reagents-tools	2	
+r4r_0248	RAS-Dependent Mouse Cell Lines	website	Broken Link	Redirects to general RAS page	https://frederick.cancer.gov/investigator-resources/data-repositories/ras-reagents-tools#cell-line	2	
+r4r_0249	Reagents for Producing Fully Processed KRAS Protein	website	Broken Link	Redirects to general RAS page	https://frederick.cancer.gov/investigator-resources/data-repositories/ras-reagents-tools	2	
+r4r_0256	Human Cancer Models Initiative (HCMI) Case Report Forms (CRFs)	website	Broken Link	Redirects to CCG main page	https://www.cancer.gov/ccg/research/functional-genomics/hcmi/using-hcmi/case-report-forms	2	
+r4r_0257	Human Cancer Models Initiative (HCMI) Informed Consent Template	website	Broken Link	Redirects to CCG main page	https://www.cancer.gov/ccg/research/functional-genomics/hcmi/using-hcmi	2	
+r4r_0276	Data Science Training Hub	website	Broken Link	Redirects to CBIIT main page	https://www.cancer.gov/about-nci/organization/cbiit/training	2	
+r4r_0023	The Cancer Proteome Atlas	entire record	Content	Keep this id. Consolidate r4r_0121 and r4r_0147. Check/rewrite all fields		2	
+r4r_0073	Personalized Cancer Therapy	entire record	Content	"Keep this id. Consolidate cbiit_catalog_0011. Check/rewrite fields, use longer description."		2	
+r4r_0080	"Surveillance, Epidemiology, and End Results (SEER) Research Data"	POC email	Content	Likely wrong POC. Change to cronink@mail.nih.gov		2	
+r4r_0082	Health Drivers Calculator (HD*Calc)	description	Content	Escaped asterisk is causing italic display on frontend		2	
+r4r_0051	Bayesian Phase II Single Arm Clinical Trials	title	Content	Deduplicate title: Bayesian Phase II Single Arm Clinical Trials - Time to Event Outcomes Calculator		1	
+r4r_0052	Bayesian Phase II Single Arm Clinical Trials	title	Content	Deduplicate title: Bayesian Phase II Single Arm Clinical Trials - Binary Outcomes Calculator		1	
+r4r_0170	Age Period Cohort Analysis Web Tool	access	Content	List as Open Access		1	
+r4r_0208	"Surveillance, Epidemiology and End Results (SEER)-Medicare Linked Database"	access	Content	List Access as Requires Registration; List Research Type as Clinical; Epidemiologic		1	
+cbiit_catalog_001	Biospecimen Research Database (BRD)	entire record	Remove	Remove this. Duplicate of r4r_0049		2	Update redirect
+cbiit_catalog_011	Personalized Cancer Therapy	entire record	Remove	Remove this. Consolidate to r4r_0073		2	Update redirect
+r4r_0026	Chernobyl Tissue Bank (CTB)	entire record	Remove	Remove this. Older duplicate of r4r_273		2	Update redirect
+r4r_0121	The Cancer Proteome Atlas (TCPA)	entire record	Remove	Remove this. Consolidate to r4r_0023		2	Update redirect
+r4r_0147	MD Anderson Cell Line Project (MCLP) Data Portal	entire record	Remove	Remove this. Consolidate to r4r_0023		2	Update redirect
+r4r_0251	Pediatric Genomic Data Inventory (PGDI)	entire record	Remove	Redirects to CCG main page. Project retired		2	
+r4r_0263	TREAT (TREe-based Association Test)	entire record	Remove	Remove this. Older duplicate of r4r_0270		2	Update redirect
+r4r_0269	Thyroid Cancer Risk Assessment Tool (TCRAT)	entire record	Remove	Remove this. Older duplicate of r4r_0274		2	Update redirect
+r4r_0130	Geographic Information Systems (GIS) and Science for Cancer Control	contact name	Typo	fix email: …nih.gov…		2	
+r4r_0145	Head*Bang PC Software	short_description	Typo	nNon-parametric		2	
+r4r_0024	The Cancer Imaging Archive (TCIA)	description	Typo	pathothogy		1	
+r4r_0031	Patient-Derived Xenograft (PDX) Finder	description 	Typo	dessiminating		1	
+r4r_0054	Cancer Intervention and Surveillance Modeling Network	short_description 	Typo	"Pluralize ""investigator"""		1	
+r4r_0071	"Repository of Biologicals-Monoclonal Antibodies, Cytokines, and Biological Reagents"	short_description 	Typo	NCI-sponsered		1	
+r4r_0085	Cancer Stat Fact Sheets (Stat Facts)	description	Typo	Extra space/period		1	
+r4r_0098	NCI-60 Growth inhibition Data	title; description	Typo	Capitalize title; resouce (2x)		1	
+r4r_0137	Therapeutically Applicable Research to Generate Effective Treatments (TARGET) Data Matrix	description 	Typo	Add a href to dbGaP link		1	
