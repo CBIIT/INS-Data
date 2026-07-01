@@ -596,30 +596,43 @@ python modules/build_validation_file.py
     git clone https://github.com/CBIIT/INS-Data.git
     ```
 
-2. **Setup environment**
-    - Install either [Anaconda or Miniconda](https://docs.conda.io/projects/conda/en/stable/user-guide/install/download.html#anaconda-or-miniconda)
-        - For compatibility with setups that do not use conda, a `requirements.txt` is also available
-    - In a command terminal, run the following command in the INS-Data directory:
+2. **Set up the environment**
+    - Create and activate a virtual environment using your preferred tool:
+
+    **Option 1: uv** (recommended, [install here](https://docs.astral.sh/uv/getting-started/installation/)):
 
     ```bash
-    conda env create -f environment.yaml
+        uv venv .venv
     ```
 
-    - This will read `environment.yaml`, setup a matching environment, and install any requirements
-    - Activate the environment either through the [Anaconda Navigator](https://docs.anaconda.com/free/navigator/tutorials/manage-environments/) or with the terminal command:
+    **Option 2: standard Python**:
 
     ```bash
-    conda activate ins-data-env
+        python -m venv .venv
     ```
 
-    - If you make changes to the repo that require new or updated packages, update the `environment.yaml` and `requirements.txt` with:
+    - Activate the environment:
 
     ```bash
-    conda env export | findstr -v "^prefix:"  > environment.yaml
-    pip list --format=freeze > requirements.txt
+        # Windows
+        .venv\Scripts\activate
+
+        # macOS/Linux
+        source .venv/bin/activate
     ```
 
-    - NOTE: Replace the 'findstr' with 'grep' if using MacOS or Linux. This step removes the local path prefix from the environment.yaml for privacy.
+    - Install dependencies (replace `uv pip` with `pip` if not using uv):
+
+    ```bash
+        uv pip install -r requirements.txt
+    ```
+
+    - If you add or update dependencies, install them and update `requirements.txt`:
+
+    ```bash
+        uv pip install <package-name>
+        uv pip freeze > requirements.txt
+    ```
 
 3. **Add or update the input CSV from ODS**
     - If necessary, update the Qualtrics CSV received from ODS
