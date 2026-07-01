@@ -5,7 +5,7 @@ backcall==0.2.0
 backports.functools-lru-cache==1.6.5
 biopython==1.78
 Brotli==1.1.0
-certifi==2026.1.4
+certifi==2026.2.25
 charset-normalizer==3.2.0
 colorama==0.4.6
 comm==0.1.4
@@ -44,12 +44,13 @@ psutil==5.9.5
 pure-eval==0.2.2
 Pygments==2.16.1
 PySocks==1.7.1
-pytest==8.4.2
-pytest-cov==7.0.0
+pytest==9.0.2
+pytest-cov==7.1.0
 python-dateutil==2.8.2
 python-dotenv==1.2.1
 pytz==2023.3.post1
 pywin32==306
+PyYAML==6.0.2
 pyzmq==25.1.1
 referencing==0.30.2
 requests==2.31.0
