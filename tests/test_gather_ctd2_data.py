@@ -7,6 +7,7 @@ Pytest test suite for the `gather_ctd2_data.py` module.
 
 import os
 import sys
+import uuid
 import pandas as pd
 import pytest
 from unittest.mock import patch
@@ -80,6 +81,9 @@ def test_gather_ctd2_datasets_basic(mock_config, mock_read_csv, mock_to_csv, dat
     mock_to_csv.assert_called_once()
     assert 'dataset_uuid' in result.columns
     assert result['dataset_uuid'].nunique() == len(result)
+    # Verify UUIDs are valid format, not just unique strings
+    for uid in result['dataset_uuid']:
+        uuid.UUID(str(uid))  # Raises ValueError if invalid
 
 @patch('modules.gather_ctd2_data.pd.DataFrame.to_csv')
 @patch('modules.gather_ctd2_data.pd.read_csv')
@@ -91,6 +95,9 @@ def test_gather_ctd2_filedata_basic(mock_config, mock_read_csv, mock_to_csv, fil
     mock_to_csv.assert_not_called()  # gather_ctd2_filedata does not save directly
     assert 'file_id' in result.columns
     assert result['file_id'].nunique() == len(result)
+    # Verify file IDs are valid UUID format
+    for fid in result['file_id']:
+        uuid.UUID(str(fid))  # Raises ValueError if invalid
 
 @patch('modules.gather_ctd2_data.pd.DataFrame.to_csv')
 @patch('modules.gather_ctd2_data.os.makedirs')

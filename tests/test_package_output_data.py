@@ -22,6 +22,10 @@ from modules.package_output_data import (
     replace_defined_characters,
     normalize_encoding,
     remove_html_tags,
+    remove_html_tags_from_df,
+    clean_html_entities,
+    format_datetime_columns,
+    process_special_characters,
     remove_nan_strings,
     validate_listlike_columns,
     validate_and_clean_unique_nodes,
@@ -256,7 +260,7 @@ class TestRemoveNanStrings:
         assert result.iloc[2]["col"] == ""
         assert result.iloc[3]["col"] == "real value"
         assert result.iloc[4]["col"] == "banana"
-        
+
     def test_preserves_numeric_nan(self):
         df = pd.DataFrame({"col": [1.0, float("nan"), 3.0]})
         result = remove_nan_strings(df)
@@ -485,3 +489,119 @@ class TestStandardizeData:
         assert result.columns[0] == "type"
         assert result.columns[1] == "node_id"
         assert result.columns[2] == "link_id"
+
+
+# ============================================================
+# remove_html_tags_from_df
+# ============================================================
+
+class TestRemoveHtmlTagsFromDf:
+    """Tests for HTML tag removal across DataFrame columns."""
+
+    def test_removes_tags_in_configured_columns(self, minimal_column_config):
+        df = pd.DataFrame({
+            "type": ["test"],
+            "node_id": ["N1"],
+            "link_id": ["L1"],
+            "title": ["<b>Bold Title</b>"],
+            "value": ["<i>should stay</i>"],
+        })
+        result = remove_html_tags_from_df(
+            df, minimal_column_config, "test_type")
+        # title is in html_tag_cols
+        assert result.iloc[0]["title"] == "Bold Title"
+        # value is NOT in html_tag_cols — should be unchanged
+        assert "<i>" in result.iloc[0]["value"]
+
+    def test_missing_html_column_raises(self, minimal_column_config):
+        df = pd.DataFrame({"wrong_col": ["<b>text</b>"]})
+        with pytest.raises(ValueError, match="Expected html-tagged column"):
+            remove_html_tags_from_df(df, minimal_column_config, "test_type")
+
+    def test_no_html_cols_configured_skips(self):
+        config = {"test": {"html_tag_cols": None}}
+        df = pd.DataFrame({"col": ["<b>kept</b>"]})
+        result = remove_html_tags_from_df(df, config, "test")
+        assert "<b>" in result.iloc[0]["col"]
+
+
+# ============================================================
+# clean_html_entities
+# ============================================================
+
+class TestCleanHtmlEntities:
+    """Tests for HTML entity decoding."""
+
+    def test_decodes_numeric_entities(self):
+        df = pd.DataFrame({"col": ["Smith&#8217;s Study"]}, dtype="object")
+        result = clean_html_entities(df, "program")
+        assert "\u2019" in result.iloc[0]["col"] or "'" in result.iloc[0]["col"]
+
+    def test_decodes_named_entities(self):
+        df = pd.DataFrame({"col": ["A &amp; B"]}, dtype="object")
+        result = clean_html_entities(df, "program")
+        assert "A & B" in result.iloc[0]["col"]
+
+    def test_excludes_dbgap_description(self):
+        df = pd.DataFrame({
+            "description": ["Keep &amp; encoded"],
+            "title": ["Decode &amp; this"],
+        }, dtype="object")
+        result = clean_html_entities(df, "dbgap_dataset")
+        assert "&amp;" in result.iloc[0]["description"]
+        assert "& " in result.iloc[0]["title"]
+
+
+# ============================================================
+# format_datetime_columns
+# ============================================================
+
+class TestFormatDatetimeColumns:
+    """Tests for datetime column formatting."""
+
+    def test_formats_datetime_to_yyyy_mm_dd(self):
+        config = {"test": {"datetime_cols": ["date_col"]}}
+        df = pd.DataFrame({"date_col": ["2023-06-15T12:00:00Z"]})
+        result = format_datetime_columns(df, config, "test")
+        assert result.iloc[0]["date_col"] == "2023-06-15"
+
+    def test_handles_iso_date_strings(self):
+        config = {"test": {"datetime_cols": ["date_col"]}}
+        df = pd.DataFrame({"date_col": ["2023-01-01", "2023-06-15"]})
+        result = format_datetime_columns(df, config, "test")
+        assert result.iloc[0]["date_col"] == "2023-01-01"
+        assert result.iloc[1]["date_col"] == "2023-06-15"
+
+    def test_missing_column_raises(self):
+        config = {"test": {"datetime_cols": ["missing_col"]}}
+        df = pd.DataFrame({"other": ["2023-01-01"]})
+        with pytest.raises(ValueError, match="Expected datetime column"):
+            format_datetime_columns(df, config, "test")
+
+    def test_none_config_skips(self):
+        config = {"test": {"datetime_cols": None}}
+        df = pd.DataFrame({"date_col": ["2023-01-01T12:00:00Z"]})
+        result = format_datetime_columns(df, config, "test")
+        # Should be unchanged
+        assert result.iloc[0]["date_col"] == "2023-01-01T12:00:00Z"
+
+
+# ============================================================
+# process_special_characters
+# ============================================================
+
+class TestProcessSpecialCharacters:
+    """Tests for the combined character replacement + encoding pipeline."""
+
+    def test_processes_all_non_excluded_columns(self):
+        config = {"test": {"exclude_special_char_processing": ["keep_col"]}}
+        df = pd.DataFrame({
+            "clean_col": ["caf\u00e9 \u201cquotes\u201d"],
+            "keep_col": ["caf\u00e9 \u201cquotes\u201d"],
+        })
+        result = process_special_characters(df, config, "test")
+        # clean_col should have accent stripped and quotes replaced
+        assert "\u00e9" not in result.iloc[0]["clean_col"]
+        assert "\u201c" not in result.iloc[0]["clean_col"]
+        # keep_col should be untouched
+        assert "\u00e9" in result.iloc[0]["keep_col"]

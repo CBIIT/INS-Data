@@ -1546,3 +1546,66 @@ def test_validate_resets_index(tmp_path):
 if __name__ == "__main__":
 
     pytest.main([__file__, "-v"])
+
+
+# ============================================================================
+# Live API smoke tests — run with: pytest -m live_api
+# ============================================================================
+
+@pytest.mark.live_api
+class TestSraEntrezLive:
+    """Live smoke tests for SRA via NCBI E-utilities.
+    Run with: pytest -m live_api -v
+    """
+
+    def test_elink_pubmed_to_sra_is_reachable(self):
+        """Verify Entrez elink can query pubmed-to-sra linkages."""
+        from Bio import Entrez as ent
+
+        ent.email = os.environ.get("NCBI_EMAIL", "test@example.com")
+        ent.api_key = os.environ.get("NCBI_API_KEY", "")
+
+        handle = ent.elink(
+            dbfrom="pubmed", db="sra",
+            id="17727713", linkname="pubmed_sra"
+        )
+        record = ent.read(handle)
+        handle.close()
+
+        assert len(record) > 0, (
+            "Entrez elink returned empty response for pubmed-to-sra")
+
+    def test_efetch_sra_returns_parseable_xml(self):
+        """Verify Entrez efetch for SRA returns parseable XML with
+        expected structure."""
+        from Bio import Entrez as ent
+
+        ent.email = os.environ.get("NCBI_EMAIL", "test@example.com")
+        ent.api_key = os.environ.get("NCBI_API_KEY", "")
+
+        # First use elink to get a valid SRA UID from a known PMID
+        link_handle = ent.elink(
+            dbfrom="pubmed", db="sra",
+            id="17727713", linkname="pubmed_sra"
+        )
+        link_record = ent.read(link_handle)
+        link_handle.close()
+
+        # Get the first SRA UID from link results
+        link_sets = link_record[0].get("LinkSetDb", [])
+        if not link_sets:
+            pytest.skip("No SRA links found for test PMID — cannot test efetch")
+
+        sra_uid = link_sets[0]["Link"][0]["Id"]
+
+        # Now fetch the SRA record using the numeric UID
+        handle = ent.efetch(db="sra", id=sra_uid, rettype="xml")
+        xml_content = handle.read()
+        handle.close()
+
+        assert len(xml_content) > 0, (
+            "Entrez efetch returned empty SRA response")
+        xml_str = xml_content if isinstance(xml_content, str) else xml_content.decode()
+        assert "STUDY" in xml_str or "EXPERIMENT" in xml_str, (
+            "SRA efetch response missing expected XML elements — "
+            "schema may have changed")

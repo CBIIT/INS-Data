@@ -16,7 +16,9 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from modules.gather_geo_data import (
     fetch_geo_ids,
+    get_full_geo_record,
     create_geo_dataframe,
+    get_dataset_doc_from_project,
     format_geo_names,
     select_geo_ftp_fields,
     merge_semicolon_fields,
@@ -268,6 +270,83 @@ class TestFetchGeoIdsMocked:
 
         assert pmid == "99999999"
         assert geo_ids == []
+
+
+# ============================================================
+# get_full_geo_record — mocked
+# ============================================================
+
+class TestGetFullGeoRecordMocked:
+    """Tests for GEO ESummary record retrieval with mocked Entrez."""
+
+    def test_successful_fetch(self):
+        mock_records = [{"Id": "200111111", "Accession": "GSE111111",
+                         "title": "Test Study"}]
+        mock_handle = MagicMock()
+        with patch("modules.gather_geo_data.Entrez.esummary",
+                    return_value=mock_handle):
+            with patch("modules.gather_geo_data.Entrez.read",
+                        return_value=mock_records):
+                result = get_full_geo_record("200111111")
+
+        assert result is not None
+        assert result[0]["Accession"] == "GSE111111"
+
+    def test_error_returns_none(self):
+        with patch("modules.gather_geo_data.Entrez.esummary",
+                    side_effect=Exception("API error")):
+            result = get_full_geo_record("99999999")
+        assert result is None
+
+
+# ============================================================
+# get_dataset_doc_from_project
+# ============================================================
+
+class TestGetDatasetDocFromProject:
+    """Tests for linking GEO datasets to NCI DOCs via projects/programs."""
+
+    def test_maps_docs_via_project_and_program(self, tmp_path):
+        geo_df = pd.DataFrame({
+            "geo_id": ["200111111"],
+            "funding_source": ["PRJ_A"],
+            "dataset_title": ["Test"],
+        })
+        project_df = pd.DataFrame({
+            "project_id": ["PRJ_A"],
+            "program.program_id": ["PROG1"],
+        })
+        program_df = pd.DataFrame({
+            "program_id": ["PROG1"],
+            "doc": ["NCI Division X"],
+        })
+
+        project_path = str(tmp_path / "project.csv")
+        program_path = str(tmp_path / "program.csv")
+        project_df.to_csv(project_path, index=False)
+        program_df.to_csv(program_path, index=False)
+
+        with patch("modules.gather_geo_data.config") as mock_config:
+            mock_config.PROJECTS_INTERMED_PATH = project_path
+            mock_config.PROGRAMS_INTERMED_PATH = program_path
+            result = get_dataset_doc_from_project(geo_df)
+
+        assert "dataset_doc" in result.columns
+        assert result.iloc[0]["dataset_doc"] == "NCI Division X"
+
+    def test_missing_project_file_returns_empty_docs(self, tmp_path):
+        geo_df = pd.DataFrame({
+            "geo_id": ["200111111"],
+            "funding_source": ["PRJ_A"],
+        })
+        with patch("modules.gather_geo_data.config") as mock_config:
+            mock_config.PROJECTS_INTERMED_PATH = str(
+                tmp_path / "nonexistent.csv")
+            mock_config.PROGRAMS_INTERMED_PATH = str(
+                tmp_path / "nonexistent.csv")
+            result = get_dataset_doc_from_project(geo_df)
+
+        assert result.iloc[0]["dataset_doc"] == ""
 
 
 # ============================================================

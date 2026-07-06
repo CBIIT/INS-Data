@@ -20,7 +20,10 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from modules.gather_publication_data import (
     get_pmids_from_nih_reporter_api,
+    get_pmids_from_projects,
     get_pubmed_info_from_pmid,
+    get_max_chunk_number,
+    load_all_directory_files_to_df,
     format_authors,
     format_publication_date,
     convert_month,
@@ -456,3 +459,83 @@ class TestPubMedEntrezLive:
         assert isinstance(result["title"], str) and len(result["title"]) > 0
         assert isinstance(result["authors"], str) and len(result["authors"]) > 0
         assert isinstance(result["publication_date"], datetime)
+
+
+# ============================================================
+# get_max_chunk_number
+# ============================================================
+
+class TestGetMaxChunkNumber:
+    """Tests for finding the highest chunk number from filenames."""
+
+    def test_finds_max_chunk(self, tmp_path):
+        (tmp_path / "publicationDetails_001.csv").write_text("a")
+        (tmp_path / "publicationDetails_005.csv").write_text("a")
+        (tmp_path / "publicationDetails_003.csv").write_text("a")
+        assert get_max_chunk_number(str(tmp_path)) == 5
+
+    def test_empty_directory_returns_zero(self, tmp_path):
+        assert get_max_chunk_number(str(tmp_path)) == 0
+
+    def test_ignores_non_chunk_files(self, tmp_path):
+        (tmp_path / "other_file_001.csv").write_text("a")
+        (tmp_path / "publicationDetails_002.csv").write_text("a")
+        assert get_max_chunk_number(str(tmp_path)) == 2
+
+
+# ============================================================
+# load_all_directory_files_to_df
+# ============================================================
+
+class TestLoadAllDirectoryFilesToDf:
+    """Tests for loading all CSVs from a directory into one DataFrame."""
+
+    def test_combines_multiple_csvs(self, tmp_path):
+        pd.DataFrame({"pmid": [111, 222]}).to_csv(
+            tmp_path / "chunk_001.csv", index=False)
+        pd.DataFrame({"pmid": [333]}).to_csv(
+            tmp_path / "chunk_002.csv", index=False)
+        result = load_all_directory_files_to_df(str(tmp_path))
+        assert len(result) == 3
+        assert set(result["pmid"]) == {111, 222, 333}
+
+    def test_single_file(self, tmp_path):
+        pd.DataFrame({"pmid": [111]}).to_csv(
+            tmp_path / "data.csv", index=False)
+        result = load_all_directory_files_to_df(str(tmp_path))
+        assert len(result) == 1
+
+
+# ============================================================
+# get_pmids_from_projects
+# ============================================================
+
+class TestGetPmidsFromProjects:
+    """Tests for project-to-PMID gathering with program exclusions."""
+
+    def test_excludes_configured_programs(self):
+        projects_df = pd.DataFrame({
+            "project_id": ["P1", "P2", "P3"],
+            "program.program_id": ["KEEP", "EXCLUDE", "KEEP"],
+        })
+
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            "meta": {"total": 1},
+            "results": [
+                {"coreproject": "P1", "pmid": 11111,
+                 "applid": 99999}
+            ],
+        }
+
+        with patch("modules.gather_publication_data.config") as mock_config:
+            mock_config.PROGRAMS_EXCLUDE_FROM_PUBS = ["EXCLUDE"]
+            with patch("modules.gather_publication_data.requests.post",
+                        return_value=mock_response):
+                result = get_pmids_from_projects(projects_df)
+
+        # P2 should have been excluded — only P1 and P3 queried
+        assert isinstance(result, pd.DataFrame)
+        # applid should have been dropped
+        assert "applid" not in result.columns
