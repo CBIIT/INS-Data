@@ -390,3 +390,71 @@ def test_clean_grants_data(mock_grant_response, mock_cleaned_grant):
     assert isinstance(cleaned_grant, pd.DataFrame)
     assert len(cleaned_grant) == 1
     pd.testing.assert_frame_equal(cleaned_grant, mock_cleaned_grant)
+
+
+# ============================================================
+# Live API smoke tests — run with: pytest -m live_api
+# ============================================================
+
+@pytest.mark.live_api
+class TestNIHReporterGrantsAPILive:
+    """Live smoke tests for the NIH RePORTER Projects/Grants API.
+    Run with: pytest -m live_api -v
+    """
+
+    def test_reporter_grants_api_reachable_and_returns_expected_schema(self):
+        """Verify the Projects API is up and the response schema matches
+        what get_nih_reporter_grants expects."""
+        response = requests.post(
+            "https://api.reporter.nih.gov/v2/projects/search",
+            json={
+                "criteria": {
+                    "opportunity_numbers": ["RFA-CA-21-038"],
+                    "exclude_subprojects": True,
+                    "fiscal_years": ["2022"],
+                },
+                "offset": 0,
+                "limit": 5,
+            },
+            headers={"accept": "application/json",
+                     "Content-Type": "application/json"},
+            timeout=30,
+        )
+
+        assert response.status_code == 200, (
+            f"NIH RePORTER Grants API returned {response.status_code}")
+
+        data = response.json()
+
+        # Verify top-level schema keys
+        assert "meta" in data, "Response missing 'meta' key"
+        assert "results" in data, "Response missing 'results' key"
+
+        # Verify meta contains expected fields
+        meta = data["meta"]
+        for key in ("total", "offset", "limit"):
+            assert key in meta, f"Meta missing '{key}' field"
+
+        # Verify at least one result with fields our module depends on
+        if meta["total"] > 0:
+            result = data["results"][0]
+            for field in ("project_num", "fiscal_year", "organization",
+                          "principal_investigators", "program_officers",
+                          "agency_ic_fundings", "project_start_date",
+                          "project_end_date", "opportunity_number",
+                          "award_notice_date", "core_project_num",
+                          "abstract_text", "project_title"):
+                assert field in result, (
+                    f"Result missing '{field}' — API schema may have changed")
+
+    def test_reporter_grants_api_returns_results_for_known_nofo(self):
+        """Verify a known NOFO returns at least one grant."""
+        results, failed = get_nih_reporter_grants(
+            search_type="nofo",
+            search_values=["RFA-CA-21-038"],
+        )
+        assert len(results) > 0, (
+            "Known NOFO RFA-CA-21-038 returned no grants from RePORTER API")
+        assert not failed, (
+            f"Unexpected failures for known NOFO: {failed}")
+
