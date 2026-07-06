@@ -597,17 +597,13 @@ python modules/build_validation_file.py
     ```
 
 2. **Set up the environment**
-    - Create and activate a virtual environment using your preferred tool:
-
-    **Option 1: uv** (recommended, [install here](https://docs.astral.sh/uv/getting-started/installation/)):
+    - Create a virtual environment using [uv](https://docs.astral.sh/uv/getting-started/installation/) (recommended) or standard Python:
 
     ```bash
+        # Option 1: uv (recommended)
         uv venv .venv
-    ```
 
-    **Option 2: standard Python**:
-
-    ```bash
+        # Option 2: standard Python
         python -m venv .venv
     ```
 
@@ -627,12 +623,14 @@ python modules/build_validation_file.py
         uv pip install -r requirements.txt
     ```
 
-    - If you add or update dependencies, install them and update `requirements.txt`:
+    - If you add a new dependency during development, install it and add the pinned version to `requirements.txt`:
 
     ```bash
         uv pip install <package-name>
-        uv pip freeze > requirements.txt
+        # Then manually add or update <package-name>==<version> in requirements.txt
     ```
+
+      Only top-level packages are listed — uv resolves transitive dependencies automatically at install time.
 
 3. **Add or update the input CSV from ODS**
     - If necessary, update the Qualtrics CSV received from ODS
