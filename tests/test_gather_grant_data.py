@@ -435,17 +435,21 @@ class TestNIHReporterGrantsAPILive:
         for key in ("total", "offset", "limit"):
             assert key in meta, f"Meta missing '{key}' field"
 
-        # Verify at least one result with fields our module depends on
-        if meta["total"] > 0:
-            result = data["results"][0]
-            for field in ("project_num", "fiscal_year", "organization",
-                          "principal_investigators", "program_officers",
-                          "agency_ic_fundings", "project_start_date",
-                          "project_end_date", "opportunity_number",
-                          "award_notice_date", "core_project_num",
-                          "abstract_text", "project_title"):
-                assert field in result, (
-                    f"Result missing '{field}' — API schema may have changed")
+        # Verify results exist for this known NOFO
+        assert meta["total"] > 0, (
+            "Known NOFO RFA-CA-21-038 returned 0 results — "
+            "API may have changed or data may have been removed")
+
+        # Verify result contains fields our module depends on
+        result = data["results"][0]
+        for field in ("project_num", "fiscal_year", "organization",
+                      "principal_investigators", "program_officers",
+                      "agency_ic_fundings", "project_start_date",
+                      "project_end_date", "opportunity_number",
+                      "award_notice_date", "core_project_num",
+                      "abstract_text", "project_title"):
+            assert field in result, (
+                f"Result missing '{field}' — API schema may have changed")
 
     def test_reporter_grants_api_returns_results_for_known_nofo(self):
         """Verify a known NOFO returns at least one grant."""

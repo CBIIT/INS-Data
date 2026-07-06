@@ -404,12 +404,16 @@ class TestNIHReporterAPILive:
         meta = data["meta"]
         assert "total" in meta, "Meta missing 'total' field"
 
-        # Verify at least one result with expected fields
-        if data["meta"]["total"] > 0:
-            result = data["results"][0]
-            assert "pmid" in result, "Result missing 'pmid' field"
-            assert "coreproject" in result, (
-                "Result missing 'coreproject' field")
+        # Verify results exist for this known project
+        assert data["meta"]["total"] > 0, (
+            "Known project R01CA263500 returned 0 results — "
+            "API may have changed or data may have been removed")
+
+        # Verify result contains fields our module depends on
+        result = data["results"][0]
+        assert "pmid" in result, "Result missing 'pmid' field"
+        assert "coreproject" in result, (
+            "Result missing 'coreproject' field")
 
 
 @pytest.mark.live_api
