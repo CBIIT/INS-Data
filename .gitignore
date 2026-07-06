@@ -1,4 +1,4 @@
-# .gitgnore
+# .gitignore
 # Ignore the following files
 
 # Clutter
@@ -7,9 +7,11 @@ __pycache__/
 notebooks/*
 .coverage
 cov.xml
+.pytest_cache/
 
 # Private
 .env
+.venv/
 .vscode
 
 # Large data
