@@ -4,14 +4,43 @@
 
 This repository uses a curated list of National Cancer Institute (NCI) programs to automate the gathering of information about grants, projects and their associated research outputs. This process uses publicly available resources from the [NIH RePORTER API](https://api.reporter.nih.gov/), [NIH iCite](https://icite.od.nih.gov/api), [NCBI E-utilities](https://www.ncbi.nlm.nih.gov/books/NBK25497/) (through [BioPython](https://biopython.org/docs/1.75/api/Bio.Entrez.html)), and [NCBI dbGaP APIs](https://www.ncbi.nlm.nih.gov/gap/) along with curated and submitted data.
 
-**To access the raw data outputs**, [please see our latest release](https://github.com/CBIIT/INS-Data/releases/latest).
-
 The data gathered here are compatible with the [INS Data Model](https://github.com/CBIIT/ins-model).
 
 ![INS-Data simple workflow. This diagram shows a simplified flow of data gathering from programs to grants/projects to publications.](images/ins-data-gathering-simple.png)
 
+## Quick Start
+
+### Option 1: Download the data
+
+The finalized output files for each release are available as a `.zip` on the [Latest Release](https://github.com/CBIIT/INS-Data/releases/latest) page. These TSV files are loaded into the INS database and match the information available when browsing the site.
+
+### Option 2: Run the pipeline yourself
+
+```bash
+git clone https://github.com/CBIIT/INS-Data.git
+cd INS-Data
+uv venv .venv
+.venv\Scripts\activate  # Windows. On macOS/Linux: source .venv/bin/activate
+uv pip install -r requirements.txt
+```
+
+Before running, you will need:
+
+- A CSV of NCI programs from ODS ([step 3](#recreating-the-ins-data-gathering-process))
+- An [iCite database snapshot](https://nih.figshare.com/collections/iCite_Database_Snapshots_NIH_Open_Citation_Collection_/4586573), ~10GB ([step 4](#recreating-the-ins-data-gathering-process))
+- An [NCBI API key](https://ncbiinsights.ncbi.nlm.nih.gov/2017/11/02/new-api-keys-for-the-e-utilities/) in a `.env` file ([step 5](#recreating-the-ins-data-gathering-process))
+
+Then run the full pipeline:
+
+```bash
+python main.py
+```
+
+For detailed setup, prerequisites, and optional steps, see [How to Use this Repository](#how-to-use-this-repository).
+
 ## Table of Contents
 
+- [Quick Start](#quick-start)
 - [Data Gathering Workflow](#data-gathering-workflow)
 - [How to Use this Repository](#how-to-use-this-repository)
 - [Errors and Warnings](#errors-and-warnings)
