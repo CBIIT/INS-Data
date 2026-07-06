@@ -1,6 +1,9 @@
 biopython==1.87
+openpyxl==3.1.5
 pandas==3.0.3
 pytest==9.1.1
+pytest-cov==7.1.0
 python-dotenv==1.2.2
 requests==2.34.2
 tqdm==4.68.3
+xlsxwriter==3.2.9
