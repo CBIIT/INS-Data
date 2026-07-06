@@ -476,9 +476,9 @@ Datasets from the [NCI Center for Cancer Research (NCCR)](https://nccr.cancer.go
 
 ## Curate Resources
 
-**This independent step manages the curation and packaging of NCI research resources for INS.** Resources represent tools, datasets, databases, and other research aids curated for the cancer research community. The initial set of resources was migrated from the [Resources for Researchers (R4R)](https://www.cancer.gov/research/resources) content using a one-time conversion script (`process_r4r_content.py`).
+**This independent step manages the curation and packaging of NCI research resources for INS.** Resources represent tools, datasets, databases, and other research aids curated for the cancer research community.
 
-Ongoing resource curation is managed through a curated TSV file at `data/01_intermediate/resources/resources_{date}.tsv`. After edits are made to this file (adding, updating, or removing resources), the packaging module processes it into the final output.
+Resource curation is managed through a curated TSV file at `data/01_intermediate/resources/resources_{date}.tsv`. After edits are made to this file (adding, updating, or removing resources), the packaging module processes it into the final output.
 
 ### Resource Packaging Workflow
 
