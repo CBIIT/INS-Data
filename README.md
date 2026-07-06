@@ -43,6 +43,7 @@ For detailed setup, prerequisites, and optional steps, see [How to Use this Repo
 - [Quick Start](#quick-start)
 - [Data Gathering Workflow](#data-gathering-workflow)
 - [How to Use this Repository](#how-to-use-this-repository)
+- [Testing](#testing)
 - [Errors and Warnings](#errors-and-warnings)
 
 ## Data Gathering Workflow
@@ -760,6 +761,44 @@ python modules/build_validation_file.py
     - **DCEG Cohorts**: Place the curated TSV as `dceg_datasets_curated.tsv` in a versioned `data/01_intermediate/dceg_cohorts/` directory. Update `DCEG_COHORTS_VERSION` in `config.py`.
     - **NCCR Data Platform**: Place the curated TSV as `nccr_datasets_curated.tsv` in a versioned `data/01_intermediate/nccr/` directory. Update `NCCR_VERSION` in `config.py`.
     - Curated sources are processed automatically during the [Package Data](#package-data) step.
+
+## Testing
+
+Tests are located in the `tests/` directory and use [pytest](https://docs.pytest.org/). Each test file corresponds to a module in `modules/`.
+
+### Running Tests
+
+Run all tests and include coverage report:
+
+```bash
+pytest --cov=modules
+```
+
+Run a single test file:
+
+```bash
+pytest tests/test_gather_project_data.py -v
+```
+
+### Live API Smoke Tests
+
+Some tests are marked with `@pytest.mark.live_api` and make real calls to external APIs (NIH RePORTER, PubMed, GEO, dbGaP, SRA) to verify they are reachable and returning expected response schemas. These run by default with `pytest` and take a few seconds.
+
+To run only the live API tests:
+
+```bash
+pytest -m live_api -v
+```
+
+To skip them (e.g., when offline):
+
+```bash
+pytest -m "not live_api"
+```
+
+### Environment Checks
+
+The test suite includes checks that `NCBI_API_KEY` and `NCBI_EMAIL` are set in your `.env` file. If these are missing, those tests will fail with a message pointing to the setup instructions.
 
 ## Errors and Warnings
 
