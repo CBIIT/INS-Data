@@ -6,7 +6,6 @@ Pytest test suite for the `gather_sra_data.py` module.
 """
 
 import os
-import sys
 import json
 import pandas as pd
 import pytest
@@ -14,8 +13,6 @@ import uuid
 from unittest.mock import patch, MagicMock
 from io import BytesIO
 
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from modules.gather_sra_data import (
     get_composite_uuid5,

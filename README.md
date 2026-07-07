@@ -22,6 +22,7 @@ cd INS-Data
 uv venv .venv
 .venv\Scripts\activate  # Windows. On macOS/Linux: source .venv/bin/activate
 uv pip install -r requirements.txt
+uv pip install -e .
 ```
 
 Before running, you will need:
@@ -651,6 +652,7 @@ python modules/build_validation_file.py
 
     ```bash
         uv pip install -r requirements.txt
+        uv pip install -e .
     ```
 
     - If you add a new dependency during development, install it and add the pinned version to `requirements.txt`:

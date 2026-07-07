@@ -6,14 +6,11 @@ Pytest test suite for the `gather_grant_data.py` module.
 """
 
 import os
-import sys
 import pandas as pd
 import pytest
 import requests
 from unittest.mock import patch, MagicMock
 
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from modules.gather_grant_data import (
     get_nih_reporter_grants,

@@ -10,6 +10,7 @@ cd INS-Data
 uv venv .venv
 .venv\Scripts\activate  # Windows. On macOS/Linux: source .venv/bin/activate
 uv pip install -r requirements.txt
+uv pip install -e .
 ```
 
 You will also need a `.env` file in the project root with your NCBI credentials:

@@ -4,6 +4,7 @@
 # Clutter
 __pycache__/
 *.pyc
+*.egg-info/
 notebooks/*
 .coverage
 cov.xml

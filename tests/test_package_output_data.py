@@ -8,12 +8,9 @@ all data for INS loading.
 """
 
 import os
-import sys
 
 import pandas as pd
 import pytest
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from modules.package_output_data import (
     add_type_column,

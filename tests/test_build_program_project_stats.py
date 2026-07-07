@@ -6,13 +6,10 @@ Pytest test suite for the build_program_project_stats.py module.
 """
 
 import os
-import sys
 
 import pandas as pd
 import pytest
 from unittest.mock import patch, MagicMock
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from modules.build_program_project_stats import (
     get_grant_stats_by_program,

@@ -6,12 +6,9 @@ Pytest test suite for the build_validation_file.py module.
 """
 
 import os
-import sys
 
 import pandas as pd
 import pytest
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from modules.build_validation_file import (
     get_single_node_counts,

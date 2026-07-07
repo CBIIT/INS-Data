@@ -6,13 +6,10 @@ Pytest test suite for the gather_dbgap_data.py module.
 """
 
 import os
-import sys
 
 import pandas as pd
 import pytest
 from unittest.mock import patch, MagicMock
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from modules.gather_dbgap_data import (
     get_dbgap_api_data,

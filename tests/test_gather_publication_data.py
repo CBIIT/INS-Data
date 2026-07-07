@@ -9,14 +9,11 @@ expected schemas.
 """
 
 import os
-import sys
 from datetime import datetime
 
 import pandas as pd
 import pytest
 from unittest.mock import patch, MagicMock
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from modules.gather_publication_data import (
     get_pmids_from_nih_reporter_api,

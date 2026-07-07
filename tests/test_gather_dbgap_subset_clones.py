@@ -6,14 +6,11 @@ Pytest test suite for the gather_dbgap_subset_clones.py module.
 """
 
 import os
-import sys
 import uuid
 
 import pandas as pd
 import pytest
 from unittest.mock import patch
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from modules.gather_dbgap_subset_clones import (
     load_subset_phs,

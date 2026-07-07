@@ -23,7 +23,6 @@ Cleaning Steps in order:
 """
 
 import os
-import sys
 from datetime import datetime
 from time import sleep  # for retrying API calls
 from math import ceil  # for pagination logging
@@ -33,9 +32,6 @@ import re
 import requests
 from tqdm import tqdm # for progress bars
 
-# Append the project's root directory to the Python path
-# This allows for importing config when running as part of main.py or alone
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import config
 
 
