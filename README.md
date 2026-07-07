@@ -800,7 +800,7 @@ pytest -m "not live_api"
 
 ### Environment Checks
 
-The test suite includes checks that `NCBI_API_KEY` and `NCBI_EMAIL` are set in your `.env` file. If these are missing, those tests will fail with a message pointing to the setup instructions.
+The test suite includes checks that `NCBI_API_KEY` and `NCBI_EMAIL` are set in your `.env` file. These are grouped with the `live_api` marker and run by default locally. If these variables are missing, those tests will fail with a message pointing to the setup instructions. They are skipped in CI where `.env` is not available.
 
 ## Errors and Warnings
 

@@ -348,8 +348,11 @@ class TestGetPubmedInfoMocked:
 # Environment configuration
 # ============================================================
 
+@pytest.mark.live_api
 class TestEnvironmentConfig:
-    """Tests that required environment variables are configured."""
+    """Tests that required environment variables are configured.
+    Skipped in CI where .env is not available.
+    """
 
     def test_ncbi_api_key_is_set(self):
         """Verify NCBI_API_KEY is set. Without a key, PubMed API calls are
