@@ -203,7 +203,7 @@ FAILED_GRANT_SEARCH_REPORT = REPORTS_GATHERED_DIR +"/"+ "failedNofoAwardSearches
 
 
 # ---
-# SUMMARY STATISTICS CONFIGURATION
+# PROGRAM/PROJECT STATS CONFIGURATION
 
 # Dict of grants fields of interest and how to aggregate each
 STAT_AGG_FUNCS_BY_COL = {

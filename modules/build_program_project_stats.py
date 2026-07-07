@@ -1,14 +1,14 @@
 """
-summary_statistics.py
+build_program_project_stats.py
 2023-09-08 ZD
 
-This script defines main function get_summary_statistics that will generate 
-summary statistics relevant to data gathered for the INS grants and projects. 
-The goal of these statistics are not to ingest into the site, but rather for 
-use in testing, validation, and general reporting. 
+This script defines the main function build_program_project_stats that
+generates reports summarizing program and project data gathered for INS.
+These reports are not ingested into the site, but are useful for testing,
+validation, and quick feedback during the pipeline.
 
-Summary statistics will be output to the reports/ directory with a versioning
-structure identical to the data/ directory. 
+Reports are output to the reports/ directory with a versioning structure
+identical to the data/ directory.
 """
 
 import pandas as pd
@@ -90,11 +90,11 @@ def get_shared_projects_by_program_pair(all_grants_data: pd.DataFrame):
 
 
 
-def get_summary_statistics(all_grants_data:pd.DataFrame):
-    """Create reports with summary statistics of high-level grants info"""
+def build_program_project_stats(all_grants_data:pd.DataFrame):
+    """Create reports with program and project statistics from grants data."""
 
-    print(f"\n---\nSUMMARY STATISTICS:\n"
-          f"Generating summary statistics reports for grants...\n---\n")
+    print(f"\n---\nPROGRAM/PROJECT STATS:\n"
+          f"Generating program and project statistics reports...\n---\n")
 
     # Define directory to store reports. Create if doesn't already exist
     reports_dir = config.REPORTS_GATHERED_DIR
@@ -123,5 +123,5 @@ if __name__ == "__main__":
     all_cleaned_grants = pd.read_csv(grant_filepath)
 
     # Run stats module
-    get_summary_statistics(all_cleaned_grants)
+    build_program_project_stats(all_cleaned_grants)
 

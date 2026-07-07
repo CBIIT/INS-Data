@@ -130,11 +130,11 @@ Within INS, a grant is usually an annual support to a multi-year project.
 
 ### Grant Workflow
 
-All grants processing is handled within the `gather_grant_data.py` module, except for the summary statistic step handled with the `summary_statistic.py` module. They can be run as independent processes with the commands:
+All grants processing is handled within the `gather_grant_data.py` module, except for the statistics step handled with the `build_program_project_stats.py` module. They can be run as independent processes with the commands:
 
 ```bash
 python modules/gather_grant_data.py
-python modules/summary_statistics.py
+python modules/build_program_project_stats.py
 ```
 
 1. **Get grants data from NIH RePORTER API**
@@ -157,11 +157,11 @@ python modules/summary_statistics.py
     - Adds the associated Program ID to each grant
     - Combines grants data from all programs and store as a versioned `grant.csv` within the `data/01_intermediate/` directory.
 
-4. **Generate summary statistics**
+4. **Generate program and project statistics**
     - Builds reports useful for testing and validation but not intended for ingestion into the site
         - `grantsStatsByProgram.csv` groups grants data by Key Program and aggregates counts of grants, projects, searched values, and earliest fiscal year
         - `sharedProjectsByProgramPair.csv` lists pairs of Key Programs and counts of projects that are associated with both
-    - Summary statistics are handled within the `summary_statistics.py` module
+    - Statistics are handled within the `build_program_project_stats.py` module
 
 ## Gather Projects
 
@@ -705,7 +705,7 @@ python modules/build_validation_file.py
         ```bash
         python modules/gather_program_data.py
         python modules/gather_grant_data.py
-        python modules/summary_statistics.py
+        python modules/build_program_project_stats.py
         python modules/gather_project_data.py
         python modules/gather_publication_data.py
         python modules/gather_geo_data.py
