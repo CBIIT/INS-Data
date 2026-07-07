@@ -768,10 +768,10 @@ Tests are located in the `tests/` directory and use [pytest](https://docs.pytest
 
 ### Running Tests
 
-Run all tests and include coverage report:
+Run all tests with coverage and verbose output:
 
 ```bash
-pytest --cov=modules
+pytest --cov=modules -v
 ```
 
 Run a single test file:

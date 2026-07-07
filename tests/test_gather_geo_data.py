@@ -354,9 +354,11 @@ class TestGetDatasetDocFromProject:
 # ============================================================
 
 @pytest.mark.live_api
+@pytest.mark.xfail(reason="Live NCBI Entrez API — may be slow or unavailable",
+                   raises=AssertionError)
 class TestGeoEntrezLive:
     """Live smoke tests for GEO via NCBI E-utilities.
-    Run with: pytest -m live_api -v
+    Skippable offline with: pytest -m "not live_api"
     """
 
     def test_elink_pubmed_to_gds_is_reachable(self):
