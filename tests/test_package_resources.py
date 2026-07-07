@@ -7,12 +7,9 @@ Pytest test suite for the `package_resources.py` module.
 
 import csv
 import os
-import sys
 import uuid
 
 import pytest
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from modules.package_resources import (
     EXPECTED_COLUMNS,

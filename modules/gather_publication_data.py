@@ -18,7 +18,6 @@ The output `publications_df` and exported publication.csv contain columns:
 """
 
 import os
-import sys
 from datetime import datetime
 from time import sleep  # for retrying API calls
 import re
@@ -29,9 +28,6 @@ from tqdm import tqdm   # for progress bars
 from math import ceil   # for pagination logging
 from Bio import Entrez  # for PubMed API
 
-# Append the project's root directory to the Python path
-# This allows for importing config when running as part of main.py or alone
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import config
 
 # Load .env into the process environment so os.environ.get(...) works

@@ -34,7 +34,7 @@ import config
 from modules.gather_program_data import gather_program_data
 from modules.gather_grant_data import gather_grant_data
 from modules.gather_project_data import gather_project_data
-from modules.summary_statistics import get_summary_statistics
+from modules.build_program_project_stats import build_program_project_stats
 from modules.gather_publication_data import gather_publication_data
 from modules.gather_geo_data import gather_geo_data
 from modules.gather_sra_data import gather_sra_data
@@ -57,7 +57,7 @@ def main():
 
     # STEP 3: STATS
     # Build and save reports describing the programs and grants data
-    get_summary_statistics(grants_df)
+    build_program_project_stats(grants_df)
 
     # STEP 4: PROJECTS
     # Aggregate, format, and save project data from grants data
