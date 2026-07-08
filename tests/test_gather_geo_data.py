@@ -373,7 +373,7 @@ class TestGetGeoIdsForPubmedIds:
 
 
 # ============================================================
-# Live API smoke tests — run with: pytest -m live_api
+# Live API smoke tests — run by default, excluded in CI with -m "not live_api"
 # ============================================================
 
 @pytest.mark.live_api
@@ -381,7 +381,7 @@ class TestGetGeoIdsForPubmedIds:
                    raises=AssertionError)
 class TestGeoEntrezLive:
     """Live smoke tests for GEO via NCBI E-utilities.
-    Skippable offline with: pytest -m "not live_api"
+    Excluded in CI with -m "not live_api". To skip locally, use the same flag.
     """
 
     def test_elink_pubmed_to_gds_is_reachable(self):

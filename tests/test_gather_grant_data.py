@@ -390,7 +390,7 @@ def test_clean_grants_data(mock_grant_response, mock_cleaned_grant):
 
 
 # ============================================================
-# Live API smoke tests — run with: pytest -m live_api
+# Live API smoke tests — run by default, excluded in CI with -m "not live_api"
 # ============================================================
 
 @pytest.mark.live_api
@@ -398,7 +398,7 @@ def test_clean_grants_data(mock_grant_response, mock_cleaned_grant):
                    raises=AssertionError)
 class TestNIHReporterGrantsAPILive:
     """Live smoke tests for the NIH RePORTER Projects/Grants API.
-    Skippable offline with: pytest -m "not live_api"
+    Excluded in CI with -m "not live_api". To skip locally, use the same flag.
     """
 
     def test_reporter_grants_api_reachable_and_returns_expected_schema(self):

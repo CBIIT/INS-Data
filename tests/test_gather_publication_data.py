@@ -351,7 +351,7 @@ class TestGetPubmedInfoMocked:
 @pytest.mark.live_api
 class TestEnvironmentConfig:
     """Tests that required environment variables are configured.
-    Skipped in CI where .env is not available.
+    Excluded in CI with -m "not live_api". To skip locally, use the same flag.
     """
 
     def test_ncbi_api_key_is_set(self):
@@ -370,7 +370,7 @@ class TestEnvironmentConfig:
 
 
 # ============================================================
-# Live API smoke tests — run with: pytest -m live_api
+# Live API smoke tests — run by default, excluded in CI with -m "not live_api"
 # ============================================================
 
 @pytest.mark.live_api
@@ -378,7 +378,7 @@ class TestEnvironmentConfig:
                    raises=AssertionError)
 class TestNIHReporterAPILive:
     """Live smoke tests for the NIH RePORTER Publications API.
-    Skippable offline with: pytest -m "not live_api"
+    Excluded in CI with -m "not live_api". To skip locally, use the same flag.
     """
 
     def test_reporter_api_reachable_and_returns_expected_schema(self):
@@ -426,7 +426,7 @@ class TestNIHReporterAPILive:
                    raises=AssertionError)
 class TestPubMedEntrezLive:
     """Live smoke tests for PubMed via BioPython Entrez.
-    Skippable offline with: pytest -m "not live_api"
+    Excluded in CI with -m "not live_api". To skip locally, use the same flag.
     """
 
     def test_entrez_efetch_returns_valid_record(self):

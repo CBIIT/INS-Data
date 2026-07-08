@@ -299,7 +299,7 @@ class TestGetDbgapApiDataMocked:
 
 
 # ============================================================
-# Live API smoke tests — run with: pytest -m live_api
+# Live API smoke tests — run by default, excluded in CI with -m "not live_api"
 # ============================================================
 
 @pytest.mark.live_api
@@ -307,7 +307,7 @@ class TestGetDbgapApiDataMocked:
                    raises=AssertionError)
 class TestDbgapAPILive:
     """Live smoke tests for the dbGaP APIs.
-    Skippable offline with: pytest -m "not live_api"
+    Excluded in CI with -m "not live_api". To skip locally, use the same flag.
     """
 
     def test_study_metadata_api_reachable(self):
