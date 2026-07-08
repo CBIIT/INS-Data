@@ -1,6 +1,6 @@
 # Contributing to INS-Data
 
-Thank you for your interest in contributing to the INS-Data repository! This guide covers the essentials for getting started. If you have additional questions or interest, please reach out to the NCI Office of Data Sharing at [NCIOfficeofDataSharing@mail.nih.gov](NCIOfficeofDataSharing@mail.nih.gov).
+Thank you for your interest in contributing to the INS-Data repository! This guide covers the essentials for getting started. If you have additional questions or interest, please [contact the NCI Office of Data Sharing](mailto:NCIOfficeofDataSharing@mail.nih.gov).
 
 ## Setup
 
