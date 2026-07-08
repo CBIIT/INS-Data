@@ -102,7 +102,7 @@ class TestGetCompositeUuid5:
     def test_duplicate_detection(self, datasets_df):
         df = pd.concat([datasets_df, datasets_df.iloc[[0]]],
                        ignore_index=True)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Duplicate UUID5 values found"):
             get_composite_uuid5(
                 df,
                 ['dataset_source_repo', 'dataset_title', 'description'],
