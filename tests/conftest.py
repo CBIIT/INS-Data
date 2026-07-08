@@ -3,7 +3,41 @@ conftest.py
 Shared pytest configuration and fixtures for the INS-Data test suite.
 """
 
+import concurrent.futures
 import pytest
+
+
+# ---------------------------------------------------------------------------
+# Guard against flaky tests that depend on ThreadPoolExecutor ordering.
+#
+# concurrent.futures.as_completed() returns futures in *completion* order,
+# which is non-deterministic.  Tests that use list-based mock side_effects
+# with concurrent workers will silently pass when threads happen to run in
+# submission order and fail otherwise — classic intermittent flake.
+#
+# Note: production code is safe because each worker returns its identity
+# alongside its result as a tuple (e.g. (pmid, sra_ids)), so completion
+# order doesn't affect which key maps to which value.  The vulnerability
+# is only in tests that use list-based mock side_effects, where call order
+# determines which input gets which return value.
+#
+# Fix: monkeypatch as_completed to reverse the order during every test.
+# Any order-dependent test will then fail consistently and immediately
+# instead of only on unlucky CI runs.
+# ---------------------------------------------------------------------------
+
+_real_as_completed = concurrent.futures.as_completed
+
+
+def _reversed_as_completed(fs, timeout=None):
+    """Yield completed futures in reversed order to surface order-dependent bugs."""
+    return reversed(list(_real_as_completed(fs, timeout=timeout)))
+
+
+@pytest.fixture(autouse=True)
+def _shuffle_as_completed(monkeypatch):
+    """Automatically reverse as_completed order for every test."""
+    monkeypatch.setattr(concurrent.futures, "as_completed", _reversed_as_completed)
 
 
 def pytest_collection_modifyitems(items):

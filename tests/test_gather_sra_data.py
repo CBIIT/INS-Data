@@ -282,12 +282,15 @@ def test_fetch_sra_ids_permanent_error(mock_entrez):
 @patch('modules.gather_sra_data.fetch_sra_ids')
 def test_get_sra_ids_for_pubmed_ids(mock_fetch):
     """Test batch fetching of SRA IDs for multiple PMIDs."""
-    # Mock responses for different PMIDs
-    mock_fetch.side_effect = [
-        ('12345', ['SRX123'], False, ''),
-        ('67890', [], True, 'Error: timeout'),
-        ('11111', ['SRX456', 'SRX789'], False, '')
-    ]
+    # Use a function-based side_effect so the return value is determined by
+    # the input argument, not call order.  get_sra_ids_for_pubmed_ids uses a
+    # ThreadPoolExecutor, so threads may invoke the mock in any order.
+    expected = {
+        '12345': ('12345', ['SRX123'], False, ''),
+        '67890': ('67890', [], True, 'Error: timeout'),
+        '11111': ('11111', ['SRX456', 'SRX789'], False, '')
+    }
+    mock_fetch.side_effect = lambda pmid: expected[pmid]
     
     pmid_list = ['12345', '67890', '11111']
     results_dict, failed_dict = get_sra_ids_for_pubmed_ids(pmid_list)
@@ -620,11 +623,13 @@ def test_full_uuid_generation_workflow(sample_dataframe):
 @patch('modules.gather_sra_data.fetch_sra_ids')
 def test_mapping_to_srp_workflow(mock_fetch):
     """Test the workflow from PMID list to SRP-centric data."""
-    # Mock fetch responses
-    mock_fetch.side_effect = [
-        ('12345', ['SRX123', 'SRX456'], False, ''),
-        ('67890', ['SRX789'], False, '')
-    ]
+    # Use a function-based side_effect keyed on input — ThreadPoolExecutor
+    # may invoke the mock in any order.
+    expected = {
+        '12345': ('12345', ['SRX123', 'SRX456'], False, ''),
+        '67890': ('67890', ['SRX789'], False, '')
+    }
+    mock_fetch.side_effect = lambda pmid: expected[pmid]
     
     # Step 1: Fetch SRA IDs
     pmids = ['12345', '67890']
@@ -815,12 +820,16 @@ def test_get_srp_ids_for_sra_id_no_results(mock_entrez):
 @patch('modules.gather_sra_data.get_srp_ids_for_sra_id')
 def test_get_srp_ids_for_sra_ids_batch(mock_get_srp):
     """Test batch fetching of SRP IDs for multiple SRA IDs."""
-    # Mock responses
-    mock_get_srp.side_effect = [
-        ['SRP001'],
-        ['SRP002'],
-        []  # No results for third
-    ]
+    # Use a function-based side_effect so the return value is determined by
+    # the input argument, not call order.  get_srp_ids_for_sra_ids uses a
+    # ThreadPoolExecutor, so threads may invoke the mock in any order —
+    # a list-based side_effect would assign results non-deterministically.
+    expected = {
+        'SRX123': ['SRP001'],
+        'SRX456': ['SRP002'],
+        'SRX789': [],  # No results for third
+    }
+    mock_get_srp.side_effect = lambda sra_id: expected[sra_id]
     
     sra_ids = ['SRX123', 'SRX456', 'SRX789']
     result_dict = get_srp_ids_for_sra_ids(sra_ids)
@@ -1075,12 +1084,14 @@ def test_load_all_batch_files_empty_dir(tmp_path):
 @patch('modules.gather_sra_data.fetch_sra_ids')
 def test_complete_pmid_to_enriched_datasets_workflow(mock_fetch):
     """Test the end-to-end workflow: PMIDs → SRA → SRP → mapping + metadata merge."""
-    # Mock fetch_sra_ids for three PMIDs
-    mock_fetch.side_effect = [
-        ('12345', ['SRX100', 'SRX200'], False, ''),
-        ('67890', ['SRX300'], False, ''),
-        ('11111', [], False, ''),  # No SRA match
-    ]
+    # Use a function-based side_effect keyed on input — ThreadPoolExecutor
+    # may invoke the mock in any order.
+    expected = {
+        '12345': ('12345', ['SRX100', 'SRX200'], False, ''),
+        '67890': ('67890', ['SRX300'], False, ''),
+        '11111': ('11111', [], False, ''),  # No SRA match
+    }
+    mock_fetch.side_effect = lambda pmid: expected[pmid]
     
     # Step 1: Fetch SRA IDs
     pmids = ['12345', '67890', '11111']
@@ -1132,12 +1143,14 @@ def test_complete_pmid_to_enriched_datasets_workflow(mock_fetch):
 @patch('modules.gather_sra_data.get_srp_ids_for_sra_ids')
 def test_workflow_with_mixed_results(mock_get_srp, mock_fetch_sra):
     """Test workflow with mix of successes, failures, and empty results."""
-    # Mock diverse responses
-    mock_fetch_sra.side_effect = [
-        ('12345', ['SRX123'], False, ''),      # Success
-        ('67890', [], False, ''),               # No results
-        ('99999', [], True, 'API Error'),       # Error
-    ]
+    # Use a function-based side_effect keyed on input — ThreadPoolExecutor
+    # may invoke the mock in any order.
+    expected_sra = {
+        '12345': ('12345', ['SRX123'], False, ''),      # Success
+        '67890': ('67890', [], False, ''),               # No results
+        '99999': ('99999', [], True, 'API Error'),       # Error
+    }
+    mock_fetch_sra.side_effect = lambda pmid: expected_sra[pmid]
     
     mock_get_srp.return_value = {
         'SRX123': ['SRP001']
@@ -1208,23 +1221,25 @@ def test_create_srp_to_sra_mapping_no_srp_matches():
 @patch('modules.gather_sra_data.fetch_sra_metadata_for_srp')
 def test_gather_srp_metadata_basic(mock_fetch):
     """Test gathering metadata for a list of SRP IDs."""
-    # Mock the per-SRP fetch
-    mock_fetch.side_effect = [
-        {
+    # Use a function-based side_effect keyed on SRP ID — gather_srp_metadata
+    # uses a ThreadPoolExecutor, so threads may invoke the mock in any order.
+    expected_meta = {
+        'SRP001': {
             'dataset_source_id': 'SRP001',
             'dataset_title': 'Study A',
             'description': 'Desc A',
             'type': 'dataset',
             'dataset_source_repo': 'SRA',
         },
-        {
+        'SRP002': {
             'dataset_source_id': 'SRP002',
             'dataset_title': 'Study B',
             'description': 'Desc B',
             'type': 'dataset',
             'dataset_source_repo': 'SRA',
         },
-    ]
+    }
+    mock_fetch.side_effect = lambda srp_id, sra_sample: expected_meta[srp_id]
     
     srp_ids = ['SRP001', 'SRP002']
     srp_to_sra = {'SRP001': 'SRX100', 'SRP002': 'SRX200'}

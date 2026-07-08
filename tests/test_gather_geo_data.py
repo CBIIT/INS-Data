@@ -13,6 +13,7 @@ from unittest.mock import patch, MagicMock
 
 from modules.gather_geo_data import (
     fetch_geo_ids,
+    get_geo_ids_for_pubmed_ids,
     get_full_geo_record,
     create_geo_dataframe,
     get_dataset_doc_from_project,
@@ -344,6 +345,31 @@ class TestGetDatasetDocFromProject:
             result = get_dataset_doc_from_project(geo_df)
 
         assert result.iloc[0]["dataset_doc"] == ""
+
+
+# ============================================================
+# get_geo_ids_for_pubmed_ids (batch with ThreadPoolExecutor)
+# ============================================================
+
+class TestGetGeoIdsForPubmedIds:
+    """Tests for the batch GEO-ID fetcher that wraps fetch_geo_ids
+    in a ThreadPoolExecutor."""
+
+    @patch('modules.gather_geo_data.fetch_geo_ids')
+    def test_batch_returns_correct_mapping(self, mock_fetch):
+        """Each PMID maps to the GEO IDs returned by its fetch call."""
+        expected = {
+            '11111111': ('11111111', ['200111111', '200222222']),
+            '22222222': ('22222222', []),
+            '33333333': ('33333333', ['200333333']),
+        }
+        mock_fetch.side_effect = lambda pmid: expected[pmid]
+
+        result = get_geo_ids_for_pubmed_ids(['11111111', '22222222', '33333333'])
+
+        assert result['11111111'] == ['200111111', '200222222']
+        assert result['22222222'] == []
+        assert result['33333333'] == ['200333333']
 
 
 # ============================================================
