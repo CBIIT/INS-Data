@@ -36,7 +36,6 @@ Intermediate files are saved at each step and reused if they already exist.
 """
 
 import os
-import sys
 import json
 import re
 import time
@@ -51,9 +50,6 @@ import concurrent.futures as cf
 from tqdm import tqdm  # for progress bars
 from Bio import Entrez  # for e-Utils API
 
-# Append the project's root directory to the Python path
-# This allows for importing config when running as part of main.py or alone
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import config
 
 # Load .env into the process environment so os.environ.get(...) works

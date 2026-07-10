@@ -1,0 +1,8 @@
+[project]
+name = "ins-data"
+version = "2.4.1"
+requires-python = ">=3.10"
+
+[tool.setuptools]
+py-modules = ["config"]
+packages = ["modules"]

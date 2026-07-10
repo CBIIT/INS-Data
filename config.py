@@ -37,7 +37,7 @@ NCCR_VERSION = "2026-03-02"            # <-- CHANGE VERSION HERE
 # An override date can be used instead of today's date for pulling and saving data versions
 # This is useful when running downstream modules on grants data gathered before today
 
-OVERRIDE_DATE = "2026-02-17"               # <-- Optional. Define override date (e.g. "2023-12-14"). Default None.
+OVERRIDE_DATE = None               # <-- Optional. Define override date (e.g. "2023-12-14"). Default None.
 
 
 
@@ -203,7 +203,7 @@ FAILED_GRANT_SEARCH_REPORT = REPORTS_GATHERED_DIR +"/"+ "failedNofoAwardSearches
 
 
 # ---
-# SUMMARY STATISTICS CONFIGURATION
+# PROGRAM/PROJECT STATS CONFIGURATION
 
 # Dict of grants fields of interest and how to aggregate each
 STAT_AGG_FUNCS_BY_COL = {

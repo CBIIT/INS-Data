@@ -27,9 +27,7 @@ import os
 import re
 import sys
 import pandas as pd
-# Append the project's root directory to the Python path
-# This allows for importing config when running as part of main.py or alone
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import config
 
 

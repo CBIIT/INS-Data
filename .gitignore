@@ -1,15 +1,18 @@
-# .gitgnore
+# .gitignore
 # Ignore the following files
 
 # Clutter
 __pycache__/
 *.pyc
+*.egg-info/
 notebooks/*
 .coverage
 cov.xml
+.pytest_cache/
 
 # Private
 .env
+.venv/
 .vscode
 
 # Large data

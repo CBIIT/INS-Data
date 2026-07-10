@@ -4,16 +4,47 @@
 
 This repository uses a curated list of National Cancer Institute (NCI) programs to automate the gathering of information about grants, projects and their associated research outputs. This process uses publicly available resources from the [NIH RePORTER API](https://api.reporter.nih.gov/), [NIH iCite](https://icite.od.nih.gov/api), [NCBI E-utilities](https://www.ncbi.nlm.nih.gov/books/NBK25497/) (through [BioPython](https://biopython.org/docs/1.75/api/Bio.Entrez.html)), and [NCBI dbGaP APIs](https://www.ncbi.nlm.nih.gov/gap/) along with curated and submitted data.
 
-**To access the raw data outputs**, [please see our latest release](https://github.com/CBIIT/INS-Data/releases/latest).
-
 The data gathered here are compatible with the [INS Data Model](https://github.com/CBIIT/ins-model).
 
 ![INS-Data simple workflow. This diagram shows a simplified flow of data gathering from programs to grants/projects to publications.](images/ins-data-gathering-simple.png)
 
+## Quick Start
+
+### Option 1: Download the data
+
+The finalized output files for each release are available as a `.zip` on the [Latest Release](https://github.com/CBIIT/INS-Data/releases/latest) page. These TSV files are loaded into the INS database and match the information available when browsing the site.
+
+### Option 2: Run the pipeline yourself
+
+```bash
+git clone https://github.com/CBIIT/INS-Data.git
+cd INS-Data
+uv venv .venv
+.venv\Scripts\activate  # Windows. On macOS/Linux: source .venv/bin/activate
+uv pip install -r requirements.txt
+uv pip install -e .
+```
+
+Before running, you will need:
+
+- A CSV of NCI programs from ODS ([step 3](#recreating-the-ins-data-gathering-process))
+- An [iCite database snapshot](https://nih.figshare.com/collections/iCite_Database_Snapshots_NIH_Open_Citation_Collection_/4586573), ~10GB ([step 4](#recreating-the-ins-data-gathering-process))
+- An [NCBI API key](https://ncbiinsights.ncbi.nlm.nih.gov/2017/11/02/new-api-keys-for-the-e-utilities/) in a `.env` file ([step 5](#recreating-the-ins-data-gathering-process))
+
+Then run the full pipeline:
+
+```bash
+python main.py
+```
+
+For detailed setup, prerequisites, and optional steps, see [How to Use this Repository](#how-to-use-this-repository).
+
 ## Table of Contents
 
+- [Quick Start](#quick-start)
 - [Data Gathering Workflow](#data-gathering-workflow)
 - [How to Use this Repository](#how-to-use-this-repository)
+- [Testing](#testing)
 - [Errors and Warnings](#errors-and-warnings)
 
 ## Data Gathering Workflow
@@ -100,11 +131,11 @@ Within INS, a grant is usually an annual support to a multi-year project.
 
 ### Grant Workflow
 
-All grants processing is handled within the `gather_grant_data.py` module, except for the summary statistic step handled with the `summary_statistic.py` module. They can be run as independent processes with the commands:
+All grants processing is handled within the `gather_grant_data.py` module, except for the statistics step handled with the `build_program_project_stats.py` module. They can be run as independent processes with the commands:
 
 ```bash
 python modules/gather_grant_data.py
-python modules/summary_statistics.py
+python modules/build_program_project_stats.py
 ```
 
 1. **Get grants data from NIH RePORTER API**
@@ -127,11 +158,11 @@ python modules/summary_statistics.py
     - Adds the associated Program ID to each grant
     - Combines grants data from all programs and store as a versioned `grant.csv` within the `data/01_intermediate/` directory.
 
-4. **Generate summary statistics**
+4. **Generate program and project statistics**
     - Builds reports useful for testing and validation but not intended for ingestion into the site
         - `grantsStatsByProgram.csv` groups grants data by Key Program and aggregates counts of grants, projects, searched values, and earliest fiscal year
         - `sharedProjectsByProgramPair.csv` lists pairs of Key Programs and counts of projects that are associated with both
-    - Summary statistics are handled within the `summary_statistics.py` module
+    - Statistics are handled within the `build_program_project_stats.py` module
 
 ## Gather Projects
 
@@ -476,9 +507,9 @@ Datasets from the [NCI Center for Cancer Research (NCCR)](https://nccr.cancer.go
 
 ## Curate Resources
 
-**This independent step manages the curation and packaging of NCI research resources for INS.** Resources represent tools, datasets, databases, and other research aids curated for the cancer research community. The initial set of resources was migrated from the [Resources for Researchers (R4R)](https://www.cancer.gov/research/resources) content using a one-time conversion script (`process_r4r_content.py`).
+**This independent step manages the curation and packaging of NCI research resources for INS.** Resources represent tools, datasets, databases, and other research aids curated for the cancer research community.
 
-Ongoing resource curation is managed through a curated TSV file at `data/01_intermediate/resources/resources_{date}.tsv`. After edits are made to this file (adding, updating, or removing resources), the packaging module processes it into the final output.
+Resource curation is managed through a curated TSV file at `data/01_intermediate/resources/resources_{date}.tsv`. After edits are made to this file (adding, updating, or removing resources), the packaging module processes it into the final output.
 
 ### Resource Packaging Workflow
 
@@ -596,30 +627,42 @@ python modules/build_validation_file.py
     git clone https://github.com/CBIIT/INS-Data.git
     ```
 
-2. **Setup environment**
-    - Install either [Anaconda or Miniconda](https://docs.conda.io/projects/conda/en/stable/user-guide/install/download.html#anaconda-or-miniconda)
-        - For compatibility with setups that do not use conda, a `requirements.txt` is also available
-    - In a command terminal, run the following command in the INS-Data directory:
+2. **Set up the environment**
+    - Create a virtual environment using [uv](https://docs.astral.sh/uv/getting-started/installation/) (recommended) or standard Python:
 
     ```bash
-    conda env create -f environment.yaml
+        # Option 1: uv (recommended)
+        uv venv .venv
+
+        # Option 2: standard Python
+        python -m venv .venv
     ```
 
-    - This will read `environment.yaml`, setup a matching environment, and install any requirements
-    - Activate the environment either through the [Anaconda Navigator](https://docs.anaconda.com/free/navigator/tutorials/manage-environments/) or with the terminal command:
+    - Activate the environment:
 
     ```bash
-    conda activate ins-data-env
+        # Windows
+        .venv\Scripts\activate
+
+        # macOS/Linux
+        source .venv/bin/activate
     ```
 
-    - If you make changes to the repo that require new or updated packages, update the `environment.yaml` and `requirements.txt` with:
+    - Install dependencies (replace `uv pip` with `pip` if not using uv):
 
     ```bash
-    conda env export | findstr -v "^prefix:"  > environment.yaml
-    pip list --format=freeze > requirements.txt
+        uv pip install -r requirements.txt
+        uv pip install -e .
     ```
 
-    - NOTE: Replace the 'findstr' with 'grep' if using MacOS or Linux. This step removes the local path prefix from the environment.yaml for privacy.
+    - If you add a new dependency during development, install it and add the pinned version to `requirements.txt`:
+
+    ```bash
+        uv pip install <package-name>
+        # Then manually add or update <package-name>==<version> in requirements.txt
+    ```
+
+      Only top-level packages are listed — uv resolves transitive dependencies automatically at install time.
 
 3. **Add or update the input CSV from ODS**
     - If necessary, update the Qualtrics CSV received from ODS
@@ -664,7 +707,7 @@ python modules/build_validation_file.py
         ```bash
         python modules/gather_program_data.py
         python modules/gather_grant_data.py
-        python modules/summary_statistics.py
+        python modules/build_program_project_stats.py
         python modules/gather_project_data.py
         python modules/gather_publication_data.py
         python modules/gather_geo_data.py
@@ -720,6 +763,44 @@ python modules/build_validation_file.py
     - **DCEG Cohorts**: Place the curated TSV as `dceg_datasets_curated.tsv` in a versioned `data/01_intermediate/dceg_cohorts/` directory. Update `DCEG_COHORTS_VERSION` in `config.py`.
     - **NCCR Data Platform**: Place the curated TSV as `nccr_datasets_curated.tsv` in a versioned `data/01_intermediate/nccr/` directory. Update `NCCR_VERSION` in `config.py`.
     - Curated sources are processed automatically during the [Package Data](#package-data) step.
+
+## Testing
+
+Tests are located in the `tests/` directory and use [pytest](https://docs.pytest.org/). Each test file corresponds to a module in `modules/`.
+
+### Running Tests
+
+Run all tests with coverage and verbose output:
+
+```bash
+pytest --cov=modules -v
+```
+
+Run a single test file:
+
+```bash
+pytest tests/test_gather_project_data.py -v
+```
+
+### Live API Smoke Tests
+
+Some tests are marked with `@pytest.mark.live_api` and make real calls to external APIs (NIH RePORTER, PubMed, GEO, dbGaP, SRA) to verify they are reachable and returning expected response schemas. These run by default with `pytest` and take a few seconds.
+
+To run only the live API tests:
+
+```bash
+pytest -m live_api -v
+```
+
+To skip them (e.g., when offline):
+
+```bash
+pytest -m "not live_api"
+```
+
+### Environment Checks
+
+The test suite includes checks that `NCBI_API_KEY` and `NCBI_EMAIL` are set in your `.env` file. These are grouped with the `live_api` marker and run by default locally. If these variables are missing, those tests will fail with a message pointing to the setup instructions. They are skipped in CI where `.env` is not available.
 
 ## Errors and Warnings
 
