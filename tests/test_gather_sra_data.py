@@ -966,8 +966,8 @@ class TestDataEnrichment:
     def test_get_dataset_doc_from_project(self, mock_read_csv, mock_exists, mock_config):
         """Test deriving dataset_doc from coreproject via publication/project/program chain.
     
-        The function chains: dataset_pmid â†’ publication.pmid â†’ publication.coreproject
-        â†’ project.project_id â†’ project.'program.program_id' â†’ program.program_id â†’ program.doc
+        The function chains: dataset_pmid -> publication.pmid -> publication.coreproject
+        -> project.project_id -> project.'program.program_id' -> program.program_id -> program.doc
         """
         # Mock config paths
         mock_config.PUBLICATIONS_INTERMED_PATH = 'fake/pubs.csv'
@@ -1122,7 +1122,7 @@ class TestRealWorldScenarios:
 
     @patch('modules.gather_sra_data.fetch_sra_ids')
     def test_complete_pmid_to_enriched_datasets_workflow(self, mock_fetch):
-        """Test the end-to-end workflow: PMIDs â†’ SRA â†’ SRP â†’ mapping + metadata merge."""
+        """Test the end-to-end workflow: PMIDs -> SRA -> SRP -> mapping + metadata merge."""
         # Use a function-based side_effect keyed on input — ThreadPoolExecutor
         # may invoke the mock in any order.
         expected = {
@@ -1139,7 +1139,7 @@ class TestRealWorldScenarios:
         assert pmid_to_sra['12345'] == ['SRX100', 'SRX200']
         assert pmid_to_sra['11111'] == []
     
-        # Step 2: Simulate SRA â†’ SRP mapping
+        # Step 2: Simulate SRA -> SRP mapping
         sra_to_srp = {
             'SRX100': ['SRP001'],
             'SRX200': ['SRP001'],  # Same SRP as SRX100
@@ -1156,7 +1156,7 @@ class TestRealWorldScenarios:
         srp_df = create_srp_centric_dataframe(pmid_to_sra, sra_to_srp)
         assert len(srp_df) == 2  # SRP001 and SRP002
     
-        # Step 4: Create SRPâ†’SRA mapping for metadata
+        # Step 4: Create SRP->SRA mapping for metadata
         srp_to_sra = create_srp_to_sra_mapping(pmid_to_sra, sra_to_srp)
         assert 'SRP001' in srp_to_sra
         assert 'SRP002' in srp_to_sra
@@ -1250,7 +1250,7 @@ class TestCreateSrpToSraMapping:
     def test_create_srp_to_sra_mapping_no_srp_matches(self):
         """Test when SRA IDs have no SRP matches."""
         pmid_to_sra_ids = {'12345': ['SRX100']}
-        sra_to_srp_ids = {}  # No SRAâ†’SRP mappings
+        sra_to_srp_ids = {}  # No SRA->SRP mappings
     
         result = create_srp_to_sra_mapping(pmid_to_sra_ids, sra_to_srp_ids)
         assert result == {}
@@ -1299,7 +1299,7 @@ class TestGatherSrpMetadata:
     @patch('modules.gather_sra_data.fetch_sra_metadata_for_srp')
     def test_gather_srp_metadata_missing_sra_sample(self, mock_fetch):
         """Test gather_srp_metadata when SRP has no SRA sample in the mapping."""
-        # SRP002 has no SRA sample â†’ function should call _create_blank_metadata_dict
+        # SRP002 has no SRA sample -> function should call _create_blank_metadata_dict
         mock_fetch.return_value = {
             'dataset_source_id': 'SRP001',
             'dataset_title': 'Study A',
@@ -1351,7 +1351,7 @@ class TestJsonBatchPersistence:
 
 
     def test_json_batch_preserves_per_sra_granularity(self, tmp_path):
-        """Test that JSON preserves per-SRAâ†’SRP mapping that CSV aggregation loses.
+        """Test that JSON preserves per-SRA->SRP mapping that CSV aggregation loses.
     
         This validates the fix for the reconstruction bug: the CSV aggregates
         SRP IDs per PMID, losing per-SRA granularity. The JSON retains it.
@@ -1383,7 +1383,7 @@ class TestJsonBatchPersistence:
         assert 'SRP001' in srp_cell
         assert 'SRP002' in srp_cell
     
-        # Load JSON - preserves exact SRAâ†’SRP mapping
+        # Load JSON - preserves exact SRA->SRP mapping
         with open(str(json_path), 'r', encoding='utf-8') as f:
             loaded_json = json.load(f)
         assert loaded_json['SRX100'] == ['SRP001']

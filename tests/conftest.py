@@ -8,22 +8,30 @@ import pytest
 
 
 # ---------------------------------------------------------------------------
-# Guard against flaky tests that depend on ThreadPoolExecutor ordering.
+# Guard against flaky tests that depend on the order in which results from
+# ThreadPoolExecutor futures are consumed.
 #
-# concurrent.futures.as_completed() returns futures in *completion* order,
-# which is non-deterministic.  Tests that use list-based mock side_effects
-# with concurrent workers will silently pass when threads happen to run in
-# submission order and fail otherwise — classic intermittent flake.
+# concurrent.futures.as_completed() yields futures in *completion* order,
+# which is non-deterministic.  Downstream code that assembles results by
+# consumption order (rather than by an identity carried in each result) can
+# silently pass when threads happen to complete in submission order and fail
+# otherwise — classic intermittent flake.
 #
 # Note: production code is safe because each worker returns its identity
 # alongside its result as a tuple (e.g. (pmid, sra_ids)), so completion
 # order doesn't affect which key maps to which value.  The vulnerability
-# is only in tests that use list-based mock side_effects, where call order
-# determines which input gets which return value.
+# is only in tests/code paths that rely on the consumption order of
+# as_completed to correlate results with inputs.
 #
-# Fix: monkeypatch as_completed to reverse the order during every test.
-# Any order-dependent test will then fail consistently and immediately
-# instead of only on unlucky CI runs.
+# Fix: monkeypatch as_completed to force a deterministic reversed
+# consumption order during every test.  Note that this does NOT influence
+# the order in which worker threads invoke the mocked callable (that is
+# controlled by the executor's scheduling of submitted tasks); it only
+# changes the order in which their completed futures are handed back to
+# the caller.  It also changes semantics slightly: because the reversed
+# order requires materializing the iterator, callers will block until all
+# futures have completed before receiving any result, instead of receiving
+# results incrementally as each future completes.
 # ---------------------------------------------------------------------------
 
 _real_as_completed = concurrent.futures.as_completed
@@ -35,7 +43,7 @@ def _reversed_as_completed(fs, timeout=None):
 
 
 @pytest.fixture(autouse=True)
-def _shuffle_as_completed(monkeypatch):
+def _reverse_as_completed(monkeypatch):
     """Automatically reverse as_completed order for every test."""
     monkeypatch.setattr(concurrent.futures, "as_completed", _reversed_as_completed)
 
