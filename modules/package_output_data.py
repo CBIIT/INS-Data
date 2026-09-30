@@ -19,6 +19,22 @@ import re
 import config
 
 
+def read_csv_with_encoding_fallback(filepath, **kwargs):
+    """Read a CSV/TSV trying utf-8 first, falling back to cp1252.
+
+    Curated files are often edited/saved in Excel, which writes files using
+    the system codepage (cp1252 on Windows) rather than utf-8, causing
+    UnicodeDecodeError on bytes like 0xa0 (non-breaking space) or 0x96 (en dash).
+    """
+    try:
+        return pd.read_csv(filepath, encoding='utf-8', **kwargs)
+    except UnicodeDecodeError:
+        print(f"WARNING: {filepath} is not valid utf-8 (likely saved from "
+              f"Excel). Retrying with cp1252 encoding.")
+        return pd.read_csv(filepath, encoding='cp1252', **kwargs)
+
+
+
 def add_type_column(df, datatype):
     """Add a column for datatype and fill with specified datatype."""
 
@@ -484,8 +500,8 @@ def standardize_data(df, column_configs, datatype):
     df = validate_listlike_columns(df, column_configs, datatype)
     df = format_datetime_columns(df, column_configs, datatype)
     df = validate_and_clean_unique_nodes(df, column_configs, datatype)
-    df = enforce_int_values(df, column_configs, datatype)
     df = remove_nan_strings(df)
+    df = enforce_int_values(df, column_configs, datatype)
 
     # Validate that data meets loading standards
     validate_first_columns(df, column_configs, datatype)
@@ -1014,7 +1030,8 @@ def package_output_data():
     if os.path.exists(config.DBGAP_CURATED_INTERMED_PATH):
         dbgap_datasets_exist = True
         dbgap_curated = True
-        df_dbgap_datasets = pd.read_csv(config.DBGAP_CURATED_INTERMED_PATH, sep='\t')
+        df_dbgap_datasets = read_csv_with_encoding_fallback(
+            config.DBGAP_CURATED_INTERMED_PATH, sep='\t')
         print(f"Loaded dbGaP Datasets (Curated) file from {config.DBGAP_CURATED_INTERMED_PATH}")
     elif os.path.exists(config.DBGAP_INTERMED_PATH):
         dbgap_datasets_exist = True
@@ -1040,8 +1057,8 @@ def package_output_data():
     if os.path.exists(config.SRA_CURATED_INTERMED_PATH):
         sra_datasets_exist = True
         sra_curated = True
-        df_sra_datasets = pd.read_csv(config.SRA_CURATED_INTERMED_PATH, sep='\t',
-                                      dtype={'dataset_pmid':str})
+        df_sra_datasets = read_csv_with_encoding_fallback(
+            config.SRA_CURATED_INTERMED_PATH, sep='\t', dtype={'dataset_pmid':str})
         print(f"Loaded SRA Datasets (Curated) file from {config.SRA_CURATED_INTERMED_PATH}")
     elif os.path.exists(config.SRA_INTERMED_PATH):
         sra_datasets_exist = True
@@ -1066,7 +1083,8 @@ def package_output_data():
     # Load DCEG Cohorts curated data
     if os.path.exists(config.DCEG_CURATED_INTERMED_PATH):
         dceg_datasets_exist = True
-        df_dceg_datasets = pd.read_csv(config.DCEG_CURATED_INTERMED_PATH, sep='\t')
+        df_dceg_datasets = read_csv_with_encoding_fallback(
+            config.DCEG_CURATED_INTERMED_PATH, sep='\t')
         print(f"Loaded DCEG Cohorts file from {config.DCEG_CURATED_INTERMED_PATH}")
     else:
         dceg_datasets_exist = False
@@ -1075,7 +1093,8 @@ def package_output_data():
     # Load NCCR curated data
     if os.path.exists(config.NCCR_CURATED_INTERMED_PATH):
         nccr_datasets_exist = True
-        df_nccr_datasets = pd.read_csv(config.NCCR_CURATED_INTERMED_PATH, sep='\t')
+        df_nccr_datasets = read_csv_with_encoding_fallback(
+            config.NCCR_CURATED_INTERMED_PATH, sep='\t')
         print(f"Loaded NCCR Datasets file from {config.NCCR_CURATED_INTERMED_PATH}")
     else:
         nccr_datasets_exist = False
@@ -1085,7 +1104,8 @@ def package_output_data():
     if os.path.exists(config.CTD2_DATASET_CURATED_LOCKED_PATH):
         ctd2_datasets_exist = True
         ctd2_curated = True
-        df_ctd2_datasets = pd.read_csv(config.CTD2_DATASET_CURATED_LOCKED_PATH, sep='\t')
+        df_ctd2_datasets = read_csv_with_encoding_fallback(
+            config.CTD2_DATASET_CURATED_LOCKED_PATH, sep='\t')
         print(f"Loaded CTD2 Datasets (Locked Curation) file from {config.CTD2_DATASET_CURATED_LOCKED_PATH}")
     elif os.path.exists(config.CTD2_DATASET_INTERMED_CSV):
         ctd2_datasets_exist = True
