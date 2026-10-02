@@ -428,7 +428,7 @@ NOTE: This module should be run after `gather_dbgap_data.py` has produced a new 
         - `updated`: uses the newly gathered row when the full accession has changed
         - `new`: uses the newly gathered row when the short accession is new
         - `old_only`: keeps the previously curated row when the study is absent from the new gathering
-    - Regenerates deterministic UUID5 values on using short `dataset_source_id` and `dataset_source_repository` (so dbGaP studies will retain their UUID across accession versions)
+    - Uses deterministic UUID5 values based on the short `dataset_source_id` and `dataset_source_repo`, so dbGaP studies retain their UUID across accession versions.
 
 3. **Prepare curator review**
     - Adds the `curation_status`, `previous_source_accession`, and `current_source_accession` review columns
