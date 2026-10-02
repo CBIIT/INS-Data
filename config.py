@@ -19,8 +19,8 @@ QUALTRICS_TYPE = "manual_fix"              # <-- Define "raw" or "manual_fix" ty
 ICITE_VERSION = "2026-01"           # <-- CHANGE VERSION HERE
 
 # Version of dbGaP seearch results download (download date)
-DBGAP_CSV_VERSION = "2026-03-09"   # <-- CHANGE VERSION HERE
-DBGAP_PREVIOUS_VERSION = "2025-05-19"
+DBGAP_CSV_VERSION = "2026-10-02"   # <-- CHANGE VERSION HERE
+DBGAP_PREVIOUS_VERSION = "2026-03-09"
 
 # Version of CEDCD cohort metadata CSV
 CEDCD_VERSION = "2025-04-24"        # <-- CHANGE VERSION HERE
