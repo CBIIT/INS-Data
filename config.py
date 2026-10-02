@@ -381,6 +381,7 @@ COLUMN_CONFIGS = {
             'name': 'dataset_title',
             'description': 'description',
             'accession': 'dataset_source_id',
+            'full_accession': 'dataset_source_accession', # Full phs accession for version tracking. Not loaded into INS
             'dbGaP_URL': 'dataset_source_url',
             'principal_investigator': 'PI_name',
             'gpa': 'GPA',
@@ -679,7 +680,6 @@ DBGAP_OUTPUT_CURATED_CLEANED = OUTPUT_DIR + "dbgap/" + DBGAP_CSV_VERSION +"/"+ "
 # Update the old path each cycle to point to the previous curated clean output
 DBGAP_MERGED_OLD_CURATED_PATH = OUTPUT_DIR + "dbgap/" +DBGAP_PREVIOUS_VERSION+ "/dbgap_datasets_merged_curated_clean.tsv"
 DBGAP_MERGED_OUTPUT_PATH = INTERMED_DIR + "dbgap/" + DBGAP_CSV_VERSION +"/"+ "dbgap_datasets_merged.tsv"
-DBGAP_MERGE_REVIEW_PATH = INTERMED_DIR + "dbgap/" + DBGAP_CSV_VERSION + "/merge_title_review.csv"
 
 
 # DBGAP SUBSETS

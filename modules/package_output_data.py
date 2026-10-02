@@ -616,6 +616,39 @@ def package_dbgap_datasets(df_dbgap_datasets, column_configs, dbgap_curated=Fals
     return df_dbgap_datasets_output
 
 
+def backfill_curated_dbgap_accessions(curated_df, gathered_path):
+    """Add full accessions to a legacy curated file from gathered data.
+    Likely one-time-use after addition of full accessions to the curated file."""
+
+    accession_col = 'dataset_source_accession'
+    if accession_col in curated_df.columns:
+        return curated_df
+
+    if not os.path.exists(gathered_path):
+        raise FileNotFoundError(
+            f"Cannot backfill '{accession_col}': gathered dbGaP file not "
+            f"found at {gathered_path}")
+
+    gathered_df = pd.read_csv(
+        gathered_path, dtype=str, keep_default_na=False,
+        usecols=['accession', 'full_accession'])
+    accession_map = (gathered_df.drop_duplicates('accession')
+                     .set_index('accession')['full_accession'])
+
+    result_df = curated_df.copy()
+    result_df[accession_col] = (
+        result_df['dataset_source_id'].map(accession_map).fillna(''))
+
+    missing_count = (result_df[accession_col] == '').sum()
+    print(f"Backfilled full dbGaP accessions for "
+          f"{len(result_df) - missing_count} curated rows.")
+    if missing_count:
+        print(f"WARNING: {missing_count} curated row(s) were not present in "
+              f"the gathered file and have a blank {accession_col}.")
+
+    return result_df
+
+
 
 def package_geo_datasets(df_geo_datasets, column_configs):
     """Package GEO Datasets data for INS loading."""
@@ -1032,6 +1065,8 @@ def package_output_data():
         dbgap_curated = True
         df_dbgap_datasets = read_csv_with_encoding_fallback(
             config.DBGAP_CURATED_INTERMED_PATH, sep='\t')
+        df_dbgap_datasets = backfill_curated_dbgap_accessions(
+            df_dbgap_datasets, config.DBGAP_INTERMED_PATH)
         print(f"Loaded dbGaP Datasets (Curated) file from {config.DBGAP_CURATED_INTERMED_PATH}")
     elif os.path.exists(config.DBGAP_INTERMED_PATH):
         dbgap_datasets_exist = True
