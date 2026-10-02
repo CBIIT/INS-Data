@@ -16,6 +16,7 @@ from modules.package_output_data import (
     read_csv_with_encoding_fallback,
     add_type_column,
     reorder_columns,
+    backfill_curated_dbgap_accessions,
     validate_first_columns,
     replace_defined_characters,
     normalize_encoding,
@@ -119,6 +120,33 @@ class TestAddTypeColumn:
         df = pd.DataFrame({"col": [1]})
         add_type_column(df, "program")
         assert "type" not in df.columns
+
+
+class TestBackfillCuratedDbgapAccessions:
+    def test_adds_full_accession_from_gathered_data(self, tmp_path):
+        curated = pd.DataFrame({
+            "dataset_source_id": ["phs000001", "phs000002"]})
+        gathered = pd.DataFrame({
+            "accession": ["phs000001", "phs000002"],
+            "full_accession": ["phs000001.v2.p1", "phs000002.v3.p2"],
+        })
+        gathered_path = tmp_path / "dbgap_datasets.csv"
+        gathered.to_csv(gathered_path, index=False)
+
+        result = backfill_curated_dbgap_accessions(
+            curated, str(gathered_path))
+
+        assert list(result["dataset_source_accession"]) == [
+            "phs000001.v2.p1", "phs000002.v3.p2"]
+
+    def test_preserves_existing_full_accessions(self):
+        curated = pd.DataFrame({
+            "dataset_source_accession": ["phs000001.v1.p1"]})
+
+        result = backfill_curated_dbgap_accessions(
+            curated, "/path/does/not/exist.csv")
+
+        assert result.equals(curated)
 
 
 # ============================================================
