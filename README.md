@@ -419,18 +419,20 @@ NOTE: This module should be run after `gather_dbgap_data.py` has produced a new 
 
 1. **Load old curated and new gathered datasets**
     - Loads the previously curated dbGaP TSV (from the prior release cycle) and the newly gathered dbGaP TSV
-    - Uses `dataset_source_id` (phs accession) as the merge key
+    - Uses the short `dataset_source_id` (for example, `phs002790`) as the stable study identity
+    - Compares `dataset_source_accession` (for example, `phs002790.v7.p1`) to detect a new dbGaP release
 
 2. **Merge datasets**
-    - Rows present in the old curated file are kept as-is, preserving hand-edited values and existing UUIDs
-    - Rows present only in the new file are appended as new studies requiring curation
-    - Rows present only in the old file are retained with a warning, as they may have been removed from the latest dbGaP search results but should not be silently dropped
-    - Regenerates deterministic UUID5 values on old curated rows to ensure consistency with the current scheme
+    - Merge new and old dbGaP TSVs and assign into groups based on accession changes
+        - `unchanged`: keeps the previously curated row when the full accession has not changed
+        - `updated`: uses the newly gathered row when the full accession has changed
+        - `new`: uses the newly gathered row when the short accession is new
+        - `old_only`: keeps the previously curated row when the study is absent from the new gathering
+    - Uses deterministic UUID5 values based on the short `dataset_source_id` and `dataset_source_repo`, so dbGaP studies retain their UUID across accession versions.
 
-3. **Detect and review title changes**
-    - Identifies studies where the title differs between the old and new datasets
-    - On the first run, exports a review CSV (`merge_title_review.csv`) for the user to indicate whether to accept the new title or keep the old one
-    - On subsequent runs, if a reviewed CSV is found, the user's title decisions are applied automatically
+3. **Prepare curator review**
+    - Adds the `curation_status`, `previous_source_accession`, and `current_source_accession` review columns
+    - Sorts rows as `updated`, `new`, `old_only`, then `unchanged` so studies requiring review appear first
 
 4. **Save merged output**
     - Saves the merged file as `dbgap_datasets_merged.tsv` in the versioned `data/01_intermediate/dbgap/` directory
@@ -736,7 +738,7 @@ python modules/build_validation_file.py
     python modules/merge_curated_dbgap.py
     ```
 
-    - Review the merge output and the title review CSV if generated. Manually curate the merged file as needed and save as `dbgap_datasets_merged_curated.tsv` in the versioned `data/01_intermediate/dbgap/` directory.
+    - Send the merge output to the curator. Review `updated`, `new`, and `old_only` rows, then save the result as `dbgap_datasets_merged_curated.tsv` in the versioned `data/01_intermediate/dbgap/` directory.
     - Run the data packaging module, which will auto-detect and use the curated version if available:
 
     ```bash

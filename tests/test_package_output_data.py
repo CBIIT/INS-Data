@@ -13,8 +13,10 @@ import pandas as pd
 import pytest
 
 from modules.package_output_data import (
+    read_csv_with_encoding_fallback,
     add_type_column,
     reorder_columns,
+    backfill_curated_dbgap_accessions,
     validate_first_columns,
     replace_defined_characters,
     normalize_encoding,
@@ -118,6 +120,33 @@ class TestAddTypeColumn:
         df = pd.DataFrame({"col": [1]})
         add_type_column(df, "program")
         assert "type" not in df.columns
+
+
+class TestBackfillCuratedDbgapAccessions:
+    def test_adds_full_accession_from_gathered_data(self, tmp_path):
+        curated = pd.DataFrame({
+            "dataset_source_id": ["phs000001", "phs000002"]})
+        gathered = pd.DataFrame({
+            "accession": ["phs000001", "phs000002"],
+            "full_accession": ["phs000001.v2.p1", "phs000002.v3.p2"],
+        })
+        gathered_path = tmp_path / "dbgap_datasets.csv"
+        gathered.to_csv(gathered_path, index=False)
+
+        result = backfill_curated_dbgap_accessions(
+            curated, str(gathered_path))
+
+        assert list(result["dataset_source_accession"]) == [
+            "phs000001.v2.p1", "phs000002.v3.p2"]
+
+    def test_preserves_existing_full_accessions(self):
+        curated = pd.DataFrame({
+            "dataset_source_accession": ["phs000001.v1.p1"]})
+
+        result = backfill_curated_dbgap_accessions(
+            curated, "/path/does/not/exist.csv")
+
+        assert result.equals(curated)
 
 
 # ============================================================
@@ -487,6 +516,39 @@ class TestStandardizeData:
         assert result.columns[1] == "node_id"
         assert result.columns[2] == "link_id"
 
+    def test_nullable_integer_columns_serialize_without_decimals(self):
+        config = {
+            "dataset": {
+                "keep_and_rename": {
+                    "type": "type",
+                    "dataset_uuid": "dataset_uuid",
+                    "participant_count": "participant_count",
+                    "enrollment_year": "enrollment_year",
+                },
+                "node_id": "dataset_uuid",
+                "list_like_cols": None,
+                "datetime_cols": None,
+                "html_tag_cols": None,
+                "int_cols": ["participant_count", "enrollment_year"],
+                "exclude_special_char_processing": [],
+            }
+        }
+        df = pd.DataFrame({
+            "type": ["dataset", "dataset"],
+            "dataset_uuid": ["D1", "D2"],
+            "participant_count": [89656.0, float("nan")],
+            "enrollment_year": [1993.0, float("nan")],
+        })
+
+        result = standardize_data(df, config, "dataset")
+        serialized = result.to_csv(sep="\t", index=False)
+
+        assert result["participant_count"].dtype.name == "Int64"
+        assert result["enrollment_year"].dtype.name == "Int64"
+        assert "89656.0" not in serialized
+        assert "1993.0" not in serialized
+        assert "89656\t1993" in serialized
+
 
 # ============================================================
 # remove_html_tags_from_df
@@ -602,3 +664,38 @@ class TestProcessSpecialCharacters:
         assert "\u201c" not in result.iloc[0]["clean_col"]
         # keep_col should be untouched
         assert "\u00e9" in result.iloc[0]["keep_col"]
+
+
+# ============================================================
+# read_csv_with_encoding_fallback
+# ============================================================
+
+class TestReadCsvWithEncodingFallback:
+    """Tests for the utf-8/cp1252 fallback used on Excel-edited curated files."""
+
+    def test_reads_valid_utf8_file(self, tmp_path):
+        path = tmp_path / "utf8.tsv"
+        path.write_text("col_a\tcol_b\nfoo\tbar\n", encoding="utf-8")
+        result = read_csv_with_encoding_fallback(path, sep="\t")
+        assert result.iloc[0]["col_a"] == "foo"
+
+    def test_falls_back_to_cp1252_on_decode_error(self, tmp_path):
+        """cp1252-only bytes like 0xa0 (nbsp) and 0x96 (en dash), as commonly
+        produced by Excel, raise UnicodeDecodeError under utf-8."""
+        path = tmp_path / "cp1252.tsv"
+        content = b"col_a\tcol_b\nfoo\xa0bar\tvalue\x96dash\n"
+        path.write_bytes(content)
+
+        with pytest.raises(UnicodeDecodeError):
+            pd.read_csv(path, sep="\t", encoding="utf-8")
+
+        result = read_csv_with_encoding_fallback(path, sep="\t")
+        assert result.iloc[0]["col_a"] == "foo\xa0bar"
+        assert result.iloc[0]["col_b"] == "value\u2013dash"
+
+    def test_passes_through_kwargs(self, tmp_path):
+        path = tmp_path / "dtype.tsv"
+        path.write_text("id\tvalue\n1\t007\n", encoding="utf-8")
+        result = read_csv_with_encoding_fallback(
+            path, sep="\t", dtype={"value": str})
+        assert result.iloc[0]["value"] == "007"

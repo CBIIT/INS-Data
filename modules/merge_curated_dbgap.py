@@ -3,21 +3,14 @@ merge_curated_dbgap.py
 2026-03-11 ZD
 
 This script merges a previously curated dbGaP datasets TSV with a newly
-gathered dbGaP datasets TSV. The merge uses `dataset_source_id` (phs
-accession) as the key:
+gathered dbGaP datasets TSV. The short `dataset_source_id` identifies a study,
+while `dataset_source_accession` includes its dbGaP version and participant
+set (for example, phs002790.v7.p1).
 
-    - Rows present in the OLD curated file are kept as-is (preserving
-      hand-edited values and existing UUIDs).
-    - Rows present only in the NEW file are appended (these are newly
-      added studies that have not yet been curated).
-    - Rows present only in the OLD file are retained with a warning
-      (they may have been removed from the latest dbGaP search results
-      but should not be silently dropped from the curated set).
-
-After merging, the script detects title changes between old and new for
-shared studies and exports a review CSV so the user can decide whether
-to accept the new title or keep the old one.  If a reviewed CSV is found
-from a prior run, the user's decisions are applied automatically.
+        - Unchanged accessions keep the previously curated row.
+        - Updated accessions use the newly gathered row for curator review.
+        - New studies use the newly gathered row for curator review.
+        - Old-only studies keep the previously curated row for curator review.
 
 The merged output is saved as `dbgap_datasets_merged.tsv` in the current
 dbGaP output directory defined in config.py.
@@ -34,8 +27,10 @@ import config
 # Key column used to identify unique studies across old and new datasets
 MERGE_KEY = 'dataset_source_id'
 
-# Column to review for changes between old and new
-TITLE_COL = 'dataset_title'
+# Full dbGaP accession used to detect source release changes
+ACCESSION_COL = 'dataset_source_accession'
+
+STATUS_ORDER = ['updated', 'new', 'old_only', 'unchanged']
 
 
 def load_dbgap_tsv(filepath: str) -> pd.DataFrame:
@@ -57,134 +52,36 @@ def load_dbgap_tsv(filepath: str) -> pd.DataFrame:
 
     df = pd.read_csv(filepath, sep='\t', dtype=str, keep_default_na=False)
 
-    if MERGE_KEY not in df.columns:
-        raise KeyError(f"Expected column '{MERGE_KEY}' not found in "
-                       f"{filepath}. Columns found: {list(df.columns)}")
+    required_cols = {MERGE_KEY, ACCESSION_COL}
+    missing_cols = required_cols - set(df.columns)
+    if missing_cols:
+        raise KeyError(f"Expected columns missing from {filepath}: "
+                       f"{sorted(missing_cols)}. "
+                       f"Columns found: {list(df.columns)}")
+
+    duplicate_ids = df.loc[df[MERGE_KEY].duplicated(keep=False), MERGE_KEY]
+    if not duplicate_ids.empty:
+        raise ValueError(f"Duplicate '{MERGE_KEY}' values found in "
+                         f"{filepath}: {sorted(duplicate_ids.unique())}")
 
     return df
 
 
-def detect_title_changes(old_df: pd.DataFrame,
-                         new_df: pd.DataFrame) -> pd.DataFrame:
-    """Identify studies where the title differs between old and new datasets.
-
-    Args:
-        old_df (pd.DataFrame): Old curated dataset.
-        new_df (pd.DataFrame): New gathered dataset.
-
-    Returns:
-        pd.DataFrame: Review table with columns:
-            dataset_source_id, old_title, new_title, use_new_title
-    """
-
-    # Build lookup dicts keyed on the merge key
-    old_titles = old_df.set_index(MERGE_KEY)[TITLE_COL].to_dict()
-    new_titles = new_df.set_index(MERGE_KEY)[TITLE_COL].to_dict()
-
-    # Find shared IDs with differing titles
-    changes = []
-    for phs in sorted(set(old_titles) & set(new_titles)):
-        old_val = str(old_titles[phs]).strip()
-        new_val = str(new_titles[phs]).strip()
-        if old_val != new_val:
-            changes.append({
-                MERGE_KEY: phs,
-                'old_title': old_val,
-                'new_title': new_val,
-                'use_new_title': ''   # blank = user has not reviewed yet
-            })
-
-    review_df = pd.DataFrame(changes)
-    return review_df
-
-
-def export_review_csv(review_df: pd.DataFrame, review_path: str) -> None:
-    """Export the title review table as a CSV for manual editing.
-
-    The user should fill in the `use_new_title` column:
-        - 'yes' or 'y' → accept the new title
-        - 'no', 'n', or blank → keep the old (curated) title
-
-    Args:
-        review_df (pd.DataFrame): Output of detect_title_changes.
-        review_path (str): Filepath for the review CSV.
-    """
-
-    os.makedirs(os.path.dirname(review_path), exist_ok=True)
-    review_df.to_csv(review_path, index=False, encoding='utf-8')
-    print(f"Title review CSV exported to {review_path}")
-    print(f"  → {len(review_df)} title change(s) detected.")
-    print(f"  → Edit the 'use_new_title' column (yes/no) and re-run to apply.\n")
-
-
-def apply_title_decisions(merged_df: pd.DataFrame,
-                          review_path: str) -> pd.DataFrame:
-    """Apply user decisions from a reviewed title-change CSV.
-
-    For rows where use_new_title is 'yes' or 'y', the title in the merged 
-    dataframe is replaced with the new title from the review CSV.  All other
-    rows keep their current (old curated) title.
-
-    Args:
-        merged_df (pd.DataFrame): The merged dataframe (old titles by default).
-        review_path (str): Path to the reviewed CSV with user decisions.
-
-    Returns:
-        pd.DataFrame: Updated merged dataframe with accepted title changes.
-    """
-
-    review_df = pd.read_csv(review_path, dtype=str, keep_default_na=False)
-
-    # Validate expected columns
-    required_cols = {MERGE_KEY, 'old_title', 'new_title', 'use_new_title'}
-    if not required_cols.issubset(set(review_df.columns)):
-        missing = required_cols - set(review_df.columns)
-        raise KeyError(f"Review CSV is missing required columns: {missing}")
-
-    # Filter to only rows where the user accepted the new title
-    accepted = review_df[
-        review_df['use_new_title'].str.strip().str.lower().isin(['yes', 'y'])
-    ]
-
-    if len(accepted) == 0:
-        print(f"No title changes accepted in review CSV.\n")
-        return merged_df
-
-    # Apply accepted new titles
-    accept_map = dict(zip(accepted[MERGE_KEY], accepted['new_title']))
-    update_count = 0
-    for idx, row in merged_df.iterrows():
-        phs = row[MERGE_KEY]
-        if phs in accept_map:
-            merged_df.at[idx, TITLE_COL] = accept_map[phs]
-            update_count += 1
-
-    print(f"Applied {update_count} accepted title change(s) from review CSV.\n")
-
-    return merged_df
-
-
 def merge_dbgap_datasets(old_curated_path: str,
                          new_gathered_path: str,
-                         output_path: str,
-                         review_path: str) -> pd.DataFrame:
+                         output_path: str) -> pd.DataFrame:
     """Merge an old curated dbGaP TSV with a new gathered dbGaP TSV.
 
-    Precedence rules:
-        1. Rows in the old curated file are always kept as-is.
-        2. New rows (in new but not in old) are appended at the bottom.
-        3. Old-only rows (in old but not in new) are retained with a 
-           console warning.
-
-    After merging, title changes are detected and either:
-        - exported as a review CSV (first run), or
-        - applied from the reviewed CSV (subsequent run).
+    Row selection rules:
+        1. Shared studies with unchanged full accessions keep old curation.
+        2. Shared studies with changed full accessions use new gathered data.
+        3. New studies use new gathered data.
+        4. Old-only studies retain old curated data.
 
     Args:
         old_curated_path (str): Filepath of the previously curated TSV.
         new_gathered_path (str): Filepath of the newly gathered TSV.
         output_path (str): Filepath for the merged output TSV.
-        review_path (str): Filepath for the title review CSV.
 
     Returns:
         pd.DataFrame: The merged dataframe.
@@ -232,16 +129,36 @@ def merge_dbgap_datasets(old_curated_path: str,
     old_only_ids = old_ids - new_ids
     new_only_ids = new_ids - old_ids
 
+    old_accessions = old_df.set_index(MERGE_KEY)[ACCESSION_COL].to_dict()
+    new_accessions = new_df.set_index(MERGE_KEY)[ACCESSION_COL].to_dict()
+    updated_ids = {
+        phs for phs in shared_ids
+        if old_accessions[phs].strip() != new_accessions[phs].strip()
+    }
+    unchanged_ids = shared_ids - updated_ids
+
     # --- Build the merged dataframe ---
 
-    # 1. Start with ALL rows from the old curated file (shared + old-only)
-    merged_df = old_df.copy()
-    merged_df['curation_status'] = 'previously_curated'
+    groups = []
+    for status, source_df, ids in [
+            ('updated', new_df, updated_ids),
+            ('new', new_df, new_only_ids),
+            ('old_only', old_df, old_only_ids),
+            ('unchanged', old_df, unchanged_ids)]:
+        group_df = source_df[source_df[MERGE_KEY].isin(ids)].copy()
+        group_df['curation_status'] = status
+        group_df['previous_source_accession'] = group_df[MERGE_KEY].map(
+            old_accessions).fillna('')
+        group_df['current_source_accession'] = group_df[MERGE_KEY].map(
+            new_accessions).fillna('')
+        groups.append(group_df)
 
-    # 2. Append rows that exist only in the new file (at the end)
-    new_only_df = new_df[new_df[MERGE_KEY].isin(new_only_ids)].copy()
-    new_only_df['curation_status'] = 'new_study'
-    merged_df = pd.concat([merged_df, new_only_df], ignore_index=True)
+    merged_df = pd.concat(groups, ignore_index=True)
+    merged_df['curation_status'] = pd.Categorical(
+        merged_df['curation_status'], categories=STATUS_ORDER, ordered=True)
+    merged_df.sort_values(
+        ['curation_status', MERGE_KEY], inplace=True, ignore_index=True)
+    merged_df['curation_status'] = merged_df['curation_status'].astype(str)
 
     # --- Console summary ---
     print(f"\n{'='*60}")
@@ -250,9 +167,10 @@ def merge_dbgap_datasets(old_curated_path: str,
     print(f"  Old curated rows:       {len(old_df):>6}")
     print(f"  New gathered rows:      {len(new_df):>6}")
     print(f"{'─'*60}")
-    print(f"  Shared (kept from old): {len(shared_ids):>6}")
-    print(f"  New-only (added):       {len(new_only_ids):>6}")
-    print(f"  Old-only (retained):    {len(old_only_ids):>6}")
+    print(f"  Updated (use new):      {len(updated_ids):>6}")
+    print(f"  New:                    {len(new_only_ids):>6}")
+    print(f"  Old-only:               {len(old_only_ids):>6}")
+    print(f"  Unchanged (keep old):   {len(unchanged_ids):>6}")
     print(f"{'─'*60}")
     print(f"  MERGED TOTAL:           {len(merged_df):>6}")
     print(f"{'='*60}\n")
@@ -265,20 +183,6 @@ def merge_dbgap_datasets(old_curated_path: str,
         for phs in sorted(old_only_ids):
             print(f"  - {phs}")
         print()
-
-    # --- Title change review ---
-    print(f"Checking for title changes between old and new datasets...")
-    review_df = detect_title_changes(old_df, new_df)
-
-    if len(review_df) == 0:
-        print(f"No title changes detected.\n")
-    elif os.path.exists(review_path):
-        # A reviewed CSV already exists — apply the user's decisions
-        print(f"Found existing review CSV: {review_path}")
-        merged_df = apply_title_decisions(merged_df, review_path)
-    else:
-        # First run — export the review CSV for user editing
-        export_review_csv(review_df, review_path)
 
     # --- Export ---
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
@@ -297,7 +201,5 @@ if __name__ == "__main__":
     old_curated_path = config.DBGAP_MERGED_OLD_CURATED_PATH
     new_gathered_path = config.DBGAP_OUTPUT_PATH
     output_path = config.DBGAP_MERGED_OUTPUT_PATH
-    review_path = config.DBGAP_MERGE_REVIEW_PATH
 
-    merge_dbgap_datasets(old_curated_path, new_gathered_path,
-                         output_path, review_path)
+    merge_dbgap_datasets(old_curated_path, new_gathered_path, output_path)
