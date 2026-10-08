@@ -19,8 +19,8 @@ QUALTRICS_TYPE = "manual_fix"              # <-- Define "raw" or "manual_fix" ty
 ICITE_VERSION = "2026-01"           # <-- CHANGE VERSION HERE
 
 # Version of dbGaP seearch results download (download date)
-DBGAP_CSV_VERSION = "2026-03-09"   # <-- CHANGE VERSION HERE
-DBGAP_PREVIOUS_VERSION = "2025-05-19"
+DBGAP_CSV_VERSION = "2026-10-02"   # <-- CHANGE VERSION HERE
+DBGAP_PREVIOUS_VERSION = "2026-03-09"
 
 # Version of CEDCD cohort metadata CSV
 CEDCD_VERSION = "2025-04-24"        # <-- CHANGE VERSION HERE
@@ -29,7 +29,7 @@ CEDCD_VERSION = "2025-04-24"        # <-- CHANGE VERSION HERE
 CTD2_VERSION = "2025-12-01"
 
 # Version of DCEG Cohorts curated dataset
-DCEG_COHORTS_VERSION = "2026-02-03"    # <-- CHANGE VERSION HERE
+DCEG_COHORTS_VERSION = "2026-09-28"    # <-- CHANGE VERSION HERE
 
 # Version of NCCR curated dataset
 NCCR_VERSION = "2026-03-02"            # <-- CHANGE VERSION HERE
@@ -381,6 +381,7 @@ COLUMN_CONFIGS = {
             'name': 'dataset_title',
             'description': 'description',
             'accession': 'dataset_source_id',
+            'full_accession': 'dataset_source_accession', # Full phs accession for version tracking. Not loaded into INS
             'dbGaP_URL': 'dataset_source_url',
             'principal_investigator': 'PI_name',
             'gpa': 'GPA',
@@ -679,7 +680,6 @@ DBGAP_OUTPUT_CURATED_CLEANED = OUTPUT_DIR + "dbgap/" + DBGAP_CSV_VERSION +"/"+ "
 # Update the old path each cycle to point to the previous curated clean output
 DBGAP_MERGED_OLD_CURATED_PATH = OUTPUT_DIR + "dbgap/" +DBGAP_PREVIOUS_VERSION+ "/dbgap_datasets_merged_curated_clean.tsv"
 DBGAP_MERGED_OUTPUT_PATH = INTERMED_DIR + "dbgap/" + DBGAP_CSV_VERSION +"/"+ "dbgap_datasets_merged.tsv"
-DBGAP_MERGE_REVIEW_PATH = INTERMED_DIR + "dbgap/" + DBGAP_CSV_VERSION + "/merge_title_review.csv"
 
 
 # DBGAP SUBSETS

@@ -1072,7 +1072,9 @@ def gather_dbgap_data(input_csv:str):
         merged_df['report_name'].notna() & (merged_df['report_name'] != ''),
         merged_df['name'])
 
-    # Drop full dbgap accession and keep only core phs
+    # Retain the full accession for release tracking, and use the core phs as
+    # the stable dataset identity.
+    merged_df['full_accession'] = merged_df['accession']
     merged_df['accession'] = merged_df['accession'].str.split('.').str[0]
 
     # Add dbGaP URL column
