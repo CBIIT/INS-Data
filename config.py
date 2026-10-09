@@ -32,7 +32,7 @@ CTD2_VERSION = "2025-12-01"
 DCEG_COHORTS_VERSION = "2026-09-28"    # <-- CHANGE VERSION HERE
 
 # Version of NCCR curated dataset
-NCCR_VERSION = "2026-03-02"            # <-- CHANGE VERSION HERE
+NCCR_VERSION = "2026-10-06"            # <-- CHANGE VERSION HERE
 
 # An override date can be used instead of today's date for pulling and saving data versions
 # This is useful when running downstream modules on grants data gathered before today
