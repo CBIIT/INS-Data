@@ -67,7 +67,7 @@ The workflow is supported by additional, independent steps run as needed:
 - [Gather dbGaP Datasets](#gather-dbgap-datasets)
 - [Merge Curated dbGaP Datasets](#merge-curated-dbgap-datasets)
 - [Generate dbGaP Subset Clones](#generate-dbgap-subset-clones)
-- [Process Curated Sources (DCEG Cohorts, NCCR)](#process-curated-sources)
+- [Process Curated Sources (DCEG Cohorts, NCCR, DCTD)](#process-curated-sources)
 - [Curate Resources](#curate-resources)
 
 ![INS-Data workflow. This diagram shows a detailed visualization of the steps listed below.](images/ins-data-repo-diagram.png)
@@ -501,11 +501,15 @@ NOTE: CTD^2 input data is not expected to change frequently. This module should 
 
 ### DCEG Cohorts
 
-Cohort datasets from the [NCI Division of Cancer Epidemiology and Genetics (DCEG)](https://dceg.cancer.gov/) are included in INS as curated datasets. The curated TSV is placed in a versioned `data/01_intermediate/dceg_cohorts/` directory and the `DCEG_COHORTS_VERSION` in `config.py` should be updated to match.
+Cohort datasets from the [NCI Division of Cancer Epidemiology and Genetics (DCEG)](https://dceg.cancer.gov/research/who-we-study/cohorts) are included in INS as curated datasets. The curated TSV is placed in a versioned `data/01_intermediate/dceg_cohorts/` directory and the `DCEG_COHORTS_VERSION` in `config.py` should be updated to match.
 
 ### NCCR Data Platform
 
-Datasets from the [NCI Center for Cancer Research (NCCR)](https://nccr.cancer.gov/) Data Platform are included in INS as curated datasets. The curated TSV is placed in a versioned `data/01_intermediate/nccr/` directory and the `NCCR_VERSION` in `config.py` should be updated to match.
+Datasets from the [NCI Childhood Cancer Data Initiative (CCDI) National Childhood Cancer Registry (NCCR) Data Platform](https://nccrdataplatform.ccdi.cancer.gov/home) are included in INS as curated datasets. The curated TSV is placed in a versioned `data/01_intermediate/nccr/` directory and the `NCCR_VERSION` in `config.py` should be updated to match.
+
+### DCTD Datasets
+
+Datasets from the [NCI Division of Cancer Treatment and Diagnosis (DCTD)](https://dctd.cancer.gov/data-tools-biospecimens/data) are included in INS as curated datasets. The curated TSV is placed in a versioned `data/01_intermediate/dctd/` directory and the `DCTD_VERSION` in `config.py` should be updated to match.
 
 ## Curate Resources
 
@@ -764,6 +768,7 @@ python modules/build_validation_file.py
 10. **Add or update curated source files (optional)**
     - **DCEG Cohorts**: Place the curated TSV as `dceg_datasets_curated.tsv` in a versioned `data/01_intermediate/dceg_cohorts/` directory. Update `DCEG_COHORTS_VERSION` in `config.py`.
     - **NCCR Data Platform**: Place the curated TSV as `nccr_datasets_curated.tsv` in a versioned `data/01_intermediate/nccr/` directory. Update `NCCR_VERSION` in `config.py`.
+    - **DCTD Datasets**: Place the curated TSV as `dctd_datasets_curated.tsv` in a versioned `data/01_intermediate/dctd/` directory. Update `DCTD_VERSION` in `config.py`.
     - Curated sources are processed automatically during the [Package Data](#package-data) step.
 
 ## Testing

@@ -34,6 +34,9 @@ DCEG_COHORTS_VERSION = "2026-09-28"    # <-- CHANGE VERSION HERE
 # Version of NCCR curated dataset
 NCCR_VERSION = "2026-10-06"            # <-- CHANGE VERSION HERE
 
+# Version of DCTD curated dataset
+DCTD_VERSION = "2026-10-01"            # <-- CHANGE VERSION HERE
+
 # An override date can be used instead of today's date for pulling and saving data versions
 # This is useful when running downstream modules on grants data gathered before today
 
@@ -587,6 +590,47 @@ COLUMN_CONFIGS = {
                      'dataset_minimum_age_at_baseline',
                      'dataset_maximum_age_at_baseline'],
     },
+    'dctd_dataset': {
+        'node_id': 'dataset_uuid',
+        'link_id': None,
+        'keep_and_rename': {
+            'type': 'type',
+            'dataset_uuid': 'dataset_uuid',
+            'dataset_source_repo': 'dataset_source_repo',
+            'dataset_title': 'dataset_title',
+            'description': 'description',
+            'dataset_source_id': 'dataset_source_id',
+            'dataset_source_url': 'dataset_source_url',
+            'PI_name': 'PI_name',
+            'GPA': 'GPA',
+            'dataset_doc': 'dataset_doc',
+            'dataset_pmid': 'dataset_pmid',
+            'funding_source': 'funding_source',
+            'release_date': 'release_date',
+            'limitations_for_reuse': 'limitations_for_reuse',
+            'assay_method': 'assay_method',
+            'study_type': 'study_type',
+            'primary_disease': 'primary_disease',
+            'participant_count': 'participant_count',
+            'sample_count': 'sample_count',
+            'study_links': 'study_links',
+            'related_genes': 'related_genes',
+            'related_diseases': 'related_diseases',
+            'related_terms': 'related_terms',
+            'dataset_year_enrollment_started': 'dataset_year_enrollment_started',
+            'dataset_year_enrollment_ended': 'dataset_year_enrollment_ended',
+            'dataset_minimum_age_at_baseline': 'dataset_minimum_age_at_baseline',
+            'dataset_maximum_age_at_baseline': 'dataset_maximum_age_at_baseline',
+        },
+        'list_like_cols': ['dataset_pmid', 'funding_source', 'study_links'],
+        'html_tag_cols': None,
+        'int_cols': ['participant_count',
+                     'sample_count',
+                     'dataset_year_enrollment_started',
+                     'dataset_year_enrollment_ended',
+                     'dataset_minimum_age_at_baseline',
+                     'dataset_maximum_age_at_baseline'],
+    },
     'ctd2_dataset': {
         'node_id': 'dataset_uuid',
         'link_id': None,
@@ -792,3 +836,14 @@ NCCR_CURATED_INTERMED_PATH = NCCR_INTERMED_DIR + "nccr_datasets_curated.tsv"
 # NCCR output
 NCCR_OUTPUT_DIR = OUTPUT_DIR + "nccr/" + NCCR_VERSION + "/"
 NCCR_OUTPUT_PATH = NCCR_OUTPUT_DIR + "nccr_datasets_curated_clean.tsv"
+
+
+# DCTD (curated only, no gathering pipeline)
+
+# DCTD intermediate - curated TSV lives directly in intermediates
+DCTD_INTERMED_DIR = INTERMED_DIR + "dctd/" + DCTD_VERSION + "/"
+DCTD_CURATED_INTERMED_PATH = DCTD_INTERMED_DIR + "dctd_datasets_curated.tsv"
+
+# DCTD output
+DCTD_OUTPUT_DIR = OUTPUT_DIR + "dctd/" + DCTD_VERSION + "/"
+DCTD_OUTPUT_PATH = DCTD_OUTPUT_DIR + "dctd_datasets_curated_clean.tsv"

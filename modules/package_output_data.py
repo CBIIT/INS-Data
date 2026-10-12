@@ -47,7 +47,8 @@ def add_type_column(df, datatype):
                      'cedcd_dataset', 
                      'ctd2_dataset',
                      'dceg_dataset',
-                     'nccr_dataset'}
+                     'nccr_dataset',
+                     'dctd_dataset'}
     
     # Map to 'dataset' if in the list, otherwise keep the original value
     df_with_type['type'] = 'dataset' if datatype in dataset_types else datatype
@@ -788,6 +789,43 @@ def package_nccr_datasets(df_nccr_datasets, column_configs):
 
 
 
+def package_dctd_datasets(df_dctd_datasets, column_configs):
+    """Package DCTD datasets for INS loading.
+
+    Generates deterministic UUID5 values for dataset_uuid based on
+    dataset_source_id and dataset_title. This is a curated-only source
+    with no gathering pipeline.
+    """
+
+    print(f"---\nFinalizing TSV for DCTD Datasets data...")
+
+    # Generate deterministic UUID5 for each row based on source ID + title
+    NAMESPACE = uuid.UUID('12345678-1234-5678-1234-567812345678')
+
+    def generate_dctd_uuid(row):
+        name = '||'.join(str(row[field]) for field in
+                         ['dataset_source_id', 'dataset_title'])
+        return uuid.uuid5(NAMESPACE, name)
+
+    df_dctd_datasets['dataset_uuid'] = df_dctd_datasets.apply(
+        generate_dctd_uuid, axis=1)
+
+    # Standardize and validate data
+    df_dctd_datasets_output = standardize_data(df_dctd_datasets, column_configs,
+                                        datatype='dctd_dataset')
+
+    # Export as TSV
+    output_filepath = config.DCTD_OUTPUT_PATH
+    os.makedirs(os.path.dirname(output_filepath), exist_ok=True)
+    df_dctd_datasets_output.to_csv(output_filepath, sep='\t', index=False,
+                                    encoding='utf-8')
+
+    print(f"Done! Final DCTD Datasets data saved as {output_filepath}.")
+
+    return df_dctd_datasets_output
+
+
+
 def package_ctd2_datasets(df_ctd2_datasets, column_configs, ctd2_curated=False):
     """Package CTD^2 Datasets data for INS loading."""
 
@@ -1135,6 +1173,16 @@ def package_output_data():
         nccr_datasets_exist = False
         print(f"No NCCR Datasets file found.")
 
+    # Load DCTD curated data
+    if os.path.exists(config.DCTD_CURATED_INTERMED_PATH):
+        dctd_datasets_exist = True
+        df_dctd_datasets = read_csv_with_encoding_fallback(
+            config.DCTD_CURATED_INTERMED_PATH, sep='\t')
+        print(f"Loaded DCTD Datasets file from {config.DCTD_CURATED_INTERMED_PATH}")
+    else:
+        dctd_datasets_exist = False
+        print(f"No DCTD Datasets file found.")
+
     # Load CTD2 datasets data
     if os.path.exists(config.CTD2_DATASET_CURATED_LOCKED_PATH):
         ctd2_datasets_exist = True
@@ -1213,6 +1261,8 @@ def package_output_data():
         df_dceg_datasets_out = package_dceg_datasets(df_dceg_datasets, column_configs)
     if nccr_datasets_exist:
         df_nccr_datasets_out = package_nccr_datasets(df_nccr_datasets, column_configs)
+    if dctd_datasets_exist:
+        df_dctd_datasets_out = package_dctd_datasets(df_dctd_datasets, column_configs)
     if ctd2_datasets_exist:
         df_ctd2_datasets_out = package_ctd2_datasets(df_ctd2_datasets, column_configs,
                                                      ctd2_curated)

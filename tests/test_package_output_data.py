@@ -105,7 +105,7 @@ class TestAddTypeColumn:
         df = pd.DataFrame({"col": [1, 2]})
         for dtype in ("dbgap_dataset", "geo_dataset", "sra_dataset",
                        "cedcd_dataset", "ctd2_dataset", "dceg_dataset",
-                       "nccr_dataset"):
+                       "nccr_dataset", "dctd_dataset"):
             result = add_type_column(df, dtype)
             assert all(result["type"] == "dataset"), (
                 f"{dtype} should map to 'dataset'")
