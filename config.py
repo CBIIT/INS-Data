@@ -865,7 +865,7 @@ URL_HEALTH_TARGETS = {
 }
 
 # Per-request timeout in seconds
-URL_HEALTH_TIMEOUT_SECONDS = 5
+URL_HEALTH_TIMEOUT_SECONDS = 10
 
 # Redirects beyond this many hops are flagged Red
 URL_HEALTH_MAX_REDIRECT_HOPS = 5

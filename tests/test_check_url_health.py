@@ -35,6 +35,11 @@ from modules.check_url_health import (
     format_chain,
     build_report_row,
     write_report,
+    location_files,
+    split_reason,
+    count_by_file,
+    group_flagged_by_file,
+    print_summary,
     REPORT_COLUMNS,
 )
 
@@ -335,7 +340,7 @@ class TestYellowRules:
 
     def test_cross_domain(self):
         result = make_result("https://a.gov/x", "https://b.org/x")
-        assert rule_cross_domain(result) == "cross-domain redirect to b.org"
+        assert rule_cross_domain(result) == "cross-domain redirect (b.org)"
 
     def test_cross_domain_ignores_www(self):
         result = make_result("https://a.gov/x", "https://www.a.gov/x")
@@ -409,7 +414,7 @@ class TestClassifyResult:
                              chain=chain)
         label, reason = classify_result(result)
         assert label == 'Y'
-        assert reason == "cross-domain redirect to b.org"
+        assert reason == "cross-domain redirect (b.org)"
 
     def test_yellow_multiple_reasons(self, mock_config):
         chain = [(301, "https://a.gov/x"), (200, "https://a.gov/")]
@@ -472,3 +477,62 @@ class TestReporting:
         with open(path, newline='', encoding='utf-8') as f:
             labels = [r['classification'] for r in csv.DictReader(f)]
         assert labels == ['R', 'Y', 'G']
+
+
+# ============================================================
+# Console summary grouping
+# ============================================================
+
+@pytest.fixture
+def summary_rows():
+    """Report rows spanning two files and all three classes."""
+    return [
+        {'original_url': 'https://a.gov', 'classification': 'R',
+         'reason': 'timeout',
+         'source_locations': 'p.tsv | link | row 2; p.tsv | link | row 3'},
+        {'original_url': 'https://b.gov', 'classification': 'Y',
+         'reason': 'redirect to homepage; slow response (3.2s)',
+         'source_locations': 'p.tsv | link | row 4; d.tsv | url | row 2'},
+        {'original_url': 'https://c.gov', 'classification': 'G',
+         'reason': 'ok',
+         'source_locations': 'd.tsv | url | row 3'},
+    ]
+
+
+class TestSummaryGrouping:
+
+    def test_location_files_dedupes_in_order(self, summary_rows):
+        assert location_files(summary_rows[0]) == ['p.tsv']
+        assert location_files(summary_rows[1]) == ['p.tsv', 'd.tsv']
+
+    @pytest.mark.parametrize("reason, expected", [
+        ("slow response (3.2s)", ("slow response", "3.2s")),
+        ("cross-domain redirect (b.org)", ("cross-domain redirect", "b.org")),
+        ("404 not found", ("404 not found", "")),
+    ])
+    def test_split_reason(self, reason, expected):
+        assert split_reason(reason) == expected
+
+    def test_count_by_file(self, summary_rows):
+        counts = count_by_file(summary_rows)
+        assert counts == {
+            'p.tsv': {'R': 1, 'Y': 1, 'G': 0},
+            'd.tsv': {'R': 0, 'Y': 1, 'G': 1},
+        }
+
+    def test_group_flagged_by_file(self, summary_rows):
+        groups = group_flagged_by_file(summary_rows)
+        assert groups['p.tsv']['R'] == {'timeout': [('https://a.gov', '')]}
+        assert groups['d.tsv']['Y'] == {
+            'redirect to homepage': [('https://b.gov', '')],
+            'slow response': [('https://b.gov', '3.2s')],
+        }
+        assert 'G' not in groups['d.tsv']
+
+    def test_print_summary_hierarchy(self, summary_rows, capsys):
+        print_summary(summary_rows)
+        out = capsys.readouterr().out
+        assert out.index("URL HEALTH SUMMARY") < out.index("  p.tsv\n")
+        assert out.index("  p.tsv\n") < out.index("  d.tsv\n")
+        assert "RED (1 URLs)" in out
+        assert "      - https://b.gov  [3.2s]" in out

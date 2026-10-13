@@ -23,6 +23,7 @@ Output:
 
 import csv
 import os
+import re
 import time
 from http import HTTPStatus
 from urllib.parse import urljoin, urlsplit
@@ -491,7 +492,7 @@ def rule_cross_domain(result):
     orig = normalize_host(result['original_url'])
     final = normalize_host(result['final_url'])
     if orig != final:
-        return f"cross-domain redirect to {final}"
+        return f"cross-domain redirect ({final})"
     return None
 
 
@@ -668,35 +669,174 @@ def build_report_row(result, locations):
     }
 
 
+def location_files(row):
+    """Get unique file names from a report row's source locations.
+
+    Args:
+        row (dict): Report row.
+
+    Returns:
+        list[str]: File names in order of first appearance.
+    """
+
+    locs = row['source_locations'].split('; ')
+    return list(dict.fromkeys(loc.split(' | ')[0] for loc in locs))
+
+
+def split_reason(reason):
+    """Split a single reason into its type and optional detail.
+
+    Args:
+        reason (str): e.g. 'slow response (3.2s)'.
+
+    Returns:
+        tuple[str, str]: (type, detail), e.g. ('slow response', '3.2s').
+            Detail is '' when the reason has no parenthetical.
+    """
+
+    match = re.fullmatch(r'(.+?) \((.+)\)', reason)
+    if match:
+        return match.group(1), match.group(2)
+    return reason, ''
+
+
+def count_by_file(rows):
+    """Count unique URLs per classification for each source file.
+
+    Args:
+        rows (list[dict]): Report rows.
+
+    Returns:
+        dict[str, dict[str, int]]: File name to {'R': n, 'Y': n, 'G': n}.
+    """
+
+    counts = {}
+    for row in rows:
+        for name in location_files(row):
+            file_counts = counts.setdefault(
+                name, dict.fromkeys(LABEL_NAMES, 0))
+            file_counts[row['classification']] += 1
+    return counts
+
+
+def group_flagged_by_file(rows):
+    """Group Red and Yellow URLs by file, class, then reason type.
+
+    A URL with multiple reasons is listed under each reason type.
+
+    Args:
+        rows (list[dict]): Report rows.
+
+    Returns:
+        dict: file -> label -> type -> list of (url, detail) tuples.
+    """
+
+    groups = {}
+    for row in rows:
+        label = row['classification']
+        if label == 'G':
+            continue
+
+        for part in row['reason'].split('; '):
+            issue, detail = split_reason(part)
+            for name in location_files(row):
+                by_type = groups.setdefault(name, {}).setdefault(label, {})
+                by_type.setdefault(issue, []).append(
+                    (row['original_url'], detail))
+    return groups
+
+
+def format_count_row(name, counts, width):
+    """Format one row of the R/Y/G summary table.
+
+    Args:
+        name (str): Row label (file name or total).
+        counts (dict[str, int]): {'R': n, 'Y': n, 'G': n}.
+        width (int): Width of the file name column.
+
+    Returns:
+        str: Formatted table row.
+    """
+
+    cells = ''.join(f"{counts[label]:>8}" for label in LABEL_NAMES)
+    return f"  {name:<{width}}{cells}"
+
+
+def print_count_table(rows, file_counts):
+    """Print the R/Y/G summary table with per-file and total rows.
+
+    Args:
+        rows (list[dict]): Report rows.
+        file_counts (dict): Output of count_by_file.
+    """
+
+    totals = dict.fromkeys(LABEL_NAMES, 0)
+    for row in rows:
+        totals[row['classification']] += 1
+
+    total_label = 'All files (unique URLs)'
+    width = max([len(total_label), *map(len, file_counts)]) + 2
+    divider = f"  {'-' * (width + 8 * len(LABEL_NAMES))}"
+    header = ''.join(f"{name:>8}" for name in LABEL_NAMES.values())
+
+    print(f"\n{'=' * 79}")
+    print("  URL HEALTH SUMMARY")
+    print(f"{'=' * 79}")
+    print(f"  {'File':<{width}}{header}")
+    print(divider)
+    for name, counts in file_counts.items():
+        print(format_count_row(name, counts, width))
+    print(divider)
+    print(format_count_row(total_label, totals, width))
+
+
+def print_file_section(name, by_label):
+    """Print flagged URLs for one file, grouped by class then type.
+
+    Args:
+        name (str): Source file name.
+        by_label (dict): label -> type -> list of (url, detail) tuples.
+    """
+
+    print(f"\n{'=' * 79}")
+    print(f"  {name}")
+    print(f"{'=' * 79}")
+
+    if not by_label:
+        print("  No Red or Yellow URLs.")
+        return
+
+    for label in ('R', 'Y'):
+        by_type = by_label.get(label)
+        if not by_type:
+            continue
+
+        unique = {url for items in by_type.values() for url, _ in items}
+        print(f"\n  {LABEL_NAMES[label].upper()} ({len(unique)} URLs)")
+
+        ordered = sorted(by_type.items(),
+                         key=lambda kv: (-len(kv[1]), kv[0]))
+        for issue, items in ordered:
+            print(f"    {issue} ({len(items)})")
+            for url, detail in items:
+                suffix = f"  [{detail}]" if detail else ''
+                print(f"      - {url}{suffix}")
+
+
 def print_summary(rows):
-    """Print R/Y/G counts and flagged URLs.
+    """Print the summary table, then flagged URLs grouped by file.
 
     Args:
         rows (list[dict]): Report rows.
     """
 
-    counts = {label: 0 for label in LABEL_NAMES}
-    for row in rows:
-        counts[row['classification']] += 1
+    file_counts = count_by_file(rows)
+    groups = group_flagged_by_file(rows)
 
-    print(f"\n{'='*60}")
-    print("  URL Health Summary")
-    print(f"{'='*60}")
-    print(f"  Unique URLs checked:  {len(rows):>6}")
-    for label, name in LABEL_NAMES.items():
-        print(f"    {name:<8}  {counts[label]:>6}")
-    print(f"{'-'*60}")
-
-    for label in ('R', 'Y'):
-        flagged = [r for r in rows if r['classification'] == label]
-        if not flagged:
-            continue
-        print(f"\n  {LABEL_NAMES[label]} URLs:")
-        for row in flagged:
-            print(f"    [{label}] {row['original_url']}")
-            print(f"        {row['reason']}")
-
-    print(f"{'='*60}")
+    print_count_table(rows, file_counts)
+    for name in file_counts:
+        print_file_section(name, groups.get(name, {}))
+    print(f"\n{'=' * 79}")
 
 
 def write_report(rows, path):
