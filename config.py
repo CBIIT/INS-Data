@@ -40,7 +40,7 @@ DCTD_VERSION = "2026-10-01"            # <-- CHANGE VERSION HERE
 # An override date can be used instead of today's date for pulling and saving data versions
 # This is useful when running downstream modules on grants data gathered before today
 
-OVERRIDE_DATE = None               # <-- Optional. Define override date (e.g. "2023-12-14"). Default None.
+OVERRIDE_DATE = "2026-02-17"               # <-- Optional. Define override date (e.g. "2023-12-14"). Default None.
 
 
 
@@ -847,3 +847,40 @@ DCTD_CURATED_INTERMED_PATH = DCTD_INTERMED_DIR + "dctd_datasets_curated.tsv"
 # DCTD output
 DCTD_OUTPUT_DIR = OUTPUT_DIR + "dctd/" + DCTD_VERSION + "/"
 DCTD_OUTPUT_PATH = DCTD_OUTPUT_DIR + "dctd_datasets_curated_clean.tsv"
+
+
+
+# ---
+# URL HEALTH CHECK CONFIGURATION
+# Manually-triggered QA via modules/check_url_health.py
+
+# Dict of TSV filepath: list of columns containing URLs
+# Column values may be a single URL or a semicolon-separated list
+URL_HEALTH_TARGETS = {
+    PROGRAMS_OUTPUT_PATH: ['program_link', 'data_link'],
+    DCEG_OUTPUT_PATH: ['dataset_source_url', 'study_links'],
+    NCCR_OUTPUT_PATH: ['dataset_source_url', 'study_links'],
+    DCTD_OUTPUT_PATH: ['dataset_source_url', 'study_links'],
+    # DBGAP_OUTPUT_CURATED_CLEANED: ['dataset_source_url', 'study_links'],
+}
+
+# Per-request timeout in seconds
+URL_HEALTH_TIMEOUT_SECONDS = 5
+
+# Redirects beyond this many hops are flagged Red
+URL_HEALTH_MAX_REDIRECT_HOPS = 5
+
+# Response slower than this fraction of the timeout is flagged Yellow
+URL_HEALTH_SLOW_THRESHOLD_FRACTION = 0.5
+
+# Redirect chains longer than this many hops are flagged Yellow
+URL_HEALTH_YELLOW_REDIRECT_HOPS = 2
+
+# Descriptive User-Agent sent with every request
+URL_HEALTH_USER_AGENT = ("INS-Data-URL-Health-Check/1.0 "
+                         "(NCI INS pre-load link QA; "
+                         "+https://github.com/CBIIT/INS-Data)")
+
+# URL health CSV report. Tagged with the date it was generated
+URL_HEALTH_REPORT_PATH = ("reports/url_health/" + "urlHealthReport_"
+                          + datetime.now().strftime("%Y-%m-%d") + ".csv")
