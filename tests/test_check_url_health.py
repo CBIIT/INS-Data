@@ -18,30 +18,26 @@ from modules.check_url_health import (
     request_once,
     describe_error,
     check_url,
-    normalize_host,
-    is_root_path,
     is_benign_redirect,
-    rule_connection_error,
-    rule_too_many_redirects,
     rule_client_error,
     rule_server_error,
-    rule_unexpected_status,
     rule_cross_domain,
     rule_homepage_bounce,
-    rule_non_benign_redirect,
     rule_long_redirect_chain,
     rule_slow_response,
     classify_result,
-    format_chain,
     build_report_row,
     write_report,
-    location_files,
     split_reason,
     count_by_file,
     group_flagged_by_file,
     print_summary,
+    check_url_health,
     REPORT_COLUMNS,
 )
+
+
+A = "https://a.gov"
 
 
 # ============================================================
@@ -72,6 +68,12 @@ def make_result(original, final=None, status=200,
         'error': error,
         'too_many_redirects': too_many,
     }
+
+
+def make_redirect(original, final, **kwargs):
+    """Build a result for a single 301 redirect ending in 200."""
+    chain = [(301, original), (200, final)]
+    return make_result(original, final, chain=chain, **kwargs)
 
 
 @pytest.fixture
@@ -106,19 +108,14 @@ def sample_tsv(tmp_path):
 
 class TestSplitUrlField:
 
-    def test_single_url(self):
-        assert split_url_field("https://a.gov") == ["https://a.gov"]
-
-    def test_semicolon_list_trimmed(self):
-        result = split_url_field(" https://a.gov ;https://b.gov ")
-        assert result == ["https://a.gov", "https://b.gov"]
-
-    def test_skips_empty_parts(self):
-        assert split_url_field("https://a.gov;; ;") == ["https://a.gov"]
-
-    @pytest.mark.parametrize("value", ["", None, "   ", ";"])
-    def test_empty_values(self, value):
-        assert split_url_field(value) == []
+    @pytest.mark.parametrize("value, expected", [
+        (" https://a.gov ;https://b.gov ", ["https://a.gov", "https://b.gov"]),
+        ("https://a.gov;; ;", ["https://a.gov"]),
+        ("   ", []),
+        (None, []),
+    ])
+    def test_splits_trims_and_skips_empties(self, value, expected):
+        assert split_url_field(value) == expected
 
 
 # ============================================================
@@ -146,6 +143,13 @@ class TestReadTargetUrls:
         assert len(pairs) == 2
         assert "bogus" in capsys.readouterr().out
 
+    def test_undecodable_file_warns_instead_of_crashing(
+            self, tmp_path, capsys):
+        path = tmp_path / "bad.tsv"
+        path.write_bytes(b"url\n\xff\xfe\xfa\n")
+        assert read_target_urls(str(path), ["url"]) == []
+        assert "Could not read" in capsys.readouterr().out
+
 
 class TestCollectUrls:
 
@@ -163,19 +167,25 @@ class TestCollectUrls:
 
 class TestRequestOnce:
 
-    def test_head_success_skips_get(self):
+    @pytest.mark.parametrize("head_status, uses_get", [
+        (200, False),
+        (301, False),
+        (403, True),
+        (405, True),
+    ])
+    def test_get_fallback_only_when_head_rejected(
+            self, head_status, uses_get):
         session = MagicMock()
-        session.head.return_value = make_response(200)
-        assert request_once(session, "https://a.gov", 5).status_code == 200
-        session.get.assert_not_called()
-
-    @pytest.mark.parametrize("status", [405, 501, 403])
-    def test_falls_back_to_get(self, status):
-        session = MagicMock()
-        session.head.return_value = make_response(status)
+        session.head.return_value = make_response(head_status)
         session.get.return_value = make_response(200)
-        assert request_once(session, "https://a.gov", 5).status_code == 200
-        session.get.assert_called_once()
+
+        request_once(session, A, 5)
+
+        if uses_get:
+            session.get.assert_called_once_with(
+                A, timeout=5, allow_redirects=False, stream=True)
+        else:
+            session.get.assert_not_called()
 
 
 class TestDescribeError:
@@ -193,6 +203,8 @@ class TestDescribeError:
          "invalid or unsupported URL"),
         (requests.exceptions.InvalidSchema("ftp"),
          "invalid or unsupported URL"),
+        (requests.exceptions.ChunkedEncodingError("x"),
+         "request error (ChunkedEncodingError)"),
     ])
     def test_maps_exceptions(self, exc, expected):
         assert describe_error(exc) == expected
@@ -227,6 +239,14 @@ class TestCheckUrl:
         assert result['too_many_redirects'] is True
         assert len(result['chain']) == 3
 
+    def test_redirect_without_location_stops(self):
+        session = MagicMock()
+        session.head.return_value = make_response(302)
+        result = check_url(session, A, 5, 5)
+        assert result['status_code'] == 302
+        assert result['too_many_redirects'] is False
+        assert session.head.call_count == 1
+
     def test_captures_connection_error(self):
         session = MagicMock()
         session.head.side_effect = requests.exceptions.ConnectTimeout()
@@ -245,19 +265,7 @@ class TestCheckUrl:
 # URL comparison helpers
 # ============================================================
 
-class TestUrlHelpers:
-
-    def test_normalize_host_strips_www_and_case(self):
-        assert normalize_host("https://WWW.Cancer.gov/x") == "cancer.gov"
-
-    @pytest.mark.parametrize("url, expected", [
-        ("https://a.gov", True),
-        ("https://a.gov/", True),
-        ("https://a.gov/?q=1", True),
-        ("https://a.gov/page", False),
-    ])
-    def test_is_root_path(self, url, expected):
-        assert is_root_path(url) is expected
+class TestIsBenignRedirect:
 
     @pytest.mark.parametrize("original, final", [
         ("http://a.gov/x", "https://a.gov/x"),
@@ -287,43 +295,24 @@ class TestUrlHelpers:
 
 class TestRedRules:
 
-    def test_connection_error(self):
-        result = make_result("https://a.gov", status=None,
-                             chain=[], error="timeout")
-        assert rule_connection_error(result) == "timeout"
-        assert rule_connection_error(make_result("https://a.gov")) is None
-
-    def test_too_many_redirects(self):
-        result = make_result("https://a.gov", status=302, too_many=True)
-        assert "too many redirects" in rule_too_many_redirects(result)
-        assert rule_too_many_redirects(make_result("https://a.gov")) is None
-
-    @pytest.mark.parametrize("status, text", [
-        (404, "404 not found"),
-        (403, "403 forbidden"),
-        (410, "410 gone"),
+    @pytest.mark.parametrize("status, client, server", [
+        (None, None, None),
+        (399, None, None),
+        (400, "400 bad request", None),
+        (499, "499 error", None),
+        (500, None, "500 internal server error"),
+        (599, None, "599 error"),
     ])
-    def test_client_error(self, status, text):
-        result = make_result("https://a.gov", status=status)
-        assert rule_client_error(result) == text
-        assert rule_server_error(result) is None
-
-    @pytest.mark.parametrize("status", [500, 502, 503])
-    def test_server_error(self, status):
-        result = make_result("https://a.gov", status=status)
-        assert rule_server_error(result).startswith(str(status))
-        assert rule_client_error(result) is None
+    def test_status_range_boundaries(self, status, client, server):
+        result = make_result(A, status=status)
+        assert rule_client_error(result) == client
+        assert rule_server_error(result) == server
 
     def test_redirect_ending_in_error(self):
         result = make_result(
             "https://a.gov/x", "https://a.gov/y", status=404,
             chain=[(301, "https://a.gov/x"), (404, "https://a.gov/y")])
         assert rule_client_error(result) == "redirect ends in 404 not found"
-
-    def test_none_status_is_not_http_error(self):
-        result = make_result("https://a.gov", status=None, chain=[])
-        assert rule_client_error(result) is None
-        assert rule_server_error(result) is None
 
 
 # ============================================================
@@ -332,57 +321,38 @@ class TestRedRules:
 
 class TestYellowRules:
 
-    def test_unexpected_status(self):
-        assert rule_unexpected_status(
-            make_result("https://a.gov", status=204)) == \
-            "unexpected status 204"
-        assert rule_unexpected_status(make_result("https://a.gov")) is None
+    @pytest.mark.parametrize("final, expected", [
+        ("https://b.org/x", "cross-domain redirect (b.org)"),
+        ("https://www.a.gov/x", None),
+        ("https://sub.a.gov/x", "cross-domain redirect (sub.a.gov)"),
+    ])
+    def test_cross_domain(self, final, expected):
+        result = make_result("https://a.gov/x", final)
+        assert rule_cross_domain(result) == expected
 
-    def test_cross_domain(self):
-        result = make_result("https://a.gov/x", "https://b.org/x")
-        assert rule_cross_domain(result) == "cross-domain redirect (b.org)"
+    @pytest.mark.parametrize("original, final, flagged", [
+        ("https://a.gov/study/1", "https://a.gov/", True),
+        ("https://a.gov/study/1", "https://a.gov", True),
+        ("https://a.gov/study/1", "https://a.gov/?ref=x", True),
+        ("https://a.gov", "https://www.a.gov/", False),
+        ("https://a.gov/x", "https://a.gov/y", False),
+    ])
+    def test_homepage_bounce(self, original, final, flagged):
+        reason = rule_homepage_bounce(make_result(original, final))
+        assert (reason is not None) is flagged
 
-    def test_cross_domain_ignores_www(self):
-        result = make_result("https://a.gov/x", "https://www.a.gov/x")
-        assert rule_cross_domain(result) is None
-
-    def test_cross_domain_flags_subdomain_change(self):
-        result = make_result("https://dceg.a.gov/x", "https://www.a.gov/x")
-        assert rule_cross_domain(result) is not None
-
-    def test_homepage_bounce(self):
-        result = make_result("https://a.gov/study/1", "https://a.gov/")
-        assert rule_homepage_bounce(result) == "redirect to homepage"
-
-    def test_homepage_bounce_not_flagged_for_root_original(self):
-        result = make_result("https://a.gov", "https://www.a.gov/")
-        assert rule_homepage_bounce(result) is None
-
-    def test_non_benign_redirect(self):
-        chain = [(301, "https://a.gov/x"), (200, "https://a.gov/y")]
-        result = make_result("https://a.gov/x", "https://a.gov/y",
-                             chain=chain)
-        assert rule_non_benign_redirect(result) is not None
-
-    def test_non_benign_ignores_benign(self):
-        chain = [(301, "http://a.gov/x"), (200, "https://a.gov/x/")]
-        result = make_result("http://a.gov/x", "https://a.gov/x/",
-                             chain=chain)
-        assert rule_non_benign_redirect(result) is None
-
-    def test_long_redirect_chain(self):
-        chain = [(301, "u")] * 3 + [(200, "u")]
-        result = make_result("https://a.gov", chain=chain)
+    def test_long_redirect_chain_threshold_is_exclusive(self):
+        result = make_result(A, chain=[(301, A)] * 3 + [(200, A)])
         assert rule_long_redirect_chain(result, 2) == \
             "long redirect chain (3 hops)"
         assert rule_long_redirect_chain(result, 3) is None
 
-    def test_slow_response(self):
+    def test_slow_response_threshold_is_exclusive(self):
         assert rule_slow_response(
-            make_result("https://a.gov", response_time=3.0), 5, 0.5) == \
-            "slow response (3.0s)"
+            make_result(A, response_time=2.5), 5, 0.5) is None
         assert rule_slow_response(
-            make_result("https://a.gov", response_time=2.0), 5, 0.5) is None
+            make_result(A, response_time=2.6), 5, 0.5) == \
+            "slow response (2.6s)"
 
 
 # ============================================================
@@ -391,43 +361,46 @@ class TestYellowRules:
 
 class TestClassifyResult:
 
-    def test_green_no_redirect(self, mock_config):
-        assert classify_result(make_result("https://a.gov/x")) == ('G', 'ok')
-
-    def test_green_benign_redirect(self, mock_config):
-        chain = [(301, "http://a.gov/x"), (200, "https://www.a.gov/x/")]
-        result = make_result("http://a.gov/x", "https://www.a.gov/x/",
-                             chain=chain)
-        label, _ = classify_result(result)
-        assert label == 'G'
-
-    def test_red_beats_yellow(self, mock_config):
-        result = make_result("https://a.gov/x", "https://b.org/",
-                             status=404, response_time=4.0)
-        label, reason = classify_result(result)
-        assert label == 'R'
-        assert "404" in reason
-
-    def test_yellow_cross_domain_suppresses_generic(self, mock_config):
-        chain = [(301, "https://a.gov/x"), (200, "https://b.org/y")]
-        result = make_result("https://a.gov/x", "https://b.org/y",
-                             chain=chain)
-        label, reason = classify_result(result)
-        assert label == 'Y'
-        assert reason == "cross-domain redirect (b.org)"
-
-    def test_yellow_multiple_reasons(self, mock_config):
-        chain = [(301, "https://a.gov/x"), (200, "https://a.gov/")]
-        result = make_result("https://a.gov/x", "https://a.gov/",
-                             chain=chain, response_time=3.0)
-        label, reason = classify_result(result)
-        assert label == 'Y'
-        assert "redirect to homepage" in reason
-        assert "slow response" in reason
+    @pytest.mark.parametrize("result, label, reason", [
+        pytest.param(
+            make_result(A, status=None, chain=[], error="timeout"),
+            'R', "timeout", id="connection-error"),
+        pytest.param(
+            make_result(A, status=302, chain=[(302, A)] * 6, too_many=True),
+            'R', "too many redirects (>5 hops)", id="too-many-redirects"),
+        pytest.param(
+            make_result("https://a.gov/x", "https://b.org/", status=404,
+                        response_time=4.0),
+            'R', "404 not found", id="red-beats-yellow"),
+        pytest.param(
+            make_result(A, status=204),
+            'Y', "unexpected status 204", id="non-200-success"),
+        pytest.param(
+            make_redirect("https://a.gov/x", "https://a.gov/y"),
+            'Y', "redirected to different page", id="same-host-move"),
+        pytest.param(
+            make_redirect("https://a.gov/x", "https://b.org/y"),
+            'Y', "cross-domain redirect (b.org)",
+            id="cross-domain-suppresses-generic"),
+        pytest.param(
+            make_redirect("https://a.gov/x", "https://a.gov/",
+                          response_time=3.0),
+            'Y', "redirect to homepage; slow response (3.0s)",
+            id="multiple-yellow-reasons"),
+        pytest.param(
+            make_result("https://a.gov/x"),
+            'G', "ok", id="no-redirect"),
+        pytest.param(
+            make_redirect("http://a.gov/x", "https://www.a.gov/x/"),
+            'G', "ok (benign redirect)", id="benign-redirect"),
+    ])
+    def test_precedence_and_reasons(self, mock_config, result, label,
+                                    reason):
+        assert classify_result(result) == (label, reason)
 
     def test_uses_config_thresholds(self, mock_config):
         mock_config.URL_HEALTH_SLOW_THRESHOLD_FRACTION = 0.1
-        result = make_result("https://a.gov", response_time=1.0)
+        result = make_result(A, response_time=1.0)
         assert classify_result(result)[0] == 'Y'
 
 
@@ -437,33 +410,26 @@ class TestClassifyResult:
 
 class TestReporting:
 
-    def test_format_chain(self):
-        chain = [(301, "http://a.gov"), (200, "https://a.gov")]
-        assert format_chain(chain) == \
-            "301 http://a.gov -> 200 https://a.gov"
-
-    def test_build_report_row(self, mock_config):
-        result = make_result("https://a.gov", status=404)
+    def test_build_report_row_for_redirect(self, mock_config):
+        result = make_redirect("http://a.gov", "https://a.gov",
+                               response_time=0.12345)
         row = build_report_row(result, ["f | url | row 2",
                                         "f | url | row 5"])
         assert set(row) == set(REPORT_COLUMNS)
-        assert row['classification'] == 'R'
+        assert row['url_changed'] == 'changed'
+        assert row['redirect_chain'] == \
+            "301 http://a.gov -> 200 https://a.gov"
+        assert row['response_time_s'] == "0.123"
         assert row['occurrence_count'] == 2
         assert row['source_locations'] == "f | url | row 2; f | url | row 5"
-        assert row['url_changed'] == 'not_changed'
 
-    def test_build_report_row_url_changed(self, mock_config):
-        chain = [(301, "http://a.gov"), (200, "https://a.gov")]
-        result = make_result("http://a.gov", "https://a.gov", chain=chain)
-        row = build_report_row(result, ["loc"])
-        assert row['url_changed'] == 'changed'
-
-    def test_build_report_row_blank_status_on_error(self, mock_config):
-        result = make_result("https://a.gov", status=None, chain=[],
-                             error="DNS failure")
+    def test_build_report_row_for_connection_error(self, mock_config):
+        result = make_result(A, status=None, chain=[], error="DNS failure")
         row = build_report_row(result, ["loc"])
         assert row['final_status_code'] == ''
-        assert row['reason'] == "DNS failure"
+        assert row['url_changed'] == 'not_changed'
+        assert (row['classification'], row['reason']) == \
+            ('R', "DNS failure")
 
     def test_write_report_orders_red_first(self, tmp_path):
         rows = [
@@ -485,7 +451,7 @@ class TestReporting:
 
 @pytest.fixture
 def summary_rows():
-    """Report rows spanning two files and all three classes."""
+    """Report rows spanning three files and all three classes."""
     return [
         {'original_url': 'https://a.gov', 'classification': 'R',
          'reason': 'timeout',
@@ -496,14 +462,13 @@ def summary_rows():
         {'original_url': 'https://c.gov', 'classification': 'G',
          'reason': 'ok',
          'source_locations': 'd.tsv | url | row 3'},
+        {'original_url': 'https://e.gov', 'classification': 'G',
+         'reason': 'ok',
+         'source_locations': 'g.tsv | url | row 2'},
     ]
 
 
 class TestSummaryGrouping:
-
-    def test_location_files_dedupes_in_order(self, summary_rows):
-        assert location_files(summary_rows[0]) == ['p.tsv']
-        assert location_files(summary_rows[1]) == ['p.tsv', 'd.tsv']
 
     @pytest.mark.parametrize("reason, expected", [
         ("slow response (3.2s)", ("slow response", "3.2s")),
@@ -518,6 +483,7 @@ class TestSummaryGrouping:
         assert counts == {
             'p.tsv': {'R': 1, 'Y': 1, 'G': 0},
             'd.tsv': {'R': 0, 'Y': 1, 'G': 1},
+            'g.tsv': {'R': 0, 'Y': 0, 'G': 1},
         }
 
     def test_group_flagged_by_file(self, summary_rows):
@@ -536,3 +502,47 @@ class TestSummaryGrouping:
         assert out.index("  p.tsv\n") < out.index("  d.tsv\n")
         assert "RED (1 URLs)" in out
         assert "      - https://b.gov  [3.2s]" in out
+        assert "No Red or Yellow URLs." in out.split("  g.tsv\n")[1]
+
+
+# ============================================================
+# check_url_health (end to end)
+# ============================================================
+
+class TestCheckUrlHealth:
+
+    def test_checks_each_unique_url_once_and_writes_report(
+            self, sample_tsv, tmp_path, mock_config):
+        report = tmp_path / "reports" / "url_health.csv"
+        mock_config.URL_HEALTH_REPORT_PATH = str(report)
+        responses = {
+            "https://a.gov": make_response(200),
+            "https://b.gov": make_response(404),
+            "https://c.gov": make_response(301, "https://other.org/"),
+            "https://other.org/": make_response(200),
+            "https://d.gov": make_response(200),
+        }
+        session = MagicMock()
+        session.__enter__.return_value = session
+        session.head.side_effect = lambda url, **kw: responses[url]
+        session.get.side_effect = lambda url, **kw: responses[url]
+
+        with patch("modules.check_url_health.requests.Session",
+                   return_value=session):
+            rows = check_url_health({sample_tsv: ["url", "links"]})
+
+        head_urls = [c.args[0] for c in session.head.call_args_list]
+        assert head_urls.count("https://a.gov") == 1
+        session.headers.__setitem__.assert_called_once_with(
+            'User-Agent', 'test-agent')
+        assert len(rows) == 4
+
+        with open(report, newline='', encoding='utf-8') as f:
+            by_url = {r['original_url']: r for r in csv.DictReader(f)}
+        assert {u: r['classification'] for u, r in by_url.items()} == {
+            "https://a.gov": 'G',
+            "https://b.gov": 'R',
+            "https://c.gov": 'Y',
+            "https://d.gov": 'G',
+        }
+        assert by_url["https://a.gov"]['occurrence_count'] == '2'
