@@ -274,10 +274,13 @@ def check_url(session, url, timeout, max_hops):
 
     try:
         for hop in range(max_hops + 1):
+            # Set before requesting so a failure is attributed to this URL
+            result['final_url'] = current
+            result['status_code'] = None
+
             resp = request_once(session, current, timeout)
             code = resp.status_code
             result['chain'].append((code, current))
-            result['final_url'] = current
             result['status_code'] = code
 
             location = resp.headers.get('Location')

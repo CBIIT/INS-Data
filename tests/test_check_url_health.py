@@ -254,6 +254,18 @@ class TestCheckUrl:
         assert result['error'] == "timeout"
         assert result['status_code'] is None
 
+    def test_failure_at_redirect_target_is_attributed_to_target(self):
+        session = MagicMock()
+        session.head.side_effect = [
+            make_response(301, "https://gone.example/"),
+            requests.exceptions.ConnectionError("NameResolutionError"),
+        ]
+        result = check_url(session, A, 5, 5)
+        assert result['final_url'] == "https://gone.example/"
+        assert result['status_code'] is None
+        assert result['error'] == "DNS failure"
+        assert result['chain'] == [(301, A)]
+
     def test_unexpected_exception_does_not_raise(self):
         session = MagicMock()
         session.head.side_effect = RuntimeError("boom")
