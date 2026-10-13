@@ -44,7 +44,7 @@ RESOURCES_VERSION = None               # <-- Optional. Pin a date (e.g. "2026-06
 # An override date can be used instead of today's date for pulling and saving data versions
 # This is useful when running downstream modules on grants data gathered before today
 
-OVERRIDE_DATE = "2026-02-17"               # <-- Optional. Define override date (e.g. "2023-12-14"). Default None.
+OVERRIDE_DATE = None               # <-- Optional. Define override date (e.g. "2023-12-14"). Default None.
 
 
 
@@ -876,6 +876,7 @@ else:
 # Dict of TSV filepath: list of columns containing URLs
 # Column values may be a single URL or a semicolon-separated list
 URL_HEALTH_TARGETS = {
+    # URLs within curated files are high-priority targets for the check
     PROGRAMS_OUTPUT_PATH: ['program_link', 'data_link'],
     DCEG_OUTPUT_PATH: ['dataset_source_url', 'study_links'],
     NCCR_OUTPUT_PATH: ['dataset_source_url', 'study_links'],
@@ -883,7 +884,10 @@ URL_HEALTH_TARGETS = {
     CEDCD_OUTPUT_PATH: ['dataset_source_url', 'study_links'],
     CTD2_DATASET_OUTPUT_PATH: ['study_links'],
     RESOURCES_OUTPUT_PATH: ['resource_source_url'],
+    # URLs within files with many redundant, templated URLs are omitted by default
     # DBGAP_OUTPUT_CURATED_CLEANED: ['dataset_source_url', 'study_links'],
+    # GEO_OUTPUT_PATH: ['dataset_source_url', 'study_links'],
+    # SRA_OUTPUT_CURATED_CLEANED: ['dataset_source_url', 'study_links'],
 }
 
 # Per-request timeout in seconds
