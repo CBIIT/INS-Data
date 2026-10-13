@@ -69,6 +69,7 @@ The workflow is supported by additional, independent steps run as needed:
 - [Generate dbGaP Subset Clones](#generate-dbgap-subset-clones)
 - [Process Curated Sources (DCEG Cohorts, NCCR, DCTD)](#process-curated-sources)
 - [Curate Resources](#curate-resources)
+- [Check URL Health](#check-url-health)
 
 ![INS-Data workflow. This diagram shows a detailed visualization of the steps listed below.](images/ins-data-repo-diagram.png)
 
@@ -610,6 +611,41 @@ python modules/build_validation_file.py
 5. **Format and save all tables to Excel as separate tabs**
     - Excel file is saved in the versioned `reports/` directory with a timestamp noting when it was generated
 
+## Check URL Health
+
+**This independent QA step checks the external links in output TSVs before they are loaded to the site.** Broken or suspicious URLs are reported as Red / Yellow / Green so they can be fixed at the source.
+
+### URL Health Workflow
+
+All URL checks are handled within the `check_url_health.py` module and can be run as an independent process with the command:
+
+```bash
+python modules/check_url_health.py
+```
+
+NOTE: Run this **after** packaging so the newest output files are checked. Requests are sequential, so runtime scales with the number of unique URLs.
+
+1. **Collect URLs from configured files**
+    - Reads each TSV and URL column listed in `URL_HEALTH_TARGETS` in `config.py`
+        - dbGaP, GEO, and SRA outputs are omitted by default because they contain thousands of templated URLs with little added value. Uncomment them in `config.py` to include them.
+    - Splits semicolon-separated values, trims whitespace, and skips blanks
+    - Checks each unique URL only once and tracks every file, column, and row where it appears
+    - The resources target always points to the newest `resources_{date}_processed.tsv` unless `RESOURCES_VERSION` is set in `config.py`
+
+2. **Check each URL**
+    - Sends a `HEAD` request, falling back to `GET` if the server rejects `HEAD`
+    - Follows redirects one hop at a time and records the full redirect chain, final URL, status, response time, and any connection error
+
+3. **Classify each URL**
+    - **Red (broken)**: 4xx/5xx status, DNS failure, timeout, refused connection, SSL error, or too many redirects
+    - **Yellow (review)**: cross-domain redirect, redirect to the site homepage, redirect to a different page, long redirect chain, slow response, or a non-200 success status
+    - **Green (healthy)**: 200 status with no redirect, or only a cosmetic redirect (`http` to `https`, added/removed `www.` or trailing slash)
+    - Timeout, redirect limits, and the slow-response threshold can be tuned in `config.py`
+
+4. **Report results**
+    - Prints a summary table of Red / Yellow / Green counts by file, followed by flagged URLs grouped by file, class, and issue type
+    - Saves `urlHealthReport_{date}.csv` in `reports/url_health/` with one row per unique URL, sorted Red first
+
 ## How to Use this Repository
 
 ### Accessing output files
@@ -770,6 +806,15 @@ python modules/build_validation_file.py
     - **NCCR Data Platform**: Place the curated TSV as `nccr_datasets_curated.tsv` in a versioned `data/01_intermediate/nccr/` directory. Update `NCCR_VERSION` in `config.py`.
     - **DCTD Datasets**: Place the curated TSV as `dctd_datasets_curated.tsv` in a versioned `data/01_intermediate/dctd/` directory. Update `DCTD_VERSION` in `config.py`.
     - Curated sources are processed automatically during the [Package Data](#package-data) step.
+
+11. **Check URL health before loading (optional)**
+    - Review `URL_HEALTH_TARGETS` in `config.py` and run the URL health check against the packaged outputs:
+
+    ```bash
+    python modules/check_url_health.py
+    ```
+
+    - Review Red and Yellow URLs in the console summary or `reports/url_health/urlHealthReport_{date}.csv` and fix them in the source data as needed
 
 ## Testing
 
