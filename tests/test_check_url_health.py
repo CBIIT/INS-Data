@@ -286,6 +286,8 @@ class TestIsBenignRedirect:
         ("https://a.gov/x", "https://www.a.gov/x"),
         ("https://www.a.gov/x", "https://a.gov/x"),
         ("http://a.gov/x", "https://www.a.gov/x/"),
+        ("http://a.gov:80/x", "https://a.gov:443/x"),
+        ("http://a.gov/x#methods", "https://a.gov/x"),
     ])
     def test_benign(self, original, final):
         assert is_benign_redirect(original, final) is True
@@ -296,6 +298,8 @@ class TestIsBenignRedirect:
         ("https://a.gov/x", "https://b.gov/x"),
         ("https://a.gov/x?id=1", "https://a.gov/x?id=2"),
         ("https://a.gov/x", "https://sub.a.gov/x"),
+        ("https://a.gov/x", "https://a.gov:8443/x"),
+        ("https://a.gov/x", "https://user@a.gov/x"),
     ])
     def test_not_benign(self, original, final):
         assert is_benign_redirect(original, final) is False

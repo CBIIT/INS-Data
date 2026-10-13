@@ -36,6 +36,8 @@ import config
 
 REDIRECT_CODES = {301, 302, 303, 307, 308}
 
+DEFAULT_PORTS = {'http': 80, 'https': 443}
+
 # Large free-text fields can exceed csv default
 CSV_FIELD_SIZE_LIMIT = 2**31 - 1
 
@@ -345,11 +347,26 @@ def is_root_path(url):
     return urlsplit(url).path in ('', '/')
 
 
+def explicit_port(parts):
+    """Get a URL's port only if it differs from the scheme's default.
+
+    Args:
+        parts (urllib.parse.SplitResult): Parsed URL.
+
+    Returns:
+        int | None: Non-default port, or None.
+    """
+
+    port = parts.port
+    return None if port == DEFAULT_PORTS.get(parts.scheme) else port
+
+
 def is_benign_redirect(original, final):
     """Check if a redirect is only cosmetic.
 
     Benign differences are http -> https, trailing slash added/removed, and
-    'www.' added/removed. Anything else is not benign.
+    'www.' added/removed. Anything else is not benign. Fragments are
+    ignored because servers never receive them.
 
     Args:
         original (str): Original URL.
@@ -365,9 +382,12 @@ def is_benign_redirect(original, final):
     scheme_ok = (a.scheme == b.scheme
                  or (a.scheme == 'http' and b.scheme == 'https'))
     same_host = normalize_host(original) == normalize_host(final)
+    same_port = explicit_port(a) == explicit_port(b)
+    same_user = (a.username, a.password) == (b.username, b.password)
     same_path = a.path.rstrip('/') == b.path.rstrip('/')
 
-    return scheme_ok and same_host and same_path and a.query == b.query
+    return (scheme_ok and same_host and same_port and same_user
+            and same_path and a.query == b.query)
 
 
 def describe_status(result):
