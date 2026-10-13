@@ -444,6 +444,11 @@ class TestReporting:
             labels = [r['classification'] for r in csv.DictReader(f)]
         assert labels == ['R', 'Y', 'G']
 
+    def test_write_report_to_bare_filename(self, tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        write_report([], "report.csv")
+        assert (tmp_path / "report.csv").exists()
+
 
 # ============================================================
 # Console summary grouping

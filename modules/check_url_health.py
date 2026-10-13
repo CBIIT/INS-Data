@@ -847,7 +847,9 @@ def write_report(rows, path):
         path (str): Output CSV path.
     """
 
-    os.makedirs(os.path.dirname(path), exist_ok=True)
+    output_dir = os.path.dirname(path)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
 
     ordered = sorted(rows,
                      key=lambda r: SEVERITY_ORDER[r['classification']])
