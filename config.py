@@ -283,6 +283,11 @@ PUB_PROJECT_DAY_DIFF = 365
 ENUM_PROGRAM_COLS = ['focus_area', 'cancer_type']
 ENUM_PROGRAM_PATH = PACKAGING_REPORTS + 'program_enums.txt'
 
+# Special character scan of curated files. Tagged with the date it was generated
+SPECIAL_CHARACTER_SCAN_PATH = ("reports/" + datetime.now().strftime("%Y-%m-%d")
+                               + "/special_character_scan_"
+                               + datetime.now().strftime("%Y-%m-%d") + ".csv")
+
 # Dictionary of columns and types to use in final data packaging
 COLUMN_CONFIGS = {
     # Data type

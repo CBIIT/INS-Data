@@ -117,6 +117,13 @@ class TestCleanNewlines:
         result = clean_newlines(df)
         assert result["num"].tolist() == [1, 2, 3]
 
+    def test_default_string_dtype_processed(self):
+        """Regression: pandas 3 text columns are StringDtype, not object."""
+        df = pd.DataFrame({"col": ["hello\nworld", None]})
+        result = clean_newlines(df)
+        assert result.iloc[0]["col"] == "hello world"
+        assert pd.isna(result.iloc[1]["col"])
+
 
 # ============================================================
 # gather_cedcd_data (integration)

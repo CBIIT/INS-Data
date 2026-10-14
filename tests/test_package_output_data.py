@@ -8,12 +8,21 @@ all data for INS loading.
 """
 
 import os
+import re
 
 import pandas as pd
 import pytest
 
+import config as ins_config
+import modules.package_output_data as package_module
 from modules.package_output_data import (
+    DATASET_TYPES,
+    DATASET_HTML_ENTITY_EXCLUDE_COLS,
+    ASCII_ONLY_COLS,
     read_csv_with_encoding_fallback,
+    warn_on_encoding_damage,
+    write_special_character_scan,
+    is_preserved_character,
     add_type_column,
     reorder_columns,
     backfill_curated_dbgap_accessions,
@@ -31,7 +40,47 @@ from modules.package_output_data import (
     enforce_int_values,
     remove_publications_before_projects,
     standardize_data,
+    package_dbgap_datasets,
 )
+
+
+# Numeric (with or without trailing semicolon), hex, or named HTML entities
+HTML_ENTITY_PATTERN = re.compile(
+    r'&(?:#\d+;?|#[xX][0-9a-fA-F]+;?|[a-zA-Z]+;)')
+
+# Entity-laden text modeled on real dbGaP API values
+ENTITY_TEXT = ("Mej&#237;a &amp; Lo&#239;c&#8217;s &quot;study&quot; "
+               "&#947;&#948;T&#160;cells")
+# Final packaged value outside ASCII_ONLY_COLS: accented and Greek letters are
+# kept; curly/straight double quotes and nbsp are mapped by
+# replace_defined_characters
+ENTITY_TEXT_DECODED = "Mej\u00eda & Lo\u00efc's 'study' \u03b3\u03b4T cells"
+
+
+def build_raw_dataset_df(datatype):
+    """Build a one-row pre-packaging DataFrame for a dataset datatype using
+    the real config, filling every text field with HTML entities."""
+    datatype_config = ins_config.COLUMN_CONFIGS[datatype]
+    int_cols = datatype_config.get('int_cols') or []
+    row = {}
+    for raw_col, out_col in datatype_config['keep_and_rename'].items():
+        if out_col in int_cols:
+            row[raw_col] = [5]
+        elif out_col == datatype_config['node_id']:
+            row[raw_col] = ['D1']
+        else:
+            row[raw_col] = [ENTITY_TEXT]
+    return pd.DataFrame(row)
+
+
+def assert_no_disallowed_entities(df):
+    """Fail if any HTML entity appears outside the allowed dataset fields."""
+    for col in df.columns:
+        if col in DATASET_HTML_ENTITY_EXCLUDE_COLS:
+            continue
+        for value in df[col].dropna().astype(str):
+            assert not HTML_ENTITY_PATTERN.search(value), (
+                f"HTML entity found in '{col}': {value!r}")
 
 
 # ============================================================
@@ -232,6 +281,16 @@ class TestReplaceDefinedCharacters:
     def test_non_string_returns_as_is(self):
         assert replace_defined_characters(42) == 42
 
+    def test_preserve_keeps_greek_and_symbols(self):
+        text = "\u03b2 \u03bcl 10\u00b2 H\u2082O \u2264 \u2265"
+        assert replace_defined_characters(
+            text, preserve_characters=True) == text
+
+    def test_preserve_still_maps_quotes_dashes_and_spaces(self):
+        result = replace_defined_characters(
+            "\u201cA\u201d\u2014B\u00a0C \"D\" \u00a9", preserve_characters=True)
+        assert result == "'A'-B C 'D' (C)"
+
 
 # ============================================================
 # normalize_encoding
@@ -246,6 +305,44 @@ class TestNormalizeEncoding:
 
     def test_ascii_unchanged(self):
         assert normalize_encoding("hello world") == "hello world"
+
+    def test_decoded_entity_accent_handling_by_mode(self):
+        """&#237; decodes to \u00ed, which replace_defined_characters never
+        maps. normalize_encoding strips it to 'i' only in ASCII mode
+        (ASCII_ONLY_COLS); in preserving mode (all other fields) it is kept."""
+        decoded = "Mej\u00eda"
+        assert replace_defined_characters(decoded) == decoded
+        assert normalize_encoding(decoded) == "Mejia"
+        assert normalize_encoding(decoded, preserve_characters=True) == decoded
+
+    def test_preserve_composes_combining_accents(self):
+        assert normalize_encoding(
+            "Mej\u0069\u0301a", preserve_characters=True) == "Mej\u00eda"
+
+    def test_preserve_keeps_allowed_and_folds_others(self):
+        text = "Zo\u00eb 37\u00b0C 5\u00b12 \u03b3\u03b4T \u0141\u00f3d\u017a \u4e2d"
+        assert normalize_encoding(text, preserve_characters=True) == (
+            "Zo\u00eb 37\u00b0C 5\u00b12 \u03b3\u03b4T \u0141\u00f3d\u017a ")
+
+
+# ============================================================
+# is_preserved_character
+# ============================================================
+
+class TestIsPreservedCharacter:
+    """Tests for the allowlist of non-ASCII characters kept in output."""
+
+    @pytest.mark.parametrize("char", list(
+        "\u00ed\u00e9\u00f1\u00fc\u00f8\u0142\u0151\u00c9"
+        "\u03b1\u03b2\u03b3\u03bc\u0394"
+        "\u00b0\u00b2\u00b3\u00d7\u2264\u2265\u00b1\u00b5\u2082"))
+    def test_preserved(self, char):
+        assert is_preserved_character(char)
+
+    @pytest.mark.parametrize("char", list(
+        "\u201c\u2019\u2014\u00a0\u00ad\u0301\u00a9\u4e2d\u0439\ufffd"))
+    def test_not_preserved(self, char):
+        assert not is_preserved_character(char)
 
     def test_nan_returns_nan(self):
         assert pd.isna(normalize_encoding(pd.NA))
@@ -516,6 +613,66 @@ class TestStandardizeData:
         assert result.columns[1] == "node_id"
         assert result.columns[2] == "link_id"
 
+    def test_entities_decoded_before_char_normalization_and_tag_removal(
+            self, minimal_column_config, monkeypatch):
+        """clean_html_entities must run before process_special_characters
+        (so decoded quotes are mapped like other text) and before
+        remove_html_tags_from_df (so encoded tags are stripped)."""
+        calls = []
+        for name in ["clean_html_entities",
+                     "process_special_characters",
+                     "remove_html_tags_from_df"]:
+            original = getattr(package_module, name)
+
+            def spy(*args, _name=name, _original=original, **kwargs):
+                calls.append(_name)
+                return _original(*args, **kwargs)
+
+            monkeypatch.setattr(package_module, name, spy)
+
+        df = pd.DataFrame({
+            "type": ["test_type"],
+            "node_id": ["N1"],
+            "link_id": ["L1"],
+            "title": ["Smith&#8217;s &lt;i&gt;caf&#233;&lt;/i&gt;"],
+            "value": ["Mej&#237;a"],
+        })
+        result = package_module.standardize_data(
+            df, minimal_column_config, "test_type")
+
+        assert calls.index("clean_html_entities") < calls.index(
+            "process_special_characters")
+        assert calls.index("clean_html_entities") < calls.index(
+            "remove_html_tags_from_df")
+        # Decoded ’ is only mapped to ' if decoding runs first; é/í are kept
+        assert result.iloc[0]["title"] == "Smith's caf\u00e9"
+        assert result.iloc[0]["value"] == "Mej\u00eda"
+
+    @pytest.mark.parametrize("datatype", sorted(DATASET_TYPES))
+    def test_dataset_outputs_have_no_entities_outside_allowed_fields(
+            self, datatype):
+        """Run the real config through standardize_data for every dataset
+        type and confirm entities only survive in allowed fields."""
+        df = build_raw_dataset_df(datatype)
+        result = standardize_data(df, ins_config.COLUMN_CONFIGS, datatype)
+
+        assert_no_disallowed_entities(result)
+
+        datatype_config = ins_config.COLUMN_CONFIGS[datatype]
+        int_cols = datatype_config.get('int_cols') or []
+        skip_cols = (set(DATASET_HTML_ENTITY_EXCLUDE_COLS)
+                     | set(int_cols)
+                     | set(datatype_config.get(
+                         'exclude_special_char_processing', []))
+                     | {'type', datatype_config['node_id']})
+        for col in result.columns:
+            if col not in skip_cols:
+                assert result.iloc[0][col] == ENTITY_TEXT_DECODED, col
+
+        for col in DATASET_HTML_ENTITY_EXCLUDE_COLS:
+            if col in result.columns:
+                assert "&#237;" in result.iloc[0][col]
+
     def test_nullable_integer_columns_serialize_without_decimals(self):
         config = {
             "dataset": {
@@ -610,6 +767,77 @@ class TestCleanHtmlEntities:
         assert "&amp;" in result.iloc[0]["description"]
         assert "& " in result.iloc[0]["title"]
 
+    def test_decodes_default_pandas_string_dtype(self):
+        """Regression: pandas 3 text columns are StringDtype, not object."""
+        df = pd.DataFrame({"PI_name": ["Juan Mej&#237;a-Arangure"]})
+        assert df["PI_name"].dtype != object
+        result = clean_html_entities(df, "dbgap_dataset")
+        # process_special_characters keeps í outside ASCII_ONLY_COLS
+        assert result.iloc[0]["PI_name"] == "Juan Mej\u00eda-Arangure"
+
+    def test_decodes_entities_without_semicolon(self):
+        df = pd.DataFrame({"col": ["Mej&#237a"]})
+        result = clean_html_entities(df, "geo_dataset")
+        assert result.iloc[0]["col"] == "Mej\u00eda"
+
+    def test_preserves_missing_values(self):
+        df = pd.DataFrame({"col": ["Men&#39;s", None]})
+        result = clean_html_entities(df, "dbgap_dataset")
+        assert result.iloc[0]["col"] == "Men's"
+        assert pd.isna(result.iloc[1]["col"])
+
+    @pytest.mark.parametrize("datatype", sorted(DATASET_TYPES))
+    def test_dataset_types_retain_entities_only_in_allowed_fields(
+            self, datatype):
+        df = pd.DataFrame({
+            "description": ["Keep &#39; encoded"],
+            "experimental_approaches": ["Keep &#39; encoded"],
+            "dataset_title": ["Men&#39;s Study"],
+        })
+        result = clean_html_entities(df, datatype)
+        assert result.iloc[0]["description"] == "Keep &#39; encoded"
+        assert result.iloc[0]["experimental_approaches"] == "Keep &#39; encoded"
+        assert result.iloc[0]["dataset_title"] == "Men's Study"
+
+    def test_non_dataset_types_decode_description(self):
+        df = pd.DataFrame({"description": ["Men&#39;s"]})
+        result = clean_html_entities(df, "project")
+        assert result.iloc[0]["description"] == "Men's"
+
+
+# ============================================================
+# package_dbgap_datasets (end-to-end TSV output)
+# ============================================================
+
+class TestPackageDbgapDatasetsEntities:
+    """End-to-end check that HTML entities from the dbGaP API do not reach
+    the packaged TSV outside of allowed fields."""
+
+    @pytest.mark.parametrize("dbgap_curated", [False, True])
+    def test_written_tsv_has_no_disallowed_entities(
+            self, tmp_path, dbgap_curated):
+        from unittest.mock import patch
+
+        # Round-trip through CSV to mirror how intermediate data is loaded
+        input_path = tmp_path / "dbgap_intermediate.csv"
+        build_raw_dataset_df("dbgap_dataset").to_csv(input_path, index=False)
+        df = read_csv_with_encoding_fallback(input_path)
+
+        output_path = tmp_path / "dbgap_datasets.tsv"
+        with patch("modules.package_output_data.config") as mock_config:
+            mock_config.DBGAP_OUTPUT_PATH = str(output_path)
+            mock_config.DBGAP_OUTPUT_CURATED_CLEANED = str(output_path)
+            package_dbgap_datasets(
+                df, ins_config.COLUMN_CONFIGS, dbgap_curated=dbgap_curated)
+
+        written = pd.read_csv(output_path, sep="\t", dtype=str,
+                              keep_default_na=False, encoding="utf-8")
+        assert_no_disallowed_entities(written)
+        assert written.iloc[0]["PI_name"] == ENTITY_TEXT_DECODED
+        assert "&#237;" in written.iloc[0]["description"]
+        # Loader TSVs stay plain UTF-8 without a BOM
+        assert not output_path.read_bytes().startswith(b"\xef\xbb\xbf")
+
 
 # ============================================================
 # format_datetime_columns
@@ -659,11 +887,19 @@ class TestProcessSpecialCharacters:
             "keep_col": ["caf\u00e9 \u201cquotes\u201d"],
         })
         result = process_special_characters(df, config, "test")
-        # clean_col should have accent stripped and quotes replaced
-        assert "\u00e9" not in result.iloc[0]["clean_col"]
-        assert "\u201c" not in result.iloc[0]["clean_col"]
+        # clean_col keeps the accent but has quotes replaced
+        assert result.iloc[0]["clean_col"] == "caf\u00e9 'quotes'"
         # keep_col should be untouched
-        assert "\u00e9" in result.iloc[0]["keep_col"]
+        assert result.iloc[0]["keep_col"] == "caf\u00e9 \u201cquotes\u201d"
+
+    @pytest.mark.parametrize("ascii_col", ASCII_ONLY_COLS)
+    def test_ascii_only_cols_keep_legacy_processing(self, ascii_col):
+        config = {"test": {"exclude_special_char_processing": []}}
+        text = "Mej\u00eda 37\u00b0C \u03b3 \u2264 10\u00b2"
+        df = pd.DataFrame({ascii_col: [text], "PI_name": [text]})
+        result = process_special_characters(df, config, "test")
+        assert result.iloc[0][ascii_col] == "Mejia 37C g <= 10^2"
+        assert result.iloc[0]["PI_name"] == text
 
 
 # ============================================================
@@ -699,3 +935,104 @@ class TestReadCsvWithEncodingFallback:
         result = read_csv_with_encoding_fallback(
             path, sep="\t", dtype={"value": str})
         assert result.iloc[0]["value"] == "007"
+
+    def test_strips_utf8_bom(self, tmp_path):
+        path = tmp_path / "bom.tsv"
+        path.write_text("type\tPI_name\ndataset\tMej\u00eda\n",
+                        encoding="utf-8-sig")
+        result = read_csv_with_encoding_fallback(path, sep="\t")
+        assert list(result.columns) == ["type", "PI_name"]
+        assert result.iloc[0]["PI_name"] == "Mej\u00eda"
+
+    def test_reads_excel_unicode_text_utf16(self, tmp_path):
+        """Excel 'Unicode Text' saves UTF-16 and keeps every character."""
+        path = tmp_path / "unicode_text.txt"
+        path.write_text("PI_name\tterm\nMej\u00eda\tROR\u03b3t \u2264 5\n",
+                        encoding="utf-16")
+        result = read_csv_with_encoding_fallback(path, sep="\t")
+        assert result.iloc[0]["PI_name"] == "Mej\u00eda"
+        assert result.iloc[0]["term"] == "ROR\u03b3t \u2264 5"
+
+    def test_excel_ansi_save_round_trip(self, tmp_path, capsys):
+        """Simulates Excel 'Text (Tab delimited)': cp1252 keeps accented
+        letters but turns characters like \u03b3 into '?', which is flagged."""
+        original = pd.DataFrame({"PI_name": ["Mej\u00eda"],
+                                 "term": ["ROR\u03b3t at 37\u00b0C"]})
+        text = original.to_csv(sep="\t", index=False)
+        path = tmp_path / "excel_ansi.tsv"
+        path.write_bytes(text.encode("cp1252", errors="replace"))
+
+        result = read_csv_with_encoding_fallback(path, sep="\t")
+
+        assert result.iloc[0]["PI_name"] == "Mej\u00eda"
+        assert result.iloc[0]["term"] == "ROR?t at 37\u00b0C"
+        output = capsys.readouterr().out
+        assert "Retrying with cp1252" in output
+        assert "Excel row 2, term" in output
+
+
+# ============================================================
+# warn_on_encoding_damage
+# ============================================================
+
+class TestWarnOnEncodingDamage:
+    """Tests for detection of likely Excel encoding damage."""
+
+    def test_flags_question_mark_substitution(self):
+        df = pd.DataFrame({"desc": ["fine", "Th17 ROR?t+ cells"]})
+        findings = warn_on_encoding_damage(df, "test.tsv")
+        assert [(f["source_file"], f["excel_row"], f["column"])
+                for f in findings] == [("test.tsv", 3, "desc")]
+
+    def test_flags_mojibake_and_replacement_char(self):
+        df = pd.DataFrame({"name": ["Mej\u00c3\u00ada", "It\u00e2\u20ac\u2122s",
+                                    "Mej\ufffda"]})
+        findings = warn_on_encoding_damage(df, "test.tsv")
+        assert sorted(f["excel_row"] for f in findings) == [2, 3, 4]
+
+    def test_ignores_urls_and_clean_text(self):
+        df = pd.DataFrame({
+            "url": ["https://example.org/study.cgi?study_id=phs000001"],
+            "html": ["<a href='./study.cgi?study_id=phs0'>link</a>"],
+            "text": ["Mej\u00eda \u00c9cole RORγt \u2264 5? Yes"],
+        })
+        assert warn_on_encoding_damage(df, "test.tsv") == []
+
+    def test_console_truncated_but_all_findings_returned(self, capsys):
+        df = pd.DataFrame({"desc": [f"NF?B row {i}" for i in range(15)]})
+        findings = warn_on_encoding_damage(df, "test.tsv", max_examples=10)
+        assert len(findings) == 15
+        assert capsys.readouterr().out.count("Excel row") == 10
+
+
+# ============================================================
+# write_special_character_scan
+# ============================================================
+
+class TestWriteSpecialCharacterScan:
+    """Tests for the full special character CSV report."""
+
+    def test_collects_all_findings_across_files(self, tmp_path):
+        findings = []
+        for name, rows in [("dbgap.tsv", 12), ("sra.tsv", 3)]:
+            path = tmp_path / name
+            pd.DataFrame({"title": [f"NF?B {i}" for i in range(rows)]}).to_csv(
+                path, sep="\t", index=False)
+            read_csv_with_encoding_fallback(path, sep="\t", findings=findings)
+
+        report_path = tmp_path / "reports" / "special_character_scan.csv"
+        write_special_character_scan(findings, str(report_path))
+
+        report = pd.read_csv(report_path, encoding="utf-8-sig")
+        assert list(report.columns) == [
+            "source_file", "issue", "excel_row", "column", "snippet"]
+        assert len(report) == 15
+        assert report["source_file"].str.endswith("dbgap.tsv").sum() == 12
+        assert report["source_file"].str.endswith("sra.tsv").sum() == 3
+
+    def test_writes_headers_when_clean(self, tmp_path):
+        report_path = tmp_path / "special_character_scan.csv"
+        write_special_character_scan([], str(report_path))
+        report = pd.read_csv(report_path, encoding="utf-8-sig")
+        assert report.empty
+        assert "source_file" in report.columns
