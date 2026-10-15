@@ -25,9 +25,10 @@ from modules.gather_program_data import (
     report_invalid_nofos,
     report_invalid_awards,
     validate_and_rename_columns,
+    drop_blank_rows,
     replace_blank_values,
     force_replace_comma_separation,
-    remove_extra_default_list_values,
+    warn_extra_default_list_values,
     check_for_duplicate_names,
     generate_program_id_column,
     apply_value_fix,
@@ -317,6 +318,31 @@ class TestValidateAndRenameColumns:
 # DataFrame Cleaning Helpers
 # ============================================================
 
+class TestDropBlankRows:
+
+    def test_drops_only_fully_blank_rows(self, capsys):
+        df = pd.DataFrame({
+            'program_name': ['Program1', None, '  ', ''],
+            'program_acronym': ['P1', None, '', 'P4'],
+            'cancer_type': [None, None, None, None],
+        })
+
+        result = drop_blank_rows(df)
+
+        assert result['program_acronym'].tolist() == ['P1', 'P4']
+        assert result.index.tolist() == [0, 1]
+        assert 'Dropped 2 blank' in capsys.readouterr().out
+
+    def test_no_blank_rows_prints_nothing(self, capsys):
+        df = pd.DataFrame({'program_name': ['Program1'],
+                           'program_acronym': ['P1']})
+
+        result = drop_blank_rows(df)
+
+        assert len(result) == 1
+        assert capsys.readouterr().out == ''
+
+
 class TestReplaceBlankValues:
 
     def test_replaces_none_and_empty(self):
@@ -351,24 +377,26 @@ class TestForceReplaceCommaSeparation:
         assert result['cancer_type'].tolist() == ['Type1;Type2', 'Type3; Type4']
 
 
-class TestRemoveExtraDefaultListValues:
+class TestWarnExtraDefaultListValues:
 
-    def test_removes_default_when_other_values_present(self):
+    def test_warns_without_modifying_data(self, capsys):
         df = pd.DataFrame({
             'focus_area': ['Multiple Areas;Specific Area',
                            'Specific Area',
                            'Multiple Areas'],
             'program_acronym': ['PROG1', 'PROG2', 'PROG3'],
         })
+        original = df.copy()
         blank_dict = {'focus_area': 'Multiple Areas'}
 
-        result = remove_extra_default_list_values(df, blank_dict)
+        result = warn_extra_default_list_values(df, blank_dict)
 
-        assert result['focus_area'].tolist() == [
-            'Specific Area',
-            'Specific Area',
-            'Multiple Areas',
-        ]
+        assert result is None
+        pd.testing.assert_frame_equal(df, original)
+        out = capsys.readouterr().out
+        assert 'PROG1' in out
+        assert 'PROG2' not in out
+        assert 'PROG3' not in out
 
 
 # ============================================================

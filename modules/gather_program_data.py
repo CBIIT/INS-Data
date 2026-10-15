@@ -467,6 +467,19 @@ def validate_and_rename_columns(df: pd.DataFrame,
 
 
 
+def drop_blank_rows(df: pd.DataFrame) -> pd.DataFrame:
+    """Drop rows where every column is blank, whitespace-only, or NaN."""
+
+    blank_mask = df.replace(r'^\s*$', pd.NA, regex=True).isna().all(axis=1)
+
+    if blank_mask.any():
+        print(f"---\nNote: Dropped {blank_mask.sum()} blank program row(s) "
+              f"from Qualtrics input.")
+
+    return df[~blank_mask].reset_index(drop=True)
+
+
+
 def replace_blank_values(df: pd.DataFrame, blank_filler_dict: dict):
     """Replace blank values within specific columns using config file."""
 
@@ -607,33 +620,23 @@ def generate_program_id_column(df: pd.DataFrame) -> pd.DataFrame:
 
 
 
-def remove_extra_default_list_values(df: pd.DataFrame, blank_filler_dict: dict):
-    """Remove default values from lists when those values should be mutually
-    exclusive with any other values. E.g. 'Multiple Cancer Types' should be 
-    removed when other cancer types are also listed. 
+def warn_extra_default_list_values(df: pd.DataFrame, blank_filler_dict: dict) -> None:
+    """Print a warning when a default value appears alongside other values in
+    a list-like column. E.g. 'Multiple Cancer Types' listed with other cancer
+    types. Does not modify the data.
     Args:
         df (pd.DataFrame): Input pandas dataframe
         blank_filler_dict (dict): Dictionary containing column names and default
         values. Reusing from similar `replace_blank_values` function.
     """
 
-    # Iterate through rows in df
-    for index, row in df.iterrows():
-
-        # Iterate through dictionary of columns and values from config
+    for _, row in df.iterrows():
         for col_name, default_value in blank_filler_dict.items():
-            # Separate strings by semicolons to get values
             values = row[col_name].split(';')
 
-            # Remove mutually exclusive default value if present with others
             if default_value in values and len(values) > 1:
-                print(f"Removed extra {default_value} in {row['program_acronym']}")
-                values.remove(default_value)
-
-            # Rejoin remaining values into semicolon separated string
-            df.loc[index, col_name] = ';'.join(values)
-
-    return df
+                print(f"Warning: Default '{default_value}' listed with other values in "
+                      f"{col_name} for {row['program_acronym']}")
 
 
 
@@ -663,6 +666,9 @@ def load_and_clean_programs(csv_filepath: str, col_dict: dict) -> tuple[bool, pd
     # Drop obsolete columns specified in config.py
     df = drop_obsolete_columns(df, obsolete_str="obsolete")
 
+    # Must run before blank values are filled with defaults
+    df = drop_blank_rows(df)
+
     # Replace specific string values with others defined in config
     for old_value, new_value in config.PROGRAM_VALUE_REPLACEMENTS.items():
         # Use regex=True to enable regular expression replacement
@@ -677,8 +683,8 @@ def load_and_clean_programs(csv_filepath: str, col_dict: dict) -> tuple[bool, pd
     # Brute force replacement of commas with semicolons in list-like cols
     df = force_replace_comma_separation(df, ['focus_area', 'cancer_type', 'doc'])
 
-    # Remove mutually exclusive default values if present in list-like cols
-    df = remove_extra_default_list_values(df, config.PROGRAM_BLANK_REPLACEMENTS)
+    # Warn if default values are listed alongside other values in list-like cols
+    warn_extra_default_list_values(df, config.PROGRAM_BLANK_REPLACEMENTS)
 
     # Remove leading/trailing whitespace from program names
     df['program_name'] = df['program_name'].str.strip()
