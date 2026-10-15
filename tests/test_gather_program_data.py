@@ -25,6 +25,7 @@ from modules.gather_program_data import (
     report_invalid_nofos,
     report_invalid_awards,
     validate_and_rename_columns,
+    drop_import_id_rows,
     drop_blank_rows,
     replace_blank_values,
     force_replace_comma_separation,
@@ -317,6 +318,29 @@ class TestValidateAndRenameColumns:
 # ============================================================
 # DataFrame Cleaning Helpers
 # ============================================================
+
+class TestDropImportIdRows:
+
+    def test_drops_only_import_id_rows(self, capsys):
+        df = pd.DataFrame({
+            'program_name': ['{"ImportId":"QID1_TEXT"}', 'Program1'],
+            'program_acronym': ['{"ImportId":"QID17_TEXT"}', 'P1'],
+        })
+
+        result = drop_import_id_rows(df)
+
+        assert result['program_acronym'].tolist() == ['P1']
+        assert 'Dropped 1 Qualtrics ImportId' in capsys.readouterr().out
+
+    def test_keeps_rows_without_import_id(self, capsys):
+        df = pd.DataFrame({'program_name': ['Program1', None],
+                           'program_acronym': ['P1', None]})
+
+        result = drop_import_id_rows(df)
+
+        assert len(result) == 2
+        assert capsys.readouterr().out == ''
+
 
 class TestDropBlankRows:
 

@@ -467,6 +467,21 @@ def validate_and_rename_columns(df: pd.DataFrame,
 
 
 
+def drop_import_id_rows(df: pd.DataFrame) -> pd.DataFrame:
+    """Drop Qualtrics export metadata rows, e.g. '{"ImportId":"QID1_TEXT"}'."""
+
+    import_id_mask = df.apply(
+        lambda col: col.astype(str).str.startswith('{"ImportId"', na=False)
+    ).all(axis=1)
+
+    if import_id_mask.any():
+        print(f"---\nNote: Dropped {import_id_mask.sum()} Qualtrics ImportId "
+              f"metadata row(s) from Qualtrics input.")
+
+    return df[~import_id_mask].reset_index(drop=True)
+
+
+
 def drop_blank_rows(df: pd.DataFrame) -> pd.DataFrame:
     """Drop rows where every column is blank, whitespace-only, or NaN."""
 
@@ -665,6 +680,8 @@ def load_and_clean_programs(csv_filepath: str, col_dict: dict) -> tuple[bool, pd
 
     # Drop obsolete columns specified in config.py
     df = drop_obsolete_columns(df, obsolete_str="obsolete")
+
+    df = drop_import_id_rows(df)
 
     # Must run before blank values are filled with defaults
     df = drop_blank_rows(df)
