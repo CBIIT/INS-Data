@@ -85,6 +85,7 @@ def mock_config():
         mock.URL_HEALTH_SLOW_THRESHOLD_FRACTION = 0.5
         mock.URL_HEALTH_YELLOW_REDIRECT_HOPS = 2
         mock.URL_HEALTH_USER_AGENT = "test-agent"
+        mock.URL_HEALTH_ID_COLUMNS = ["id"]
         yield mock
 
 
@@ -132,6 +133,21 @@ class TestReadTargetUrls:
                         "https://d.gov"]
         assert pairs[0][1] == "datasets.tsv | url | row 2"
         assert pairs[3][1] == "datasets.tsv | url | row 4"
+
+    def test_appends_first_non_empty_record_id(self, tmp_path):
+        path = tmp_path / "program.tsv"
+        path.write_text(
+            "program_id\tprogram_acronym\tprogram_link\n"
+            "pin\tPIN\thttps://a.gov\n"
+            "cttc\t\thttps://b.gov\n",
+            encoding="utf-8",
+        )
+        pairs = read_target_urls(str(path), ["program_link"],
+                                 ["program_acronym", "program_id", "bogus"])
+        assert [loc for _, loc in pairs] == [
+            "program.tsv | program_link | row 2 | PIN",
+            "program.tsv | program_link | row 3 | cttc",
+        ]
 
     def test_missing_file_returns_empty(self, tmp_path, capsys):
         result = read_target_urls(str(tmp_path / "nope.tsv"), ["url"])
@@ -476,7 +492,9 @@ def summary_rows():
     return [
         {'original_url': 'https://a.gov', 'classification': 'R',
          'reason': 'timeout',
-         'source_locations': 'p.tsv | link | row 2; p.tsv | link | row 3'},
+         'source_locations': ('p.tsv | link | row 2 | PIN; '
+                              'p.tsv | data | row 2 | PIN; '
+                              'p.tsv | link | row 3 | TLC')},
         {'original_url': 'https://b.gov', 'classification': 'Y',
          'reason': 'redirect to homepage; slow response (3.2s)',
          'source_locations': 'p.tsv | link | row 4; d.tsv | url | row 2'},
@@ -509,10 +527,11 @@ class TestSummaryGrouping:
 
     def test_group_flagged_by_file(self, summary_rows):
         groups = group_flagged_by_file(summary_rows)
-        assert groups['p.tsv']['R'] == {'timeout': [('https://a.gov', '')]}
+        assert groups['p.tsv']['R'] == {
+            'timeout': [('https://a.gov', '', ['PIN', 'TLC'])]}
         assert groups['d.tsv']['Y'] == {
-            'redirect to homepage': [('https://b.gov', '')],
-            'slow response': [('https://b.gov', '3.2s')],
+            'redirect to homepage': [('https://b.gov', '', [])],
+            'slow response': [('https://b.gov', '3.2s', [])],
         }
         assert 'G' not in groups['d.tsv']
 
@@ -522,7 +541,8 @@ class TestSummaryGrouping:
         assert out.index("URL HEALTH SUMMARY") < out.index("  p.tsv\n")
         assert out.index("  p.tsv\n") < out.index("  d.tsv\n")
         assert "RED (1 URLs)" in out
-        assert "      - https://b.gov  [3.2s]" in out
+        assert "      - https://a.gov  (PIN, TLC)" in out
+        assert "      - https://b.gov  [3.2s]\n" in out
         assert "No Red or Yellow URLs." in out.split("  g.tsv\n")[1]
 
 
@@ -567,3 +587,5 @@ class TestCheckUrlHealth:
             "https://d.gov": 'G',
         }
         assert by_url["https://a.gov"]['occurrence_count'] == '2'
+        assert by_url["https://a.gov"]['source_locations'] == (
+            "datasets.tsv | url | row 2 | 1; datasets.tsv | url | row 4 | 3")
