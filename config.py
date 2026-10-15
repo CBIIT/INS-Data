@@ -110,10 +110,11 @@ QUALTRICS_COLS = {
     "NIH Contact (Program Officer/Program Director)": "contact_nih",
     "NIH Contact (Program Officer/Program Director) email": "contact_nih_email",
     "NOFO number (eg. format as \"RFA-CA-00-000\") (If more than one, separate with ; semicolon)": "nofo",
-    "Grant/Award number {parent award FORMAT LL#CA######, eg. UG3CA260607} (If more than one, separate with ; semicolon)": "award",
+    "*** ONLY needed if there is no NOFO number available*** \nGrant/Award number {parent award FORMAT LL#CA######, eg. UG3CA260607} (If more than one, separate with ; semicolon)": "award",
     "Link to program website": "program_link",
     "Link to data or DCC if available": "data_link",
     "What type of cancer is the primary focus of the program? (Check all that\napply)": "cancer_type",
+    "Please provide your name / email for follow-up from NCI Office of Data Sharing, as well as any additional comments. Thank you!": "comments",
     "Login ID": "login_id"
 }
 
@@ -889,6 +890,11 @@ URL_HEALTH_TARGETS = {
     # GEO_OUTPUT_PATH: ['dataset_source_url', 'study_links'],
     # SRA_OUTPUT_CURATED_CLEANED: ['dataset_source_url', 'study_links'],
 }
+
+# Record identifier columns added to each URL's source location so reviewers
+# know which record to fix. First non-empty value in this order is used
+URL_HEALTH_ID_COLUMNS = ['program_acronym', 'program_id',
+                         'dataset_source_id', 'resource_source_id']
 
 # Per-request timeout in seconds
 URL_HEALTH_TIMEOUT_SECONDS = 10
