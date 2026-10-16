@@ -19,19 +19,126 @@ import re
 import config
 
 
-def read_csv_with_encoding_fallback(filepath, **kwargs):
-    """Read a CSV/TSV trying utf-8 first, falling back to cp1252.
+# Dataset-like datatypes, all mapped to the general 'dataset' node type
+DATASET_TYPES = {'dbgap_dataset',
+                 'geo_dataset',
+                 'sra_dataset',
+                 'cedcd_dataset',
+                 'ctd2_dataset',
+                 'dceg_dataset',
+                 'nccr_dataset',
+                 'dctd_dataset'}
 
-    Curated files are often edited/saved in Excel, which writes files using
-    the system codepage (cp1252 on Windows) rather than utf-8, causing
-    UnicodeDecodeError on bytes like 0xa0 (non-breaking space) or 0x96 (en dash).
+# Dataset fields allowed to retain HTML entities for rich-text display
+DATASET_HTML_ENTITY_EXCLUDE_COLS = ['description', 'experimental_approaches']
+
+# Fields that keep legacy ASCII-only character processing
+ASCII_ONLY_COLS = ['description', 'experimental_approaches']
+
+# Non-ASCII symbols kept in output alongside accented Latin and Greek letters
+PRESERVED_SYMBOLS = set('°±×µ≤≥¹²³⁰⁴⁵⁶⁷⁸⁹₀₁₂₃₄₅₆₇₈₉')
+
+# Excel ANSI saves replace unsupported characters with '?' (e.g. RORγt -> ROR?t)
+SUBSTITUTED_CHAR_PATTERN = re.compile(r'[^\W\d_]\?[^\W\d_]')
+
+# UTF-8 bytes misread as cp1252 (e.g. é -> Ã©, ’ -> â€™)
+CP1252_CONTINUATION_CHARS = bytes(range(0x80, 0xC0)).decode(
+    'cp1252', errors='ignore')
+MOJIBAKE_PATTERN = re.compile(
+    '[\u00c2-\u00df][' + re.escape(CP1252_CONTINUATION_CHARS) + ']|\u00e2\u20ac')
+
+# URLs legitimately contain '?' (e.g. study.cgi?study_id=...)
+URL_TOKEN_PATTERN = re.compile(r'\S*(?:://|www\.|[=/])\S*')
+
+
+def warn_on_encoding_damage(df, source, max_examples=10):
+    """Print warnings for text likely damaged by an Excel save and return
+    a list of finding dicts (source_file, issue, excel_row, column, snippet)."""
+
+    checks = {
+        "'?' between letters (character likely replaced by Excel)":
+            SUBSTITUTED_CHAR_PATTERN,
+        "garbled characters (UTF-8 text read as cp1252)": MOJIBAKE_PATTERN,
+        "U+FFFD replacement characters": re.compile('\ufffd'),
+    }
+
+    findings = []
+    for issue, pattern in checks.items():
+        issue_findings = []
+        for col in df.columns:
+            if not (pd.api.types.is_object_dtype(df[col])
+                    or pd.api.types.is_string_dtype(df[col])):
+                continue
+            for idx, value in df[col].items():
+                if not isinstance(value, str):
+                    continue
+                text = URL_TOKEN_PATTERN.sub(' ', value)
+                match = pattern.search(text)
+                if match:
+                    snippet = text[max(0, match.start() - 20):match.end() + 20]
+                    issue_findings.append({
+                        'source_file': str(source),
+                        'issue': issue,
+                        # Header is Excel row 1, so first data row is row 2
+                        'excel_row': idx + 2,
+                        'column': col,
+                        'snippet': snippet,
+                    })
+
+        if issue_findings:
+            print(f"WARNING: {len(issue_findings)} value(s) in {source} "
+                  f"contain {issue}. Fix in the curated file and re-run:")
+            for finding in issue_findings[:max_examples]:
+                print(f"    Excel row {finding['excel_row']}, "
+                      f"{finding['column']}: ...{finding['snippet']}...")
+        findings.extend(issue_findings)
+
+    return findings
+
+
+
+def write_special_character_scan(findings, report_path):
+    """Save every special character finding to a CSV report, one per row."""
+
+    columns = ['source_file', 'issue', 'excel_row', 'column', 'snippet']
+    os.makedirs(os.path.dirname(report_path), exist_ok=True)
+    # BOM so snippets with accents/symbols display correctly in Excel
+    pd.DataFrame(findings, columns=columns).to_csv(
+        report_path, index=False, encoding='utf-8-sig')
+    print(f"Special character scan: {len(findings)} finding(s) saved to "
+          f"{report_path}")
+
+
+
+def read_csv_with_encoding_fallback(filepath, findings=None, **kwargs):
+    """Read a curated CSV/TSV using the encoding Excel may have saved it in,
+    then warn about likely Excel encoding damage. Findings are appended to
+    the optional findings list for reporting.
+
+    - UTF-16 (has BOM): Excel 'Unicode Text' save. Keeps all characters.
+    - UTF-8, with or without BOM: pipeline outputs or Excel 'CSV UTF-8'.
+    - cp1252 fallback: Excel 'Text (Tab delimited)' save. Accented letters
+      survive, but Excel has already replaced characters outside cp1252
+      (e.g. β, ≤) with '?'.
     """
-    try:
-        return pd.read_csv(filepath, encoding='utf-8', **kwargs)
-    except UnicodeDecodeError:
-        print(f"WARNING: {filepath} is not valid utf-8 (likely saved from "
-              f"Excel). Retrying with cp1252 encoding.")
-        return pd.read_csv(filepath, encoding='cp1252', **kwargs)
+    with open(filepath, 'rb') as f:
+        bom = f.read(2)
+
+    if bom in (b'\xff\xfe', b'\xfe\xff'):
+        df = pd.read_csv(filepath, encoding='utf-16', **kwargs)
+    else:
+        try:
+            df = pd.read_csv(filepath, encoding='utf-8-sig', **kwargs)
+        except UnicodeDecodeError:
+            print(f"WARNING: {filepath} is not valid utf-8 (likely saved from "
+                  f"Excel). Retrying with cp1252 encoding.")
+            df = pd.read_csv(filepath, encoding='cp1252', **kwargs)
+
+    found = warn_on_encoding_damage(df, filepath)
+    if findings is not None:
+        findings.extend(found)
+
+    return df
 
 
 
@@ -40,18 +147,8 @@ def add_type_column(df, datatype):
 
     df_with_type = df.copy()
     
-    # Define dataset types that should be mapped to the general 'dataset' type
-    dataset_types = {'dbgap_dataset', 
-                     'geo_dataset',
-                     'sra_dataset',
-                     'cedcd_dataset', 
-                     'ctd2_dataset',
-                     'dceg_dataset',
-                     'nccr_dataset',
-                     'dctd_dataset'}
-    
     # Map to 'dataset' if in the list, otherwise keep the original value
-    df_with_type['type'] = 'dataset' if datatype in dataset_types else datatype
+    df_with_type['type'] = 'dataset' if datatype in DATASET_TYPES else datatype
     
     return df_with_type
 
@@ -131,16 +228,21 @@ def validate_first_columns(df, column_configs, datatype):
 
 
 
-def replace_defined_characters(text):
-    """Use a mappping to replace specific non-standard characters in text. Any
-    non-ascii characters not included here will be dropped."""
+def is_preserved_character(char):
+    """True for non-ASCII characters kept in output: accented Latin letters,
+    Greek letters, and PRESERVED_SYMBOLS."""
 
-    # Return NaN and non-string values as-is
-    if pd.isna(text) or not isinstance(text, str):
-        return text
+    if char in PRESERVED_SYMBOLS:
+        return True
+    if not unicodedata.category(char).startswith('L'):
+        return False
+    code = ord(char)
+    return 0x00C0 <= code <= 0x024F or 0x0370 <= code <= 0x03FF
 
-    # Define translation table to replace characters
-    translation_table = str.maketrans({
+
+
+# Mapping of specific non-standard characters to replacements
+CHARACTER_REPLACEMENTS = {
         '\"'    : '\'',     # STANDARD double quotes - replace with single quote
         '\u2028': ' ',      # Line Separator (LS) - replace with space
         '\u2029': ' ',      # Paragraph Separator (PS) - replace with space
@@ -190,23 +292,47 @@ def replace_defined_characters(text):
         '\u2265': '>=',     # Greater than or equal to
 
         # Add mappings here in the future as needed
-        })
+        }
 
-    # Use translate only for strings
-    replaced_text = (text.translate(translation_table) 
-                     if isinstance(text, str) else text)
-    
-    # Use translate only for strings
-    return replaced_text
+ASCII_TRANSLATION_TABLE = str.maketrans(CHARACTER_REPLACEMENTS)
+PRESERVING_TRANSLATION_TABLE = str.maketrans(
+    {char: replacement for char, replacement in CHARACTER_REPLACEMENTS.items()
+     if not is_preserved_character(char)})
 
 
 
-def normalize_encoding(text):
-    """Normalizes text encoding for consistency and compatibility."""
+def replace_defined_characters(text, preserve_characters=False):
+    """Use a mappping to replace specific non-standard characters in text.
+    With preserve_characters, accented/Greek letters and PRESERVED_SYMBOLS
+    are left in place instead of being mapped to ASCII."""
 
     # Return NaN and non-string values as-is
     if pd.isna(text) or not isinstance(text, str):
         return text
+
+    if preserve_characters:
+        return text.translate(PRESERVING_TRANSLATION_TABLE)
+    return text.translate(ASCII_TRANSLATION_TABLE)
+
+
+
+def normalize_encoding(text, preserve_characters=False):
+    """Normalizes text encoding for consistency and compatibility. By default
+    reduces text to ASCII. With preserve_characters, keeps accented/Greek
+    letters and PRESERVED_SYMBOLS, reducing only other characters to ASCII."""
+
+    # Return NaN and non-string values as-is
+    if pd.isna(text) or not isinstance(text, str):
+        return text
+
+    if preserve_characters:
+        # NFC joins base letter + combining accent into one character (e.g. í)
+        text = unicodedata.normalize('NFC', text)
+        return ''.join(
+            char if ord(char) < 128 or is_preserved_character(char)
+            else (unicodedata.normalize('NFD', char)
+                  .encode('ascii', 'ignore').decode('utf-8'))
+            for char in text)
 
     # Encode and decode text through an ascii "filter" to normalize
     try:
@@ -226,6 +352,8 @@ def process_special_characters(df, column_configs, datatype):
     """
     Cleans a DataFrame by normalizing special characters and encoding.
     Excludes fields listed in config as 'exclude_special_char_processing'.
+    ASCII_ONLY_COLS are reduced to ASCII; other fields keep accented/Greek
+    letters and PRESERVED_SYMBOLS.
 
     Args:
         df (pd.DataFrame): Input DataFrame.
@@ -248,11 +376,12 @@ def process_special_characters(df, column_configs, datatype):
                        if col not in exclude_cols]
     
     for col in cols_to_process:
+        preserve = col not in ASCII_ONLY_COLS
         df_cleaned[col] = (df_cleaned[col]
                             # Replace specific non-standard characters
-                           .map(replace_defined_characters)
+                           .map(lambda x: replace_defined_characters(x, preserve))
                            # General normalization to utf-8 encoding
-                           .map(normalize_encoding))
+                           .map(lambda x: normalize_encoding(x, preserve)))
 
     return df_cleaned
 
@@ -292,19 +421,24 @@ def remove_html_tags_from_df(df, column_configs, datatype):
 
 
 def clean_html_entities(df, datatype):
-    """Replaces HTML character entities (&#8217) with unicode characters."""
+    """Replaces HTML character entities (&#8217) with unicode characters.
+    Must run before process_special_characters so decoded characters get the
+    same character handling as other text."""
     
     exclude_cols = []
 
-    # Retain hmtl encoding and characters for dataset display
-    if datatype == 'dbgap_dataset':
-        exclude_cols = ['description']
+    # Retain html encoding and characters for dataset display
+    if datatype in DATASET_TYPES:
+        exclude_cols = DATASET_HTML_ENTITY_EXCLUDE_COLS
 
     for col in df.columns:
-        # Check for string columns
-        if col not in exclude_cols and df[col].dtype == 'object':
+        # pandas 3 text columns use StringDtype rather than object
+        if col not in exclude_cols and (
+                pd.api.types.is_object_dtype(df[col])
+                or pd.api.types.is_string_dtype(df[col])):
             # Replace htmls with unicode characters
-            df[col] = df[col].astype(str).apply(html.unescape)
+            df[col] = df[col].map(
+                lambda x: html.unescape(x) if isinstance(x, str) else x)
 
     return df
 
@@ -495,9 +629,9 @@ def standardize_data(df, column_configs, datatype):
     # Edit data to standardize
     df = add_type_column(df, datatype)
     df = reorder_columns(df, column_configs, datatype)
+    df = clean_html_entities(df, datatype)
     df = process_special_characters(df, column_configs, datatype)
     df = remove_html_tags_from_df(df, column_configs, datatype)
-    df = clean_html_entities(df,datatype)
     df = validate_listlike_columns(df, column_configs, datatype)
     df = format_datetime_columns(df, column_configs, datatype)
     df = validate_and_clean_unique_nodes(df, column_configs, datatype)
@@ -1061,6 +1195,9 @@ def package_output_data():
     # Single data model dict defined in config
     column_configs = config.COLUMN_CONFIGS 
 
+    # Special character findings from all curated files loaded below
+    special_char_findings = []
+
     # Load programs data
     if os.path.exists(config.PROGRAMS_INTERMED_PATH):
         programs_exist = True
@@ -1102,7 +1239,8 @@ def package_output_data():
         dbgap_datasets_exist = True
         dbgap_curated = True
         df_dbgap_datasets = read_csv_with_encoding_fallback(
-            config.DBGAP_CURATED_INTERMED_PATH, sep='\t')
+            config.DBGAP_CURATED_INTERMED_PATH, sep='\t',
+            findings=special_char_findings)
         df_dbgap_datasets = backfill_curated_dbgap_accessions(
             df_dbgap_datasets, config.DBGAP_INTERMED_PATH)
         print(f"Loaded dbGaP Datasets (Curated) file from {config.DBGAP_CURATED_INTERMED_PATH}")
@@ -1131,7 +1269,8 @@ def package_output_data():
         sra_datasets_exist = True
         sra_curated = True
         df_sra_datasets = read_csv_with_encoding_fallback(
-            config.SRA_CURATED_INTERMED_PATH, sep='\t', dtype={'dataset_pmid':str})
+            config.SRA_CURATED_INTERMED_PATH, sep='\t', dtype={'dataset_pmid':str},
+            findings=special_char_findings)
         print(f"Loaded SRA Datasets (Curated) file from {config.SRA_CURATED_INTERMED_PATH}")
     elif os.path.exists(config.SRA_INTERMED_PATH):
         sra_datasets_exist = True
@@ -1157,7 +1296,8 @@ def package_output_data():
     if os.path.exists(config.DCEG_CURATED_INTERMED_PATH):
         dceg_datasets_exist = True
         df_dceg_datasets = read_csv_with_encoding_fallback(
-            config.DCEG_CURATED_INTERMED_PATH, sep='\t')
+            config.DCEG_CURATED_INTERMED_PATH, sep='\t',
+            findings=special_char_findings)
         print(f"Loaded DCEG Cohorts file from {config.DCEG_CURATED_INTERMED_PATH}")
     else:
         dceg_datasets_exist = False
@@ -1167,7 +1307,8 @@ def package_output_data():
     if os.path.exists(config.NCCR_CURATED_INTERMED_PATH):
         nccr_datasets_exist = True
         df_nccr_datasets = read_csv_with_encoding_fallback(
-            config.NCCR_CURATED_INTERMED_PATH, sep='\t')
+            config.NCCR_CURATED_INTERMED_PATH, sep='\t',
+            findings=special_char_findings)
         print(f"Loaded NCCR Datasets file from {config.NCCR_CURATED_INTERMED_PATH}")
     else:
         nccr_datasets_exist = False
@@ -1177,7 +1318,8 @@ def package_output_data():
     if os.path.exists(config.DCTD_CURATED_INTERMED_PATH):
         dctd_datasets_exist = True
         df_dctd_datasets = read_csv_with_encoding_fallback(
-            config.DCTD_CURATED_INTERMED_PATH, sep='\t')
+            config.DCTD_CURATED_INTERMED_PATH, sep='\t',
+            findings=special_char_findings)
         print(f"Loaded DCTD Datasets file from {config.DCTD_CURATED_INTERMED_PATH}")
     else:
         dctd_datasets_exist = False
@@ -1188,7 +1330,8 @@ def package_output_data():
         ctd2_datasets_exist = True
         ctd2_curated = True
         df_ctd2_datasets = read_csv_with_encoding_fallback(
-            config.CTD2_DATASET_CURATED_LOCKED_PATH, sep='\t')
+            config.CTD2_DATASET_CURATED_LOCKED_PATH, sep='\t',
+            findings=special_char_findings)
         print(f"Loaded CTD2 Datasets (Locked Curation) file from {config.CTD2_DATASET_CURATED_LOCKED_PATH}")
     elif os.path.exists(config.CTD2_DATASET_INTERMED_CSV):
         ctd2_datasets_exist = True
@@ -1207,6 +1350,9 @@ def package_output_data():
     else:
         ctd2_filedata_exist = False
         print(f"No CTD2 file metadata found.")
+
+    write_special_character_scan(special_char_findings,
+                                 config.SPECIAL_CHARACTER_SCAN_PATH)
 
     # Special handling
     print(f"\n\nApplying special handling steps...")

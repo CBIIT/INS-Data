@@ -888,11 +888,14 @@ def clean_newlines(df:pd.DataFrame, exclude_cols:list=None):
     newline_pattern = '[' + ''.join(newline_chars) + ']+'
 
     for col in df.columns:
-        # Check for string columns
-        if col not in exclude_cols and df[col].dtype == 'object':
+        # pandas 3 text columns use StringDtype rather than object
+        if col not in exclude_cols and (
+                pd.api.types.is_object_dtype(df[col])
+                or pd.api.types.is_string_dtype(df[col])):
             # Replace newlines with blank space
-            df[col] = df[col].astype(str).apply(
-                lambda x: re.sub(newline_pattern, '', x).strip())
+            df[col] = df[col].map(
+                lambda x: re.sub(newline_pattern, '', x).strip()
+                if isinstance(x, str) else x)
 
     return df
 
@@ -915,10 +918,13 @@ def clean_html_entities(df, exclude_cols=None):
         exclude_cols = []
 
     for col in df.columns:
-        # Check for string columns
-        if col not in exclude_cols and df[col].dtype == 'object':
+        # pandas 3 text columns use StringDtype rather than object
+        if col not in exclude_cols and (
+                pd.api.types.is_object_dtype(df[col])
+                or pd.api.types.is_string_dtype(df[col])):
             # Replace htmls with unicode characters
-            df[col] = df[col].astype(str).apply(html.unescape)
+            df[col] = df[col].map(
+                lambda x: html.unescape(x) if isinstance(x, str) else x)
 
     return df
 

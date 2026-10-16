@@ -24,6 +24,8 @@ from modules.gather_dbgap_data import (
     get_dbgap_url,
     join_list,
     clean_dbgap_sstr_metadata,
+    clean_newlines,
+    clean_html_entities,
 )
 
 
@@ -261,6 +263,40 @@ class TestCleanDbgapSstrMetadata:
         assert result["sample_count"] == 275
         assert "GRU" in result["limitations_for_reuse"]
         assert "WGS" in result["assay_method"]
+
+
+# ============================================================
+# clean_newlines / clean_html_entities
+# ============================================================
+
+class TestCleanNewlines:
+    """Tests for newline removal on default pandas string columns."""
+
+    def test_removes_newlines_from_default_string_dtype(self):
+        df = pd.DataFrame({"col": ["line\none", None]})
+        result = clean_newlines(df)
+        assert result.iloc[0]["col"] == "lineone"
+        assert pd.isna(result.iloc[1]["col"])
+
+
+class TestCleanHtmlEntities:
+    """Tests for HTML entity decoding of dbGaP API values."""
+
+    def test_decodes_default_string_dtype_and_excludes_columns(self):
+        """Regression: pandas 3 text columns are StringDtype, not object."""
+        df = pd.DataFrame({
+            "name": ["Children&#39;s Oncology Group"],
+            "principal_investigator": ["Juan Mej&#237;a-Arangure"],
+            "description": ["Keep &#39; encoded"],
+            "other": [None],
+        })
+        result = clean_html_entities(df, exclude_cols=["description"])
+        assert result.iloc[0]["name"] == "Children's Oncology Group"
+        # Intermediate CSV keeps í; packaging keeps it outside ASCII_ONLY_COLS
+        assert result.iloc[0]["principal_investigator"] == (
+            "Juan Mej\u00eda-Arangure")
+        assert result.iloc[0]["description"] == "Keep &#39; encoded"
+        assert pd.isna(result.iloc[0]["other"])
 
 
 # ============================================================
