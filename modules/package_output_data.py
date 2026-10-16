@@ -516,6 +516,11 @@ def package_programs(df_programs, column_configs):
 
     print(f"---\nFinalizing TSV for program data...")
 
+    # TEMPORARY: Add blank program_active_status until real values are sourced
+    # Keep real column if present
+    if 'program_active_status' not in df_programs.columns:
+        df_programs = df_programs.assign(program_active_status='')
+
     # Standardize and validate data
     df_programs_output = standardize_data(df_programs, column_configs, 
                                         datatype='program')

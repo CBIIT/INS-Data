@@ -309,6 +309,7 @@ COLUMN_CONFIGS = {
             'award': 'award',
             'program_link': 'program_link',
             'data_link': 'data_link',
+            'program_active_status': 'program_active_status',
         },
         # List of any list-like columns that need semicolon separators
         'list_like_cols': ['focus_area', 'cancer_type', 'program_doc'],
