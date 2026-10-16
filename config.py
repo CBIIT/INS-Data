@@ -13,8 +13,8 @@ from datetime import datetime
 # Inputs and outputs will use this versioning
 # Version must match suffix in input filename
 
-QUALTRICS_VERSION = "2026-01-30"    # <-- CHANGE VERSION HERE
-QUALTRICS_TYPE = "manual_fix"              # <-- Define "raw" or "manual_fix" type of the input csv
+QUALTRICS_VERSION = "2026-10-15"    # <-- CHANGE VERSION HERE
+QUALTRICS_TYPE = "raw"              # <-- Define "raw" or "manual_fix" type of the input csv
 
 # Version of bulk download from iCite
 ICITE_VERSION = "2026-09"           # <-- CHANGE VERSION HERE
@@ -879,12 +879,12 @@ else:
 URL_HEALTH_TARGETS = {
     # URLs within curated files are high-priority targets for the check
     PROGRAMS_OUTPUT_PATH: ['program_link', 'data_link'],
-    DCEG_OUTPUT_PATH: ['dataset_source_url', 'study_links'],
-    NCCR_OUTPUT_PATH: ['dataset_source_url', 'study_links'],
-    DCTD_OUTPUT_PATH: ['dataset_source_url', 'study_links'],
-    CEDCD_OUTPUT_PATH: ['dataset_source_url', 'study_links'],
-    CTD2_DATASET_OUTPUT_PATH: ['study_links'],
-    RESOURCES_OUTPUT_PATH: ['resource_source_url'],
+    # DCEG_OUTPUT_PATH: ['dataset_source_url', 'study_links'],
+    # NCCR_OUTPUT_PATH: ['dataset_source_url', 'study_links'],
+    # DCTD_OUTPUT_PATH: ['dataset_source_url', 'study_links'],
+    # CEDCD_OUTPUT_PATH: ['dataset_source_url', 'study_links'],
+    # CTD2_DATASET_OUTPUT_PATH: ['study_links'],
+    # RESOURCES_OUTPUT_PATH: ['resource_source_url'],
     # URLs within files with many redundant, templated URLs are omitted by default
     # DBGAP_OUTPUT_CURATED_CLEANED: ['dataset_source_url', 'study_links'],
     # GEO_OUTPUT_PATH: ['dataset_source_url', 'study_links'],
