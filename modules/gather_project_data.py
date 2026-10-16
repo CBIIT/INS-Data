@@ -164,9 +164,8 @@ def get_list_values(df, field_name):
     """Collects unique values within a field and lists them as a 
     semicolon-separated string."""
 
-    # Filter for string values if only strings are valid
-    if not pd.api.types.is_string_dtype(df[field_name]):
-        df = df[df[field_name].apply(lambda x: isinstance(x, str))]
+    # Keep only string values; pandas 3 string columns can still hold NaN
+    df = df[df[field_name].apply(lambda x: isinstance(x, str))]
 
     # Handle missing values and force values to string before sorting
     value = df.groupby(['queried_project_id'])[field_name].unique().apply(
