@@ -14,7 +14,7 @@ from datetime import datetime
 # Version must match suffix in input filename
 
 QUALTRICS_VERSION = "2026-10-15"    # <-- CHANGE VERSION HERE
-QUALTRICS_TYPE = "raw"              # <-- Define "raw" or "manual_fix" type of the input csv
+QUALTRICS_TYPE = "manual_fix"              # <-- Define "raw" or "manual_fix" type of the input csv
 
 # Version of bulk download from iCite
 ICITE_VERSION = "2026-09"           # <-- CHANGE VERSION HERE
