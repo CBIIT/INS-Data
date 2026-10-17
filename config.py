@@ -44,7 +44,7 @@ RESOURCES_VERSION = None               # <-- Optional. Pin a date (e.g. "2026-06
 # An override date can be used instead of today's date for pulling and saving data versions
 # This is useful when running downstream modules on grants data gathered before today
 
-OVERRIDE_DATE = None               # <-- Optional. Define override date (e.g. "2023-12-14"). Default None.
+OVERRIDE_DATE = "2026-10-16"               # <-- Optional. Define override date (e.g. "2023-12-14"). Default None.
 
 
 
