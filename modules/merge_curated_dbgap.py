@@ -50,7 +50,8 @@ def load_dbgap_tsv(filepath: str) -> pd.DataFrame:
     if not os.path.exists(filepath):
         raise FileNotFoundError(f"File not found: {filepath}")
 
-    df = pd.read_csv(filepath, sep='\t', dtype=str, keep_default_na=False)
+    df = pd.read_csv(filepath, sep='\t', dtype=str, keep_default_na=False,
+                     encoding='utf-8-sig')
 
     required_cols = {MERGE_KEY, ACCESSION_COL}
     missing_cols = required_cols - set(df.columns)
@@ -186,7 +187,8 @@ def merge_dbgap_datasets(old_curated_path: str,
 
     # --- Export ---
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    merged_df.to_csv(output_path, sep='\t', index=False, encoding='utf-8')
+    # BOM lets Excel display accented and symbol characters correctly
+    merged_df.to_csv(output_path, sep='\t', index=False, encoding='utf-8-sig')
     print(f"Merged dbGaP file saved to {output_path}\n")
 
     return merged_df

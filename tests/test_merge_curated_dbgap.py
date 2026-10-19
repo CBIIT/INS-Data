@@ -135,5 +135,21 @@ class TestMergeDbgapDatasets:
             old_curated_tsv, new_gathered_tsv, tmp_path)
 
         assert os.path.exists(output)
-        loaded = pd.read_csv(output, sep="\t", keep_default_na=False)
+        loaded = pd.read_csv(output, sep="\t", keep_default_na=False,
+                             encoding="utf-8-sig")
         assert len(loaded) == len(result) == 4
+
+    def test_output_has_bom_for_excel_and_preserves_accents(
+            self, old_curated_tsv, new_gathered_tsv, tmp_path):
+        old_df = pd.read_csv(old_curated_tsv, sep="\t")
+        old_df.loc[2, "dataset_title"] = "Mej\u00eda \u03b3\u03b4T \u2264 5"
+        old_df.to_csv(old_curated_tsv, sep="\t", index=False)
+
+        _, output = self.merge(old_curated_tsv, new_gathered_tsv, tmp_path)
+
+        with open(output, "rb") as f:
+            assert f.read(3) == b"\xef\xbb\xbf"
+        loaded = load_dbgap_tsv(output)
+        assert loaded.columns[0] == "dataset_source_id"
+        row = loaded[loaded["dataset_source_id"] == "phs000003"].iloc[0]
+        assert row["dataset_title"] == "Mej\u00eda \u03b3\u03b4T \u2264 5"
