@@ -70,10 +70,18 @@ URL_PATTERN = re.compile(r'(?:https?://|www\.)[^\s<>"\']+')
 HTML_REFERENCE_PATTERN = re.compile(
     r'&(?:#[0-9]+;?|#[xX][0-9a-fA-F]+;?|[A-Za-z][A-Za-z0-9]*;)')
 
-# Output QA patterns: HTML codes (semicolon optional for numeric), leftover
-# tags, control characters, and any non-ASCII character
-HTML_ENTITY_PATTERN = re.compile(r'&(?:#\d+;?|#[xX][0-9a-fA-F]+;?|[a-zA-Z]+;)')
-HTML_TAG_PATTERN = re.compile(r'</?\w+>')
+# Opening, closing, attributed, and self-closing tags, e.g. <i>, </i>, <br/>,
+# <math xmlns="...">. A letter must follow '<' so text like '<60 years' is kept
+HTML_TAG_PATTERN = re.compile(
+    r'</?[A-Za-z][\w:-]*'
+    r'''(?:\s+[\w:-]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'<>]+))*\s*/?>''')
+
+# MathML annotations repeat the formula as LaTeX, e.g. $$ \alpha $$
+MATHML_ANNOTATION_PATTERN = re.compile(
+    r'<(annotation(?:-xml)?)\b[^>]*>.*?</\1>', re.DOTALL)
+
+# Output QA patterns: control characters and any non-ASCII character
+# (HTML codes and tags reuse HTML_REFERENCE_PATTERN and HTML_TAG_PATTERN)
 CONTROL_CHAR_PATTERN = re.compile(r'[\x00-\x1f\x7f]')
 NON_ASCII_PATTERN = re.compile(r'[^\x00-\x7f]')
 
@@ -464,12 +472,14 @@ def process_special_characters(df, column_configs, datatype):
 
 
 def remove_html_tags(text):
-    """Removes HTML tags using regular expressions."""
+    """Removes HTML tags using regular expressions, keeping enclosed text.
+    MathML LaTeX annotations are dropped so formulas are not repeated."""
 
-    # Matches opening or closing tags with tag name like <i>italics</i>
-    tag_pattern = r'<(/?)(\w+)>'
+    text = MATHML_ANNOTATION_PATTERN.sub('', text)
+    text = HTML_TAG_PATTERN.sub('', text)
 
-    return re.sub(tag_pattern, '', text)
+    # Collapse spacing left between removed tags
+    return re.sub(r'\s{2,}', ' ', text).strip()
 
 
 
@@ -1339,7 +1349,7 @@ def scan_output_tsv(filepath, datatype, column_configs):
                           ('control_character', CONTROL_CHAR_PATTERN),
                           ('placeholder_char', PLACEHOLDER_PATTERN)]
         if col not in entity_allowed_cols:
-            pattern_checks.append(('html_entity', HTML_ENTITY_PATTERN))
+            pattern_checks.append(('html_entity', HTML_REFERENCE_PATTERN))
         if col in html_tag_cols:
             pattern_checks.append(('html_tag', HTML_TAG_PATTERN))
 

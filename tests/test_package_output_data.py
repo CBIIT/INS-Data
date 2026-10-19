@@ -48,16 +48,18 @@ from modules.package_output_data import (
 
 
 # Numeric (with or without trailing semicolon), hex, or named HTML entities
+# (named entities may contain digits, e.g. &sup2; and &frac12;)
 HTML_ENTITY_PATTERN = re.compile(
-    r'&(?:#\d+;?|#[xX][0-9a-fA-F]+;?|[a-zA-Z]+;)')
+    r'&(?:#\d+;?|#[xX][0-9a-fA-F]+;?|[a-zA-Z][a-zA-Z0-9]*;)')
 
 # Entity-laden text modeled on real dbGaP API values
 ENTITY_TEXT = ("Mej&#237;a &amp; Lo&#239;c&#8217;s &quot;study&quot; "
-               "&#947;&#948;T&#160;cells")
+               "&#947;&#948;T&#160;cells in 5&sup2; wells")
 # Final packaged value outside ASCII_ONLY_COLS: accented and Greek letters are
 # kept; curly/straight double quotes and nbsp are mapped by
 # replace_defined_characters
-ENTITY_TEXT_DECODED = "Mej\u00eda & Lo\u00efc's 'study' \u03b3\u03b4T cells"
+ENTITY_TEXT_DECODED = ("Mej\u00eda & Lo\u00efc's 'study' \u03b3\u03b4T cells "
+                       "in 5\u00b2 wells")
 
 
 def build_raw_dataset_df(datatype):
@@ -412,6 +414,28 @@ class TestRemoveHtmlTags:
 
     def test_no_tags_unchanged(self):
         assert remove_html_tags("plain text") == "plain text"
+
+    @pytest.mark.parametrize("text, expected", [
+        ("Line<br/>break", "Linebreak"),
+        ("Line <br /> break", "Line break"),
+        ("<span class='x'>styled</span> text", "styled text"),
+    ])
+    def test_attributed_and_self_closing_tags(self, text, expected):
+        assert remove_html_tags(text) == expected
+
+    def test_mathml_keeps_formula_and_drops_latex_annotation(self):
+        # Real PubMed title form
+        title = ('Using <math xmlns="http://www.w3.org/1998/Math/MathML"> '
+                 '<semantics><mrow><mi>\u03b3</mi></mrow> '
+                 '<annotation>$$ \\gamma $$</annotation></semantics> '
+                 '</math> -Divergence')
+        assert remove_html_tags(title) == "Using \u03b3 -Divergence"
+
+    @pytest.mark.parametrize("text", [
+        "aged <60 years", "disease < 1 cm", "<60 vs >/=60 years",
+    ])
+    def test_less_than_comparisons_kept(self, text):
+        assert remove_html_tags(text) == text
 
 
 # ============================================================
@@ -1229,7 +1253,12 @@ class TestScanOutputTsv:
         ("title", "Lost \ufffd here", "replacement_char"),
         ("title", "Espa\u00c3\u00b1a", "garbled_text"),
         ("title", "Men&#39;s study", "html_entity"),
+        ("title", "5&sup2; area", "html_entity"),
+        ("title", "&frac12; dose", "html_entity"),
         ("title", "<i>italic</i> title", "html_tag"),
+        ("title", "Line<br/>break", "html_tag"),
+        ("title", '<math xmlns="http://www.w3.org/1998/Math/MathML">',
+         "html_tag"),
         ("title", "Bell\x07 character", "control_character"),
         ("title", "Chinese \u4e2d character", "unexpected_character"),
         ("description", "Mej\u00eda in ASCII-only field", "unexpected_character"),
