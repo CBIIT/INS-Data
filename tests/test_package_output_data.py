@@ -324,6 +324,18 @@ class TestNormalizeEncoding:
         assert normalize_encoding(text, preserve_characters=True) == (
             "Zo\u00eb 37\u00b0C 5\u00b12 \u03b3\u03b4T \u0141\u00f3d\u017a ")
 
+    @pytest.mark.parametrize("text", [
+        "Nguy\u1ec5n",                 # Latin Extended Additional
+        "\u1e24asan",                  # Latin Extended Additional
+        "\u1f04\u03bb\u03c6\u03b1",    # Greek Extended
+    ])
+    def test_preserve_keeps_extended_latin_and_greek(self, text):
+        assert normalize_encoding(text, preserve_characters=True) == text
+
+    def test_preserve_composes_extended_latin(self):
+        assert normalize_encoding(
+            "Nguye\u0302\u0303n", preserve_characters=True) == "Nguy\u1ec5n"
+
 
 # ============================================================
 # is_preserved_character
@@ -335,12 +347,13 @@ class TestIsPreservedCharacter:
     @pytest.mark.parametrize("char", list(
         "\u00ed\u00e9\u00f1\u00fc\u00f8\u0142\u0151\u00c9"
         "\u03b1\u03b2\u03b3\u03bc\u0394"
+        "\u1ec5\u1e24\u1f04"
         "\u00b0\u00b2\u00b3\u00d7\u2264\u2265\u00b1\u00b5\u2082"))
     def test_preserved(self, char):
         assert is_preserved_character(char)
 
     @pytest.mark.parametrize("char", list(
-        "\u201c\u2019\u2014\u00a0\u00ad\u0301\u00a9\u4e2d\u0439\ufffd"))
+        "\u201c\u2019\u2014\u00a0\u00ad\u0301\u00a9\u4e2d\u0439\ufffd\u1fbd"))
     def test_not_preserved(self, char):
         assert not is_preserved_character(char)
 
@@ -997,6 +1010,19 @@ class TestWarnOnEncodingDamage:
             "text": ["Mej\u00eda \u00c9cole RORγt \u2264 5? Yes"],
         })
         assert warn_on_encoding_damage(df, "test.tsv") == []
+
+    @pytest.mark.parametrize("value", [
+        "<i>NF?B</i> signaling",
+        "NF?B/RelA complex",
+        "Ihhi?EC/?iEC cells",
+        "<a href='https://example.org/a?b=1'>NF?B</a>",
+        "See www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE1 for NF?B",
+    ])
+    def test_flags_damage_next_to_slashes_html_and_urls(self, value):
+        findings = warn_on_encoding_damage(
+            pd.DataFrame({"title": [value]}), "test.tsv")
+        assert len(findings) == 1
+        assert "NF?B" in findings[0]["snippet"] or "i?E" in findings[0]["snippet"]
 
     def test_console_truncated_but_all_findings_returned(self, capsys):
         df = pd.DataFrame({"desc": [f"NF?B row {i}" for i in range(15)]})

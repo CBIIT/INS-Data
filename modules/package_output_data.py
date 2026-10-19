@@ -38,8 +38,17 @@ ASCII_ONLY_COLS = ['description', 'experimental_approaches']
 # Non-ASCII symbols kept in output alongside accented Latin and Greek letters
 PRESERVED_SYMBOLS = set('°±×µ≤≥¹²³⁰⁴⁵⁶⁷⁸⁹₀₁₂₃₄₅₆₇₈₉')
 
+# Unicode blocks whose letters (accented Latin and Greek) are kept in output
+PRESERVED_LETTER_RANGES = [
+    (0x00C0, 0x024F),   # Latin-1 Supplement, Latin Extended-A/B (í, ł)
+    (0x0370, 0x03FF),   # Greek and Coptic (β, Δ)
+    (0x1E00, 0x1EFF),   # Latin Extended Additional (ễ, Ḥ)
+    (0x1F00, 0x1FFF),   # Greek Extended (ἄ)
+]
+
 # Excel ANSI saves replace unsupported characters with '?' (e.g. RORγt -> ROR?t)
-SUBSTITUTED_CHAR_PATTERN = re.compile(r'[^\W\d_]\?[^\W\d_]')
+# A '?' followed by key= starts a URL query string, so it is not flagged
+SUBSTITUTED_CHAR_PATTERN = re.compile(r'[^\W\d_]\?(?![\w.-]*=)[^\W\d_]')
 
 # UTF-8 bytes misread as cp1252 (e.g. é -> Ã©, ’ -> â€™)
 CP1252_CONTINUATION_CHARS = bytes(range(0x80, 0xC0)).decode(
@@ -47,8 +56,8 @@ CP1252_CONTINUATION_CHARS = bytes(range(0x80, 0xC0)).decode(
 MOJIBAKE_PATTERN = re.compile(
     '[\u00c2-\u00df][' + re.escape(CP1252_CONTINUATION_CHARS) + ']|\u00e2\u20ac')
 
-# URLs legitimately contain '?' (e.g. study.cgi?study_id=...)
-URL_TOKEN_PATTERN = re.compile(r'\S*(?:://|www\.|[=/])\S*')
+# URLs legitimately contain '?'; stop at HTML delimiters so link text is scanned
+URL_PATTERN = re.compile(r'(?:https?://|www\.)[^\s<>"\']+')
 
 
 def warn_on_encoding_damage(df, source, max_examples=10):
@@ -72,7 +81,7 @@ def warn_on_encoding_damage(df, source, max_examples=10):
             for idx, value in df[col].items():
                 if not isinstance(value, str):
                     continue
-                text = URL_TOKEN_PATTERN.sub(' ', value)
+                text = URL_PATTERN.sub(' ', value)
                 match = pattern.search(text)
                 if match:
                     snippet = text[max(0, match.start() - 20):match.end() + 20]
@@ -229,15 +238,15 @@ def validate_first_columns(df, column_configs, datatype):
 
 
 def is_preserved_character(char):
-    """True for non-ASCII characters kept in output: accented Latin letters,
-    Greek letters, and PRESERVED_SYMBOLS."""
+    """True for non-ASCII characters kept in output: letters in
+    PRESERVED_LETTER_RANGES and PRESERVED_SYMBOLS."""
 
     if char in PRESERVED_SYMBOLS:
         return True
     if not unicodedata.category(char).startswith('L'):
         return False
     code = ord(char)
-    return 0x00C0 <= code <= 0x024F or 0x0370 <= code <= 0x03FF
+    return any(start <= code <= end for start, end in PRESERVED_LETTER_RANGES)
 
 
 
