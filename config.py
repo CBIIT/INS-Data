@@ -288,6 +288,16 @@ SPECIAL_CHARACTER_SCAN_PATH = ("reports/" + datetime.now().strftime("%Y-%m-%d")
                                + "/special_character_scan_"
                                + datetime.now().strftime("%Y-%m-%d") + ".csv")
 
+# Special character QA of final packaged TSVs. Tagged with the date generated
+OUTPUT_CHARACTER_QA_SUMMARY_PATH = (
+    "reports/" + datetime.now().strftime("%Y-%m-%d")
+    + "/output_character_qa_summary_"
+    + datetime.now().strftime("%Y-%m-%d") + ".csv")
+OUTPUT_CHARACTER_QA_DETAILS_PATH = (
+    "reports/" + datetime.now().strftime("%Y-%m-%d")
+    + "/output_character_qa_details_"
+    + datetime.now().strftime("%Y-%m-%d") + ".csv")
+
 # Dictionary of columns and types to use in final data packaging
 COLUMN_CONFIGS = {
     # Data type

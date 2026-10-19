@@ -11,6 +11,7 @@ import os
 import unicodedata
 import uuid
 import html
+from html.entities import html5 as HTML5_ENTITIES
 import hashlib
 
 import pandas as pd
@@ -58,6 +59,43 @@ MOJIBAKE_PATTERN = re.compile(
 
 # URLs legitimately contain '?'; stop at HTML delimiters so link text is scanned
 URL_PATTERN = re.compile(r'(?:https?://|www\.)[^\s<>"\']+')
+
+# Numeric (semicolon optional) and complete named references only, so URL
+# parameters like &region= are never read as &reg
+HTML_REFERENCE_PATTERN = re.compile(
+    r'&(?:#[0-9]+;?|#[xX][0-9a-fA-F]+;?|[A-Za-z][A-Za-z0-9]*;)')
+
+# Output QA patterns: HTML codes (semicolon optional for numeric), leftover
+# tags, control characters, and any non-ASCII character
+HTML_ENTITY_PATTERN = re.compile(r'&(?:#\d+;?|#[xX][0-9a-fA-F]+;?|[a-zA-Z]+;)')
+HTML_TAG_PATTERN = re.compile(r'</?\w+>')
+CONTROL_CHAR_PATTERN = re.compile(r'[\x00-\x1f\x7f]')
+NON_ASCII_PATTERN = re.compile(r'[^\x00-\x7f]')
+
+# '?' placeholder for a lost character (e.g. 5-10 ?l, (?DC1s)), not a query string
+PLACEHOLDER_PATTERN = re.compile(r'\?(?![\w.-]*=)(?=[^\W_])')
+
+# Plain-language QA questions and severity for each output check
+OUTPUT_QA_CHECKS = {
+    'file_encoding': ('FAIL',
+        'Is any file not plain UTF-8, or does it start with a byte order mark?'),
+    'replacement_char': ('FAIL',
+        'Are there any U+FFFD replacement characters (diamond question mark)?'),
+    'garbled_text': ('FAIL',
+        'Is there garbled text from encoding mix-ups (UTF-8 read as cp1252)?'),
+    'html_entity': ('FAIL',
+        'Are there HTML codes (e.g. &#237;) outside dataset description '
+        'and experimental_approaches?'),
+    'html_tag': ('FAIL',
+        'Are there leftover HTML tags in columns configured for tag removal?'),
+    'unexpected_character': ('FAIL',
+        'Are there characters outside the allowed set (ASCII, accented/Greek '
+        'letters, approved symbols; ASCII only in description fields)?'),
+    'control_character': ('FAIL',
+        'Are there hidden control characters (tabs, line breaks) in values?'),
+    'placeholder_char': ('INFO',
+        "How many '?' placeholders mark characters lost in source data?"),
+}
 
 
 def warn_on_encoding_damage(df, source, max_examples=10):
@@ -107,7 +145,12 @@ def warn_on_encoding_damage(df, source, max_examples=10):
 
 
 def write_special_character_scan(findings, report_path):
-    """Save every special character finding to a CSV report, one per row."""
+    """Save every special character finding to a CSV report, one per row.
+    No report is written when there are no findings."""
+
+    if not findings:
+        print(f"Special character scan: 0 finding(s). No report written.")
+        return
 
     columns = ['source_file', 'issue', 'excel_row', 'column', 'snippet']
     os.makedirs(os.path.dirname(report_path), exist_ok=True)
@@ -430,15 +473,28 @@ def remove_html_tags_from_df(df, column_configs, datatype):
 
 
 
+def decode_html_reference(match):
+    """Decode one numeric or complete named HTML reference. Unknown names
+    are left as-is."""
+
+    reference = match.group()
+    if reference[1] == '#':
+        return html.unescape(reference)
+    return HTML5_ENTITIES.get(reference[1:], reference)
+
+
+
 def unescape_html_entities(text):
-    """Decode HTML entities until unchanged so nested ones like &amp;#945;
-    fully decode to α. Non-string values are returned as-is."""
+    """Decode HTML references until unchanged so nested ones like &amp;#945;
+    fully decode to α. Only numeric and complete named (;-terminated)
+    references are decoded. Non-string values are returned as-is."""
 
     if not isinstance(text, str):
         return text
-    decoded = html.unescape(text)
+    decoded = HTML_REFERENCE_PATTERN.sub(decode_html_reference, text)
     while decoded != text:
-        text, decoded = decoded, html.unescape(decoded)
+        text = decoded
+        decoded = HTML_REFERENCE_PATTERN.sub(decode_html_reference, text)
     return decoded
 
 
@@ -1208,6 +1264,150 @@ def generate_md5_hash_file(directory):
 
 
 
+def scan_output_tsv(filepath, datatype, column_configs):
+    """Scan one packaged TSV for special character problems and return a
+    list of finding dicts, one per value (or per file for file_encoding)."""
+
+    datatype_config = column_configs.get(datatype, {})
+    exclude_cols = datatype_config.get('exclude_special_char_processing', [])
+    html_tag_cols = datatype_config.get('html_tag_cols') or []
+    entity_allowed_cols = (DATASET_HTML_ENTITY_EXCLUDE_COLS
+                           if datatype in DATASET_TYPES else [])
+
+    findings = []
+
+    def add_finding(check, row, column, detail, snippet):
+        findings.append({
+            'file': str(filepath),
+            'datatype': datatype,
+            'check': check,
+            'severity': OUTPUT_QA_CHECKS[check][0],
+            'excel_row': row,
+            'column': column,
+            'detail': detail,
+            'snippet': snippet,
+        })
+
+    with open(filepath, 'rb') as f:
+        raw = f.read()
+    if raw.startswith(b'\xef\xbb\xbf'):
+        add_finding('file_encoding', None, None, 'Starts with UTF-8 BOM', '')
+    try:
+        raw.decode('utf-8')
+    except UnicodeDecodeError as e:
+        add_finding('file_encoding', None, None, f'Not valid UTF-8: {e}', '')
+
+    df = pd.read_csv(filepath, sep='\t', dtype=str, keep_default_na=False,
+                     encoding='utf-8-sig', encoding_errors='replace')
+
+    for col in df.columns:
+        values = df[col]
+        pattern_checks = [('replacement_char', re.compile('\ufffd')),
+                          ('garbled_text', MOJIBAKE_PATTERN),
+                          ('control_character', CONTROL_CHAR_PATTERN),
+                          ('placeholder_char', PLACEHOLDER_PATTERN)]
+        if col not in entity_allowed_cols:
+            pattern_checks.append(('html_entity', HTML_ENTITY_PATTERN))
+        if col in html_tag_cols:
+            pattern_checks.append(('html_tag', HTML_TAG_PATTERN))
+
+        for check, pattern in pattern_checks:
+            for idx, value in values[values.str.contains(pattern)].items():
+                text = (URL_PATTERN.sub(' ', value)
+                        if check == 'placeholder_char' else value)
+                match = pattern.search(text)
+                if match:
+                    snippet = text[max(0, match.start() - 30):match.end() + 30]
+                    # Header is Excel row 1, so first data row is row 2
+                    add_finding(check, idx + 2, col, repr(match.group()),
+                                snippet)
+
+        if col in exclude_cols:
+            continue
+        ascii_only = col in ASCII_ONLY_COLS
+        for idx, value in values[values.str.contains(NON_ASCII_PATTERN)].items():
+            unexpected = sorted({
+                char for char in NON_ASCII_PATTERN.findall(value)
+                if char != '\ufffd'
+                and (ascii_only or not is_preserved_character(char))})
+            if unexpected:
+                first = value.find(unexpected[0])
+                detail = ', '.join(
+                    f"{char} U+{ord(char):04X} "
+                    f"{unicodedata.name(char, 'UNNAMED')}" for char in unexpected)
+                add_finding('unexpected_character', idx + 2, col, detail,
+                            value[max(0, first - 30):first + 30])
+
+    return findings
+
+
+
+def run_output_character_qa(output_files, column_configs, summary_path,
+                            details_path):
+    """Scan all packaged TSVs, save a per-file/per-check summary CSV and a
+    detail CSV with every finding, and print an overall PASS/FAIL result.
+    Reports are only written when there is at least one finding.
+
+    Args:
+        output_files (list): (datatype, filepath) tuples of packaged TSVs.
+        column_configs (dict): Column configuration from config.py.
+        summary_path (str): Filepath for the summary CSV.
+        details_path (str): Filepath for the detail CSV.
+
+    Returns:
+        tuple: (summary_df, details_df)
+    """
+
+    findings = []
+    summary_rows = []
+    for datatype, filepath in output_files:
+        file_findings = scan_output_tsv(filepath, datatype, column_configs)
+        findings.extend(file_findings)
+        for check, (severity, question) in OUTPUT_QA_CHECKS.items():
+            count = sum(f['check'] == check for f in file_findings)
+            summary_rows.append({
+                'file': str(filepath),
+                'datatype': datatype,
+                'check': check,
+                'question': question,
+                'status': severity if count else 'PASS',
+                'count': count,
+            })
+
+    summary_df = pd.DataFrame(summary_rows, columns=[
+        'file', 'datatype', 'check', 'question', 'status', 'count'])
+    details_df = pd.DataFrame(findings, columns=[
+        'file', 'datatype', 'check', 'severity', 'excel_row', 'column',
+        'detail', 'snippet'])
+
+    if findings:
+        for path, df in [(summary_path, summary_df),
+                         (details_path, details_df)]:
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            # BOM so snippets with accents/symbols display correctly in Excel
+            df.to_csv(path, index=False, encoding='utf-8-sig')
+
+    print(f"Output character QA across {len(output_files)} file(s):")
+    for check, (severity, question) in OUTPUT_QA_CHECKS.items():
+        check_rows = summary_df[summary_df['check'] == check]
+        total = int(check_rows['count'].sum())
+        status = severity if total else 'PASS'
+        print(f"    [{status:<4}] {question} ({total})")
+        for _, row in check_rows[check_rows['count'] > 0].iterrows():
+            print(f"           {row['count']} in {row['file']}")
+
+    failed = (summary_df['status'] == 'FAIL').any()
+    print(f"Overall: {'FAIL - review ' + details_path if failed else 'PASS'}")
+    if findings:
+        print(f"Summary saved to {summary_path}")
+        print(f"Details saved to {details_path}")
+    else:
+        print(f"No findings. Summary and details reports not written.")
+
+    return summary_df, details_df
+
+
+
 def package_output_data():
     """Run all data packaging steps for all data types."""
 
@@ -1362,6 +1562,7 @@ def package_output_data():
         print(f"Loaded CTD2 Datasets file from {config.CTD2_DATASET_INTERMED_CSV}")
     else:
         ctd2_datasets_exist = False
+        ctd2_curated = False
         print(f"No CTD2 Datasets file found.")
 
     # Load CTD2 file metadata
@@ -1445,6 +1646,32 @@ def package_output_data():
         get_enum_values(df_programs_out, 
                         cols = config.ENUM_PROGRAM_COLS, 
                         output = config.ENUM_PROGRAM_PATH)
+
+    print(f"---\nScanning packaged TSVs for special character issues...")
+    output_files = [(datatype, path) for exists, datatype, path in [
+        (programs_exist, 'program', config.PROGRAMS_OUTPUT_PATH),
+        (grants_exist, 'grant', config.GRANTS_OUTPUT_PATH),
+        (projects_exist, 'project', config.PROJECTS_OUTPUT_PATH),
+        (publications_exist, 'publication', config.PUBLICATIONS_OUTPUT_PATH),
+        (dbgap_datasets_exist, 'dbgap_dataset',
+         config.DBGAP_OUTPUT_CURATED_CLEANED if dbgap_curated
+         else config.DBGAP_OUTPUT_PATH),
+        (geo_datasets_exist, 'geo_dataset', config.GEO_OUTPUT_PATH),
+        (sra_datasets_exist, 'sra_dataset',
+         config.SRA_OUTPUT_CURATED_CLEANED if sra_curated
+         else config.SRA_OUTPUT_PATH),
+        (cedcd_datasets_exist, 'cedcd_dataset', config.CEDCD_OUTPUT_PATH),
+        (dceg_datasets_exist, 'dceg_dataset', config.DCEG_OUTPUT_PATH),
+        (nccr_datasets_exist, 'nccr_dataset', config.NCCR_OUTPUT_PATH),
+        (dctd_datasets_exist, 'dctd_dataset', config.DCTD_OUTPUT_PATH),
+        (ctd2_datasets_exist, 'ctd2_dataset',
+         config.CTD2_DATASET_CURATED_LOCKED_PATH if ctd2_curated
+         else config.CTD2_DATASET_OUTPUT_PATH),
+        (ctd2_filedata_exist, 'file', config.CTD2_FILE_OUTPUT_PATH),
+    ] if exists]
+    run_output_character_qa(output_files, column_configs,
+                            config.OUTPUT_CHARACTER_QA_SUMMARY_PATH,
+                            config.OUTPUT_CHARACTER_QA_DETAILS_PATH)
         
     # Generate md5.txt
     print(f"---\nGenerating md5 hashes for file validation...")

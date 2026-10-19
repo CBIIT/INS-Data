@@ -307,6 +307,22 @@ class TestCleanHtmlEntities:
         assert result.iloc[0]["name"] == "\u03b1-helix"
         assert result.iloc[0]["description"] == "&amp;#945;-helix"
 
+    @pytest.mark.parametrize("value, expected", [
+        ("&amp;amp;#946;-catenin", "\u03b2-catenin"),
+        # Regression: repeated full unescaping turned &region into ®ion
+        ("https://example.org/search?id=1&amp;amp;region=Europe",
+         "https://example.org/search?id=1&region=Europe"),
+        ("https://example.org/?id=1&region=EU&not=1&copy=2&lt=3",
+         "https://example.org/?id=1&region=EU&not=1&copy=2&lt=3"),
+        ("&amp;#945;-helix at https://x.org/?a=1&amp;reg=2",
+         "\u03b1-helix at https://x.org/?a=1&reg=2"),
+        ("Keep &notanentity; and R&D", "Keep &notanentity; and R&D"),
+    ])
+    def test_nested_entities_and_escaped_urls(self, value, expected):
+        df = pd.DataFrame({"external_study_url": [value]})
+        result = clean_html_entities(df)
+        assert result.iloc[0]["external_study_url"] == expected
+
 
 # ============================================================
 # get_dbgap_api_data — mocked

@@ -36,6 +36,7 @@ The output `dbgap_df` and exported dbgap.csv contain columns:
 
 import os
 import html
+from html.entities import html5 as HTML5_ENTITIES
 import json
 import re
 import time
@@ -901,15 +902,34 @@ def clean_newlines(df:pd.DataFrame, exclude_cols:list=None):
 
 
 
+# Numeric (semicolon optional) and complete named references only, so URL
+# parameters like &region= are never read as &reg
+HTML_REFERENCE_PATTERN = re.compile(
+    r'&(?:#[0-9]+;?|#[xX][0-9a-fA-F]+;?|[A-Za-z][A-Za-z0-9]*;)')
+
+
+def decode_html_reference(match):
+    """Decode one numeric or complete named HTML reference. Unknown names
+    are left as-is."""
+
+    reference = match.group()
+    if reference[1] == '#':
+        return html.unescape(reference)
+    return HTML5_ENTITIES.get(reference[1:], reference)
+
+
+
 def unescape_html_entities(text):
-    """Decode HTML entities until unchanged so nested ones like &amp;#945;
-    fully decode to α. Non-string values are returned as-is."""
+    """Decode HTML references until unchanged so nested ones like &amp;#945;
+    fully decode to α. Only numeric and complete named (;-terminated)
+    references are decoded. Non-string values are returned as-is."""
 
     if not isinstance(text, str):
         return text
-    decoded = html.unescape(text)
+    decoded = HTML_REFERENCE_PATTERN.sub(decode_html_reference, text)
     while decoded != text:
-        text, decoded = decoded, html.unescape(decoded)
+        text = decoded
+        decoded = HTML_REFERENCE_PATTERN.sub(decode_html_reference, text)
     return decoded
 
 

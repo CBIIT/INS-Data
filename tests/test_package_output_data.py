@@ -22,6 +22,9 @@ from modules.package_output_data import (
     read_csv_with_encoding_fallback,
     warn_on_encoding_damage,
     write_special_character_scan,
+    scan_output_tsv,
+    run_output_character_qa,
+    OUTPUT_QA_CHECKS,
     is_preserved_character,
     add_type_column,
     reorder_columns,
@@ -837,6 +840,15 @@ class TestCleanHtmlEntities:
         ("&amp;#945;-helix", "\u03b1-helix"),
         ("&amp;amp;#946;-catenin", "\u03b2-catenin"),
         ("&amp;lt;i&amp;gt;", "<i>"),
+        # Regression: repeated full unescaping turned &region into ®ion
+        ("https://example.org/search?id=1&amp;amp;region=Europe",
+         "https://example.org/search?id=1&region=Europe"),
+        ("https://example.org/?id=1&region=EU&not=1&copy=2&lt=3",
+         "https://example.org/?id=1&region=EU&not=1&copy=2&lt=3"),
+        ("&amp;#945;-helix at https://x.org/?a=1&amp;reg=2",
+         "\u03b1-helix at https://x.org/?a=1&reg=2"),
+        ("Keep &notanentity; and R&D", "Keep &notanentity; and R&D"),
+        ("Mej&#237a", "Mej\u00eda"),
     ])
     def test_decodes_nested_entities(self, nested, expected):
         df = pd.DataFrame({"abstract_text": [nested]})
@@ -1120,9 +1132,125 @@ class TestWriteSpecialCharacterScan:
         assert report["source_file"].str.endswith("dbgap.tsv").sum() == 12
         assert report["source_file"].str.endswith("sra.tsv").sum() == 3
 
-    def test_writes_headers_when_clean(self, tmp_path):
+    def test_no_report_written_when_clean(self, tmp_path, capsys):
         report_path = tmp_path / "special_character_scan.csv"
         write_special_character_scan([], str(report_path))
-        report = pd.read_csv(report_path, encoding="utf-8-sig")
-        assert report.empty
-        assert "source_file" in report.columns
+        assert not report_path.exists()
+        assert "0 finding(s)" in capsys.readouterr().out
+
+
+# ============================================================
+# scan_output_tsv / run_output_character_qa
+# ============================================================
+
+QA_COLUMN_CONFIGS = {
+    "dbgap_dataset": {"html_tag_cols": ["title"],
+                      "exclude_special_char_processing": ["curated"]},
+    "project": {},
+}
+
+
+def write_tsv(path, data, encoding="utf-8"):
+    pd.DataFrame(data).to_csv(path, sep="\t", index=False, encoding=encoding)
+    return str(path)
+
+
+class TestScanOutputTsv:
+    """Tests for the post-packaging special character QA of final TSVs."""
+
+    def test_clean_output_has_no_findings(self, tmp_path):
+        path = write_tsv(tmp_path / "clean.tsv", {
+            "title": ["Mej\u00eda \u03b3\u03b4T at 37\u00b0C \u2264 5? Yes"],
+            "description": ["Keeps &#237; and <a href='x?a=1'>link</a>"],
+            "study_links": ["https://example.org/study.cgi?study_id=phs1"],
+        })
+        assert scan_output_tsv(path, "dbgap_dataset", QA_COLUMN_CONFIGS) == []
+
+    @pytest.mark.parametrize("column, value, check", [
+        ("title", "Lost \ufffd here", "replacement_char"),
+        ("title", "Espa\u00c3\u00b1a", "garbled_text"),
+        ("title", "Men&#39;s study", "html_entity"),
+        ("title", "<i>italic</i> title", "html_tag"),
+        ("title", "Bell\x07 character", "control_character"),
+        ("title", "Chinese \u4e2d character", "unexpected_character"),
+        ("description", "Mej\u00eda in ASCII-only field", "unexpected_character"),
+        ("title", "5-10 ?l volume", "placeholder_char"),
+        ("title", "dendritic cells (?DC1s)", "placeholder_char"),
+        ("title", "Th17 ROR?t+ cells", "placeholder_char"),
+    ])
+    def test_each_check_flags_its_problem(self, tmp_path, column, value, check):
+        path = write_tsv(tmp_path / "bad.tsv", {column: [value]})
+        findings = scan_output_tsv(path, "dbgap_dataset", QA_COLUMN_CONFIGS)
+        assert [(f["check"], f["excel_row"], f["column"]) for f in findings] == [
+            (check, 2, column)]
+        assert findings[0]["severity"] == OUTPUT_QA_CHECKS[check][0]
+
+    def test_entities_flagged_in_non_dataset_description(self, tmp_path):
+        path = write_tsv(tmp_path / "project.tsv", {"description": ["&#39;"]})
+        findings = scan_output_tsv(path, "project", QA_COLUMN_CONFIGS)
+        assert [f["check"] for f in findings] == ["html_entity"]
+
+    def test_excluded_columns_skip_unexpected_character_check(self, tmp_path):
+        path = write_tsv(tmp_path / "ctd2.tsv", {"curated": ["\u201cquoted\u201d"]})
+        assert scan_output_tsv(path, "dbgap_dataset", QA_COLUMN_CONFIGS) == []
+
+    def test_flags_bom_and_reports_unexpected_character_names(self, tmp_path):
+        path = write_tsv(tmp_path / "bom.tsv", {"title": ["a\u201cb"]},
+                         encoding="utf-8-sig")
+        findings = scan_output_tsv(path, "dbgap_dataset", QA_COLUMN_CONFIGS)
+        assert [f["check"] for f in findings] == [
+            "file_encoding", "unexpected_character"]
+        assert "U+201C LEFT DOUBLE QUOTATION MARK" in findings[1]["detail"]
+
+
+class TestRunOutputCharacterQa:
+    """Tests for the combined output QA summary and detail reports."""
+
+    def test_writes_summary_and_details_with_overall_status(
+            self, tmp_path, capsys):
+        clean = write_tsv(tmp_path / "clean.tsv", {"title": ["Mej\u00eda"]})
+        bad = write_tsv(tmp_path / "bad.tsv",
+                        {"title": ["\ufffd one", "&#237; two", "&#39; three"]})
+        summary_path = tmp_path / "reports" / "summary.csv"
+        details_path = tmp_path / "reports" / "details.csv"
+
+        summary, details = run_output_character_qa(
+            [("dbgap_dataset", clean), ("project", bad)], QA_COLUMN_CONFIGS,
+            str(summary_path), str(details_path))
+
+        assert len(summary) == 2 * len(OUTPUT_QA_CHECKS)
+        assert set(summary[summary["file"] == clean]["status"]) == {"PASS"}
+        bad_rows = summary[summary["file"] == bad].set_index("check")
+        assert bad_rows.loc["replacement_char", "count"] == 1
+        assert bad_rows.loc["html_entity", "count"] == 2
+        assert bad_rows.loc["html_entity", "status"] == "FAIL"
+        assert len(details) == 3
+
+        written = pd.read_csv(details_path, encoding="utf-8-sig")
+        assert len(written) == 3
+        assert len(pd.read_csv(summary_path, encoding="utf-8-sig")) == len(summary)
+        assert "Overall: FAIL" in capsys.readouterr().out
+
+    def test_overall_pass_when_only_info_findings(self, tmp_path, capsys):
+        path = write_tsv(tmp_path / "info.tsv", {"title": ["5-10 ?l"]})
+        summary, _ = run_output_character_qa(
+            [("project", path)], QA_COLUMN_CONFIGS,
+            str(tmp_path / "s.csv"), str(tmp_path / "d.csv"))
+        assert "INFO" in set(summary["status"])
+        assert "Overall: PASS" in capsys.readouterr().out
+        # INFO findings are still findings, so reports are written
+        assert (tmp_path / "s.csv").exists()
+        assert (tmp_path / "d.csv").exists()
+
+    def test_no_reports_written_when_clean(self, tmp_path, capsys):
+        path = write_tsv(tmp_path / "clean.tsv", {"title": ["Mej\u00eda"]})
+        summary, details = run_output_character_qa(
+            [("project", path)], QA_COLUMN_CONFIGS,
+            str(tmp_path / "s.csv"), str(tmp_path / "d.csv"))
+        assert set(summary["status"]) == {"PASS"}
+        assert details.empty
+        assert not (tmp_path / "s.csv").exists()
+        assert not (tmp_path / "d.csv").exists()
+        output = capsys.readouterr().out
+        assert "Overall: PASS" in output
+        assert "reports not written" in output
