@@ -298,6 +298,15 @@ class TestCleanHtmlEntities:
         assert result.iloc[0]["description"] == "Keep &#39; encoded"
         assert pd.isna(result.iloc[0]["other"])
 
+    def test_decodes_nested_entities_and_excludes_columns(self):
+        df = pd.DataFrame({
+            "name": ["&amp;#945;-helix"],
+            "description": ["&amp;#945;-helix"],
+        })
+        result = clean_html_entities(df, exclude_cols=["description"])
+        assert result.iloc[0]["name"] == "\u03b1-helix"
+        assert result.iloc[0]["description"] == "&amp;#945;-helix"
+
 
 # ============================================================
 # get_dbgap_api_data — mocked

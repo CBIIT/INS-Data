@@ -429,6 +429,19 @@ def remove_html_tags_from_df(df, column_configs, datatype):
 
 
 
+def unescape_html_entities(text):
+    """Decode HTML entities until unchanged so nested ones like &amp;#945;
+    fully decode to α. Non-string values are returned as-is."""
+
+    if not isinstance(text, str):
+        return text
+    decoded = html.unescape(text)
+    while decoded != text:
+        text, decoded = decoded, html.unescape(decoded)
+    return decoded
+
+
+
 def clean_html_entities(df, datatype):
     """Replaces HTML character entities (&#8217) with unicode characters.
     Must run before process_special_characters so decoded characters get the
@@ -446,8 +459,7 @@ def clean_html_entities(df, datatype):
                 pd.api.types.is_object_dtype(df[col])
                 or pd.api.types.is_string_dtype(df[col])):
             # Replace htmls with unicode characters
-            df[col] = df[col].map(
-                lambda x: html.unescape(x) if isinstance(x, str) else x)
+            df[col] = df[col].map(unescape_html_entities)
 
     return df
 

@@ -901,6 +901,19 @@ def clean_newlines(df:pd.DataFrame, exclude_cols:list=None):
 
 
 
+def unescape_html_entities(text):
+    """Decode HTML entities until unchanged so nested ones like &amp;#945;
+    fully decode to α. Non-string values are returned as-is."""
+
+    if not isinstance(text, str):
+        return text
+    decoded = html.unescape(text)
+    while decoded != text:
+        text, decoded = decoded, html.unescape(decoded)
+    return decoded
+
+
+
 def clean_html_entities(df, exclude_cols=None):
     """
     Replaces HTML character entities (e.g. &#8217) with unicode characters.
@@ -923,8 +936,7 @@ def clean_html_entities(df, exclude_cols=None):
                 pd.api.types.is_object_dtype(df[col])
                 or pd.api.types.is_string_dtype(df[col])):
             # Replace htmls with unicode characters
-            df[col] = df[col].map(
-                lambda x: html.unescape(x) if isinstance(x, str) else x)
+            df[col] = df[col].map(unescape_html_entities)
 
     return df
 

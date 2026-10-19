@@ -817,6 +817,44 @@ class TestCleanHtmlEntities:
         result = clean_html_entities(df, "project")
         assert result.iloc[0]["description"] == "Men's"
 
+    @pytest.mark.parametrize("nested, expected", [
+        ("&amp;#945;-helix", "\u03b1-helix"),
+        ("&amp;amp;#946;-catenin", "\u03b2-catenin"),
+        ("&amp;lt;i&amp;gt;", "<i>"),
+    ])
+    def test_decodes_nested_entities(self, nested, expected):
+        df = pd.DataFrame({"abstract_text": [nested]})
+        result = clean_html_entities(df, "grant")
+        assert result.iloc[0]["abstract_text"] == expected
+
+    @pytest.mark.parametrize("col", DATASET_HTML_ENTITY_EXCLUDE_COLS)
+    def test_nested_entities_untouched_in_excluded_cols(self, col):
+        df = pd.DataFrame({col: ["&amp;#945;-helix"]})
+        result = clean_html_entities(df, "dbgap_dataset")
+        assert result.iloc[0][col] == "&amp;#945;-helix"
+
+    def test_grant_abstract_nested_entity_end_to_end(self):
+        """Regression: &amp;#945; in RePORTER abstracts reached grant.tsv as
+        &#945; after a single decoding pass."""
+        grant_config = ins_config.COLUMN_CONFIGS["grant"]
+        datetime_cols = grant_config.get("datetime_cols") or []
+        int_cols = grant_config.get("int_cols") or []
+        row = {}
+        for raw_col, out_col in grant_config["keep_and_rename"].items():
+            if out_col in datetime_cols:
+                row[raw_col] = ["2024-01-01"]
+            elif out_col in int_cols:
+                row[raw_col] = [5]
+            else:
+                row[raw_col] = ["G1"]
+        row["abstract_text"] = ["An &amp;#945;-helix and &amp;#946;-sheet"]
+
+        result = standardize_data(
+            pd.DataFrame(row), ins_config.COLUMN_CONFIGS, "grant")
+
+        assert result.iloc[0]["grant_abstract_text"] == (
+            "An \u03b1-helix and \u03b2-sheet")
+
 
 # ============================================================
 # package_dbgap_datasets (end-to-end TSV output)
@@ -913,6 +951,16 @@ class TestProcessSpecialCharacters:
         result = process_special_characters(df, config, "test")
         assert result.iloc[0][ascii_col] == "Mejia 37C g <= 10^2"
         assert result.iloc[0]["PI_name"] == text
+
+    def test_single_pass_is_stable(self):
+        """Character handling needs no looping: a second pass changes nothing."""
+        config = {"test": {"exclude_special_char_processing": []}}
+        text = ("\u201cMej\u0069\u0301a\u201d \u2014 \u1f04 \u00a0\u00a9 "
+                "\u03b3 \u2264 10\u00b2 \u4e2d")
+        df = pd.DataFrame({"description": [text], "PI_name": [text]})
+        once = process_special_characters(df, config, "test")
+        twice = process_special_characters(once, config, "test")
+        pd.testing.assert_frame_equal(once, twice)
 
 
 # ============================================================
