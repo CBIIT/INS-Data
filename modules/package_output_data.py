@@ -312,6 +312,7 @@ CHARACTER_REPLACEMENTS = {
         '\u0005': '',       # Unused unicode - remove
         '\u0006': '',       # Unused unicode - remove
         '\u0007': '',       # Unused unicode - remove
+        '\x02': '-',        # Start of Text control char - seen in place of a lost hyphen
         '\u03b1': 'a',      # Greek alpha - replace with a
         '\u03b2': 'B',      # Greek beta - replace with B
         '\u03b3': 'g',      # Greek gamma - replace with g
@@ -347,6 +348,16 @@ CHARACTER_REPLACEMENTS = {
         # Add mappings here in the future as needed
         }
 
+# Remove all other control characters; tabs and line breaks are collapsed to
+# spaces by TAB_LINE_BREAK_PATTERN instead
+CHARACTER_REPLACEMENTS.update({
+    chr(code): ''
+    for code in [*range(0x00, 0x09), *range(0x0e, 0x20), 0x7f]
+    if chr(code) not in CHARACTER_REPLACEMENTS})
+
+# Tabs and line breaks, with any surrounding spaces, become a single space
+TAB_LINE_BREAK_PATTERN = re.compile(r' *[\t\n\r\x0b\x0c][\t\n\r\x0b\x0c ]*')
+
 ASCII_TRANSLATION_TABLE = str.maketrans(CHARACTER_REPLACEMENTS)
 PRESERVING_TRANSLATION_TABLE = str.maketrans(
     {char: replacement for char, replacement in CHARACTER_REPLACEMENTS.items()
@@ -363,6 +374,7 @@ def replace_defined_characters(text, preserve_characters=False):
     if pd.isna(text) or not isinstance(text, str):
         return text
 
+    text = TAB_LINE_BREAK_PATTERN.sub(' ', text)
     if preserve_characters:
         return text.translate(PRESERVING_TRANSLATION_TABLE)
     return text.translate(ASCII_TRANSLATION_TABLE)
@@ -1275,14 +1287,17 @@ def scan_output_tsv(filepath, datatype, column_configs):
                            if datatype in DATASET_TYPES else [])
 
     findings = []
+    record_ids = None
 
-    def add_finding(check, row, column, detail, snippet):
+    def add_finding(check, idx, column, detail, snippet):
         findings.append({
             'file': str(filepath),
             'datatype': datatype,
+            'record_id': record_ids[idx] if idx is not None else None,
             'check': check,
             'severity': OUTPUT_QA_CHECKS[check][0],
-            'excel_row': row,
+            # Header is Excel row 1, so first data row is row 2
+            'excel_row': idx + 2 if idx is not None else None,
             'column': column,
             'detail': detail,
             'snippet': snippet,
@@ -1299,6 +1314,12 @@ def scan_output_tsv(filepath, datatype, column_configs):
 
     df = pd.read_csv(filepath, sep='\t', dtype=str, keep_default_na=False,
                      encoding='utf-8-sig', encoding_errors='replace')
+
+    # Dataset source IDs (e.g. phs000001) are easier to search than UUIDs
+    id_col = ('dataset_source_id' if 'dataset_source_id' in df.columns
+              else datatype_config.get('node_id'))
+    record_ids = (df[id_col] if id_col in df.columns
+                  else pd.Series('', index=df.index))
 
     for col in df.columns:
         values = df[col]
@@ -1318,9 +1339,7 @@ def scan_output_tsv(filepath, datatype, column_configs):
                 match = pattern.search(text)
                 if match:
                     snippet = text[max(0, match.start() - 30):match.end() + 30]
-                    # Header is Excel row 1, so first data row is row 2
-                    add_finding(check, idx + 2, col, repr(match.group()),
-                                snippet)
+                    add_finding(check, idx, col, repr(match.group()), snippet)
 
         if col in exclude_cols:
             continue
@@ -1335,7 +1354,7 @@ def scan_output_tsv(filepath, datatype, column_configs):
                 detail = ', '.join(
                     f"{char} U+{ord(char):04X} "
                     f"{unicodedata.name(char, 'UNNAMED')}" for char in unexpected)
-                add_finding('unexpected_character', idx + 2, col, detail,
+                add_finding('unexpected_character', idx, col, detail,
                             value[max(0, first - 30):first + 30])
 
     return findings
@@ -1377,8 +1396,8 @@ def run_output_character_qa(output_files, column_configs, summary_path,
     summary_df = pd.DataFrame(summary_rows, columns=[
         'file', 'datatype', 'check', 'question', 'status', 'count'])
     details_df = pd.DataFrame(findings, columns=[
-        'file', 'datatype', 'check', 'severity', 'excel_row', 'column',
-        'detail', 'snippet'])
+        'file', 'datatype', 'record_id', 'check', 'severity', 'excel_row',
+        'column', 'detail', 'snippet'])
 
     if findings:
         for path, df in [(summary_path, summary_df),

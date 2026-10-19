@@ -302,6 +302,20 @@ class TestReplaceDefinedCharacters:
             "5-10 \ufffdl and (\ufffdDC1s)", preserve_characters=preserve)
         assert result == "5-10 ?l and (?DC1s)"
 
+    @pytest.mark.parametrize("preserve", [False, True])
+    @pytest.mark.parametrize("raw, expected", [
+        # Regression cases from output character QA findings
+        ("proof-of\x02activity", "proof-of-activity"),
+        ("Research and\r\n                    Design", "Research and Design"),
+        ("Cancer \t\t\tEpidemiology", "Cancer Epidemiology"),
+        ("Institute,\tBoston", "Institute, Boston"),
+        ("a\x00b\x1fc\x7fd", "abcd"),
+    ])
+    def test_control_characters_tabs_and_line_breaks(
+            self, raw, expected, preserve):
+        assert replace_defined_characters(
+            raw, preserve_characters=preserve) == expected
+
     def test_unicode_replacement_char_survives_full_processing(self):
         config = {"test": {"exclude_special_char_processing": []}}
         text = "volume of 5-10 \ufffdl"
@@ -1146,7 +1160,7 @@ class TestWriteSpecialCharacterScan:
 QA_COLUMN_CONFIGS = {
     "dbgap_dataset": {"html_tag_cols": ["title"],
                       "exclude_special_char_processing": ["curated"]},
-    "project": {},
+    "project": {"node_id": "project_id"},
 }
 
 
@@ -1190,6 +1204,20 @@ class TestScanOutputTsv:
         findings = scan_output_tsv(path, "project", QA_COLUMN_CONFIGS)
         assert [f["check"] for f in findings] == ["html_entity"]
 
+    @pytest.mark.parametrize("datatype, data, expected_id", [
+        # Datasets use the searchable source ID rather than the UUID
+        ("dbgap_dataset", {"dataset_uuid": ["u-1"],
+                           "dataset_source_id": ["phs000001"],
+                           "title": ["&#39;"]}, "phs000001"),
+        ("project", {"project_id": ["R33CA174554"],
+                     "title": ["&#39;"]}, "R33CA174554"),
+    ])
+    def test_findings_include_record_id(self, tmp_path, datatype, data,
+                                        expected_id):
+        path = write_tsv(tmp_path / "ids.tsv", data)
+        findings = scan_output_tsv(path, datatype, QA_COLUMN_CONFIGS)
+        assert [f["record_id"] for f in findings] == [expected_id]
+
     def test_excluded_columns_skip_unexpected_character_check(self, tmp_path):
         path = write_tsv(tmp_path / "ctd2.tsv", {"curated": ["\u201cquoted\u201d"]})
         assert scan_output_tsv(path, "dbgap_dataset", QA_COLUMN_CONFIGS) == []
@@ -1228,6 +1256,8 @@ class TestRunOutputCharacterQa:
 
         written = pd.read_csv(details_path, encoding="utf-8-sig")
         assert len(written) == 3
+        assert list(written.columns[:4]) == [
+            "file", "datatype", "record_id", "check"]
         assert len(pd.read_csv(summary_path, encoding="utf-8-sig")) == len(summary)
         assert "Overall: FAIL" in capsys.readouterr().out
 
