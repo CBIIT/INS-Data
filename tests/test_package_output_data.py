@@ -291,6 +291,22 @@ class TestReplaceDefinedCharacters:
             "\u201cA\u201d\u2014B\u00a0C \"D\" \u00a9", preserve_characters=True)
         assert result == "'A'-B C 'D' (C)"
 
+    @pytest.mark.parametrize("preserve", [False, True])
+    def test_unicode_replacement_char_becomes_placeholder(self, preserve):
+        """Regression: U+FFFD from NIH RePORTER (e.g. 5-10 \ufffdl) was
+        silently dropped; keep a placeholder to signal the lost character."""
+        result = replace_defined_characters(
+            "5-10 \ufffdl and (\ufffdDC1s)", preserve_characters=preserve)
+        assert result == "5-10 ?l and (?DC1s)"
+
+    def test_unicode_replacement_char_survives_full_processing(self):
+        config = {"test": {"exclude_special_char_processing": []}}
+        text = "volume of 5-10 \ufffdl"
+        df = pd.DataFrame({"description": [text], "abstract_text": [text]})
+        result = process_special_characters(df, config, "test")
+        assert result.iloc[0]["description"] == "volume of 5-10 ?l"
+        assert result.iloc[0]["abstract_text"] == "volume of 5-10 ?l"
+
 
 # ============================================================
 # normalize_encoding

@@ -257,6 +257,7 @@ CHARACTER_REPLACEMENTS = {
         '\u2029': ' ',      # Paragraph Separator (PS) - replace with space
         '\u00a0': ' ',      # Non-breaking space - replace with space
         '\ufeff': '',       # Byte Order Mark (BOM) warning sign - remove
+        '\ufffd': '?',      # Unicode replacement char (lost upstream) - placeholder
         '\u2013': '-',      # En Dash - replace with dash
         '\u2014': '-',      # Em Dash - replace with dash
         '\u2010': '-',      # Hyphen - replace with dash
