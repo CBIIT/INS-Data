@@ -1093,11 +1093,38 @@ class TestWarnOnEncodingDamage:
         findings = warn_on_encoding_damage(df, "test.tsv")
         assert sorted(f["excel_row"] for f in findings) == [2, 3, 4]
 
+    @pytest.mark.parametrize("value, garbled", [
+        ("Espa\u00c3\u00b1a", True),           # ñ read as cp1252
+        ("\u00ce\u00b2-catenin", True),         # β read as cp1252
+        ("Wroc\u00c5\u201aaw", True),           # ł read as cp1252
+        # Regression: valid units are not garbled text
+        ("area of 20 \u00c5\u00b2", False),
+        ("volume of 5 \u00c5\u00b3", False),
+        ("10 \u00b5m\u00d7\u00b5m field", False),
+    ])
+    def test_garbled_text_detection_avoids_valid_units(self, value, garbled):
+        findings = warn_on_encoding_damage(
+            pd.DataFrame({"title": [value]}), "test.tsv")
+        assert bool(findings) is garbled
+
+    @pytest.mark.parametrize("url", [
+        "https://example.org/Mej\ufffda",
+        "https://example.org/Espa\u00c3\u00b1a",
+    ])
+    def test_flags_damage_inside_urls(self, url):
+        """Regression: URL masking hid U+FFFD and garbled text inside links."""
+        findings = warn_on_encoding_damage(
+            pd.DataFrame({"url": [url]}), "test.tsv")
+        assert len(findings) == 1
+
     def test_ignores_urls_and_clean_text(self):
         df = pd.DataFrame({
             "url": ["https://example.org/study.cgi?study_id=phs000001"],
             "html": ["<a href='./study.cgi?study_id=phs0'>link</a>"],
             "text": ["Mej\u00eda \u00c9cole RORγt \u2264 5? Yes"],
+            # Real URLs where '?' is followed by a non key=value path
+            "link": ["https://clinicalstudies.info.nih.gov/cgi/wais/"
+                     "bold032001.pl?A_02-C-0210.html"],
         })
         assert warn_on_encoding_damage(df, "test.tsv") == []
 
@@ -1152,6 +1179,17 @@ class TestWriteSpecialCharacterScan:
         assert not report_path.exists()
         assert "0 finding(s)" in capsys.readouterr().out
 
+    def test_clean_rerun_removes_earlier_same_day_report(self, tmp_path, capsys):
+        report_path = tmp_path / "special_character_scan.csv"
+        findings = [{"source_file": "a.tsv", "issue": "x", "excel_row": 2,
+                     "column": "title", "snippet": "NF?B"}]
+        write_special_character_scan(findings, str(report_path))
+        assert report_path.exists()
+
+        write_special_character_scan([], str(report_path))
+        assert not report_path.exists()
+        assert "Removed outdated report" in capsys.readouterr().out
+
 
 # ============================================================
 # scan_output_tsv / run_output_character_qa
@@ -1177,8 +1215,15 @@ class TestScanOutputTsv:
             "title": ["Mej\u00eda \u03b3\u03b4T at 37\u00b0C \u2264 5? Yes"],
             "description": ["Keeps &#237; and <a href='x?a=1'>link</a>"],
             "study_links": ["https://example.org/study.cgi?study_id=phs1"],
+            "units": ["20 \u00c5\u00b2, 5 \u00c5\u00b3, 10 \u00b5m\u00d7\u00b5m"],
         })
         assert scan_output_tsv(path, "dbgap_dataset", QA_COLUMN_CONFIGS) == []
+
+    def test_flags_replacement_char_inside_url(self, tmp_path):
+        path = write_tsv(tmp_path / "url.tsv",
+                         {"study_links": ["https://example.org/Mej\ufffda"]})
+        findings = scan_output_tsv(path, "dbgap_dataset", QA_COLUMN_CONFIGS)
+        assert [f["check"] for f in findings] == ["replacement_char"]
 
     @pytest.mark.parametrize("column, value, check", [
         ("title", "Lost \ufffd here", "replacement_char"),
@@ -1284,3 +1329,18 @@ class TestRunOutputCharacterQa:
         output = capsys.readouterr().out
         assert "Overall: PASS" in output
         assert "reports not written" in output
+
+    def test_clean_rerun_removes_earlier_failing_reports(self, tmp_path, capsys):
+        summary_path = tmp_path / "s.csv"
+        details_path = tmp_path / "d.csv"
+        bad = write_tsv(tmp_path / "bad.tsv", {"title": ["&#39; one"]})
+        run_output_character_qa([("project", bad)], QA_COLUMN_CONFIGS,
+                                str(summary_path), str(details_path))
+        assert summary_path.exists() and details_path.exists()
+
+        clean = write_tsv(tmp_path / "clean.tsv", {"title": ["Mej\u00eda"]})
+        run_output_character_qa([("project", clean)], QA_COLUMN_CONFIGS,
+                                str(summary_path), str(details_path))
+        assert not summary_path.exists()
+        assert not details_path.exists()
+        assert "Removed outdated report" in capsys.readouterr().out

@@ -51,11 +51,16 @@ PRESERVED_LETTER_RANGES = [
 # A '?' followed by key= starts a URL query string, so it is not flagged
 SUBSTITUTED_CHAR_PATTERN = re.compile(r'[^\W\d_]\?(?![\w.-]*=)[^\W\d_]')
 
-# UTF-8 bytes misread as cp1252 (e.g. é -> Ã©, ’ -> â€™)
+# UTF-8 bytes misread as cp1252 (e.g. é -> Ã©, ’ -> â€™, β -> Î², ł -> Å‚)
+# × is excluded as a lead and Å²/Å³ are allowed, since µm×µm and Å² are valid units
 CP1252_CONTINUATION_CHARS = bytes(range(0x80, 0xC0)).decode(
     'cp1252', errors='ignore')
 MOJIBAKE_PATTERN = re.compile(
-    '[\u00c2-\u00df][' + re.escape(CP1252_CONTINUATION_CHARS) + ']|\u00e2\u20ac')
+    '[\u00c2-\u00c4\u00c6-\u00d6\u00d8-\u00df]['
+    + re.escape(CP1252_CONTINUATION_CHARS) + ']'
+    '|\u00c5[' + re.escape(CP1252_CONTINUATION_CHARS.replace('\u00b2', '')
+                           .replace('\u00b3', '')) + ']'
+    '|\u00e2\u20ac')
 
 # URLs legitimately contain '?'; stop at HTML delimiters so link text is scanned
 URL_PATTERN = re.compile(r'(?:https?://|www\.)[^\s<>"\']+')
@@ -119,7 +124,9 @@ def warn_on_encoding_damage(df, source, max_examples=10):
             for idx, value in df[col].items():
                 if not isinstance(value, str):
                     continue
-                text = URL_PATTERN.sub(' ', value)
+                # Mask URLs only for the '?' check; damage inside URLs still counts
+                text = (URL_PATTERN.sub(' ', value)
+                        if pattern is SUBSTITUTED_CHAR_PATTERN else value)
                 match = pattern.search(text)
                 if match:
                     snippet = text[max(0, match.start() - 20):match.end() + 20]
@@ -146,10 +153,14 @@ def warn_on_encoding_damage(df, source, max_examples=10):
 
 def write_special_character_scan(findings, report_path):
     """Save every special character finding to a CSV report, one per row.
-    No report is written when there are no findings."""
+    With no findings, no report is written and any earlier same-day report
+    is removed so it cannot contradict the latest run."""
 
     if not findings:
         print(f"Special character scan: 0 finding(s). No report written.")
+        if os.path.exists(report_path):
+            os.remove(report_path)
+            print(f"Removed outdated report {report_path}")
         return
 
     columns = ['source_file', 'issue', 'excel_row', 'column', 'snippet']
@@ -1422,6 +1433,11 @@ def run_output_character_qa(output_files, column_configs, summary_path,
         print(f"Details saved to {details_path}")
     else:
         print(f"No findings. Summary and details reports not written.")
+        # Earlier same-day reports would contradict this clean result
+        for path in [summary_path, details_path]:
+            if os.path.exists(path):
+                os.remove(path)
+                print(f"Removed outdated report {path}")
 
     return summary_df, details_df
 
