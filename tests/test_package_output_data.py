@@ -714,9 +714,25 @@ class TestStandardizeData:
             "process_special_characters")
         assert calls.index("clean_html_entities") < calls.index(
             "remove_html_tags_from_df")
+        assert calls.index("remove_html_tags_from_df") < calls.index(
+            "process_special_characters")
         # Decoded ’ is only mapped to ' if decoding runs first; é/í are kept
         assert result.iloc[0]["title"] == "Smith's caf\u00e9"
         assert result.iloc[0]["value"] == "Mej\u00eda"
+
+    def test_tag_with_apostrophe_in_quoted_attribute_removed(
+            self, minimal_column_config):
+        """Quote normalization must not break attribute quoting before tags
+        are removed."""
+        df = pd.DataFrame({
+            "type": ["test_type"],
+            "node_id": ["N1"],
+            "link_id": ["L1"],
+            "title": ['<math alttext="f\'(x)"><mi>f</mi></math> study'],
+            "value": ["v"],
+        })
+        result = standardize_data(df, minimal_column_config, "test_type")
+        assert result.iloc[0]["title"] == "f study"
 
     @pytest.mark.parametrize("datatype", sorted(DATASET_TYPES))
     def test_dataset_outputs_have_no_entities_outside_allowed_fields(
@@ -1277,6 +1293,21 @@ class TestScanOutputTsv:
         path = write_tsv(tmp_path / "project.tsv", {"description": ["&#39;"]})
         findings = scan_output_tsv(path, "project", QA_COLUMN_CONFIGS)
         assert [f["check"] for f in findings] == ["html_entity"]
+
+    @pytest.mark.parametrize("value", [
+        "R&D; additional research",
+        "Keep &notanentity; and R&D",
+    ])
+    def test_unknown_named_entities_not_flagged(self, tmp_path, value):
+        path = write_tsv(tmp_path / "unknown.tsv", {"title": [value]})
+        assert scan_output_tsv(path, "dbgap_dataset", QA_COLUMN_CONFIGS) == []
+
+    def test_real_entity_found_after_unknown_name(self, tmp_path):
+        path = write_tsv(tmp_path / "mixed.tsv",
+                         {"title": ["R&D; and &sup2; area"]})
+        findings = scan_output_tsv(path, "dbgap_dataset", QA_COLUMN_CONFIGS)
+        assert [(f["check"], f["detail"]) for f in findings] == [
+            ("html_entity", "'&sup2;'")]
 
     @pytest.mark.parametrize("datatype, data, expected_id", [
         # Datasets use the searchable source ID rather than the UUID

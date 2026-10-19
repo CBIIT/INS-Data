@@ -741,8 +741,9 @@ def standardize_data(df, column_configs, datatype):
     df = add_type_column(df, datatype)
     df = reorder_columns(df, column_configs, datatype)
     df = clean_html_entities(df, datatype)
-    df = process_special_characters(df, column_configs, datatype)
+    # Tags go before normalization, which turns attribute quotes into apostrophes
     df = remove_html_tags_from_df(df, column_configs, datatype)
+    df = process_special_characters(df, column_configs, datatype)
     df = validate_listlike_columns(df, column_configs, datatype)
     df = format_datetime_columns(df, column_configs, datatype)
     df = validate_and_clean_unique_nodes(df, column_configs, datatype)
@@ -1357,7 +1358,11 @@ def scan_output_tsv(filepath, datatype, column_configs):
             for idx, value in values[values.str.contains(pattern)].items():
                 text = (URL_PATTERN.sub(' ', value)
                         if check == 'placeholder_char' else value)
-                match = pattern.search(text)
+                # Unknown names like R&D; are kept by the decoder, so skip them
+                match = next((m for m in pattern.finditer(text)
+                              if check != 'html_entity'
+                              or m.group()[1] == '#'
+                              or m.group()[1:] in HTML5_ENTITIES), None)
                 if match:
                     snippet = text[max(0, match.start() - 30):match.end() + 30]
                     add_finding(check, idx, col, repr(match.group()), snippet)
