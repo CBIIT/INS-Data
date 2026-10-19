@@ -437,6 +437,7 @@ NOTE: This module should be run after `gather_dbgap_data.py` has produced a new 
 
 4. **Save merged output**
     - Saves the merged file as `dbgap_datasets_merged.tsv` in the versioned `data/01_intermediate/dbgap/` directory
+        - Saved as UTF-8 with a BOM so Excel displays accented letters and symbols correctly
     - The merged file is ready for manual curation before final packaging
 
 ## Generate dbGaP Subset Clones
@@ -558,26 +559,56 @@ All final data packaging steps are handled within the `package_output_data.py` m
 python modules/package_output_data.py
 ```
 
-1. **Finalize columns in output files**
+1. **Load data and scan curated files**
+    - Loads intermediate files from each gathering step. Curated files (dbGaP, SRA, DCEG, NCCR, DCTD, CTD^2) are used when available
+    - Curated files are read in whichever encoding Excel saved them: UTF-16 ("Unicode Text"), UTF-8 with or without BOM ("CSV UTF-8"), or cp1252 ("Text (Tab delimited)")
+    - Scans curated files for damage from Excel saves before any cleaning:
+        - `?` between letters (e.g. `ROR?t`), where Excel replaced a character it could not save
+        - Garbled text (e.g. `cafÃ©`), where UTF-8 text was read as cp1252
+        - U+FFFD (�) replacement characters
+    - Findings are printed and saved to `reports/special_characters/specialCharacterCuratedScan_{date}.csv` with the source file, Excel row, and column so they can be fixed in the curated file. No report is written when nothing is found.
+
+2. **Finalize columns in output files**
     - Adds a `type` column and fills with appropriate values required for data loading(e.g. `program` or `project`)
     - Specifies columns and ordering for all files. These can be configured within `config.py`
 
-2. **Standardize characters**
-    - Normalizes any non-standard characters within data gathered from sources
-    - Characters were normalized using NFKC and then converted to ASCII before saving as UTF-8
+3. **Standardize characters**
+    - Decodes HTML character codes (e.g. `&#237;` to `í`, `&amp;#945;` to `α`). Dataset `description` and `experimental_approaches` fields keep HTML codes for rich-text display
+    - Removes HTML tags (e.g. `<i>`, `<sup>`, `<math xmlns="...">`) from columns listed in `html_tag_cols` in `config.py`, keeping the enclosed text. MathML LaTeX annotations are dropped so formulas are not repeated
+    - Normalizes non-standard characters:
+        - Keeps accented Latin and Greek letters (e.g. `í`, `ł`, `β`) and common scientific symbols (`° ± × µ ≤ ≥`, superscript and subscript digits)
+        - Maps typographic characters to ASCII (e.g. curly and double quotes to `'`, en/em dashes to `-`, non-breaking spaces to spaces)
+        - Replaces tabs and line breaks with a single space and removes other control characters
+        - Replaces U+FFFD replacement characters (�) with a `?` placeholder
+        - Reduces `description` and `experimental_approaches` fields to ASCII
+    - Columns listed in `exclude_special_char_processing` in `config.py` are not normalized
 
-3. **Perform special handling steps**
+4. **Perform special handling steps**
     - Removes any publications with a publication date more than 365 days before the associated project start date
         - This helps to address the over-citation issue occasionally encountered when authors cite inappropriate grant support. See [this 2023 Office of Extramural Research article](https://nexus.od.nih.gov/all/2023/10/05/reminders-about-when-to-cite-an-nih-grant-in-a-paper-overcite-oversight/) for more details on the issue.
         - Any publications removed in this process are saved in a `removedEarlyPublications.csv` in the `reports/../packagingReports` directory.
         - The 365-day buffer can be modified within `config.py`
 
-4. **Validate and save final outputs**
+5. **Validate and save final outputs**
     - Validates that files do not contain duplicates or other inconsistencies
         - NOTE: Nodes with many-to-many relationships (e.g. `publications`) will have duplicate records where all values are identical **except** for the linking column (e.g. `project.project_id`). This is intentional.
     - Validates that all list-like columns are separated by semicolons
     - Generates a list of enumerated values for each column specified in `config.py`. These can be used to update the [INS Data Model](https://github.com/CBIIT/ins-model) before loading.
     - Saves all final outputs as TSV files in the `data/02_output` directory. These are ready for INS data loading.
+
+6. **Check special characters in final outputs**
+    - Scans every packaged TSV and prints a result for each question. Any "yes" is a **FAIL**, except the placeholder count, which is **INFO** only:
+        - Is any file not plain UTF-8, or does it start with a byte order mark?
+        - Are there any U+FFFD replacement characters (diamond question mark)?
+        - Is there garbled text from encoding mix-ups (UTF-8 read as cp1252)?
+        - Are there HTML codes (e.g. `&#237;`) outside dataset `description` and `experimental_approaches`?
+        - Are there leftover HTML tags in columns configured for tag removal?
+        - Are there characters outside the allowed set (ASCII, accented/Greek letters, approved symbols; ASCII only in description fields)?
+        - Are there hidden control characters (tabs, line breaks) in values?
+        - How many `?` placeholders stand in for a lost character (from source data or Excel corruption)?
+    - Saves `specialCharacterOutputSummary_{date}.csv` (one row per file and check) and `specialCharacterOutputDetails_{date}.csv` (one row per finding, with record ID, Excel row, column, and snippet) in `reports/special_characters/`
+    - No reports are written when nothing is found, and any earlier same-day reports are removed
+    - Findings do not stop packaging. Review any FAIL results before loading.
 
 ## Validate Data
 
@@ -806,6 +837,8 @@ NOTE: Run this **after** packaging so the newest output files are checked. Reque
     - **NCCR Data Platform**: Place the curated TSV as `nccr_datasets_curated.tsv` in a versioned `data/01_intermediate/nccr/` directory. Update `NCCR_VERSION` in `config.py`.
     - **DCTD Datasets**: Place the curated TSV as `dctd_datasets_curated.tsv` in a versioned `data/01_intermediate/dctd/` directory. Update `DCTD_VERSION` in `config.py`.
     - Curated sources are processed automatically during the [Package Data](#package-data) step.
+    - When saving curated TSVs from Excel, use **Unicode Text** to keep all characters. **Text (Tab delimited)** replaces characters such as `β` or `≤` with `?`.
+    - After packaging, review any reports in `reports/special_characters/` and fix flagged values in the curated files.
 
 11. **Check URL health before loading (optional)**
     - Review `URL_HEALTH_TARGETS` in `config.py` and run the URL health check against the packaged outputs:

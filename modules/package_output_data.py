@@ -11,6 +11,7 @@ import os
 import unicodedata
 import uuid
 import html
+from html.entities import html5 as HTML5_ENTITIES
 import hashlib
 
 import pandas as pd
@@ -19,19 +20,197 @@ import re
 import config
 
 
-def read_csv_with_encoding_fallback(filepath, **kwargs):
-    """Read a CSV/TSV trying utf-8 first, falling back to cp1252.
+# Dataset-like datatypes, all mapped to the general 'dataset' node type
+DATASET_TYPES = {'dbgap_dataset',
+                 'geo_dataset',
+                 'sra_dataset',
+                 'cedcd_dataset',
+                 'ctd2_dataset',
+                 'dceg_dataset',
+                 'nccr_dataset',
+                 'dctd_dataset'}
 
-    Curated files are often edited/saved in Excel, which writes files using
-    the system codepage (cp1252 on Windows) rather than utf-8, causing
-    UnicodeDecodeError on bytes like 0xa0 (non-breaking space) or 0x96 (en dash).
+# Dataset fields allowed to retain HTML entities for rich-text display
+DATASET_HTML_ENTITY_EXCLUDE_COLS = ['description', 'experimental_approaches']
+
+# Fields that keep legacy ASCII-only character processing
+ASCII_ONLY_COLS = ['description', 'experimental_approaches']
+
+# Non-ASCII symbols kept in output alongside accented Latin and Greek letters
+PRESERVED_SYMBOLS = set('°±×µ≤≥¹²³⁰⁴⁵⁶⁷⁸⁹₀₁₂₃₄₅₆₇₈₉')
+
+# Unicode blocks whose letters (accented Latin and Greek) are kept in output
+PRESERVED_LETTER_RANGES = [
+    (0x00C0, 0x024F),   # Latin-1 Supplement, Latin Extended-A/B (í, ł)
+    (0x0370, 0x03FF),   # Greek and Coptic (β, Δ)
+    (0x1E00, 0x1EFF),   # Latin Extended Additional (ễ, Ḥ)
+    (0x1F00, 0x1FFF),   # Greek Extended (ἄ)
+]
+
+# Excel ANSI saves replace unsupported characters with '?' (e.g. RORγt -> ROR?t)
+# A '?' followed by key= starts a URL query string, so it is not flagged
+SUBSTITUTED_CHAR_PATTERN = re.compile(r'[^\W\d_]\?(?![\w.-]*=)[^\W\d_]')
+
+# UTF-8 bytes misread as cp1252 (e.g. é -> Ã©, ’ -> â€™, β -> Î², ł -> Å‚)
+# × is excluded as a lead and Å²/Å³ are allowed, since µm×µm and Å² are valid units
+CP1252_CONTINUATION_CHARS = bytes(range(0x80, 0xC0)).decode(
+    'cp1252', errors='ignore')
+MOJIBAKE_PATTERN = re.compile(
+    '[\u00c2-\u00c4\u00c6-\u00d6\u00d8-\u00df]['
+    + re.escape(CP1252_CONTINUATION_CHARS) + ']'
+    '|\u00c5[' + re.escape(CP1252_CONTINUATION_CHARS.replace('\u00b2', '')
+                           .replace('\u00b3', '')) + ']'
+    '|\u00e2\u20ac')
+
+# URLs legitimately contain '?'; stop at HTML delimiters so link text is scanned
+URL_PATTERN = re.compile(r'(?:https?://|www\.)[^\s<>"\']+')
+
+# Numeric (semicolon optional) and complete named references only, so URL
+# parameters like &region= are never read as &reg
+HTML_REFERENCE_PATTERN = re.compile(
+    r'&(?:#[0-9]+;?|#[xX][0-9a-fA-F]+;?|[A-Za-z][A-Za-z0-9]*;)')
+
+# Opening, closing, attributed, and self-closing tags, e.g. <i>, </i>, <br/>,
+# <math xmlns="...">. A letter must follow '<' so text like '<60 years' is kept
+HTML_TAG_PATTERN = re.compile(
+    r'</?[A-Za-z][\w:-]*'
+    r'''(?:\s+[\w:-]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'<>]+))*\s*/?>''')
+
+# MathML annotations repeat the formula as LaTeX, e.g. $$ \alpha $$
+MATHML_ANNOTATION_PATTERN = re.compile(
+    r'<(annotation(?:-xml)?)\b[^>]*>.*?</\1>', re.DOTALL)
+
+# Output QA patterns: control characters and any non-ASCII character
+# (HTML codes and tags reuse HTML_REFERENCE_PATTERN and HTML_TAG_PATTERN)
+CONTROL_CHAR_PATTERN = re.compile(r'[\x00-\x1f\x7f]')
+NON_ASCII_PATTERN = re.compile(r'[^\x00-\x7f]')
+
+# '?' placeholder for a lost character (e.g. 5-10 ?l, (?DC1s)), not a query string
+PLACEHOLDER_PATTERN = re.compile(r'\?(?![\w.-]*=)(?=[^\W_])')
+
+# Plain-language QA questions and severity for each output check
+OUTPUT_QA_CHECKS = {
+    'file_encoding': ('FAIL',
+        'Is any file not plain UTF-8, or does it start with a byte order mark?'),
+    'replacement_char': ('FAIL',
+        'Are there any U+FFFD replacement characters (diamond question mark)?'),
+    'garbled_text': ('FAIL',
+        'Is there garbled text from encoding mix-ups (UTF-8 read as cp1252)?'),
+    'html_entity': ('FAIL',
+        'Are there HTML codes (e.g. &#237;) outside dataset description '
+        'and experimental_approaches?'),
+    'html_tag': ('FAIL',
+        'Are there leftover HTML tags in columns configured for tag removal?'),
+    'unexpected_character': ('FAIL',
+        'Are there characters outside the allowed set (ASCII, accented/Greek '
+        'letters, approved symbols; ASCII only in description fields)?'),
+    'control_character': ('FAIL',
+        'Are there hidden control characters (tabs, line breaks) in values?'),
+    'placeholder_char': ('INFO',
+        "How many '?' placeholders stand in for a lost character "
+        "(from source data or Excel corruption)?"),
+}
+
+
+def warn_on_encoding_damage(df, source, max_examples=10):
+    """Print warnings for text likely damaged by an Excel save and return
+    a list of finding dicts (source_file, issue, excel_row, column, snippet)."""
+
+    checks = {
+        "'?' between letters (character likely replaced by Excel)":
+            SUBSTITUTED_CHAR_PATTERN,
+        "garbled characters (UTF-8 text read as cp1252)": MOJIBAKE_PATTERN,
+        "U+FFFD replacement characters": re.compile('\ufffd'),
+    }
+
+    findings = []
+    for issue, pattern in checks.items():
+        issue_findings = []
+        for col in df.columns:
+            if not (pd.api.types.is_object_dtype(df[col])
+                    or pd.api.types.is_string_dtype(df[col])):
+                continue
+            for idx, value in df[col].items():
+                if not isinstance(value, str):
+                    continue
+                # Mask URLs only for the '?' check; damage inside URLs still counts
+                text = (URL_PATTERN.sub(' ', value)
+                        if pattern is SUBSTITUTED_CHAR_PATTERN else value)
+                match = pattern.search(text)
+                if match:
+                    snippet = text[max(0, match.start() - 20):match.end() + 20]
+                    issue_findings.append({
+                        'source_file': str(source),
+                        'issue': issue,
+                        # Header is Excel row 1, so first data row is row 2
+                        'excel_row': idx + 2,
+                        'column': col,
+                        'snippet': snippet,
+                    })
+
+        if issue_findings:
+            print(f"WARNING: {len(issue_findings)} value(s) in {source} "
+                  f"contain {issue}. Fix in the curated file and re-run:")
+            for finding in issue_findings[:max_examples]:
+                print(f"    Excel row {finding['excel_row']}, "
+                      f"{finding['column']}: ...{finding['snippet']}...")
+        findings.extend(issue_findings)
+
+    return findings
+
+
+
+def write_special_character_scan(findings, report_path):
+    """Save every special character finding to a CSV report, one per row.
+    With no findings, no report is written and any earlier same-day report
+    is removed so it cannot contradict the latest run."""
+
+    if not findings:
+        print(f"Special character scan: 0 finding(s). No report written.")
+        if os.path.exists(report_path):
+            os.remove(report_path)
+            print(f"Removed outdated report {report_path}")
+        return
+
+    columns = ['source_file', 'issue', 'excel_row', 'column', 'snippet']
+    os.makedirs(os.path.dirname(report_path), exist_ok=True)
+    # BOM so snippets with accents/symbols display correctly in Excel
+    pd.DataFrame(findings, columns=columns).to_csv(
+        report_path, index=False, encoding='utf-8-sig')
+    print(f"Special character scan: {len(findings)} finding(s) saved to "
+          f"{report_path}")
+
+
+
+def read_csv_with_encoding_fallback(filepath, findings=None, **kwargs):
+    """Read a curated CSV/TSV using the encoding Excel may have saved it in,
+    then warn about likely Excel encoding damage. Findings are appended to
+    the optional findings list for reporting.
+
+    - UTF-16 (has BOM): Excel 'Unicode Text' save. Keeps all characters.
+    - UTF-8, with or without BOM: pipeline outputs or Excel 'CSV UTF-8'.
+    - cp1252 fallback: Excel 'Text (Tab delimited)' save. Accented letters
+      survive, but Excel has already replaced characters outside cp1252
+      (e.g. β, ≤) with '?'.
     """
-    try:
-        return pd.read_csv(filepath, encoding='utf-8', **kwargs)
-    except UnicodeDecodeError:
-        print(f"WARNING: {filepath} is not valid utf-8 (likely saved from "
-              f"Excel). Retrying with cp1252 encoding.")
-        return pd.read_csv(filepath, encoding='cp1252', **kwargs)
+    with open(filepath, 'rb') as f:
+        bom = f.read(2)
+
+    if bom in (b'\xff\xfe', b'\xfe\xff'):
+        df = pd.read_csv(filepath, encoding='utf-16', **kwargs)
+    else:
+        try:
+            df = pd.read_csv(filepath, encoding='utf-8-sig', **kwargs)
+        except UnicodeDecodeError:
+            print(f"WARNING: {filepath} is not valid utf-8 (likely saved from "
+                  f"Excel). Retrying with cp1252 encoding.")
+            df = pd.read_csv(filepath, encoding='cp1252', **kwargs)
+
+    found = warn_on_encoding_damage(df, filepath)
+    if findings is not None:
+        findings.extend(found)
+
+    return df
 
 
 
@@ -40,18 +219,8 @@ def add_type_column(df, datatype):
 
     df_with_type = df.copy()
     
-    # Define dataset types that should be mapped to the general 'dataset' type
-    dataset_types = {'dbgap_dataset', 
-                     'geo_dataset',
-                     'sra_dataset',
-                     'cedcd_dataset', 
-                     'ctd2_dataset',
-                     'dceg_dataset',
-                     'nccr_dataset',
-                     'dctd_dataset'}
-    
     # Map to 'dataset' if in the list, otherwise keep the original value
-    df_with_type['type'] = 'dataset' if datatype in dataset_types else datatype
+    df_with_type['type'] = 'dataset' if datatype in DATASET_TYPES else datatype
     
     return df_with_type
 
@@ -131,21 +300,27 @@ def validate_first_columns(df, column_configs, datatype):
 
 
 
-def replace_defined_characters(text):
-    """Use a mappping to replace specific non-standard characters in text. Any
-    non-ascii characters not included here will be dropped."""
+def is_preserved_character(char):
+    """True for non-ASCII characters kept in output: letters in
+    PRESERVED_LETTER_RANGES and PRESERVED_SYMBOLS."""
 
-    # Return NaN and non-string values as-is
-    if pd.isna(text) or not isinstance(text, str):
-        return text
+    if char in PRESERVED_SYMBOLS:
+        return True
+    if not unicodedata.category(char).startswith('L'):
+        return False
+    code = ord(char)
+    return any(start <= code <= end for start, end in PRESERVED_LETTER_RANGES)
 
-    # Define translation table to replace characters
-    translation_table = str.maketrans({
+
+
+# Mapping of specific non-standard characters to replacements
+CHARACTER_REPLACEMENTS = {
         '\"'    : '\'',     # STANDARD double quotes - replace with single quote
         '\u2028': ' ',      # Line Separator (LS) - replace with space
         '\u2029': ' ',      # Paragraph Separator (PS) - replace with space
         '\u00a0': ' ',      # Non-breaking space - replace with space
         '\ufeff': '',       # Byte Order Mark (BOM) warning sign - remove
+        '\ufffd': '?',      # Unicode replacement char (lost upstream) - placeholder
         '\u2013': '-',      # En Dash - replace with dash
         '\u2014': '-',      # Em Dash - replace with dash
         '\u2010': '-',      # Hyphen - replace with dash
@@ -157,6 +332,7 @@ def replace_defined_characters(text):
         '\u0005': '',       # Unused unicode - remove
         '\u0006': '',       # Unused unicode - remove
         '\u0007': '',       # Unused unicode - remove
+        '\x02': '-',        # Start of Text control char - seen in place of a lost hyphen
         '\u03b1': 'a',      # Greek alpha - replace with a
         '\u03b2': 'B',      # Greek beta - replace with B
         '\u03b3': 'g',      # Greek gamma - replace with g
@@ -190,23 +366,58 @@ def replace_defined_characters(text):
         '\u2265': '>=',     # Greater than or equal to
 
         # Add mappings here in the future as needed
-        })
+        }
 
-    # Use translate only for strings
-    replaced_text = (text.translate(translation_table) 
-                     if isinstance(text, str) else text)
-    
-    # Use translate only for strings
-    return replaced_text
+# Remove all other control characters; tabs and line breaks are collapsed to
+# spaces by TAB_LINE_BREAK_PATTERN instead
+CHARACTER_REPLACEMENTS.update({
+    chr(code): ''
+    for code in [*range(0x00, 0x09), *range(0x0e, 0x20), 0x7f]
+    if chr(code) not in CHARACTER_REPLACEMENTS})
+
+# Tabs and line breaks, with any surrounding spaces, become a single space
+TAB_LINE_BREAK_PATTERN = re.compile(r' *[\t\n\r\x0b\x0c][\t\n\r\x0b\x0c ]*')
+
+ASCII_TRANSLATION_TABLE = str.maketrans(CHARACTER_REPLACEMENTS)
+PRESERVING_TRANSLATION_TABLE = str.maketrans(
+    {char: replacement for char, replacement in CHARACTER_REPLACEMENTS.items()
+     if not is_preserved_character(char)})
 
 
 
-def normalize_encoding(text):
-    """Normalizes text encoding for consistency and compatibility."""
+def replace_defined_characters(text, preserve_characters=False):
+    """Use a mappping to replace specific non-standard characters in text.
+    With preserve_characters, accented/Greek letters and PRESERVED_SYMBOLS
+    are left in place instead of being mapped to ASCII."""
 
     # Return NaN and non-string values as-is
     if pd.isna(text) or not isinstance(text, str):
         return text
+
+    text = TAB_LINE_BREAK_PATTERN.sub(' ', text)
+    if preserve_characters:
+        return text.translate(PRESERVING_TRANSLATION_TABLE)
+    return text.translate(ASCII_TRANSLATION_TABLE)
+
+
+
+def normalize_encoding(text, preserve_characters=False):
+    """Normalizes text encoding for consistency and compatibility. By default
+    reduces text to ASCII. With preserve_characters, keeps accented/Greek
+    letters and PRESERVED_SYMBOLS, reducing only other characters to ASCII."""
+
+    # Return NaN and non-string values as-is
+    if pd.isna(text) or not isinstance(text, str):
+        return text
+
+    if preserve_characters:
+        # NFC joins base letter + combining accent into one character (e.g. í)
+        text = unicodedata.normalize('NFC', text)
+        return ''.join(
+            char if ord(char) < 128 or is_preserved_character(char)
+            else (unicodedata.normalize('NFD', char)
+                  .encode('ascii', 'ignore').decode('utf-8'))
+            for char in text)
 
     # Encode and decode text through an ascii "filter" to normalize
     try:
@@ -226,6 +437,8 @@ def process_special_characters(df, column_configs, datatype):
     """
     Cleans a DataFrame by normalizing special characters and encoding.
     Excludes fields listed in config as 'exclude_special_char_processing'.
+    ASCII_ONLY_COLS are reduced to ASCII; other fields keep accented/Greek
+    letters and PRESERVED_SYMBOLS.
 
     Args:
         df (pd.DataFrame): Input DataFrame.
@@ -248,23 +461,26 @@ def process_special_characters(df, column_configs, datatype):
                        if col not in exclude_cols]
     
     for col in cols_to_process:
+        preserve = col not in ASCII_ONLY_COLS
         df_cleaned[col] = (df_cleaned[col]
                             # Replace specific non-standard characters
-                           .map(replace_defined_characters)
+                           .map(lambda x: replace_defined_characters(x, preserve))
                            # General normalization to utf-8 encoding
-                           .map(normalize_encoding))
+                           .map(lambda x: normalize_encoding(x, preserve)))
 
     return df_cleaned
 
 
 
 def remove_html_tags(text):
-    """Removes HTML tags using regular expressions."""
+    """Removes HTML tags using regular expressions, keeping enclosed text.
+    MathML LaTeX annotations are dropped so formulas are not repeated."""
 
-    # Matches opening or closing tags with tag name like <i>italics</i>
-    tag_pattern = r'<(/?)(\w+)>'
+    text = MATHML_ANNOTATION_PATTERN.sub('', text)
+    text = HTML_TAG_PATTERN.sub('', text)
 
-    return re.sub(tag_pattern, '', text)
+    # Collapse spacing left between removed tags
+    return re.sub(r'\s{2,}', ' ', text).strip()
 
 
 
@@ -291,20 +507,50 @@ def remove_html_tags_from_df(df, column_configs, datatype):
 
 
 
+def decode_html_reference(match):
+    """Decode one numeric or complete named HTML reference. Unknown names
+    are left as-is."""
+
+    reference = match.group()
+    if reference[1] == '#':
+        return html.unescape(reference)
+    return HTML5_ENTITIES.get(reference[1:], reference)
+
+
+
+def unescape_html_entities(text):
+    """Decode HTML references until unchanged so nested ones like &amp;#945;
+    fully decode to α. Only numeric and complete named (;-terminated)
+    references are decoded. Non-string values are returned as-is."""
+
+    if not isinstance(text, str):
+        return text
+    decoded = HTML_REFERENCE_PATTERN.sub(decode_html_reference, text)
+    while decoded != text:
+        text = decoded
+        decoded = HTML_REFERENCE_PATTERN.sub(decode_html_reference, text)
+    return decoded
+
+
+
 def clean_html_entities(df, datatype):
-    """Replaces HTML character entities (&#8217) with unicode characters."""
+    """Replaces HTML character entities (&#8217) with unicode characters.
+    Must run before process_special_characters so decoded characters get the
+    same character handling as other text."""
     
     exclude_cols = []
 
-    # Retain hmtl encoding and characters for dataset display
-    if datatype == 'dbgap_dataset':
-        exclude_cols = ['description']
+    # Retain html encoding and characters for dataset display
+    if datatype in DATASET_TYPES:
+        exclude_cols = DATASET_HTML_ENTITY_EXCLUDE_COLS
 
     for col in df.columns:
-        # Check for string columns
-        if col not in exclude_cols and df[col].dtype == 'object':
+        # pandas 3 text columns use StringDtype rather than object
+        if col not in exclude_cols and (
+                pd.api.types.is_object_dtype(df[col])
+                or pd.api.types.is_string_dtype(df[col])):
             # Replace htmls with unicode characters
-            df[col] = df[col].astype(str).apply(html.unescape)
+            df[col] = df[col].map(unescape_html_entities)
 
     return df
 
@@ -495,9 +741,10 @@ def standardize_data(df, column_configs, datatype):
     # Edit data to standardize
     df = add_type_column(df, datatype)
     df = reorder_columns(df, column_configs, datatype)
-    df = process_special_characters(df, column_configs, datatype)
+    df = clean_html_entities(df, datatype)
+    # Tags go before normalization, which turns attribute quotes into apostrophes
     df = remove_html_tags_from_df(df, column_configs, datatype)
-    df = clean_html_entities(df,datatype)
+    df = process_special_characters(df, column_configs, datatype)
     df = validate_listlike_columns(df, column_configs, datatype)
     df = format_datetime_columns(df, column_configs, datatype)
     df = validate_and_clean_unique_nodes(df, column_configs, datatype)
@@ -1057,6 +1304,166 @@ def generate_md5_hash_file(directory):
 
 
 
+def scan_output_tsv(filepath, datatype, column_configs):
+    """Scan one packaged TSV for special character problems and return a
+    list of finding dicts, one per value (or per file for file_encoding)."""
+
+    datatype_config = column_configs.get(datatype, {})
+    exclude_cols = datatype_config.get('exclude_special_char_processing', [])
+    html_tag_cols = datatype_config.get('html_tag_cols') or []
+    entity_allowed_cols = (DATASET_HTML_ENTITY_EXCLUDE_COLS
+                           if datatype in DATASET_TYPES else [])
+
+    findings = []
+    record_ids = None
+
+    def add_finding(check, idx, column, detail, snippet):
+        findings.append({
+            'file': str(filepath),
+            'datatype': datatype,
+            'record_id': record_ids[idx] if idx is not None else None,
+            'check': check,
+            'severity': OUTPUT_QA_CHECKS[check][0],
+            # Header is Excel row 1, so first data row is row 2
+            'excel_row': idx + 2 if idx is not None else None,
+            'column': column,
+            'detail': detail,
+            'snippet': snippet,
+        })
+
+    with open(filepath, 'rb') as f:
+        raw = f.read()
+    if raw.startswith(b'\xef\xbb\xbf'):
+        add_finding('file_encoding', None, None, 'Starts with UTF-8 BOM', '')
+    try:
+        raw.decode('utf-8')
+    except UnicodeDecodeError as e:
+        add_finding('file_encoding', None, None, f'Not valid UTF-8: {e}', '')
+
+    df = pd.read_csv(filepath, sep='\t', dtype=str, keep_default_na=False,
+                     encoding='utf-8-sig', encoding_errors='replace')
+
+    # Dataset source IDs (e.g. phs000001) are easier to search than UUIDs
+    id_col = ('dataset_source_id' if 'dataset_source_id' in df.columns
+              else datatype_config.get('node_id'))
+    record_ids = (df[id_col] if id_col in df.columns
+                  else pd.Series('', index=df.index))
+
+    for col in df.columns:
+        values = df[col]
+        pattern_checks = [('replacement_char', re.compile('\ufffd')),
+                          ('garbled_text', MOJIBAKE_PATTERN),
+                          ('control_character', CONTROL_CHAR_PATTERN),
+                          ('placeholder_char', PLACEHOLDER_PATTERN)]
+        if col not in entity_allowed_cols:
+            pattern_checks.append(('html_entity', HTML_REFERENCE_PATTERN))
+        if col in html_tag_cols:
+            pattern_checks.append(('html_tag', HTML_TAG_PATTERN))
+
+        for check, pattern in pattern_checks:
+            for idx, value in values[values.str.contains(pattern)].items():
+                text = (URL_PATTERN.sub(' ', value)
+                        if check == 'placeholder_char' else value)
+                # Unknown names like R&D; are kept by the decoder, so skip them
+                match = next((m for m in pattern.finditer(text)
+                              if check != 'html_entity'
+                              or m.group()[1] == '#'
+                              or m.group()[1:] in HTML5_ENTITIES), None)
+                if match:
+                    snippet = text[max(0, match.start() - 30):match.end() + 30]
+                    add_finding(check, idx, col, repr(match.group()), snippet)
+
+        if col in exclude_cols:
+            continue
+        ascii_only = col in ASCII_ONLY_COLS
+        for idx, value in values[values.str.contains(NON_ASCII_PATTERN)].items():
+            unexpected = sorted({
+                char for char in NON_ASCII_PATTERN.findall(value)
+                if char != '\ufffd'
+                and (ascii_only or not is_preserved_character(char))})
+            if unexpected:
+                first = value.find(unexpected[0])
+                detail = ', '.join(
+                    f"{char} U+{ord(char):04X} "
+                    f"{unicodedata.name(char, 'UNNAMED')}" for char in unexpected)
+                add_finding('unexpected_character', idx, col, detail,
+                            value[max(0, first - 30):first + 30])
+
+    return findings
+
+
+
+def run_output_character_qa(output_files, column_configs, summary_path,
+                            details_path):
+    """Scan all packaged TSVs, save a per-file/per-check summary CSV and a
+    detail CSV with every finding, and print an overall PASS/FAIL result.
+    Reports are only written when there is at least one finding.
+
+    Args:
+        output_files (list): (datatype, filepath) tuples of packaged TSVs.
+        column_configs (dict): Column configuration from config.py.
+        summary_path (str): Filepath for the summary CSV.
+        details_path (str): Filepath for the detail CSV.
+
+    Returns:
+        tuple: (summary_df, details_df)
+    """
+
+    findings = []
+    summary_rows = []
+    for datatype, filepath in output_files:
+        file_findings = scan_output_tsv(filepath, datatype, column_configs)
+        findings.extend(file_findings)
+        for check, (severity, question) in OUTPUT_QA_CHECKS.items():
+            count = sum(f['check'] == check for f in file_findings)
+            summary_rows.append({
+                'file': str(filepath),
+                'datatype': datatype,
+                'check': check,
+                'question': question,
+                'status': severity if count else 'PASS',
+                'count': count,
+            })
+
+    summary_df = pd.DataFrame(summary_rows, columns=[
+        'file', 'datatype', 'check', 'question', 'status', 'count'])
+    details_df = pd.DataFrame(findings, columns=[
+        'file', 'datatype', 'record_id', 'check', 'severity', 'excel_row',
+        'column', 'detail', 'snippet'])
+
+    if findings:
+        for path, df in [(summary_path, summary_df),
+                         (details_path, details_df)]:
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            # BOM so snippets with accents/symbols display correctly in Excel
+            df.to_csv(path, index=False, encoding='utf-8-sig')
+
+    print(f"Output character QA across {len(output_files)} file(s):")
+    for check, (severity, question) in OUTPUT_QA_CHECKS.items():
+        check_rows = summary_df[summary_df['check'] == check]
+        total = int(check_rows['count'].sum())
+        status = severity if total else 'PASS'
+        print(f"    [{status:<4}] {question} ({total})")
+        for _, row in check_rows[check_rows['count'] > 0].iterrows():
+            print(f"           {row['count']} in {row['file']}")
+
+    failed = (summary_df['status'] == 'FAIL').any()
+    print(f"Overall: {'FAIL - review ' + details_path if failed else 'PASS'}")
+    if findings:
+        print(f"Summary saved to {summary_path}")
+        print(f"Details saved to {details_path}")
+    else:
+        print(f"No findings. Summary and details reports not written.")
+        # Earlier same-day reports would contradict this clean result
+        for path in [summary_path, details_path]:
+            if os.path.exists(path):
+                os.remove(path)
+                print(f"Removed outdated report {path}")
+
+    return summary_df, details_df
+
+
+
 def package_output_data():
     """Run all data packaging steps for all data types."""
 
@@ -1065,6 +1472,9 @@ def package_output_data():
 
     # Single data model dict defined in config
     column_configs = config.COLUMN_CONFIGS 
+
+    # Special character findings from all curated files loaded below
+    special_char_findings = []
 
     # Load programs data
     if os.path.exists(config.PROGRAMS_INTERMED_PATH):
@@ -1107,7 +1517,8 @@ def package_output_data():
         dbgap_datasets_exist = True
         dbgap_curated = True
         df_dbgap_datasets = read_csv_with_encoding_fallback(
-            config.DBGAP_CURATED_INTERMED_PATH, sep='\t')
+            config.DBGAP_CURATED_INTERMED_PATH, sep='\t',
+            findings=special_char_findings)
         df_dbgap_datasets = backfill_curated_dbgap_accessions(
             df_dbgap_datasets, config.DBGAP_INTERMED_PATH)
         print(f"Loaded dbGaP Datasets (Curated) file from {config.DBGAP_CURATED_INTERMED_PATH}")
@@ -1136,7 +1547,8 @@ def package_output_data():
         sra_datasets_exist = True
         sra_curated = True
         df_sra_datasets = read_csv_with_encoding_fallback(
-            config.SRA_CURATED_INTERMED_PATH, sep='\t', dtype={'dataset_pmid':str})
+            config.SRA_CURATED_INTERMED_PATH, sep='\t', dtype={'dataset_pmid':str},
+            findings=special_char_findings)
         print(f"Loaded SRA Datasets (Curated) file from {config.SRA_CURATED_INTERMED_PATH}")
     elif os.path.exists(config.SRA_INTERMED_PATH):
         sra_datasets_exist = True
@@ -1162,7 +1574,8 @@ def package_output_data():
     if os.path.exists(config.DCEG_CURATED_INTERMED_PATH):
         dceg_datasets_exist = True
         df_dceg_datasets = read_csv_with_encoding_fallback(
-            config.DCEG_CURATED_INTERMED_PATH, sep='\t')
+            config.DCEG_CURATED_INTERMED_PATH, sep='\t',
+            findings=special_char_findings)
         print(f"Loaded DCEG Cohorts file from {config.DCEG_CURATED_INTERMED_PATH}")
     else:
         dceg_datasets_exist = False
@@ -1172,7 +1585,8 @@ def package_output_data():
     if os.path.exists(config.NCCR_CURATED_INTERMED_PATH):
         nccr_datasets_exist = True
         df_nccr_datasets = read_csv_with_encoding_fallback(
-            config.NCCR_CURATED_INTERMED_PATH, sep='\t')
+            config.NCCR_CURATED_INTERMED_PATH, sep='\t',
+            findings=special_char_findings)
         print(f"Loaded NCCR Datasets file from {config.NCCR_CURATED_INTERMED_PATH}")
     else:
         nccr_datasets_exist = False
@@ -1182,7 +1596,8 @@ def package_output_data():
     if os.path.exists(config.DCTD_CURATED_INTERMED_PATH):
         dctd_datasets_exist = True
         df_dctd_datasets = read_csv_with_encoding_fallback(
-            config.DCTD_CURATED_INTERMED_PATH, sep='\t')
+            config.DCTD_CURATED_INTERMED_PATH, sep='\t',
+            findings=special_char_findings)
         print(f"Loaded DCTD Datasets file from {config.DCTD_CURATED_INTERMED_PATH}")
     else:
         dctd_datasets_exist = False
@@ -1193,7 +1608,8 @@ def package_output_data():
         ctd2_datasets_exist = True
         ctd2_curated = True
         df_ctd2_datasets = read_csv_with_encoding_fallback(
-            config.CTD2_DATASET_CURATED_LOCKED_PATH, sep='\t')
+            config.CTD2_DATASET_CURATED_LOCKED_PATH, sep='\t',
+            findings=special_char_findings)
         print(f"Loaded CTD2 Datasets (Locked Curation) file from {config.CTD2_DATASET_CURATED_LOCKED_PATH}")
     elif os.path.exists(config.CTD2_DATASET_INTERMED_CSV):
         ctd2_datasets_exist = True
@@ -1202,6 +1618,7 @@ def package_output_data():
         print(f"Loaded CTD2 Datasets file from {config.CTD2_DATASET_INTERMED_CSV}")
     else:
         ctd2_datasets_exist = False
+        ctd2_curated = False
         print(f"No CTD2 Datasets file found.")
 
     # Load CTD2 file metadata
@@ -1212,6 +1629,9 @@ def package_output_data():
     else:
         ctd2_filedata_exist = False
         print(f"No CTD2 file metadata found.")
+
+    write_special_character_scan(special_char_findings,
+                                 config.SPECIAL_CHARACTER_CURATED_SCAN_PATH)
 
     # Special handling
     print(f"\n\nApplying special handling steps...")
@@ -1282,6 +1702,32 @@ def package_output_data():
         get_enum_values(df_programs_out, 
                         cols = config.ENUM_PROGRAM_COLS, 
                         output = config.ENUM_PROGRAM_PATH)
+
+    print(f"---\nScanning packaged TSVs for special character issues...")
+    output_files = [(datatype, path) for exists, datatype, path in [
+        (programs_exist, 'program', config.PROGRAMS_OUTPUT_PATH),
+        (grants_exist, 'grant', config.GRANTS_OUTPUT_PATH),
+        (projects_exist, 'project', config.PROJECTS_OUTPUT_PATH),
+        (publications_exist, 'publication', config.PUBLICATIONS_OUTPUT_PATH),
+        (dbgap_datasets_exist, 'dbgap_dataset',
+         config.DBGAP_OUTPUT_CURATED_CLEANED if dbgap_curated
+         else config.DBGAP_OUTPUT_PATH),
+        (geo_datasets_exist, 'geo_dataset', config.GEO_OUTPUT_PATH),
+        (sra_datasets_exist, 'sra_dataset',
+         config.SRA_OUTPUT_CURATED_CLEANED if sra_curated
+         else config.SRA_OUTPUT_PATH),
+        (cedcd_datasets_exist, 'cedcd_dataset', config.CEDCD_OUTPUT_PATH),
+        (dceg_datasets_exist, 'dceg_dataset', config.DCEG_OUTPUT_PATH),
+        (nccr_datasets_exist, 'nccr_dataset', config.NCCR_OUTPUT_PATH),
+        (dctd_datasets_exist, 'dctd_dataset', config.DCTD_OUTPUT_PATH),
+        (ctd2_datasets_exist, 'ctd2_dataset',
+         config.CTD2_DATASET_CURATED_LOCKED_PATH if ctd2_curated
+         else config.CTD2_DATASET_OUTPUT_PATH),
+        (ctd2_filedata_exist, 'file', config.CTD2_FILE_OUTPUT_PATH),
+    ] if exists]
+    run_output_character_qa(output_files, column_configs,
+                            config.SPECIAL_CHARACTER_OUTPUT_SUMMARY_PATH,
+                            config.SPECIAL_CHARACTER_OUTPUT_DETAILS_PATH)
         
     # Generate md5.txt
     print(f"---\nGenerating md5 hashes for file validation...")
