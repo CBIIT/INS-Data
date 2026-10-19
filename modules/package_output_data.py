@@ -107,7 +107,8 @@ OUTPUT_QA_CHECKS = {
     'control_character': ('FAIL',
         'Are there hidden control characters (tabs, line breaks) in values?'),
     'placeholder_char': ('INFO',
-        "How many '?' placeholders mark characters lost in source data?"),
+        "How many '?' placeholders stand in for a lost character "
+        "(from source data or Excel corruption)?"),
 }
 
 
@@ -1625,7 +1626,7 @@ def package_output_data():
         print(f"No CTD2 file metadata found.")
 
     write_special_character_scan(special_char_findings,
-                                 config.SPECIAL_CHARACTER_SCAN_PATH)
+                                 config.SPECIAL_CHARACTER_CURATED_SCAN_PATH)
 
     # Special handling
     print(f"\n\nApplying special handling steps...")
@@ -1720,8 +1721,8 @@ def package_output_data():
         (ctd2_filedata_exist, 'file', config.CTD2_FILE_OUTPUT_PATH),
     ] if exists]
     run_output_character_qa(output_files, column_configs,
-                            config.OUTPUT_CHARACTER_QA_SUMMARY_PATH,
-                            config.OUTPUT_CHARACTER_QA_DETAILS_PATH)
+                            config.SPECIAL_CHARACTER_OUTPUT_SUMMARY_PATH,
+                            config.SPECIAL_CHARACTER_OUTPUT_DETAILS_PATH)
         
     # Generate md5.txt
     print(f"---\nGenerating md5 hashes for file validation...")

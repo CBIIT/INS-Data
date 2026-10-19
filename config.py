@@ -283,19 +283,20 @@ PUB_PROJECT_DAY_DIFF = 365
 ENUM_PROGRAM_COLS = ['focus_area', 'cancer_type']
 ENUM_PROGRAM_PATH = PACKAGING_REPORTS + 'program_enums.txt'
 
-# Special character scan of curated files. Tagged with the date it was generated
-SPECIAL_CHARACTER_SCAN_PATH = ("reports/" + datetime.now().strftime("%Y-%m-%d")
-                               + "/special_character_scan_"
-                               + datetime.now().strftime("%Y-%m-%d") + ".csv")
+# Special character reports. Tagged with the date they were generated
+SPECIAL_CHARACTER_REPORTS_DIR = "reports/special_characters/"
 
-# Special character QA of final packaged TSVs. Tagged with the date generated
-OUTPUT_CHARACTER_QA_SUMMARY_PATH = (
-    "reports/" + datetime.now().strftime("%Y-%m-%d")
-    + "/output_character_qa_summary_"
+# Scan of curated input files for Excel encoding damage
+SPECIAL_CHARACTER_CURATED_SCAN_PATH = (
+    SPECIAL_CHARACTER_REPORTS_DIR + "specialCharacterCuratedScan_"
     + datetime.now().strftime("%Y-%m-%d") + ".csv")
-OUTPUT_CHARACTER_QA_DETAILS_PATH = (
-    "reports/" + datetime.now().strftime("%Y-%m-%d")
-    + "/output_character_qa_details_"
+
+# QA of final packaged TSVs: per-file/per-check summary and per-value details
+SPECIAL_CHARACTER_OUTPUT_SUMMARY_PATH = (
+    SPECIAL_CHARACTER_REPORTS_DIR + "specialCharacterOutputSummary_"
+    + datetime.now().strftime("%Y-%m-%d") + ".csv")
+SPECIAL_CHARACTER_OUTPUT_DETAILS_PATH = (
+    SPECIAL_CHARACTER_REPORTS_DIR + "specialCharacterOutputDetails_"
     + datetime.now().strftime("%Y-%m-%d") + ".csv")
 
 # Dictionary of columns and types to use in final data packaging
