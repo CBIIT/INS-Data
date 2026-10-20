@@ -13,11 +13,11 @@ from datetime import datetime
 # Inputs and outputs will use this versioning
 # Version must match suffix in input filename
 
-QUALTRICS_VERSION = "2026-01-30"    # <-- CHANGE VERSION HERE
+QUALTRICS_VERSION = "2026-10-15"    # <-- CHANGE VERSION HERE
 QUALTRICS_TYPE = "manual_fix"              # <-- Define "raw" or "manual_fix" type of the input csv
 
 # Version of bulk download from iCite
-ICITE_VERSION = "2026-01"           # <-- CHANGE VERSION HERE
+ICITE_VERSION = "2026-09"           # <-- CHANGE VERSION HERE
 
 # Version of dbGaP seearch results download (download date)
 DBGAP_CSV_VERSION = "2026-10-02"   # <-- CHANGE VERSION HERE
@@ -44,7 +44,7 @@ RESOURCES_VERSION = None               # <-- Optional. Pin a date (e.g. "2026-06
 # An override date can be used instead of today's date for pulling and saving data versions
 # This is useful when running downstream modules on grants data gathered before today
 
-OVERRIDE_DATE = None               # <-- Optional. Define override date (e.g. "2023-12-14"). Default None.
+OVERRIDE_DATE = "2026-10-16"               # <-- Optional. Define override date (e.g. "2023-12-14"). Default None.
 
 
 
@@ -110,10 +110,11 @@ QUALTRICS_COLS = {
     "NIH Contact (Program Officer/Program Director)": "contact_nih",
     "NIH Contact (Program Officer/Program Director) email": "contact_nih_email",
     "NOFO number (eg. format as \"RFA-CA-00-000\") (If more than one, separate with ; semicolon)": "nofo",
-    "Grant/Award number {parent award FORMAT LL#CA######, eg. UG3CA260607} (If more than one, separate with ; semicolon)": "award",
+    "*** ONLY needed if there is no NOFO number available*** \nGrant/Award number {parent award FORMAT LL#CA######, eg. UG3CA260607} (If more than one, separate with ; semicolon)": "award",
     "Link to program website": "program_link",
     "Link to data or DCC if available": "data_link",
     "What type of cancer is the primary focus of the program? (Check all that\napply)": "cancer_type",
+    "Please provide your name / email for follow-up from NCI Office of Data Sharing, as well as any additional comments. Thank you!": "comments",
     "Login ID": "login_id"
 }
 
@@ -324,6 +325,7 @@ COLUMN_CONFIGS = {
             'award': 'award',
             'program_link': 'program_link',
             'data_link': 'data_link',
+            'program_active_status': 'program_active_status',
         },
         # List of any list-like columns that need semicolon separators
         'list_like_cols': ['focus_area', 'cancer_type', 'program_doc'],
@@ -894,17 +896,22 @@ else:
 URL_HEALTH_TARGETS = {
     # URLs within curated files are high-priority targets for the check
     PROGRAMS_OUTPUT_PATH: ['program_link', 'data_link'],
-    DCEG_OUTPUT_PATH: ['dataset_source_url', 'study_links'],
-    NCCR_OUTPUT_PATH: ['dataset_source_url', 'study_links'],
-    DCTD_OUTPUT_PATH: ['dataset_source_url', 'study_links'],
-    CEDCD_OUTPUT_PATH: ['dataset_source_url', 'study_links'],
-    CTD2_DATASET_OUTPUT_PATH: ['study_links'],
-    RESOURCES_OUTPUT_PATH: ['resource_source_url'],
+    # DCEG_OUTPUT_PATH: ['dataset_source_url', 'study_links'],
+    # NCCR_OUTPUT_PATH: ['dataset_source_url', 'study_links'],
+    # DCTD_OUTPUT_PATH: ['dataset_source_url', 'study_links'],
+    # CEDCD_OUTPUT_PATH: ['dataset_source_url', 'study_links'],
+    # CTD2_DATASET_OUTPUT_PATH: ['study_links'],
+    # RESOURCES_OUTPUT_PATH: ['resource_source_url'],
     # URLs within files with many redundant, templated URLs are omitted by default
     # DBGAP_OUTPUT_CURATED_CLEANED: ['dataset_source_url', 'study_links'],
     # GEO_OUTPUT_PATH: ['dataset_source_url', 'study_links'],
     # SRA_OUTPUT_CURATED_CLEANED: ['dataset_source_url', 'study_links'],
 }
+
+# Record identifier columns added to each URL's source location so reviewers
+# know which record to fix. First non-empty value in this order is used
+URL_HEALTH_ID_COLUMNS = ['program_acronym', 'program_id',
+                         'dataset_source_id', 'resource_source_id']
 
 # Per-request timeout in seconds
 URL_HEALTH_TIMEOUT_SECONDS = 10

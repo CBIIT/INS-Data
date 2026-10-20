@@ -15,6 +15,7 @@ Requests run sequentially by design.
 
 Input:
     - config.URL_HEALTH_TARGETS (dict of TSV path: list of URL columns)
+    - config.URL_HEALTH_ID_COLUMNS (record identifiers, e.g. program_acronym)
 
 Output:
     - Console summary of R/Y/G counts with all Red and Yellow URLs and reasons
@@ -87,7 +88,7 @@ def split_url_field(value):
     return [p.strip() for p in value.split(';') if p.strip()]
 
 
-def read_target_urls(path, columns):
+def read_target_urls(path, columns, id_columns=()):
     """Extract URLs and locations from a TSV.
 
     Missing files, missing columns, and unreadable rows are logged and
@@ -96,10 +97,14 @@ def read_target_urls(path, columns):
     Args:
         path (str): Path to the TSV file.
         columns (list[str]): Columns that contain URLs.
+        id_columns (list[str], optional): Candidate record identifier
+            columns, in priority order. The first non-empty value in the row
+            is appended to the location.
 
     Returns:
         list[tuple[str, str]]: (url, location) pairs. Location is formatted
-            as 'filename | column | row N', where row 1 is the header row.
+            as 'filename | column | row N', where row 1 is the header row,
+            plus ' | record_id' when an identifier is found.
     """
 
     if not os.path.exists(path):
@@ -119,6 +124,7 @@ def read_target_urls(path, columns):
             if missing:
                 print(f"  WARNING: Columns not found in {path}: {missing}")
             present = [c for c in columns if c in header]
+            present_ids = [c for c in id_columns if c in header]
 
             row_num = 1
             while True:
@@ -132,9 +138,14 @@ def read_target_urls(path, columns):
                           f"in {path}: {exc}")
                     continue
 
+                record_id = next(
+                    (row[c].strip() for c in present_ids
+                     if (row.get(c) or '').strip()), '')
+                id_suffix = f" | {record_id}" if record_id else ''
+
                 for col in present:
                     for url in split_url_field(row.get(col)):
-                        loc = f"{filename} | {col} | row {row_num}"
+                        loc = f"{filename} | {col} | row {row_num}{id_suffix}"
                         found.append((url, loc))
 
     except (OSError, UnicodeDecodeError) as exc:
@@ -143,11 +154,13 @@ def read_target_urls(path, columns):
     return found
 
 
-def collect_urls(targets):
+def collect_urls(targets, id_columns=()):
     """Deduplicate URLs across all targets.
 
     Args:
         targets (dict): TSV path: list of URL column names.
+        id_columns (list[str], optional): Candidate record identifier
+            columns. See read_target_urls.
 
     Returns:
         dict[str, list[str]]: Each unique URL mapped to every location where
@@ -158,7 +171,7 @@ def collect_urls(targets):
 
     for path, columns in targets.items():
         print(f"\n  Reading {path}")
-        pairs = read_target_urls(path, columns)
+        pairs = read_target_urls(path, columns, id_columns)
         print(f"    {len(pairs)} URL values found")
 
         for url, loc in pairs:
@@ -706,6 +719,26 @@ def location_files(row):
     return list(dict.fromkeys(loc.split(' | ')[0] for loc in locs))
 
 
+def location_record_ids(row, name):
+    """Get unique record identifiers for one file from a report row.
+
+    Args:
+        row (dict): Report row.
+        name (str): Source file name.
+
+    Returns:
+        list[str]: Identifiers in order of first appearance. Locations
+            without an identifier are skipped.
+    """
+
+    ids = []
+    for loc in row['source_locations'].split('; '):
+        parts = loc.split(' | ')
+        if parts[0] == name and len(parts) > 3:
+            ids.append(parts[3])
+    return list(dict.fromkeys(ids))
+
+
 def split_reason(reason):
     """Split a single reason into its type and optional detail.
 
@@ -751,7 +784,8 @@ def group_flagged_by_file(rows):
         rows (list[dict]): Report rows.
 
     Returns:
-        dict: file -> label -> type -> list of (url, detail) tuples.
+        dict: file -> label -> type -> list of (url, detail, record_ids)
+            tuples.
     """
 
     groups = {}
@@ -765,7 +799,8 @@ def group_flagged_by_file(rows):
             for name in location_files(row):
                 by_type = groups.setdefault(name, {}).setdefault(label, {})
                 by_type.setdefault(issue, []).append(
-                    (row['original_url'], detail))
+                    (row['original_url'], detail,
+                     location_record_ids(row, name)))
     return groups
 
 
@@ -818,7 +853,8 @@ def print_file_section(name, by_label):
 
     Args:
         name (str): Source file name.
-        by_label (dict): label -> type -> list of (url, detail) tuples.
+        by_label (dict): label -> type -> list of (url, detail, record_ids)
+            tuples.
     """
 
     print(f"\n{'=' * 79}")
@@ -834,15 +870,17 @@ def print_file_section(name, by_label):
         if not by_type:
             continue
 
-        unique = {url for items in by_type.values() for url, _ in items}
+        unique = {url for items in by_type.values() for url, *_ in items}
         print(f"\n  {LABEL_NAMES[label].upper()} ({len(unique)} URLs)")
 
         ordered = sorted(by_type.items(),
                          key=lambda kv: (-len(kv[1]), kv[0]))
         for issue, items in ordered:
             print(f"    {issue} ({len(items)})")
-            for url, detail in items:
+            for url, detail, record_ids in items:
                 suffix = f"  [{detail}]" if detail else ''
+                if record_ids:
+                    suffix += f"  ({', '.join(record_ids)})"
                 print(f"      - {url}{suffix}")
 
 
@@ -909,7 +947,7 @@ def check_url_health(targets=None):
     if targets is None:
         targets = config.URL_HEALTH_TARGETS
 
-    url_locations = collect_urls(targets)
+    url_locations = collect_urls(targets, config.URL_HEALTH_ID_COLUMNS)
     total = sum(len(locs) for locs in url_locations.values())
     print(f"\nFound {total} URL occurrences "
           f"({len(url_locations)} unique)")

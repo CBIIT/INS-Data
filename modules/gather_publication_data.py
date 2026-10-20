@@ -338,7 +338,8 @@ def get_full_publication_record(pmid):
     Entrez.api_key = os.environ.get('NCBI_API_KEY', '')
 
     try:
-        handle = Entrez.efetch(db="pubmed", id=pmid, retmode="xml")
+        # Entrez treats non-int/str IDs (e.g. numpy.int64) as iterables
+        handle = Entrez.efetch(db="pubmed", id=str(pmid), retmode="xml")
         records = Entrez.read(handle)
         handle.close()
 
@@ -520,7 +521,8 @@ def get_pubmed_info_from_pmid(pmid):
     Entrez.sleep_between_tries = 2
 
     try:
-        handle = Entrez.efetch(db="pubmed", id=pmid, retmode="xml")
+        # Entrez treats non-int/str IDs (e.g. numpy.int64) as iterables
+        handle = Entrez.efetch(db="pubmed", id=str(pmid), retmode="xml")
         records = Entrez.read(handle)
         handle.close()
 
