@@ -1,0 +1,71 @@
+======================================================================
+  Resources Packaging Issue Report
+  Generated: 2026-10-21 17:09:06
+  Input file: data\01_intermediate\resources\resources_2026-10-21.tsv
+  Rows processed: 275
+======================================================================
+
+ISSUES
+----------------------------------------------------------------------
+EXTRA COLUMNS (manual review - not in expected schema, ignored in output):
+  - 
+
+
+----------------------------------------------------------------------
+
+FIELD COMPLETION
+  Field                                Populated  Blank
+  -----------------------------------  ---------  -----
+  type                                       275      0
+  resource_uuid                              275      0
+  resource_source_id                         275      0
+  resource_title                             275      0
+  resource_short_description                 275      0
+  resource_source_url                        275      0
+  resource_tool_type                         275      0
+  resource_tool_subtype                        0    275
+  resource_research_area                     275      0
+  resource_research_type                     219     56
+  resource_access                            272      3
+  resource_doc                               250     25
+  resource_poc_email                         133    142
+  resource_poc_name                          106    169
+  resource_full_description                  275      0
+
+EXPECTED FACET FILTER COUNTS
+
+  resource_tool_type  (11 unique values):
+       154  Analytic Tool
+        25  Knowledgebase
+        24  Other - Lab Resources
+        24  Other - Guidance and SOPs
+        17  Catalog
+        13  Data Repository (NCI)
+         9  Biorepository
+         8  Data Repository (NIH)
+         7  Data Repository (External)
+         2  Other - Reports and Fact Sheets
+         1  Registry
+
+  resource_research_area  (20 unique values):
+       109  Cancer Biology
+        90  Cancer Treatment
+        85  Cancer Omics
+        37  Causes of Cancer
+        33  Bioinformatics
+        32  Screening and Detection
+        27  Cancer Health Disparities
+        26  Cancer Public Health
+        25  Cancer Diagnosis
+        22  Cancer Prevention
+        18  Cancer Survivorship
+        17  Cancer Statistics
+        12  Genomics Data
+         7  Generalist Data Repository
+         5  Clinical Data
+         3  Proteomics Data
+         1  Imaging Data
+         1  Preclinical Models Data (e.g., cell lines, PDX, mice)
+         1  Proteomics
+         1  Bionformatics
+
