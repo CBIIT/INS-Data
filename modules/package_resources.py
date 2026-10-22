@@ -152,8 +152,9 @@ def read_resources(filepath: str) -> tuple[list[dict], list[str]]:
     while input_columns and not (input_columns[-1] or "").strip():
         column_index = len(input_columns) - 1
         if any(
-            len(record) > column_index and record[column_index].strip()
+            cell.strip()
             for record in records[1:]
+            for cell in record[column_index:]
         ):
             break
         input_columns.pop()

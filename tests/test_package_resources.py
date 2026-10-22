@@ -163,6 +163,20 @@ class TestReadResources:
         assert len(rows) == 1
         assert extra == ["(unnamed column)"]
 
+    def test_reports_overflow_beyond_unnamed_trailing_column(self, tmp_path):
+        """Overflow data beyond a blank unnamed cell keeps the column flagged."""
+        row = _make_row()
+        path = str(tmp_path / "overflow_after_unnamed_column.tsv")
+        with open(path, "w", newline="", encoding="utf-8") as fh:
+            fh.write("\t".join(EXPECTED_COLUMNS + [""]) + "\n")
+            values = [row[col] for col in EXPECTED_COLUMNS]
+            fh.write("\t".join(values + ["", "overflow"]) + "\n")
+
+        rows, extra = read_resources(path)
+
+        assert len(rows) == 1
+        assert extra == ["(unnamed column)"]
+
     def test_exits_on_missing_column(self, tmp_path):
         """Missing expected columns trigger SystemExit."""
         path = str(tmp_path / "bad.tsv")
