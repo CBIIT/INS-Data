@@ -1,15 +1,11 @@
 ======================================================================
   Resources Packaging Issue Report
-  Generated: 2026-10-21 21:53:00
+  Generated: 2026-10-21 22:16:53
   Input file: data\01_intermediate\resources\resources_2026-10-21.tsv
   Rows processed: 269
 ======================================================================
 
-ISSUES
-----------------------------------------------------------------------
-EXTRA COLUMNS (manual review - not in expected schema, ignored in output):
-  - 
-
+No issues found. All checks passed.
 
 ----------------------------------------------------------------------
 
@@ -26,7 +22,7 @@ FIELD COMPLETION
   resource_tool_subtype                        0    269
   resource_research_area                     269      0
   resource_research_type                     213     56
-  resource_access                            266      3
+  resource_access                            267      2
   resource_doc                               244     25
   resource_poc_email                         130    139
   resource_poc_name                          102    167
