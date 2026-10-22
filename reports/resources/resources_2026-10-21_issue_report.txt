@@ -1,6 +1,6 @@
 ======================================================================
   Resources Packaging Issue Report
-  Generated: 2026-10-21 22:16:53
+  Generated: 2026-10-22 08:07:41
   Input file: data\01_intermediate\resources\resources_2026-10-21.tsv
   Rows processed: 269
 ======================================================================
@@ -60,5 +60,5 @@ EXPECTED FACET FILTER COUNTS
          7  Generalist Data Repository
          5  Clinical Data
          4  Proteomics Data
-         1  Imaging Data
+         2  Imaging Data
 
