@@ -1,0 +1,480 @@
+INS DATA GATHERING LOG
+2026-10-16
+
+
+Note: Programs/Grants/Projects run separately and not shown here. 
+Starting with Publications. 
+
+---
+
+>python modules/gather_publication_data.py
+Running gather_publication_data.py as standalone module...
+Projects data loaded from data/01_intermediate/2026-10-15/gathered-2026-10-16/project.csv.
+
+---
+PUBLICATIONS:
+Gathering, formatting, and saving Publication data...
+---
+
+---
+Reusing PMIDs already gathered in data/01_intermediate/2026-10-15/gathered-2026-10-16/projectPMIDs.csv.
+---
+Gathering PubMed data for all PMIDs...
+---NOTE: THIS STEP CAN TAKE 8+ HOURS.---
+Saving partial files to data/01_intermediate/2026-10-15/gathered-2026-10-16/temp_pubmed_chunkfiles throughout.
+Error fetching information for PMID 18516290: HTTP Error 400: Bad Request       
+Error fetching information for PMID 18707199: list index out of range           
+Error fetching information for PMID 19061339: HTTP Error 400: Bad Request       
+Error fetching information for PMID 19454617: HTTP Error 400: Bad Request       
+Error fetching information for PMID 20687228: HTTP Error 400: Bad Request       
+Error fetching information for PMID 22759775: HTTP Error 400: Bad Request       
+Error fetching information for PMID 22825555: HTTP Error 400: Bad Request       
+Error fetching information for PMID 24277953: list index out of range           
+Error fetching information for PMID 25513250: list index out of range           
+Error fetching information for PMID 25513417: list index out of range           
+Error fetching information for PMID 25513470: list index out of range           
+Error fetching information for PMID 25513479: list index out of range           
+Error fetching information for PMID 25654167: HTTP Error 400: Bad Request       
+Error fetching information for PMID 26071481: HTTP Error 400: Bad Request       
+Error fetching information for PMID 26556315: list index out of range           
+Error fetching information for PMID 27618563: HTTP Error 400: Bad Request       
+Error fetching information for PMID 28410162: list index out of range           
+Error fetching information for PMID 29691295: IncompleteRead(586 bytes read)    
+Error fetching information for PMID 30019219: HTTP Error 400: Bad Request       
+Error fetching information for PMID 30610011: HTTP Error 400: Bad Request       
+Error fetching information for PMID 31025088: HTTP Error 400: Bad Request       
+Error fetching information for PMID 31693620: list index out of range           
+Error fetching information for PMID 31857362: list index out of range           
+Error fetching information for PMID 31993221: list index out of range           
+Error fetching information for PMID 32123530: list index out of range           
+Error fetching information for PMID 32282337: list index out of range           
+Error fetching information for PMID 32332490: list index out of range           
+Error fetching information for PMID 33234532: list index out of range           
+Error fetching information for PMID 33289666: HTTP Error 400: Bad Request       
+Error fetching information for PMID 33574267: list index out of range           
+Error fetching information for PMID 33574288: list index out of range           
+Error fetching information for PMID 33579916: list index out of range           
+Error fetching information for PMID 33579955: list index out of range           
+Error fetching information for PMID 33580043: list index out of range           
+Error fetching information for PMID 33597657: list index out of range           
+Error fetching information for PMID 33685622: list index out of range           
+Error fetching information for PMID 33755131: list index out of range           
+Error fetching information for PMID 34233275: list index out of range           
+Error fetching information for PMID 34233282: list index out of range           
+Error fetching information for PMID 34236997: list index out of range           
+Error fetching information for PMID 34238761: list index out of range           
+Error fetching information for PMID 35065368: HTTP Error 400: Bad Request       
+Error fetching information for PMID 35553104: list index out of range           
+Error fetching information for PMID 35556265: list index out of range           
+Error fetching information for PMID 35776260: list index out of range           
+Error fetching information for PMID 36085394: list index out of range           
+Error fetching information for PMID 36434483: list index out of range           
+Error fetching information for PMID 36480292: list index out of range           
+Error fetching information for PMID 36775354: list index out of range           
+Error fetching information for PMID 36775407: list index out of range           
+Error fetching information for PMID 36775477: list index out of range           
+Error fetching information for PMID 37171983: list index out of range           
+Error fetching information for PMID 37501622: list index out of range           
+Error fetching information for PMID 37526703: list index out of range           
+Error fetching information for PMID 37613256: list index out of range           
+Error fetching information for PMID 37613803: list index out of range           
+Error fetching information for PMID 38390375: list index out of range           
+Error fetching information for PMID 38811992: HTTP Error 400: Bad Request       
+Error fetching information for PMID 38853421: list index out of range           
+Error fetching information for PMID 38940339: list index out of range           
+Error fetching information for PMID 39081055: HTTP Error 400: Bad Request       
+Error fetching information for PMID 39283025: HTTP Error 400: Bad Request       
+Error fetching information for PMID 39528648: list index out of range           
+Error fetching information for PMID 39699563: list index out of range           
+Error fetching information for PMID 39873477: list index out of range           
+Error fetching information for PMID 40154398: list index out of range           
+Error fetching information for PMID 40157342: list index out of range           
+Error fetching information for PMID 40373289: list index out of range           
+Error fetching information for PMID 40736016: list index out of range           
+Error fetching information for PMID 40908151: list index out of range           
+Error fetching information for PMID 40994404: list index out of range           
+Error fetching information for PMID 41040354: list index out of range           
+Error fetching information for PMID 41264337: list index out of range           
+100%|███████████████████████████████████| 67705/67705 [4:09:01<00:00,  4.53it/s]
+First pass successful!
+Double-checking for any missing publication info...
+---
+Reusing existing publication details for 67632 PMIDs found in data/01_intermediate/2026-10-15/gathered-2026-10-16/temp_pubmed_chunkfiles.
+---
+Error fetching information for PMID 18707199: list index out of range           
+Error fetching information for PMID 24277953: list index out of range           
+Error fetching information for PMID 25513250: list index out of range           
+Error fetching information for PMID 25513417: list index out of range           
+Error fetching information for PMID 25513470: list index out of range           
+Error fetching information for PMID 25513479: list index out of range           
+Error fetching information for PMID 26556315: list index out of range           
+Error fetching information for PMID 28410162: list index out of range           
+Error fetching information for PMID 31693620: list index out of range           
+Error fetching information for PMID 31857362: list index out of range           
+Error fetching information for PMID 31993221: list index out of range           
+Error fetching information for PMID 32123530: list index out of range           
+Error fetching information for PMID 32282337: list index out of range           
+Error fetching information for PMID 32332490: list index out of range           
+Error fetching information for PMID 33234532: list index out of range           
+Error fetching information for PMID 33574267: list index out of range           
+Error fetching information for PMID 33574288: list index out of range           
+Error fetching information for PMID 33579916: list index out of range           
+Error fetching information for PMID 33579955: list index out of range           
+Error fetching information for PMID 33580043: list index out of range           
+Error fetching information for PMID 33597657: list index out of range           
+Error fetching information for PMID 33685622: list index out of range           
+Error fetching information for PMID 33755131: list index out of range           
+Error fetching information for PMID 34233275: list index out of range           
+Error fetching information for PMID 34233282: list index out of range           
+Error fetching information for PMID 34236997: list index out of range           
+Error fetching information for PMID 34238761: list index out of range           
+Error fetching information for PMID 35553104: list index out of range           
+Error fetching information for PMID 35556265: list index out of range           
+Error fetching information for PMID 35776260: list index out of range           
+Error fetching information for PMID 36085394: list index out of range           
+Error fetching information for PMID 36434483: list index out of range           
+Error fetching information for PMID 36480292: list index out of range           
+Error fetching information for PMID 36775354: list index out of range           
+Error fetching information for PMID 36775407: list index out of range           
+Error fetching information for PMID 36775477: list index out of range           
+Error fetching information for PMID 37171983: list index out of range           
+Error fetching information for PMID 37501622: list index out of range           
+Error fetching information for PMID 37526703: list index out of range           
+Error fetching information for PMID 37613256: list index out of range           
+Error fetching information for PMID 37613803: list index out of range           
+Error fetching information for PMID 38390375: list index out of range           
+Error fetching information for PMID 38853421: list index out of range           
+Error fetching information for PMID 38940339: list index out of range           
+Error fetching information for PMID 39528648: list index out of range           
+Error fetching information for PMID 39699563: list index out of range           
+Error fetching information for PMID 39873477: list index out of range           
+Error fetching information for PMID 40154398: list index out of range           
+Error fetching information for PMID 40157342: list index out of range           
+Error fetching information for PMID 40373289: list index out of range           
+Error fetching information for PMID 40736016: list index out of range           
+Error fetching information for PMID 40908151: list index out of range           
+Error fetching information for PMID 40994404: list index out of range           
+Error fetching information for PMID 41040354: list index out of range           
+Error fetching information for PMID 41264337: list index out of range           
+100%|███████████████████████████████████| 67705/67705 [00:14<00:00, 4728.82it/s]
+Success! PubMed publication data gathered for all PMIDs.
+---
+Gathering iCite data for all PMIDs...
+ 94%|███████████████████████████████████▋  | 155/165 [12:23<00:23,  2.31s/chunk]C:\Users\dormanza\Documents\GitHub\INS-Data\.venv\Lib\site-packages\tqdm\std.py:1181: DtypeWarning: Columns (0: references) have mixed types. Specify dtype option on import or set low_memory=False.
+  for obj in iterable:
+ 98%|█████████████████████████████████████▎| 162/165 [12:51<00:12,  4.21s/chunk]C:\Users\dormanza\Documents\GitHub\INS-Data\.venv\Lib\site-packages\tqdm\std.py:1181: DtypeWarning: Columns (0: cited_by_clin) have mixed types. Specify dtype option on import or set low_memory=False.
+  for obj in iterable:
+ 99%|█████████████████████████████████████▊| 164/165 [12:59<00:04,  4.23s/chunk]C:\Users\dormanza\Documents\GitHub\INS-Data\.venv\Lib\site-packages\tqdm\std.py:1181: DtypeWarning: Columns (0: cited_by_clin, 1: provisional) have mixed types. Specify dtype option on import or set low_memory=False.
+  for obj in iterable:
+100%|██████████████████████████████████████| 165/165 [13:02<00:00,  4.74s/chunk]
+---
+iCite data for PMIDS saved to data/01_intermediate/2026-10-15/gathered-2026-10-16/icitePMIDData.csv.
+---
+Combining and merging all publication data...
+Merged PMID data saved to data/01_intermediate/2026-10-15/gathered-2026-10-16/mergedPMIDData.csv.
+---
+Merging PMID data back to Core Projects...
+Success! Publication data saved to data/01_intermediate/2026-10-15/gathered-2026-10-16/publication.csv.
+Removed publications saved to reports/2026-10-15/gathered-2026-10-16/removedPublicationsReport.csv
+---
+
+Total unique publications saved:     67093
+Total removed publications:            650
+Project-publication associations:    89998
+
+---
+
+>python modules/gather_geo_data.py
+
+---TIMESTAMP OVERRIDE IN USE---
+---Performing action using 2026-10-16 instead of current timestamp.---
+---Change the OVERRIDE_DATE in config.py to None to restore default behavior.---
+
+
+Running gather_geo_data.py as standalone module...
+Publications data loaded from data/01_intermediate/2026-10-15/gathered-2026-10-16/publication.csv
+
+---
+DATASETS - GEO:
+Gathering, formatting, and saving GEO data...
+---
+
+---
+Loaded 89998 publications.
+Finding GEO IDs associated with 67093 unique PMIDs...
+---
+Generating GEO mapping...
+Fetching GEO IDs: 100%|███████████████| 67093/67093 [2:29:10<00:00,  7.50PMID/s]
+Saving GEO-PMID-Project mapping to data/01_intermediate/2026-10-15/gathered-2026-10-16/geo_pmid_project_map.csv
+Found 8982 GEO entries associated with 4786 unique PMIDs.
+---
+Gathering metadata from GEO sources...
+Retrieving metadata for 8476 unique GEO datasets...
+Fetching GEO metadata: 100%|████████████████| 8476/8476 [16:38<00:00,  8.49it/s]
+Done! Saving NCBI ESummary GEO metadata to data/01_intermediate/2026-10-15/gathered-2026-10-16/geo_metadata.json
+Extracting FTP metadata from GEO records...
+Extracting FTP metadata:   0%|               | 4/8476 [00:02<1:39:35,  1.42it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDSnnn/GDS274/: 550 geo/datasets/GDSnnn/GDS274/matrix: No such file or directory
+Extracting FTP metadata:   0%|              | 17/8476 [00:21<2:54:58,  1.24s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDSnnn/GDS531/: 550 geo/datasets/GDSnnn/GDS531/matrix: No such file or directory
+Extracting FTP metadata:   0%|              | 20/8476 [00:23<1:53:42,  1.24it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDSnnn/GDS568/: 550 geo/datasets/GDSnnn/GDS568/matrix: No such file or directory
+Extracting FTP metadata:   0%|              | 23/8476 [00:23<1:14:38,  1.89it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDSnnn/GDS893/: 550 geo/datasets/GDSnnn/GDS893/matrix: No such file or directory
+Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDSnnn/GDS892/: 550 geo/datasets/GDSnnn/GDS892/matrix: No such file or directory
+Extracting FTP metadata:   0%|              | 29/8476 [00:28<1:38:33,  1.43it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS2nnn/GDS2786/: 550 geo/datasets/GDS2nnn/GDS2786/matrix: No such file or directory
+Extracting FTP metadata:   0%|              | 31/8476 [00:28<1:13:33,  1.91it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS2nnn/GDS2018/: 550 geo/datasets/GDS2nnn/GDS2018/matrix: No such file or directory
+Extracting FTP metadata:   0%|              | 33/8476 [00:29<1:03:15,  2.22it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS1nnn/GDS1250/: 550 geo/datasets/GDS1nnn/GDS1250/matrix: No such file or directory
+Extracting FTP metadata:   0%|              | 41/8476 [00:53<6:23:12,  2.73s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS1nnn/GDS1390/: 550 geo/datasets/GDS1nnn/GDS1390/matrix: No such file or directory
+Extracting FTP metadata:   1%|              | 46/8476 [01:03<6:32:44,  2.80s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/platforms/GPL4nnn/GPL4016/: 550 geo/platforms/GPL4nnn/GPL4016/matrix: No such file or directory
+Extracting FTP metadata:   1%|              | 56/8476 [01:22<2:58:03,  1.27s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS2nnn/GDS2171/: 550 geo/datasets/GDS2nnn/GDS2171/matrix: No such file or directory
+Extracting FTP metadata:   1%|              | 59/8476 [01:26<3:06:43,  1.33s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS2nnn/GDS2298/: 550 geo/datasets/GDS2nnn/GDS2298/matrix: No such file or directory
+Extracting FTP metadata:   1%|              | 60/8476 [01:26<2:22:18,  1.01s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS2nnn/GDS2297/: 550 geo/datasets/GDS2nnn/GDS2297/matrix: No such file or directory
+Extracting FTP metadata:   1%|              | 62/8476 [01:27<1:37:05,  1.44it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS3nnn/GDS3091/: 550 geo/datasets/GDS3nnn/GDS3091/matrix: No such file or directory
+Extracting FTP metadata:   1%|              | 64/8476 [01:29<2:06:24,  1.11it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS3nnn/GDS3341/: 550 geo/datasets/GDS3nnn/GDS3341/matrix: No such file or directory
+Extracting FTP metadata:   1%|              | 66/8476 [01:30<1:34:05,  1.49it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS2nnn/GDS2573/: 550 geo/datasets/GDS2nnn/GDS2573/matrix: No such file or directory
+Extracting FTP metadata:   1%|▏             | 76/8476 [01:38<1:44:01,  1.35it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS2nnn/GDS2903/: 550 geo/datasets/GDS2nnn/GDS2903/matrix: No such file or directory
+Extracting FTP metadata:   1%|▏            | 100/8476 [02:24<3:00:38,  1.29s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS3nnn/GDS3097/: 550 geo/datasets/GDS3nnn/GDS3097/matrix: No such file or directory
+Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS3nnn/GDS3096/: 550 geo/datasets/GDS3nnn/GDS3096/matrix: No such file or directory
+Extracting FTP metadata:   1%|▏            | 116/8476 [03:19<4:07:27,  1.78s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS3nnn/GDS3334/: 550 geo/datasets/GDS3nnn/GDS3334/matrix: No such file or directory
+Extracting FTP metadata:   1%|▏           | 121/8476 [04:46<20:50:34,  8.98s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS3nnn/GDS3495/: 550 geo/datasets/GDS3nnn/GDS3495/matrix: No such file or directory
+Extracting FTP metadata:   2%|▏            | 148/8476 [07:49<2:42:21,  1.17s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS3nnn/GDS3439/: 550 geo/datasets/GDS3nnn/GDS3439/matrix: No such file or directory
+Extracting FTP metadata:   2%|▎            | 176/8476 [08:58<2:11:52,  1.05it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS3nnn/GDS3561/: 550 geo/datasets/GDS3nnn/GDS3561/matrix: No such file or directory
+Extracting FTP metadata:   2%|▎            | 177/8476 [08:59<1:42:54,  1.34it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS3nnn/GDS3560/: 550 geo/datasets/GDS3nnn/GDS3560/matrix: No such file or directory
+Extracting FTP metadata:   2%|▎            | 178/8476 [08:59<1:22:36,  1.67it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS3nnn/GDS3559/: 550 geo/datasets/GDS3nnn/GDS3559/matrix: No such file or directory
+Extracting FTP metadata:   2%|▎            | 208/8476 [10:10<7:24:55,  3.23s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4296/: 550 geo/datasets/GDS4nnn/GDS4296/matrix: No such file or directory
+Extracting FTP metadata:   3%|▎            | 212/8476 [10:12<2:54:28,  1.27s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS3nnn/GDS3574/: 550 geo/datasets/GDS3nnn/GDS3574/matrix: No such file or directory
+Extracting FTP metadata:   3%|▎            | 217/8476 [10:17<2:41:28,  1.17s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4189/: 550 geo/datasets/GDS4nnn/GDS4189/matrix: No such file or directory
+Extracting FTP metadata:   3%|▎            | 227/8476 [10:35<4:06:49,  1.80s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4824/: 550 geo/datasets/GDS4nnn/GDS4824/matrix: No such file or directory
+Extracting FTP metadata:   3%|▎            | 239/8476 [10:47<2:06:57,  1.08it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS5nnn/GDS5248/: 550 geo/datasets/GDS5nnn/GDS5248/matrix: No such file or directory
+Extracting FTP metadata:   3%|▎            | 243/8476 [10:50<1:58:22,  1.16it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4100/: 550 geo/datasets/GDS4nnn/GDS4100/matrix: No such file or directory
+Extracting FTP metadata:   3%|▍            | 251/8476 [11:01<3:21:11,  1.47s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS3nnn/GDS3820/: 550 geo/datasets/GDS3nnn/GDS3820/matrix: No such file or directory
+Extracting FTP metadata:   3%|▍            | 252/8476 [11:02<2:31:48,  1.11s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS3nnn/GDS3819/: 550 geo/datasets/GDS3nnn/GDS3819/matrix: No such file or directory
+Extracting FTP metadata:   3%|▍            | 259/8476 [11:19<4:38:18,  2.03s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS3nnn/GDS3721/: 550 geo/datasets/GDS3nnn/GDS3721/matrix: No such file or directory
+Extracting FTP metadata:   3%|▍            | 261/8476 [11:22<3:54:38,  1.71s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS1nnn/GDS1816/: 550 geo/datasets/GDS1nnn/GDS1816/matrix: No such file or directory
+Extracting FTP metadata:   3%|▍            | 262/8476 [11:22<2:54:40,  1.28s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS1nnn/GDS1815/: 550 geo/datasets/GDS1nnn/GDS1815/matrix: No such file or directory
+Extracting FTP metadata:   3%|▍           | 273/8476 [12:57<24:00:10, 10.53s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4222/: 550 geo/datasets/GDS4nnn/GDS4222/matrix: No such file or directory
+Extracting FTP metadata:   4%|▍            | 297/8476 [13:40<2:38:33,  1.16s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE24nnn/GSE24417/: No series matrix files found in geo/series/GSE24nnn/GSE24417/matrix
+Extracting FTP metadata:   4%|▍            | 310/8476 [14:49<9:48:48,  4.33s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS5nnn/GDS5235/: 550 geo/datasets/GDS5nnn/GDS5235/matrix: No such file or directory
+Extracting FTP metadata:   4%|▍           | 317/8476 [15:30<11:04:19,  4.89s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4084/: 550 geo/datasets/GDS4nnn/GDS4084/matrix: No such file or directory
+Extracting FTP metadata:   4%|▍            | 320/8476 [15:35<6:54:20,  3.05s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4176/: 550 geo/datasets/GDS4nnn/GDS4176/matrix: No such file or directory
+Extracting FTP metadata:   4%|▍            | 323/8476 [15:37<3:56:37,  1.74s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS3nnn/GDS3838/: 550 geo/datasets/GDS3nnn/GDS3838/matrix: No such file or directory
+Extracting FTP metadata:   4%|▌            | 355/8476 [16:17<2:11:09,  1.03it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4361/: 550 geo/datasets/GDS4nnn/GDS4361/matrix: No such file or directory
+Extracting FTP metadata:   5%|▌            | 396/8476 [26:45<6:55:03,  3.08s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4164/: 550 geo/datasets/GDS4nnn/GDS4164/matrix: No such file or directory
+Extracting FTP metadata:   5%|▌            | 405/8476 [27:32<8:49:50,  3.94s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4442/: 550 geo/datasets/GDS4nnn/GDS4442/matrix: No such file or directory
+Extracting FTP metadata:   5%|▋            | 409/8476 [27:37<5:04:36,  2.27s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4006/: 550 geo/datasets/GDS4nnn/GDS4006/matrix: No such file or directory
+Extracting FTP metadata:   5%|▋            | 429/8476 [28:16<2:02:07,  1.10it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4528/: 550 geo/datasets/GDS4nnn/GDS4528/matrix: No such file or directory
+Extracting FTP metadata:   5%|▋            | 442/8476 [28:52<5:16:30,  2.36s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/platforms/GPL23nnn/GPL23566/: 550 geo/platforms/GPL23nnn/GPL23566/matrix: No such file or directory
+Extracting FTP metadata:   5%|▋            | 443/8476 [28:52<3:51:08,  1.73s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/platforms/GPL23nnn/GPL23565/: 550 geo/platforms/GPL23nnn/GPL23565/matrix: No such file or directory
+Extracting FTP metadata:   5%|▋            | 444/8476 [28:52<2:52:28,  1.29s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/platforms/GPL21nnn/GPL21991/: 550 geo/platforms/GPL21nnn/GPL21991/matrix: No such file or directory
+Extracting FTP metadata:   5%|▋            | 445/8476 [28:53<2:10:35,  1.02it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/platforms/GPL20nnn/GPL20116/: 550 geo/platforms/GPL20nnn/GPL20116/matrix: No such file or directory
+Extracting FTP metadata:   5%|▋            | 446/8476 [28:53<1:42:21,  1.31it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/platforms/GPL16nnn/GPL16262/: 550 geo/platforms/GPL16nnn/GPL16262/matrix: No such file or directory
+Extracting FTP metadata:   5%|▋            | 447/8476 [28:53<1:22:28,  1.62it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/platforms/GPL16nnn/GPL16242/: 550 geo/platforms/GPL16nnn/GPL16242/matrix: No such file or directory
+Extracting FTP metadata:   5%|▋            | 463/8476 [29:17<2:10:09,  1.03it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/platforms/GPL15nnn/GPL15030/: 550 geo/platforms/GPL15nnn/GPL15030/matrix: No such file or directory
+Extracting FTP metadata:   6%|▋            | 478/8476 [30:13<4:49:34,  2.17s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4384/: 550 geo/datasets/GDS4nnn/GDS4384/matrix: No such file or directory
+Extracting FTP metadata:   6%|▋            | 480/8476 [30:14<2:54:38,  1.31s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4802/: 550 geo/datasets/GDS4nnn/GDS4802/matrix: No such file or directory
+Extracting FTP metadata:   6%|▊            | 495/8476 [30:46<3:42:33,  1.67s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4118/: 550 geo/datasets/GDS4nnn/GDS4118/matrix: No such file or directory
+Extracting FTP metadata:   6%|▊            | 499/8476 [30:52<3:24:41,  1.54s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4336/: 550 geo/datasets/GDS4nnn/GDS4336/matrix: No such file or directory
+Extracting FTP metadata:   7%|▉            | 585/8476 [42:49<3:45:42,  1.72s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4395/: 550 geo/datasets/GDS4nnn/GDS4395/matrix: No such file or directory
+Extracting FTP metadata:   7%|▉            | 595/8476 [43:59<8:00:48,  3.66s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS5nnn/GDS5095/: 550 geo/datasets/GDS5nnn/GDS5095/matrix: No such file or directory
+Extracting FTP metadata:   7%|▊           | 609/8476 [44:42<10:15:50,  4.70s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4547/: 550 geo/datasets/GDS4nnn/GDS4547/matrix: No such file or directory
+Extracting FTP metadata:   7%|▉            | 618/8476 [44:48<1:43:16,  1.27it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4387/: 550 geo/datasets/GDS4nnn/GDS4387/matrix: No such file or directory
+Extracting FTP metadata:   8%|▉            | 647/8476 [46:39<6:05:36,  2.80s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4769/: 550 geo/datasets/GDS4nnn/GDS4769/matrix: No such file or directory
+Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4768/: 550 geo/datasets/GDS4nnn/GDS4768/matrix: No such file or directory
+Extracting FTP metadata:   8%|█            | 689/8476 [47:55<5:04:38,  2.35s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4754/: 550 geo/datasets/GDS4nnn/GDS4754/matrix: No such file or directory
+Extracting FTP metadata:   8%|█            | 704/8476 [48:38<8:41:06,  4.02s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS5nnn/GDS5002/: 550 geo/datasets/GDS5nnn/GDS5002/matrix: No such file or directory
+Extracting FTP metadata:   8%|█           | 712/8476 [50:03<27:44:11, 12.86s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4833/: 550 geo/datasets/GDS4nnn/GDS4833/matrix: No such file or directory
+Extracting FTP metadata:   8%|█           | 718/8476 [50:46<18:08:03,  8.41s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS5nnn/GDS5040/: 550 geo/datasets/GDS5nnn/GDS5040/matrix: No such file or directory
+Extracting FTP metadata:   9%|█▏           | 756/8476 [51:26<2:16:34,  1.06s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4962/: 550 geo/datasets/GDS4nnn/GDS4962/matrix: No such file or directory
+Extracting FTP metadata:   9%|█▏           | 761/8476 [51:33<3:03:42,  1.43s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4764/: 550 geo/datasets/GDS4nnn/GDS4764/matrix: No such file or directory
+Extracting FTP metadata:   9%|█           | 780/8476 [53:40<25:39:15, 12.00s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4822/: 550 geo/datasets/GDS4nnn/GDS4822/matrix: No such file or directory
+Extracting FTP metadata:   9%|█▏           | 797/8476 [54:57<2:55:01,  1.37s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4840/: 550 geo/datasets/GDS4nnn/GDS4840/matrix: No such file or directory
+Extracting FTP metadata:  10%|█▏          | 862/8476 [58:51<11:29:17,  5.43s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS4nnn/GDS4893/: 550 geo/datasets/GDS4nnn/GDS4893/matrix: No such file or directory
+Extracting FTP metadata:  10%|█▎           | 866/8476 [58:55<4:52:02,  2.30s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS5nnn/GDS5306/: 550 geo/datasets/GDS5nnn/GDS5306/matrix: No such file or directory
+Extracting FTP metadata:  10%|█▎           | 887/8476 [59:21<1:46:11,  1.19it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS5nnn/GDS5222/: 550 geo/datasets/GDS5nnn/GDS5222/matrix: No such file or directory
+Extracting FTP metadata:  10%|█▎           | 888/8476 [59:22<1:37:47,  1.29it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS5nnn/GDS5221/: 550 geo/datasets/GDS5nnn/GDS5221/matrix: No such file or directory
+Extracting FTP metadata:  11%|█▍           | 914/8476 [59:50<1:50:52,  1.14it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS5nnn/GDS5822/: 550 geo/datasets/GDS5nnn/GDS5822/matrix: No such file or directory
+Extracting FTP metadata:  11%|█▍           | 915/8476 [59:50<1:27:06,  1.45it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS5nnn/GDS5821/: 550 geo/datasets/GDS5nnn/GDS5821/matrix: No such file or directory
+Extracting FTP metadata:  11%|█▍           | 916/8476 [59:50<1:11:34,  1.76it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS5nnn/GDS5820/: 550 geo/datasets/GDS5nnn/GDS5820/matrix: No such file or directory
+Extracting FTP metadata:  11%|█▏         | 949/8476 [1:00:20<1:31:18,  1.37it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS5nnn/GDS5301/: 550 geo/datasets/GDS5nnn/GDS5301/matrix: No such file or directory
+Extracting FTP metadata:  11%|█▎         | 966/8476 [1:00:42<2:13:00,  1.06s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS5nnn/GDS5677/: 550 geo/datasets/GDS5nnn/GDS5677/matrix: No such file or directory
+Extracting FTP metadata:  11%|█▎         | 967/8476 [1:00:43<1:43:25,  1.21it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS5nnn/GDS5676/: 550 geo/datasets/GDS5nnn/GDS5676/matrix: No such file or directory
+Extracting FTP metadata:  12%|█▎         | 994/8476 [1:01:05<2:09:35,  1.04s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS5nnn/GDS5426/: 550 geo/datasets/GDS5nnn/GDS5426/matrix: No such file or directory
+Extracting FTP metadata:  12%|█▏        | 1038/8476 [1:02:46<3:12:30,  1.55s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/datasets/GDS5nnn/GDS5648/: 550 geo/datasets/GDS5nnn/GDS5648/matrix: No such file or directory
+Extracting FTP metadata:  21%|█▉       | 1785/8476 [1:32:17<14:35:35,  7.85s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE86nnn/GSE86354/: No series matrix files found in geo/series/GSE86nnn/GSE86354/matrix
+Extracting FTP metadata:  35%|███▍      | 2946/8476 [1:56:37<1:33:12,  1.01s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE123nnn/GSE123917/: No series matrix files found in geo/series/GSE123nnn/GSE123917/matrix
+Extracting FTP metadata:  36%|███▌      | 3022/8476 [1:57:20<1:49:05,  1.20s/it]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/platforms/GPL27nnn/GPL27054/: 550 geo/platforms/GPL27nnn/GPL27054/matrix: No such file or directory
+Extracting FTP metadata:  56%|██████▋     | 4751/8476 [2:33:22<27:35,  2.25it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE191nnn/GSE191272/: No series matrix files found in geo/series/GSE191nnn/GSE191272/matrix
+Extracting FTP metadata:  56%|██████▋     | 4759/8476 [2:33:25<24:45,  2.50it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE185nnn/GSE185128/: No series matrix files found in geo/series/GSE185nnn/GSE185128/matrix
+Extracting FTP metadata:  71%|████████▍   | 5995/8476 [2:47:34<19:45,  2.09it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE215nnn/GSE215886/: No series matrix files found in geo/series/GSE215nnn/GSE215886/matrix
+Extracting FTP metadata:  89%|██████████▋ | 7516/8476 [2:59:28<06:23,  2.50it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE294nnn/GSE294353/: No series matrix files found in geo/series/GSE294nnn/GSE294353/matrix
+Extracting FTP metadata:  89%|██████████▋ | 7517/8476 [2:59:28<05:27,  2.93it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE294nnn/GSE294352/: No series matrix files found in geo/series/GSE294nnn/GSE294352/matrix
+Extracting FTP metadata:  89%|██████████▋ | 7518/8476 [2:59:28<05:08,  3.11it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE294nnn/GSE294351/: No series matrix files found in geo/series/GSE294nnn/GSE294351/matrix
+Extracting FTP metadata:  89%|██████████▋ | 7519/8476 [2:59:28<05:09,  3.10it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE294nnn/GSE294350/: No series matrix files found in geo/series/GSE294nnn/GSE294350/matrix
+Extracting FTP metadata:  89%|██████████▋ | 7520/8476 [2:59:29<06:04,  2.62it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE294nnn/GSE294349/: No series matrix files found in geo/series/GSE294nnn/GSE294349/matrix
+Extracting FTP metadata:  97%|███████████▌| 8198/8476 [3:04:14<01:12,  3.85it/s]Error extracting FTP metadata from ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE309nnn/GSE309855/: No series matrix files found in geo/series/GSE309nnn/GSE309855/matrix
+Extracting FTP metadata: 100%|████████████| 8476/8476 [3:05:16<00:00,  1.31s/it]
+Done! Saving all FTP metadata to data/01_intermediate/2026-10-15/gathered-2026-10-16/geo_ftp_metadata.json.
+---
+Processing GEO metadata...
+Processing records: 100%|██████████████████| 8476/8476 [00:19<00:00, 442.12it/s]
+---
+Linking GEO datasets with NCI DOCs via programs and projects...
+Loaded projects from data/01_intermediate/2026-10-15/gathered-2026-10-16/project.csv
+Loaded programs from data/01_intermediate/2026-10-15/program.csv
+Done! NCI DOCs mapped to GEO datasets.
+Unique DOC combinations:        18
+Unique program combinations:    115
+---
+Cleaning and formatting GEO datasets...
+9 GEO non-standard accessions removed and saved to reports/2026-10-15/gathered-2026-10-16/geo_dropped_accessions.csv. 
+8467 GSE and GDS accession remain.
+
+
+Success! GEO datasets saved to data/01_intermediate/2026-10-15/gathered-2026-10-16/geo_datasets.csv.
+Total GEO dataset records:    8467
+
+
+---
+
+
+>python modules/gather_sra_data.py
+
+---TIMESTAMP OVERRIDE IN USE---
+---Performing action using 2026-10-16 instead of current timestamp.---
+---Change the OVERRIDE_DATE in config.py to None to restore default behavior.---
+
+
+Running gather_sra_data.py as standalone module...
+Publications data loaded from data/01_intermediate/2026-10-15/gathered-2026-10-16/publication.csv
+
+---
+DATASETS - SRA
+Gathering, formatting, and saving SRA data...
+
+Loaded 89998 publications with 67093 unique PMIDs
+
+Step 1-3: Mapping PMIDs to SRA datasets
+  No existing batch files found
+  Total unique PMIDs: 67093
+  Already processed: 0
+  Remaining to process: 67093
+  Batch size: 2000
+  Starting from batch 1
+Fetching SRA IDs: 100%|███████████████████| 2000/2000 [04:21<00:00,  7.66PMID/s]
+Fetching SRP/ERP IDs for SRA IDs: 100%|█████████| 13/13 [00:02<00:00,  6.19ID/s]
+Fetching SRA IDs: 100%|███████████████████| 2000/2000 [04:25<00:00,  7.54PMID/s]
+Fetching SRP/ERP IDs for SRA IDs: 100%|█████████| 40/40 [00:04<00:00,  8.23ID/s]
+Fetching SRA IDs: 100%|███████████████████| 2000/2000 [04:19<00:00,  7.71PMID/s]
+Fetching SRP/ERP IDs for SRA IDs: 100%|█████████| 73/73 [00:08<00:00,  8.84ID/s]
+Fetching SRA IDs: 100%|███████████████████| 2000/2000 [04:21<00:00,  7.64PMID/s]
+Fetching SRP/ERP IDs for SRA IDs: 100%|█████████| 31/31 [00:04<00:00,  7.38ID/s]
+Fetching SRA IDs: 100%|███████████████████| 2000/2000 [04:23<00:00,  7.60PMID/s]
+Fetching SRP/ERP IDs for SRA IDs: 100%|█████████| 96/96 [00:10<00:00,  8.79ID/s]
+Fetching SRA IDs: 100%|███████████████████| 2000/2000 [04:21<00:00,  7.65PMID/s]
+Fetching SRP/ERP IDs for SRA IDs: 100%|███████| 106/106 [00:12<00:00,  8.28ID/s]
+Fetching SRA IDs: 100%|███████████████████| 2000/2000 [04:26<00:00,  7.51PMID/s]
+Fetching SRP/ERP IDs for SRA IDs: 100%|█████| 4813/4813 [08:33<00:00,  9.37ID/s]
+Fetching SRA IDs: 100%|███████████████████| 2000/2000 [04:23<00:00,  7.58PMID/s]
+Fetching SRP/ERP IDs for SRA IDs: 100%|███████| 184/184 [00:21<00:00,  8.66ID/s]
+Fetching SRA IDs: 100%|███████████████████| 2000/2000 [04:44<00:00,  7.04PMID/s]
+Fetching SRP/ERP IDs for SRA IDs: 100%|███████| 656/656 [01:13<00:00,  8.95ID/s]
+Fetching SRA IDs: 100%|███████████████████| 2000/2000 [04:32<00:00,  7.34PMID/s]
+Fetching SRP/ERP IDs for SRA IDs: 100%|█████| 1391/1391 [02:33<00:00,  9.08ID/s]
+Fetching SRA IDs: 100%|███████████████████| 2000/2000 [04:36<00:00,  7.22PMID/s]
+Fetching SRP/ERP IDs for SRA IDs: 100%|███████| 860/860 [01:34<00:00,  9.09ID/s]
+Fetching SRA IDs: 100%|███████████████████| 2000/2000 [04:31<00:00,  7.35PMID/s]
+Fetching SRP/ERP IDs for SRA IDs: 100%|█████| 1028/1028 [01:50<00:00,  9.29ID/s]
+Fetching SRA IDs: 100%|███████████████████| 2000/2000 [04:29<00:00,  7.42PMID/s]
+Fetching SRP/ERP IDs for SRA IDs: 100%|█████| 9677/9677 [17:40<00:00,  9.13ID/s]
+Fetching SRA IDs: 100%|███████████████████| 2000/2000 [04:25<00:00,  7.52PMID/s]
+Fetching SRP/ERP IDs for SRA IDs: 100%|█████| 3877/3877 [06:54<00:00,  9.35ID/s]
+Fetching SRA IDs: 100%|███████████████████| 2000/2000 [04:25<00:00,  7.52PMID/s]
+Fetching SRP/ERP IDs for SRA IDs: 100%|█████| 7226/7226 [13:32<00:00,  8.89ID/s]
+Fetching SRA IDs: 100%|███████████████████| 2000/2000 [05:10<00:00,  6.43PMID/s]
+Fetching SRP/ERP IDs for SRA IDs: 100%|█████| 5358/5358 [09:44<00:00,  9.17ID/s]
+Fetching SRA IDs: 100%|███████████████████| 2000/2000 [04:28<00:00,  7.44PMID/s]
+Fetching SRP/ERP IDs for SRA IDs: 100%|███| 14887/14887 [27:01<00:00,  9.18ID/s]
+Fetching SRA IDs: 100%|███████████████████| 2000/2000 [04:20<00:00,  7.66PMID/s]
+Fetching SRP/ERP IDs for SRA IDs: 100%|█████| 4181/4181 [07:31<00:00,  9.25ID/s]
+Fetching SRA IDs: 100%|███████████████████| 2000/2000 [04:21<00:00,  7.66PMID/s]
+Fetching SRP/ERP IDs for SRA IDs: 100%|█████| 9186/9186 [16:34<00:00,  9.24ID/s]
+Fetching SRA IDs: 100%|███████████████████| 2000/2000 [04:21<00:00,  7.66PMID/s]
+Fetching SRA IDs: 100%|███████████████████| 2000/2000 [04:21<00:00,  8.06PMID/s]Error fetching SRP/ERP for SRA ID 10665734: HTTP Error 502: Bad Gateway
+Fetching SRP/ERP IDs for SRA IDs: 100%|█████| 5817/5817 [10:22<00:00,  9.35ID/s]
+Fetching SRA IDs: 100%|███████████████████| 2000/2000 [04:24<00:00,  7.56PMID/s]
+Fetching SRP/ERP IDs for SRA IDs: 100%|█████| 8613/8613 [15:23<00:00,  9.32ID/s]
+Fetching SRA IDs: 100%|███████████████████| 2000/2000 [04:22<00:00,  7.61PMID/s]
+Fetching SRP/ERP IDs for SRA IDs: 100%|███| 27224/27224 [50:23<00:00,  9.01ID/s]
+Fetching SRA IDs: 100%|███████████████████| 2000/2000 [04:49<00:00,  6.91PMID/s]
+Fetching SRP/ERP IDs for SRA IDs: 100%|█████| 7786/7786 [14:44<00:00,  8.81ID/s]
+Fetching SRA IDs: 100%|███████████████████| 2000/2000 [04:54<00:00,  6.78PMID/s]
+Fetching SRP/ERP IDs for SRA IDs: 100%|█████| 8984/8984 [17:03<00:00,  8.77ID/s]
+Fetching SRA IDs: 100%|███████████████████| 2000/2000 [04:49<00:00,  6.91PMID/s]
+Fetching SRP/ERP IDs for SRA IDs: 100%|███| 19688/19688 [37:13<00:00,  8.81ID/s]
+Fetching SRA IDs: 100%|███████████████████| 2000/2000 [04:54<00:00,  6.79PMID/s]
+Fetching SRP/ERP IDs for SRA IDs: 100%|███| 11002/11002 [20:37<00:00,  8.89ID/s]
+Fetching SRA IDs: 100%|███████████████████| 2000/2000 [05:23<00:00,  6.18PMID/s]
+Fetching SRP/ERP IDs for SRA IDs: 100%|█████| 6290/6290 [11:32<00:00,  9.08ID/s]
+Fetching SRA IDs: 100%|███████████████████| 2000/2000 [04:51<00:00,  6.87PMID/s]
+Fetching SRP/ERP IDs for SRA IDs: 100%|███| 10956/10956 [19:52<00:00,  9.19ID/s]
+Fetching SRA IDs: 100%|███████████████████| 2000/2000 [04:18<00:00,  7.75PMID/s]
+Fetching SRP/ERP IDs for SRA IDs: 100%|█████| 8925/8925 [16:05<00:00,  9.24ID/s]
+Fetching SRA IDs: 100%|███████████████████| 2000/2000 [04:31<00:00,  7.36PMID/s]
+Fetching SRP/ERP IDs for SRA IDs: 100%|█████| 9473/9473 [16:59<00:00,  9.29ID/s]
+Fetching SRA IDs: 100%|███████████████████| 2000/2000 [04:27<00:00,  7.48PMID/s]
+Fetching SRA IDs: 100%|███████████████████| 2000/2000 [04:27<00:00,  7.35PMID/s]Error fetching SRP/ERP for SRA ID 34593607: HTTP Error 429: Too Many Requests
+Fetching SRP/ERP IDs for SRA IDs: 100%|███| 11489/11489 [20:35<00:00,  9.30ID/s]
+Fetching SRA IDs: 100%|███████████████████| 2000/2000 [04:38<00:00,  7.18PMID/s]
+Fetching SRP/ERP IDs for SRA IDs: 100%|███| 10475/10475 [18:50<00:00,  9.27ID/s]
+Fetching SRA IDs: 100%|███████████████████| 2000/2000 [04:38<00:00,  7.19PMID/s]
+Fetching SRP/ERP IDs for SRA IDs: 100%|█████| 5850/5850 [10:35<00:00,  9.21ID/s]
+Fetching SRA IDs: 100%|███████████████████| 1093/1093 [02:33<00:00,  7.10PMID/s]
+Processing batches (1st pass): 100%|██████| 34/34 [9:09:26<00:00, 969.60s/batch]
+
+  First pass complete!
+  Total batches created: 34
+
+Aggregating batch results...
+  Loading and combining 34 batch files...
+
+  PMID-SRA-SRP mapping saved to:
+    data/01_intermediate/2026-10-15/gathered-2026-10-16/sra_pmid_mapping.csv
+    Total unique PMIDs in mapping: 67093
+
+  SRP-centric data saved to:
+    data/01_intermediate/2026-10-15/gathered-2026-10-16/sra_srp_centric.csv
+    Total unique SRP/ERP IDs: 5153
+
+Step 5: Gathering metadata for SRP/ERP studies
+  Gathering metadata for 5153 unique SRP/ERP IDs...
+  Reconstructing SRA mappings from batch files...
+Fetching SRP metadata: 100%|███████████████| 5153/5153 [14:39<00:00,  5.86SRP/s]
+
+Step 6: Enriching SRP data with metadata
+---
+Linking SRA datasets with NCI DOCs via programs and projects...
+Loaded publications from data/01_intermediate/2026-10-15/gathered-2026-10-16/publication.csv
+Loaded projects from data/01_intermediate/2026-10-15/gathered-2026-10-16/project.csv
+Loaded programs from data/01_intermediate/2026-10-15/program.csv
+Done! NCI DOCs mapped to SRA datasets.
+Unique DOC combinations:        33
+Unique program combinations:    143
+Unique project combinations:    807
+
+Generating UUID5 for each dataset...
+
+  Validation: 7 study row(s) dropped for missing required fields.
+  Dropped studies saved to:
+    reports/2026-10-15/gathered-2026-10-16/sra_dropped_studies.csv
+
+  Enriched SRA datasets saved to:
+    data/01_intermediate/2026-10-15/gathered-2026-10-16/sra_datasets.csv
+    Total unique studies: 5146
+
+---
+SRA Gathering Summary
+  Total unique PMIDs processed:           67093
+  Unique PMIDs with SRP/ERP IDs:           3218 (  4.8%)
+  Total unique SRA IDs:                  204282
+  Total unique datasets:                   5153
+  Studies with missing title/description removed:               7
+  Final unique SRP/ERP datasets:                             5146
+---
+

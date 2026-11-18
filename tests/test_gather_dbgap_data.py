@@ -24,6 +24,8 @@ from modules.gather_dbgap_data import (
     get_dbgap_url,
     join_list,
     clean_dbgap_sstr_metadata,
+    clean_newlines,
+    clean_html_entities,
 )
 
 
@@ -261,6 +263,65 @@ class TestCleanDbgapSstrMetadata:
         assert result["sample_count"] == 275
         assert "GRU" in result["limitations_for_reuse"]
         assert "WGS" in result["assay_method"]
+
+
+# ============================================================
+# clean_newlines / clean_html_entities
+# ============================================================
+
+class TestCleanNewlines:
+    """Tests for newline removal on default pandas string columns."""
+
+    def test_removes_newlines_from_default_string_dtype(self):
+        df = pd.DataFrame({"col": ["line\none", None]})
+        result = clean_newlines(df)
+        assert result.iloc[0]["col"] == "lineone"
+        assert pd.isna(result.iloc[1]["col"])
+
+
+class TestCleanHtmlEntities:
+    """Tests for HTML entity decoding of dbGaP API values."""
+
+    def test_decodes_default_string_dtype_and_excludes_columns(self):
+        """Regression: pandas 3 text columns are StringDtype, not object."""
+        df = pd.DataFrame({
+            "name": ["Children&#39;s Oncology Group"],
+            "principal_investigator": ["Juan Mej&#237;a-Arangure"],
+            "description": ["Keep &#39; encoded"],
+            "other": [None],
+        })
+        result = clean_html_entities(df, exclude_cols=["description"])
+        assert result.iloc[0]["name"] == "Children's Oncology Group"
+        # Intermediate CSV keeps í; packaging keeps it outside ASCII_ONLY_COLS
+        assert result.iloc[0]["principal_investigator"] == (
+            "Juan Mej\u00eda-Arangure")
+        assert result.iloc[0]["description"] == "Keep &#39; encoded"
+        assert pd.isna(result.iloc[0]["other"])
+
+    def test_decodes_nested_entities_and_excludes_columns(self):
+        df = pd.DataFrame({
+            "name": ["&amp;#945;-helix"],
+            "description": ["&amp;#945;-helix"],
+        })
+        result = clean_html_entities(df, exclude_cols=["description"])
+        assert result.iloc[0]["name"] == "\u03b1-helix"
+        assert result.iloc[0]["description"] == "&amp;#945;-helix"
+
+    @pytest.mark.parametrize("value, expected", [
+        ("&amp;amp;#946;-catenin", "\u03b2-catenin"),
+        # Regression: repeated full unescaping turned &region into ®ion
+        ("https://example.org/search?id=1&amp;amp;region=Europe",
+         "https://example.org/search?id=1&region=Europe"),
+        ("https://example.org/?id=1&region=EU&not=1&copy=2&lt=3",
+         "https://example.org/?id=1&region=EU&not=1&copy=2&lt=3"),
+        ("&amp;#945;-helix at https://x.org/?a=1&amp;reg=2",
+         "\u03b1-helix at https://x.org/?a=1&reg=2"),
+        ("Keep &notanentity; and R&D", "Keep &notanentity; and R&D"),
+    ])
+    def test_nested_entities_and_escaped_urls(self, value, expected):
+        df = pd.DataFrame({"external_study_url": [value]})
+        result = clean_html_entities(df)
+        assert result.iloc[0]["external_study_url"] == expected
 
 
 # ============================================================

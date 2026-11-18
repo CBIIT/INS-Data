@@ -140,6 +140,43 @@ class TestReadResources:
         # Extra column values are excluded from the returned rows
         assert "bonus_column" not in rows[0]
 
+    def test_ignores_empty_trailing_columns(self, tmp_path):
+        """Blank trailing tabs are ignored when their header has no values."""
+        row = _make_row()
+        path = str(tmp_path / "trailing_empty_column.tsv")
+        _write_tsv(path, [row], columns=EXPECTED_COLUMNS + [""])
+
+        rows, extra = read_resources(path)
+
+        assert len(rows) == 1
+        assert extra == []
+
+    def test_reports_populated_unnamed_trailing_column(self, tmp_path):
+        """A trailing empty header is retained when it contains data."""
+        row = _make_row()
+        row[""] = "unexpected"
+        path = str(tmp_path / "populated_unnamed_column.tsv")
+        _write_tsv(path, [row], columns=EXPECTED_COLUMNS + [""])
+
+        rows, extra = read_resources(path)
+
+        assert len(rows) == 1
+        assert extra == ["(unnamed column)"]
+
+    def test_reports_overflow_beyond_unnamed_trailing_column(self, tmp_path):
+        """Overflow data beyond a blank unnamed cell keeps the column flagged."""
+        row = _make_row()
+        path = str(tmp_path / "overflow_after_unnamed_column.tsv")
+        with open(path, "w", newline="", encoding="utf-8") as fh:
+            fh.write("\t".join(EXPECTED_COLUMNS + [""]) + "\n")
+            values = [row[col] for col in EXPECTED_COLUMNS]
+            fh.write("\t".join(values + ["", "overflow"]) + "\n")
+
+        rows, extra = read_resources(path)
+
+        assert len(rows) == 1
+        assert extra == ["(unnamed column)"]
+
     def test_exits_on_missing_column(self, tmp_path):
         """Missing expected columns trigger SystemExit."""
         path = str(tmp_path / "bad.tsv")

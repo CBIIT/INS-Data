@@ -1,0 +1,105 @@
+﻿file,datatype,check,question,status,count
+data/02_output/2026-10-15/gathered-2026-10-16/program.tsv,program,file_encoding,"Is any file not plain UTF-8, or does it start with a byte order mark?",PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/program.tsv,program,replacement_char,Are there any U+FFFD replacement characters (diamond question mark)?,PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/program.tsv,program,garbled_text,Is there garbled text from encoding mix-ups (UTF-8 read as cp1252)?,PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/program.tsv,program,html_entity,Are there HTML codes (e.g. &#237;) outside dataset description and experimental_approaches?,PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/program.tsv,program,html_tag,Are there leftover HTML tags in columns configured for tag removal?,PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/program.tsv,program,unexpected_character,"Are there characters outside the allowed set (ASCII, accented/Greek letters, approved symbols; ASCII only in description fields)?",PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/program.tsv,program,control_character,"Are there hidden control characters (tabs, line breaks) in values?",PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/program.tsv,program,placeholder_char,How many '?' placeholders stand in for a lost character (from source data or Excel corruption)?,PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/grant.tsv,grant,file_encoding,"Is any file not plain UTF-8, or does it start with a byte order mark?",PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/grant.tsv,grant,replacement_char,Are there any U+FFFD replacement characters (diamond question mark)?,PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/grant.tsv,grant,garbled_text,Is there garbled text from encoding mix-ups (UTF-8 read as cp1252)?,PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/grant.tsv,grant,html_entity,Are there HTML codes (e.g. &#237;) outside dataset description and experimental_approaches?,PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/grant.tsv,grant,html_tag,Are there leftover HTML tags in columns configured for tag removal?,PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/grant.tsv,grant,unexpected_character,"Are there characters outside the allowed set (ASCII, accented/Greek letters, approved symbols; ASCII only in description fields)?",PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/grant.tsv,grant,control_character,"Are there hidden control characters (tabs, line breaks) in values?",PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/grant.tsv,grant,placeholder_char,How many '?' placeholders stand in for a lost character (from source data or Excel corruption)?,INFO,118
+data/02_output/2026-10-15/gathered-2026-10-16/project.tsv,project,file_encoding,"Is any file not plain UTF-8, or does it start with a byte order mark?",PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/project.tsv,project,replacement_char,Are there any U+FFFD replacement characters (diamond question mark)?,PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/project.tsv,project,garbled_text,Is there garbled text from encoding mix-ups (UTF-8 read as cp1252)?,PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/project.tsv,project,html_entity,Are there HTML codes (e.g. &#237;) outside dataset description and experimental_approaches?,PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/project.tsv,project,html_tag,Are there leftover HTML tags in columns configured for tag removal?,PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/project.tsv,project,unexpected_character,"Are there characters outside the allowed set (ASCII, accented/Greek letters, approved symbols; ASCII only in description fields)?",PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/project.tsv,project,control_character,"Are there hidden control characters (tabs, line breaks) in values?",PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/project.tsv,project,placeholder_char,How many '?' placeholders stand in for a lost character (from source data or Excel corruption)?,INFO,16
+data/02_output/2026-10-15/gathered-2026-10-16/publication.tsv,publication,file_encoding,"Is any file not plain UTF-8, or does it start with a byte order mark?",PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/publication.tsv,publication,replacement_char,Are there any U+FFFD replacement characters (diamond question mark)?,PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/publication.tsv,publication,garbled_text,Is there garbled text from encoding mix-ups (UTF-8 read as cp1252)?,PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/publication.tsv,publication,html_entity,Are there HTML codes (e.g. &#237;) outside dataset description and experimental_approaches?,PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/publication.tsv,publication,html_tag,Are there leftover HTML tags in columns configured for tag removal?,PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/publication.tsv,publication,unexpected_character,"Are there characters outside the allowed set (ASCII, accented/Greek letters, approved symbols; ASCII only in description fields)?",PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/publication.tsv,publication,control_character,"Are there hidden control characters (tabs, line breaks) in values?",PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/publication.tsv,publication,placeholder_char,How many '?' placeholders stand in for a lost character (from source data or Excel corruption)?,PASS,0
+data/02_output/dbgap/2026-10-02/dbgap_datasets_merged_curated_clean.tsv,dbgap_dataset,file_encoding,"Is any file not plain UTF-8, or does it start with a byte order mark?",PASS,0
+data/02_output/dbgap/2026-10-02/dbgap_datasets_merged_curated_clean.tsv,dbgap_dataset,replacement_char,Are there any U+FFFD replacement characters (diamond question mark)?,PASS,0
+data/02_output/dbgap/2026-10-02/dbgap_datasets_merged_curated_clean.tsv,dbgap_dataset,garbled_text,Is there garbled text from encoding mix-ups (UTF-8 read as cp1252)?,PASS,0
+data/02_output/dbgap/2026-10-02/dbgap_datasets_merged_curated_clean.tsv,dbgap_dataset,html_entity,Are there HTML codes (e.g. &#237;) outside dataset description and experimental_approaches?,PASS,0
+data/02_output/dbgap/2026-10-02/dbgap_datasets_merged_curated_clean.tsv,dbgap_dataset,html_tag,Are there leftover HTML tags in columns configured for tag removal?,PASS,0
+data/02_output/dbgap/2026-10-02/dbgap_datasets_merged_curated_clean.tsv,dbgap_dataset,unexpected_character,"Are there characters outside the allowed set (ASCII, accented/Greek letters, approved symbols; ASCII only in description fields)?",PASS,0
+data/02_output/dbgap/2026-10-02/dbgap_datasets_merged_curated_clean.tsv,dbgap_dataset,control_character,"Are there hidden control characters (tabs, line breaks) in values?",PASS,0
+data/02_output/dbgap/2026-10-02/dbgap_datasets_merged_curated_clean.tsv,dbgap_dataset,placeholder_char,How many '?' placeholders stand in for a lost character (from source data or Excel corruption)?,PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/geo_datasets.tsv,geo_dataset,file_encoding,"Is any file not plain UTF-8, or does it start with a byte order mark?",PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/geo_datasets.tsv,geo_dataset,replacement_char,Are there any U+FFFD replacement characters (diamond question mark)?,PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/geo_datasets.tsv,geo_dataset,garbled_text,Is there garbled text from encoding mix-ups (UTF-8 read as cp1252)?,PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/geo_datasets.tsv,geo_dataset,html_entity,Are there HTML codes (e.g. &#237;) outside dataset description and experimental_approaches?,PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/geo_datasets.tsv,geo_dataset,html_tag,Are there leftover HTML tags in columns configured for tag removal?,PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/geo_datasets.tsv,geo_dataset,unexpected_character,"Are there characters outside the allowed set (ASCII, accented/Greek letters, approved symbols; ASCII only in description fields)?",PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/geo_datasets.tsv,geo_dataset,control_character,"Are there hidden control characters (tabs, line breaks) in values?",PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/geo_datasets.tsv,geo_dataset,placeholder_char,How many '?' placeholders stand in for a lost character (from source data or Excel corruption)?,INFO,12
+data/02_output/2026-10-15/gathered-2026-10-16/sra_datasets.tsv,sra_dataset,file_encoding,"Is any file not plain UTF-8, or does it start with a byte order mark?",PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/sra_datasets.tsv,sra_dataset,replacement_char,Are there any U+FFFD replacement characters (diamond question mark)?,PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/sra_datasets.tsv,sra_dataset,garbled_text,Is there garbled text from encoding mix-ups (UTF-8 read as cp1252)?,PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/sra_datasets.tsv,sra_dataset,html_entity,Are there HTML codes (e.g. &#237;) outside dataset description and experimental_approaches?,PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/sra_datasets.tsv,sra_dataset,html_tag,Are there leftover HTML tags in columns configured for tag removal?,PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/sra_datasets.tsv,sra_dataset,unexpected_character,"Are there characters outside the allowed set (ASCII, accented/Greek letters, approved symbols; ASCII only in description fields)?",PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/sra_datasets.tsv,sra_dataset,control_character,"Are there hidden control characters (tabs, line breaks) in values?",PASS,0
+data/02_output/2026-10-15/gathered-2026-10-16/sra_datasets.tsv,sra_dataset,placeholder_char,How many '?' placeholders stand in for a lost character (from source data or Excel corruption)?,INFO,179
+data/02_output/cedcd/2025-04-24/cedcd_datasets.tsv,cedcd_dataset,file_encoding,"Is any file not plain UTF-8, or does it start with a byte order mark?",PASS,0
+data/02_output/cedcd/2025-04-24/cedcd_datasets.tsv,cedcd_dataset,replacement_char,Are there any U+FFFD replacement characters (diamond question mark)?,PASS,0
+data/02_output/cedcd/2025-04-24/cedcd_datasets.tsv,cedcd_dataset,garbled_text,Is there garbled text from encoding mix-ups (UTF-8 read as cp1252)?,PASS,0
+data/02_output/cedcd/2025-04-24/cedcd_datasets.tsv,cedcd_dataset,html_entity,Are there HTML codes (e.g. &#237;) outside dataset description and experimental_approaches?,PASS,0
+data/02_output/cedcd/2025-04-24/cedcd_datasets.tsv,cedcd_dataset,html_tag,Are there leftover HTML tags in columns configured for tag removal?,PASS,0
+data/02_output/cedcd/2025-04-24/cedcd_datasets.tsv,cedcd_dataset,unexpected_character,"Are there characters outside the allowed set (ASCII, accented/Greek letters, approved symbols; ASCII only in description fields)?",PASS,0
+data/02_output/cedcd/2025-04-24/cedcd_datasets.tsv,cedcd_dataset,control_character,"Are there hidden control characters (tabs, line breaks) in values?",PASS,0
+data/02_output/cedcd/2025-04-24/cedcd_datasets.tsv,cedcd_dataset,placeholder_char,How many '?' placeholders stand in for a lost character (from source data or Excel corruption)?,PASS,0
+data/02_output/dceg_cohorts/2026-10-19/dceg_datasets_curated_clean.tsv,dceg_dataset,file_encoding,"Is any file not plain UTF-8, or does it start with a byte order mark?",PASS,0
+data/02_output/dceg_cohorts/2026-10-19/dceg_datasets_curated_clean.tsv,dceg_dataset,replacement_char,Are there any U+FFFD replacement characters (diamond question mark)?,PASS,0
+data/02_output/dceg_cohorts/2026-10-19/dceg_datasets_curated_clean.tsv,dceg_dataset,garbled_text,Is there garbled text from encoding mix-ups (UTF-8 read as cp1252)?,PASS,0
+data/02_output/dceg_cohorts/2026-10-19/dceg_datasets_curated_clean.tsv,dceg_dataset,html_entity,Are there HTML codes (e.g. &#237;) outside dataset description and experimental_approaches?,PASS,0
+data/02_output/dceg_cohorts/2026-10-19/dceg_datasets_curated_clean.tsv,dceg_dataset,html_tag,Are there leftover HTML tags in columns configured for tag removal?,PASS,0
+data/02_output/dceg_cohorts/2026-10-19/dceg_datasets_curated_clean.tsv,dceg_dataset,unexpected_character,"Are there characters outside the allowed set (ASCII, accented/Greek letters, approved symbols; ASCII only in description fields)?",PASS,0
+data/02_output/dceg_cohorts/2026-10-19/dceg_datasets_curated_clean.tsv,dceg_dataset,control_character,"Are there hidden control characters (tabs, line breaks) in values?",PASS,0
+data/02_output/dceg_cohorts/2026-10-19/dceg_datasets_curated_clean.tsv,dceg_dataset,placeholder_char,How many '?' placeholders stand in for a lost character (from source data or Excel corruption)?,PASS,0
+data/02_output/nccr/2026-10-06/nccr_datasets_curated_clean.tsv,nccr_dataset,file_encoding,"Is any file not plain UTF-8, or does it start with a byte order mark?",PASS,0
+data/02_output/nccr/2026-10-06/nccr_datasets_curated_clean.tsv,nccr_dataset,replacement_char,Are there any U+FFFD replacement characters (diamond question mark)?,PASS,0
+data/02_output/nccr/2026-10-06/nccr_datasets_curated_clean.tsv,nccr_dataset,garbled_text,Is there garbled text from encoding mix-ups (UTF-8 read as cp1252)?,PASS,0
+data/02_output/nccr/2026-10-06/nccr_datasets_curated_clean.tsv,nccr_dataset,html_entity,Are there HTML codes (e.g. &#237;) outside dataset description and experimental_approaches?,PASS,0
+data/02_output/nccr/2026-10-06/nccr_datasets_curated_clean.tsv,nccr_dataset,html_tag,Are there leftover HTML tags in columns configured for tag removal?,PASS,0
+data/02_output/nccr/2026-10-06/nccr_datasets_curated_clean.tsv,nccr_dataset,unexpected_character,"Are there characters outside the allowed set (ASCII, accented/Greek letters, approved symbols; ASCII only in description fields)?",PASS,0
+data/02_output/nccr/2026-10-06/nccr_datasets_curated_clean.tsv,nccr_dataset,control_character,"Are there hidden control characters (tabs, line breaks) in values?",PASS,0
+data/02_output/nccr/2026-10-06/nccr_datasets_curated_clean.tsv,nccr_dataset,placeholder_char,How many '?' placeholders stand in for a lost character (from source data or Excel corruption)?,PASS,0
+data/02_output/dctd/2026-10-14/dctd_datasets_curated_clean.tsv,dctd_dataset,file_encoding,"Is any file not plain UTF-8, or does it start with a byte order mark?",PASS,0
+data/02_output/dctd/2026-10-14/dctd_datasets_curated_clean.tsv,dctd_dataset,replacement_char,Are there any U+FFFD replacement characters (diamond question mark)?,PASS,0
+data/02_output/dctd/2026-10-14/dctd_datasets_curated_clean.tsv,dctd_dataset,garbled_text,Is there garbled text from encoding mix-ups (UTF-8 read as cp1252)?,PASS,0
+data/02_output/dctd/2026-10-14/dctd_datasets_curated_clean.tsv,dctd_dataset,html_entity,Are there HTML codes (e.g. &#237;) outside dataset description and experimental_approaches?,PASS,0
+data/02_output/dctd/2026-10-14/dctd_datasets_curated_clean.tsv,dctd_dataset,html_tag,Are there leftover HTML tags in columns configured for tag removal?,PASS,0
+data/02_output/dctd/2026-10-14/dctd_datasets_curated_clean.tsv,dctd_dataset,unexpected_character,"Are there characters outside the allowed set (ASCII, accented/Greek letters, approved symbols; ASCII only in description fields)?",PASS,0
+data/02_output/dctd/2026-10-14/dctd_datasets_curated_clean.tsv,dctd_dataset,control_character,"Are there hidden control characters (tabs, line breaks) in values?",PASS,0
+data/02_output/dctd/2026-10-14/dctd_datasets_curated_clean.tsv,dctd_dataset,placeholder_char,How many '?' placeholders stand in for a lost character (from source data or Excel corruption)?,PASS,0
+data/02_output/ctd2/2025-12-01/ctd2_datasets_curated.tsv,ctd2_dataset,file_encoding,"Is any file not plain UTF-8, or does it start with a byte order mark?",PASS,0
+data/02_output/ctd2/2025-12-01/ctd2_datasets_curated.tsv,ctd2_dataset,replacement_char,Are there any U+FFFD replacement characters (diamond question mark)?,PASS,0
+data/02_output/ctd2/2025-12-01/ctd2_datasets_curated.tsv,ctd2_dataset,garbled_text,Is there garbled text from encoding mix-ups (UTF-8 read as cp1252)?,PASS,0
+data/02_output/ctd2/2025-12-01/ctd2_datasets_curated.tsv,ctd2_dataset,html_entity,Are there HTML codes (e.g. &#237;) outside dataset description and experimental_approaches?,PASS,0
+data/02_output/ctd2/2025-12-01/ctd2_datasets_curated.tsv,ctd2_dataset,html_tag,Are there leftover HTML tags in columns configured for tag removal?,PASS,0
+data/02_output/ctd2/2025-12-01/ctd2_datasets_curated.tsv,ctd2_dataset,unexpected_character,"Are there characters outside the allowed set (ASCII, accented/Greek letters, approved symbols; ASCII only in description fields)?",PASS,0
+data/02_output/ctd2/2025-12-01/ctd2_datasets_curated.tsv,ctd2_dataset,control_character,"Are there hidden control characters (tabs, line breaks) in values?",PASS,0
+data/02_output/ctd2/2025-12-01/ctd2_datasets_curated.tsv,ctd2_dataset,placeholder_char,How many '?' placeholders stand in for a lost character (from source data or Excel corruption)?,PASS,0
+data/02_output/ctd2/2025-12-01/ctd2_filedata.tsv,file,file_encoding,"Is any file not plain UTF-8, or does it start with a byte order mark?",PASS,0
+data/02_output/ctd2/2025-12-01/ctd2_filedata.tsv,file,replacement_char,Are there any U+FFFD replacement characters (diamond question mark)?,PASS,0
+data/02_output/ctd2/2025-12-01/ctd2_filedata.tsv,file,garbled_text,Is there garbled text from encoding mix-ups (UTF-8 read as cp1252)?,PASS,0
+data/02_output/ctd2/2025-12-01/ctd2_filedata.tsv,file,html_entity,Are there HTML codes (e.g. &#237;) outside dataset description and experimental_approaches?,PASS,0
+data/02_output/ctd2/2025-12-01/ctd2_filedata.tsv,file,html_tag,Are there leftover HTML tags in columns configured for tag removal?,PASS,0
+data/02_output/ctd2/2025-12-01/ctd2_filedata.tsv,file,unexpected_character,"Are there characters outside the allowed set (ASCII, accented/Greek letters, approved symbols; ASCII only in description fields)?",PASS,0
+data/02_output/ctd2/2025-12-01/ctd2_filedata.tsv,file,control_character,"Are there hidden control characters (tabs, line breaks) in values?",PASS,0
+data/02_output/ctd2/2025-12-01/ctd2_filedata.tsv,file,placeholder_char,How many '?' placeholders stand in for a lost character (from source data or Excel corruption)?,PASS,0

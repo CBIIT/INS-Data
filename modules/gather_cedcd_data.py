@@ -71,11 +71,12 @@ def clean_newlines(df, exclude_cols=None):
         if col in exclude_cols:
             continue
             
-        # Only process string/object columns
-        if df_clean[col].dtype == 'object':
-            # Convert to string and process each value
-            df_clean[col] = df_clean[col].astype(str).map(
-                lambda x: x.replace('\r\n', ' ')
+        # Only process string/object columns (pandas 3 uses StringDtype)
+        if (pd.api.types.is_object_dtype(df_clean[col])
+                or pd.api.types.is_string_dtype(df_clean[col])):
+            df_clean[col] = df_clean[col].map(
+                lambda x: x if not isinstance(x, str) else
+                          x.replace('\r\n', ' ')
                            .replace('\n', ' ')
                            .replace('\r', ' ')
                            .replace('\\n', ' ')  # Handle escaped newlines

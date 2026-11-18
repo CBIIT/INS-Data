@@ -67,8 +67,9 @@ The workflow is supported by additional, independent steps run as needed:
 - [Gather dbGaP Datasets](#gather-dbgap-datasets)
 - [Merge Curated dbGaP Datasets](#merge-curated-dbgap-datasets)
 - [Generate dbGaP Subset Clones](#generate-dbgap-subset-clones)
-- [Process Curated Sources (DCEG Cohorts, NCCR)](#process-curated-sources)
+- [Process Curated Sources (DCEG Cohorts, NCCR, DCTD)](#process-curated-sources)
 - [Curate Resources](#curate-resources)
+- [Check URL Health](#check-url-health)
 
 ![INS-Data workflow. This diagram shows a detailed visualization of the steps listed below.](images/ins-data-repo-diagram.png)
 
@@ -419,21 +420,24 @@ NOTE: This module should be run after `gather_dbgap_data.py` has produced a new 
 
 1. **Load old curated and new gathered datasets**
     - Loads the previously curated dbGaP TSV (from the prior release cycle) and the newly gathered dbGaP TSV
-    - Uses `dataset_source_id` (phs accession) as the merge key
+    - Uses the short `dataset_source_id` (for example, `phs002790`) as the stable study identity
+    - Compares `dataset_source_accession` (for example, `phs002790.v7.p1`) to detect a new dbGaP release
 
 2. **Merge datasets**
-    - Rows present in the old curated file are kept as-is, preserving hand-edited values and existing UUIDs
-    - Rows present only in the new file are appended as new studies requiring curation
-    - Rows present only in the old file are retained with a warning, as they may have been removed from the latest dbGaP search results but should not be silently dropped
-    - Regenerates deterministic UUID5 values on old curated rows to ensure consistency with the current scheme
+    - Merge new and old dbGaP TSVs and assign into groups based on accession changes
+        - `unchanged`: keeps the previously curated row when the full accession has not changed
+        - `updated`: uses the newly gathered row when the full accession has changed
+        - `new`: uses the newly gathered row when the short accession is new
+        - `old_only`: keeps the previously curated row when the study is absent from the new gathering
+    - Uses deterministic UUID5 values based on the short `dataset_source_id` and `dataset_source_repo`, so dbGaP studies retain their UUID across accession versions.
 
-3. **Detect and review title changes**
-    - Identifies studies where the title differs between the old and new datasets
-    - On the first run, exports a review CSV (`merge_title_review.csv`) for the user to indicate whether to accept the new title or keep the old one
-    - On subsequent runs, if a reviewed CSV is found, the user's title decisions are applied automatically
+3. **Prepare curator review**
+    - Adds the `curation_status`, `previous_source_accession`, and `current_source_accession` review columns
+    - Sorts rows as `updated`, `new`, `old_only`, then `unchanged` so studies requiring review appear first
 
 4. **Save merged output**
     - Saves the merged file as `dbgap_datasets_merged.tsv` in the versioned `data/01_intermediate/dbgap/` directory
+        - Saved as UTF-8 with a BOM so Excel displays accented letters and symbols correctly
     - The merged file is ready for manual curation before final packaging
 
 ## Generate dbGaP Subset Clones
@@ -499,11 +503,15 @@ NOTE: CTD^2 input data is not expected to change frequently. This module should 
 
 ### DCEG Cohorts
 
-Cohort datasets from the [NCI Division of Cancer Epidemiology and Genetics (DCEG)](https://dceg.cancer.gov/) are included in INS as curated datasets. The curated TSV is placed in a versioned `data/01_intermediate/dceg_cohorts/` directory and the `DCEG_COHORTS_VERSION` in `config.py` should be updated to match.
+Cohort datasets from the [NCI Division of Cancer Epidemiology and Genetics (DCEG)](https://dceg.cancer.gov/research/who-we-study/cohorts) are included in INS as curated datasets. The curated TSV is placed in a versioned `data/01_intermediate/dceg_cohorts/` directory and the `DCEG_COHORTS_VERSION` in `config.py` should be updated to match.
 
 ### NCCR Data Platform
 
-Datasets from the [NCI Center for Cancer Research (NCCR)](https://nccr.cancer.gov/) Data Platform are included in INS as curated datasets. The curated TSV is placed in a versioned `data/01_intermediate/nccr/` directory and the `NCCR_VERSION` in `config.py` should be updated to match.
+Datasets from the [NCI Childhood Cancer Data Initiative (CCDI) National Childhood Cancer Registry (NCCR) Data Platform](https://nccrdataplatform.ccdi.cancer.gov/home) are included in INS as curated datasets. The curated TSV is placed in a versioned `data/01_intermediate/nccr/` directory and the `NCCR_VERSION` in `config.py` should be updated to match.
+
+### DCTD Datasets
+
+Datasets from the [NCI Division of Cancer Treatment and Diagnosis (DCTD)](https://dctd.cancer.gov/data-tools-biospecimens/data) are included in INS as curated datasets. The curated TSV is placed in a versioned `data/01_intermediate/dctd/` directory and the `DCTD_VERSION` in `config.py` should be updated to match.
 
 ## Curate Resources
 
@@ -551,26 +559,56 @@ All final data packaging steps are handled within the `package_output_data.py` m
 python modules/package_output_data.py
 ```
 
-1. **Finalize columns in output files**
+1. **Load data and scan curated files**
+    - Loads intermediate files from each gathering step. Curated files (dbGaP, SRA, DCEG, NCCR, DCTD, CTD^2) are used when available
+    - Curated files are read in whichever encoding Excel saved them: UTF-16 ("Unicode Text"), UTF-8 with or without BOM ("CSV UTF-8"), or cp1252 ("Text (Tab delimited)")
+    - Scans curated files for damage from Excel saves before any cleaning:
+        - `?` between letters (e.g. `ROR?t`), where Excel replaced a character it could not save
+        - Garbled text (e.g. `cafÃ©`), where UTF-8 text was read as cp1252
+        - U+FFFD (�) replacement characters
+    - Findings are printed and saved to `reports/special_characters/specialCharacterCuratedScan_{date}.csv` with the source file, Excel row, and column so they can be fixed in the curated file. No report is written when nothing is found.
+
+2. **Finalize columns in output files**
     - Adds a `type` column and fills with appropriate values required for data loading(e.g. `program` or `project`)
     - Specifies columns and ordering for all files. These can be configured within `config.py`
 
-2. **Standardize characters**
-    - Normalizes any non-standard characters within data gathered from sources
-    - Characters were normalized using NFKC and then converted to ASCII before saving as UTF-8
+3. **Standardize characters**
+    - Decodes HTML character codes (e.g. `&#237;` to `í`, `&amp;#945;` to `α`). Dataset `description` and `experimental_approaches` fields keep HTML codes for rich-text display
+    - Removes HTML tags (e.g. `<i>`, `<sup>`, `<math xmlns="...">`) from columns listed in `html_tag_cols` in `config.py`, keeping the enclosed text. MathML LaTeX annotations are dropped so formulas are not repeated
+    - Normalizes non-standard characters:
+        - Keeps accented Latin and Greek letters (e.g. `í`, `ł`, `β`) and common scientific symbols (`° ± × µ ≤ ≥`, superscript and subscript digits)
+        - Maps typographic characters to ASCII (e.g. curly and double quotes to `'`, en/em dashes to `-`, non-breaking spaces to spaces)
+        - Replaces tabs and line breaks with a single space and removes other control characters
+        - Replaces U+FFFD replacement characters (�) with a `?` placeholder
+        - Reduces `description` and `experimental_approaches` fields to ASCII
+    - Columns listed in `exclude_special_char_processing` in `config.py` are not normalized
 
-3. **Perform special handling steps**
+4. **Perform special handling steps**
     - Removes any publications with a publication date more than 365 days before the associated project start date
         - This helps to address the over-citation issue occasionally encountered when authors cite inappropriate grant support. See [this 2023 Office of Extramural Research article](https://nexus.od.nih.gov/all/2023/10/05/reminders-about-when-to-cite-an-nih-grant-in-a-paper-overcite-oversight/) for more details on the issue.
         - Any publications removed in this process are saved in a `removedEarlyPublications.csv` in the `reports/../packagingReports` directory.
         - The 365-day buffer can be modified within `config.py`
 
-4. **Validate and save final outputs**
+5. **Validate and save final outputs**
     - Validates that files do not contain duplicates or other inconsistencies
         - NOTE: Nodes with many-to-many relationships (e.g. `publications`) will have duplicate records where all values are identical **except** for the linking column (e.g. `project.project_id`). This is intentional.
     - Validates that all list-like columns are separated by semicolons
     - Generates a list of enumerated values for each column specified in `config.py`. These can be used to update the [INS Data Model](https://github.com/CBIIT/ins-model) before loading.
     - Saves all final outputs as TSV files in the `data/02_output` directory. These are ready for INS data loading.
+
+6. **Check special characters in final outputs**
+    - Scans every packaged TSV and prints a result for each question. Any "yes" is a **FAIL**, except the placeholder count, which is **INFO** only:
+        - Is any file not plain UTF-8, or does it start with a byte order mark?
+        - Are there any U+FFFD replacement characters (diamond question mark)?
+        - Is there garbled text from encoding mix-ups (UTF-8 read as cp1252)?
+        - Are there HTML codes (e.g. `&#237;`) outside dataset `description` and `experimental_approaches`?
+        - Are there leftover HTML tags in columns configured for tag removal?
+        - Are there characters outside the allowed set (ASCII, accented/Greek letters, approved symbols; ASCII only in description fields)?
+        - Are there hidden control characters (tabs, line breaks) in values?
+        - How many `?` placeholders stand in for a lost character (from source data or Excel corruption)?
+    - Saves `specialCharacterOutputSummary_{date}.csv` (one row per file and check) and `specialCharacterOutputDetails_{date}.csv` (one row per finding, with record ID, Excel row, column, and snippet) in `reports/special_characters/`
+    - No reports are written when nothing is found, and any earlier same-day reports are removed
+    - Findings do not stop packaging. Review any FAIL results before loading.
 
 ## Validate Data
 
@@ -603,6 +641,41 @@ python modules/build_validation_file.py
 
 5. **Format and save all tables to Excel as separate tabs**
     - Excel file is saved in the versioned `reports/` directory with a timestamp noting when it was generated
+
+## Check URL Health
+
+**This independent QA step checks the external links in output TSVs before they are loaded to the site.** Broken or suspicious URLs are reported as Red / Yellow / Green so they can be fixed at the source.
+
+### URL Health Workflow
+
+All URL checks are handled within the `check_url_health.py` module and can be run as an independent process with the command:
+
+```bash
+python modules/check_url_health.py
+```
+
+NOTE: Run this **after** packaging so the newest output files are checked. Requests are sequential, so runtime scales with the number of unique URLs.
+
+1. **Collect URLs from configured files**
+    - Reads each TSV and URL column listed in `URL_HEALTH_TARGETS` in `config.py`
+        - dbGaP, GEO, and SRA outputs are omitted by default because they contain thousands of templated URLs with little added value. Uncomment them in `config.py` to include them.
+    - Splits semicolon-separated values, trims whitespace, and skips blanks
+    - Checks each unique URL only once and tracks every file, column, and row where it appears
+    - The resources target always points to the newest `resources_{date}_processed.tsv` unless `RESOURCES_VERSION` is set in `config.py`
+
+2. **Check each URL**
+    - Sends a `HEAD` request, falling back to `GET` if the server rejects `HEAD`
+    - Follows redirects one hop at a time and records the full redirect chain, final URL, status, response time, and any connection error
+
+3. **Classify each URL**
+    - **Red (broken)**: 4xx/5xx status, DNS failure, timeout, refused connection, SSL error, or too many redirects
+    - **Yellow (review)**: cross-domain redirect, redirect to the site homepage, redirect to a different page, long redirect chain, slow response, or a non-200 success status
+    - **Green (healthy)**: 200 status with no redirect, or only a cosmetic redirect (`http` to `https`, added/removed `www.` or trailing slash)
+    - Timeout, redirect limits, and the slow-response threshold can be tuned in `config.py`
+
+4. **Report results**
+    - Prints a summary table of Red / Yellow / Green counts by file, followed by flagged URLs grouped by file, class, and issue type
+    - Saves `urlHealthReport_{date}.csv` in `reports/url_health/` with one row per unique URL, sorted Red first
 
 ## How to Use this Repository
 
@@ -736,7 +809,7 @@ python modules/build_validation_file.py
     python modules/merge_curated_dbgap.py
     ```
 
-    - Review the merge output and the title review CSV if generated. Manually curate the merged file as needed and save as `dbgap_datasets_merged_curated.tsv` in the versioned `data/01_intermediate/dbgap/` directory.
+    - Send the merge output to the curator. Review `updated`, `new`, and `old_only` rows, then save the result as `dbgap_datasets_merged_curated.tsv` in the versioned `data/01_intermediate/dbgap/` directory.
     - Run the data packaging module, which will auto-detect and use the curated version if available:
 
     ```bash
@@ -762,7 +835,19 @@ python modules/build_validation_file.py
 10. **Add or update curated source files (optional)**
     - **DCEG Cohorts**: Place the curated TSV as `dceg_datasets_curated.tsv` in a versioned `data/01_intermediate/dceg_cohorts/` directory. Update `DCEG_COHORTS_VERSION` in `config.py`.
     - **NCCR Data Platform**: Place the curated TSV as `nccr_datasets_curated.tsv` in a versioned `data/01_intermediate/nccr/` directory. Update `NCCR_VERSION` in `config.py`.
+    - **DCTD Datasets**: Place the curated TSV as `dctd_datasets_curated.tsv` in a versioned `data/01_intermediate/dctd/` directory. Update `DCTD_VERSION` in `config.py`.
     - Curated sources are processed automatically during the [Package Data](#package-data) step.
+    - When saving curated TSVs from Excel, use **Unicode Text** to keep all characters. **Text (Tab delimited)** replaces characters such as `β` or `≤` with `?`.
+    - After packaging, review any reports in `reports/special_characters/` and fix flagged values in the curated files.
+
+11. **Check URL health before loading (optional)**
+    - Review `URL_HEALTH_TARGETS` in `config.py` and run the URL health check against the packaged outputs:
+
+    ```bash
+    python modules/check_url_health.py
+    ```
+
+    - Review Red and Yellow URLs in the console summary or `reports/url_health/urlHealthReport_{date}.csv` and fix them in the source data as needed
 
 ## Testing
 

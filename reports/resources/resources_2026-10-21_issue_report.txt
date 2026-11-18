@@ -1,0 +1,64 @@
+======================================================================
+  Resources Packaging Issue Report
+  Generated: 2026-10-22 08:07:41
+  Input file: data\01_intermediate\resources\resources_2026-10-21.tsv
+  Rows processed: 269
+======================================================================
+
+No issues found. All checks passed.
+
+----------------------------------------------------------------------
+
+FIELD COMPLETION
+  Field                                Populated  Blank
+  -----------------------------------  ---------  -----
+  type                                       269      0
+  resource_uuid                              269      0
+  resource_source_id                         269      0
+  resource_title                             269      0
+  resource_short_description                 269      0
+  resource_source_url                        269      0
+  resource_tool_type                         269      0
+  resource_tool_subtype                        0    269
+  resource_research_area                     269      0
+  resource_research_type                     213     56
+  resource_access                            267      2
+  resource_doc                               244     25
+  resource_poc_email                         130    139
+  resource_poc_name                          102    167
+  resource_full_description                  269      0
+
+EXPECTED FACET FILTER COUNTS
+
+  resource_tool_type  (11 unique values):
+       148  Analytic Tool
+        25  Knowledgebase
+        24  Other - Lab Resources
+        24  Other - Guidance and SOPs
+        17  Catalog
+        13  Data Repository (NCI)
+         9  Biorepository
+         8  Data Repository (NIH)
+         7  Data Repository (External)
+         2  Other - Reports and Fact Sheets
+         1  Registry
+
+  resource_research_area  (17 unique values):
+       104  Cancer Biology
+        86  Cancer Treatment
+        81  Cancer Omics
+        37  Causes of Cancer
+        32  Screening and Detection
+        32  Bioinformatics
+        27  Cancer Health Disparities
+        26  Cancer Public Health
+        24  Cancer Diagnosis
+        22  Cancer Prevention
+        18  Cancer Survivorship
+        17  Cancer Statistics
+        12  Genomics Data
+         7  Generalist Data Repository
+         5  Clinical Data
+         4  Proteomics Data
+         2  Imaging Data
+

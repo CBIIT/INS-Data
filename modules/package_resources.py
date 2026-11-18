@@ -147,6 +147,19 @@ def read_resources(filepath: str) -> tuple[list[dict], list[str]]:
     reader = csv.DictReader(content.splitlines(), delimiter="\t")
     input_columns = list(reader.fieldnames or [])
 
+    # Ignore trailing empty headers only when their entire columns are blank.
+    records = list(csv.reader(content.splitlines(), delimiter="\t"))
+    while input_columns and not (input_columns[-1] or "").strip():
+        column_index = len(input_columns) - 1
+        if any(
+            cell.strip()
+            for record in records[1:]
+            for cell in record[column_index:]
+        ):
+            break
+        input_columns.pop()
+    reader.fieldnames = input_columns
+
     # Check for missing expected columns
     missing_cols = [c for c in EXPECTED_COLUMNS if c not in input_columns]
     if missing_cols:
@@ -156,7 +169,10 @@ def read_resources(filepath: str) -> tuple[list[dict], list[str]]:
         sys.exit(1)
 
     # Identify extra columns
-    extra_cols = [c for c in input_columns if c not in EXPECTED_COLUMNS]
+    extra_cols = [
+        c if c.strip() else "(unnamed column)"
+        for c in input_columns if c not in EXPECTED_COLUMNS
+    ]
 
     # Read rows, stripping whitespace from all values
     rows: list[dict] = []

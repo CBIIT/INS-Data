@@ -1,0 +1,32 @@
+full_phs,error_message,error_code,response_code
+phs001052.v3.p1,Bad Gateway server error (502 Error),NA,502
+phs003501.v1.p1,Bad Gateway server error (502 Error),NA,502
+phs003586.v1.p1,Bad Gateway server error (502 Error),NA,502
+phs002288.v1.p1,Bad Gateway server error (502 Error),NA,502
+phs003342.v1.p1,No data found for study with accession phs003342.v1,1,404
+phs000531.v18.p6,No data found for study with accession phs000531.v18,1,404
+phs002434.v1.p1,No data found for study with accession phs002434.v1,1,404
+phs001081.v2.p2,No data found for study with accession phs001081.v2,1,404
+phs002012.v1.p1,No data found for study with accession phs002012.v1,1,404
+phs002011.v1.p1,No data found for study with accession phs002011.v1,1,404
+phs000877.v2.p1,No data found for study with accession phs000877.v2,1,404
+phs001499.v1.p1,No data found for study with accession phs001499.v1,1,404
+phs001589.v1.p1,No data found for study with accession phs001589.v1,1,404
+phs001263.v1.p1,No data found for study with accession phs001263.v1,1,404
+phs000604.v1.p1,No data found for study with accession phs000604.v1,1,404
+phs004881.v1.p1,No data found for study with accession phs004881.v1,1,404
+phs004832.v1.p1,No data found for study with accession phs004832.v1,1,404
+phs004823.v1.p1,No data found for study with accession phs004823.v1,1,404
+phs004771.v1.p1,No data found for study with accession phs004771.v1,1,404
+phs004766.v1.p1,No data found for study with accession phs004766.v1,1,404
+phs004729.v1.p1,No data found for study with accession phs004729.v1,1,404
+phs004632.v1.p1,No data found for study with accession phs004632.v1,1,404
+phs004616.v1.p1,No data found for study with accession phs004616.v1,1,404
+phs003956.v1.p1,No data found for study with accession phs003956.v1,1,404
+phs003728.v1.p1,No data found for study with accession phs003728.v1,1,404
+phs003023.v2.p1,No data found for study with accession phs003023.v2,1,404
+phs002712.v1.p1,No data found for study with accession phs002712.v1,1,404
+phs002223.v1.p1,No data found for study with accession phs002223.v1,1,404
+phs000696.v1.p1,No data found for study with accession phs000696.v1,1,404
+phs000329.v1.p1,No data found for study with accession phs000329.v1,1,404
+phs000124.v3.p1,No data found for study with accession phs000124.v3,1,404
